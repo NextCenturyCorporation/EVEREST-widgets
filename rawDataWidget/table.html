@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="utf-8">
+	<title>EVEREST Raw Data Table</title>
+</head>
+
+<style>
+#raw_data {
+	border-color:#00f;
+	border-width:3px;
+	border-collapse:collapse;
+}
+td {
+	padding:0px 15px 0px 5px;
+}
+th {
+	cursor: pointer;
+	padding:10px;
+	text-align:left;
+}
+table {
+	font-size:15px;
+}
+</style>
+<body>
+
+<div id="owf"></div>
+<table border="1" id='raw_data'></table>
+<form>
+	Start Date: <input type="text" name="start" id="start">
+	End Date: <input type="text" name="end" id="end">
+	<input type="button" value="Submit" id="submit">
+</form>
+
+<script src="js/underscore.js"></script>
+<script src="js/jquery.js"></script>
+<script src="js/backbone.js"></script>
+<script src="js/d3.v3.js"></script>
+<script src="js/table.js"></script>
+<script type="text/javascript" src="http://everest-build/owf-sample-html/js/owf-widget-debug.js"></script>
+<script>
+	
+	var logger, appender;
+	if (window.owfdojo){
+		var logger = OWF.Log.getDefaultLogger();
+		var appender = logger.getEffectiveAppenders()[0];
+		appender.setThreshold(log4javascript.Level.INFO);
+		
+		OWF.Log.setEnabled(true);
+		
+		 owfdojo.ready(function() {
+			OWF.ready(function(){
+				OWF.notifyWidgetReady();
+				//OWF.ready(initPage);
+				
+			});	
+		});	
+	}
+	
+	var msg = 'Running in OWF: ' + (OWF.Util.isRunningInOWF()?"Yes":"No");
+    document.getElementById("owf").innerHTML = msg;
+    document.getElementById("owf").style.display = 'block';
+    
+    OWF.relayFile = './rpc_relay.uncompressed.html';
+    
+	d3.json('./raw_data.txt', function(text){								//JSON
+	
+		datas = text;														//JSON
+		var t = d3.select("#raw_data");
+		
+		createHeaders(Object.keys(datas[0]));								//JSON
+		table = createTable(MIN,MAX);
+		createClickers();
+		
+		setInterval(function(){
+			apple = table.getTimes();
+			for (i = 0; i< apple.length; i++){
+				apple[i] = Date.parse(apple[i]);
+			}
+			OWF.Eventing.publish("testChannel1", JSON.stringify(apple));
+		}, 10000);
+		
+		OWF.Eventing.subscribe("testChannel2", function(sender, msg){
+			//assuming msg looks like [a,b]
+			//var range = msg.split(',');
+			//table = createTable(parseInt(range[0], 10),parseInt(range[1], 10));
+			console.log(msg);
+		});
+	
+	});
+    
+</script>
+</body>
+</html>
