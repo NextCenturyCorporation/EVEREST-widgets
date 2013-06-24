@@ -2,28 +2,9 @@
 <head>
 	<meta charset="utf-8">
 	<title>EVEREST Raw Data Table</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
-
-<style>
-#raw_data {
-	border-color:#00f;
-	border-width:3px;
-	border-collapse:collapse;
-}
-td {
-	padding:0px 15px 0px 5px;
-}
-th {
-	cursor: pointer;
-	padding:10px;
-	text-align:left;
-}
-table {
-	font-size:15px;
-}
-</style>
 <body>
-
 <div id="owf"></div>
 <table border="1" id='raw_data'></table>
 <form>
@@ -39,29 +20,7 @@ table {
 <script src="js/table.js"></script>
 <script type="text/javascript" src="http://everest-build/owf-sample-html/js/owf-widget-debug.js"></script>
 <script>
-	
-	var logger, appender;
-	if (window.owfdojo){
-		var logger = OWF.Log.getDefaultLogger();
-		var appender = logger.getEffectiveAppenders()[0];
-		appender.setThreshold(log4javascript.Level.INFO);
-		
-		OWF.Log.setEnabled(true);
-		
-		 owfdojo.ready(function() {
-			OWF.ready(function(){
-				OWF.notifyWidgetReady();
-				//OWF.ready(initPage);
-				
-			});	
-		});	
-	}
-	
-	var msg = 'Running in OWF: ' + (OWF.Util.isRunningInOWF()?"Yes":"No");
-    document.getElementById("owf").innerHTML = msg;
-    document.getElementById("owf").style.display = 'block';
-    
-    OWF.relayFile = './rpc_relay.uncompressed.html';
+
     
 	d3.json('./raw_data.txt', function(text){								//JSON
 	

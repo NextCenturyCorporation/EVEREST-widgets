@@ -1,0 +1,16 @@
+#raw_data {
+	border-color:#00f;
+	border-width:3px;
+	border-collapse:collapse;
+}
+td {
+	padding:0px 15px 0px 5px;
+}
+th {
+	cursor: pointer;
+	padding:10px;
+	text-align:left;
+}
+table {
+	font-size:15px;
+}

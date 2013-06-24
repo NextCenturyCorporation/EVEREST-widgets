@@ -80,8 +80,6 @@ var TableView = Backbone.View.extend({
 	
 });
 
-
-
 /*Create the table based on start and end params, atm creates an
 entirely new table, probs want to just re-render it on change of input
 or addition of new data*/
@@ -105,21 +103,11 @@ function createClickers(){
 			if (this.className == "up"){
 				d3.selectAll("th").attr("class","unsorted");
 				this.className = "down";
-				temp.sort( function (a, b){ 
-					if ( a[col] < b[col] )
-						return 1;
-					else
-						return -1;
-				});
+				temp.sort( function (a, b){ return a[col] < b[col] ? 1 : -1; });
 			} else {
 				d3.selectAll("th").attr("class","unsorted");
 				this.className = "up";
-				temp.sort( function (a, b){ 
-					if( a[col] > b[col] )
-						return 1;
-					else 
-						return -1;
-				});
+				temp.sort( function (a, b){ return a[col] > b[col] ? 1 : -1; });
 			}
 			table = new TableView(temp);
 		});
@@ -139,9 +127,11 @@ function createClickers(){
 			e = Date.parse(e);
 			
 			if (s && e && s <= e)
-				table = createTable(s,e);
+				createTable(s,e);
 			else
-				table = createTable(MIN,MAX);
+				createTable(MIN,MAX);
+			
+			d3.selectAll("th").attr("class","unsorted");
 		});
 }
 
