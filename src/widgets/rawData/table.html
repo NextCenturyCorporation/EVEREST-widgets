@@ -5,22 +5,20 @@
 	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-<div id="owf"></div>
-<table border="1" id='raw_data'></table>
-<form>
-	Start Date: <input type="text" name="start" id="start">
-	End Date: <input type="text" name="end" id="end">
-	<input type="button" value="Submit" id="submit">
-</form>
-
-<script src="../../../lib/underscore.js"></script>
-<script src="../../../lib/jquery-2.0.2.js"></script>
-<script src="../../../lib/backbone.js"></script>
-<script src="../../../lib/d3.v3.js"></script>
-<script src="../../../lib/owf-widget-debug.js"></script>
-<script src="./js/table.js"></script>
-<script>
-	$(execute);
-</script>
+	<div id="hold">
+	<img src="img/next_century_tr_smaller.png" id="title">
+	<table border="1" id='raw_data'></table>
+		<div id="inputs">
+			Start Date: <input type="text" name="start" id="start">
+			End Date: <input type="text" name="end" id="end">
+			<input type="button" value="Submit" id="submit">
+		</div>
+	</div>
+	<script src="js/underscore.js"></script>
+	<script src="js/jquery.js"></script>
+	<script src="js/backbone.js"></script>
+	<script src="js/d3.v3.js"></script>
+	<script src="js/table.js"></script>
+	<script type="text/javascript" src="http://everest-build/owf-sample-html/js/owf-widget-debug.js"></script>
 </body>
 </html>
