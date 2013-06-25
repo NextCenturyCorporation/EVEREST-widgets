@@ -65,7 +65,6 @@ var check = function check(key){
 					i++;
 					return true;					
 				} 
-				i++;
-				return false;		
 		}	
+		return false;		
 }
