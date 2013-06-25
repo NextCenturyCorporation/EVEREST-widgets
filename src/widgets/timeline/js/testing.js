@@ -68,6 +68,7 @@ var send = function send(){
 
 	year = "20" + year.substr(1,year.length);
 
+	var date1 = new Date();
 	date1.setFullYear(year, month, day);
 	date1.setHours(0);
 	date1.setMinutes(0);
