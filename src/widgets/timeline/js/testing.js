@@ -26,13 +26,14 @@ var add = function add(sender, msg){
 		if (day < 10){
 			day = "0" + day;			
 		}
-		year = year.substr(1,year.length);
+		year = "20" + year.substr(1);
 		var date = year + month + day;
 		console.log(date);
 		var key = objs[i];
 		var checkResult = check(key, date);
 		
 		if(checkResult == 0){		
+			console.log("creating new: " + date);
 			var bar = document.createElement("span");
 			bar.className = "element";
 			bar.style.height = 30 + "px";
@@ -44,6 +45,7 @@ var add = function add(sender, msg){
 		} else if (checkResult == -1) {
 				//do nothing
 		} else {
+			console.log("updating old: " + date);
 			var h = checkResult.style.height;		
 			checkResult.style.height = (parseInt(h.substr(0,2)) + 10) + "px";
 			checkResult.keys.push(key);
@@ -64,21 +66,7 @@ var add = function add(sender, msg){
 
 var send = function send(){
 	var date = this.id;
-	// yymmdd 012345
-	var year = date.substr(0,2);
-	var month = date.substr(2,3);
-	var day = date.substr(4);
-
-	year = "20" + year;
-
-	var date1 = year + "," + month + "," + day;
-	var date2 = year + "," + month + "," + (parseInt(day) + 1);
-
-//	var d1 = date1.parse();
-//	var d2 = date2.parse();
-
-	var range = "[" + date +"]";
-	OWF.Eventing.publish("testChannel2", range);
+	OWF.Eventing.publish("testChannel2", date);
 
 }
 
@@ -92,7 +80,6 @@ var check = function check(key, date){
 								return -1;								
 								}
 						}
-					OWF.Eventing.publish("testChannel3", "changing " + date);	
 					return bars[i];			
 				} 
 		}	
