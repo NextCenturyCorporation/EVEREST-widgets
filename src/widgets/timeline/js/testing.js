@@ -30,6 +30,7 @@ var add = function add(sender, msg){
 		if (day < 10){
 			day = "0" + day;			
 		}
+		year = year.substr(1,year.length);
 
 		var key = year + month + day;
 		console.log(key);

@@ -30,6 +30,7 @@ var add = function add(sender, msg){
 		if (day < 10){
 			day = "0" + day;			
 		}
+		year = year.substr(1);
 
 		var key = year + month + day;
 		console.log(key);
@@ -47,7 +48,7 @@ var add = function add(sender, msg){
 			events.push(key);		 	
 		}
 	}
-			bars.sort(function(a,b) {return a.id - b.id});
+			bars.sort(function(a,b) {return a.key - b.key});
 			var container = document.getElementById("container");
 			var current = container.childNodes;
 			
