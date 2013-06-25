@@ -37,9 +37,12 @@ var add = function add(sender, msg){
 			bar.id = objs[i];
 			bar.onclick = send;
 			bar.key = key;
-			bars.push(bar);			
+			bar.newBar = true;		
+			bars.push(bar);
+	
 	 	
 		} else {
+			
 			var h = checkResult.style.height;		
 			checkResult.style.height = (parseInt(h.substr(0,2)) + 10) + "px";
 		}
@@ -50,7 +53,10 @@ var add = function add(sender, msg){
 	var current = container.childNodes;
 	
 	for(var i = 0; i < bars.length; i++){
+	
+		bars[i].newBar = false;
 		container.appendChild(bars[i]);
+
 	}
 
 };
