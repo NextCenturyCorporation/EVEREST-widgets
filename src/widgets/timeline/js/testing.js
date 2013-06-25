@@ -68,7 +68,7 @@ var send = function send(){
 	date1.setHours(0);
 	date1.setSeconds(0);
 	date1.setMilliseconds(0);
-	var date2 = date1;
+	var date2 = new Date(parseInt(this.keys[0]));
 	date2.setDate(date2.getDate() + 1);
 	OWF.Eventing.publish("testChannel2", "["+date1.toString()+","+date2.toString()+"]");
 
