@@ -32,14 +32,15 @@ var add = function add(sender, msg){
 			var bar = document.createElement("span");
 			bar.className = "element";
 			bar.style.height = 10 + "px";
-			bar.id = key;
+			bar.id = objs[i];
 			bar.onclick = send;
 		 	container.insertBefore(bar, current[0]);
 	}
 };
 
 var send = function send(){
-	OWF.Eventing.publish("testChannel2", new Date(this.id));
+	var date = new Date(parseInt(this.id));
+	OWF.Eventing.publish("testChannel2", date);
 
 }
 
