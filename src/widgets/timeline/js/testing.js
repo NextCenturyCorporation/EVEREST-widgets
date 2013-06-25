@@ -30,6 +30,7 @@ var add = function add(sender, msg){
 		}
 
 		var key = year + month + day;
+		console.log("key to check: " + key);
 		if(!check(key)){		
 		
 			var container = document.getElementById("container");

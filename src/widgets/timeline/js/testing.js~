@@ -4,7 +4,7 @@ OWF.relayFile = '/owf-sample-html/js/eventing/rpc_relay.uncompressed.html';
 	var events = [];
 // Get an array of timestamps from Ashley
 function init() {
-	OWF.Eventing.subscribe("testChannel1", this.add);		
+	OWF.Eventing.subscribe("testChannel3", this.add);		
 
 }
 // For each item in the array:
