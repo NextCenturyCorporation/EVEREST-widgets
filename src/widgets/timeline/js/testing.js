@@ -82,7 +82,7 @@ var send = function send(){
 //	var d1 = date1.parse();
 //	var d2 = date2.parse();
 
-	var range = "[" + date1 ", " date2 +"]";
+	var range = "[" + date1 + ", " + date2 +"]";
 	OWF.Eventing.publish("testChannel2", range);
 
 }
