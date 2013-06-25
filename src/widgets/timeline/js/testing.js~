@@ -18,17 +18,17 @@ var add = function add(sender, msg){
 	objs = objs.split(",");
 	
 	for (var i = 0; i < objs.length; i++){
+				var time = new Date(parseInt(objs[i]));
+		var month = time.getMonth().toString();
+		if (month < 10){
+			month = "0" + month;				
+		}
+		var day = time.getDate().toString();
+		var year = time.getYear().toString();	
+		var key = year + month + day;
 		
 		if(!check(key)){		
-			var time = new Date(parseInt(objs[i]));
-			var month = time.getMonth().toString();
-			if (month < 10){
-				month = "0" + month;				
-			}
-			var day = time.getDate().toString();
-			var year = time.getYear().toString();	
-			var key = year + month + day;
-			
+		
 			var container = document.getElementById("container");
 			var current = container.childNodes;
 
