@@ -64,11 +64,13 @@ var add = function add(sender, msg){
 };
 
 var send = function send(){
-	var date = new Date(this.keys[0]);
-	date.setHours(0);
-	date.setSeconds(0);
-	date.setMilliseconds(0);
-	OWF.Eventing.publish("testChannel2", date.toString());
+	var date1 = new Date(parseInt(this.keys[0]));
+	date1.setHours(0);
+	date1.setSeconds(0);
+	date1.setMilliseconds(0);
+	var date2 = date1;
+	date2.setDate(date2.getDate() + 1);
+	OWF.Eventing.publish("testChannel2", "["+date1.toString()+","+date2.toString()+"]");
 
 }
 
