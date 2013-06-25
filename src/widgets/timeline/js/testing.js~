@@ -27,8 +27,8 @@ var add = function add(sender, msg){
 		if(checkResult == 0){		
 			var bar = document.createElement("span");
 			bar.className = "element";
-			bar.h = 30;
-			bar.style.height = this.h + "px";
+			bar.h = 20;
+			bar.style.height = bar.h + "px";
  	  	bar.id = date;
 			bar.onclick = send;
 			bar.keys = [];
@@ -38,7 +38,7 @@ var add = function add(sender, msg){
 				//do nothing
 		} else {
 			var h = checkResult.h;		
-			checkResult.style.height = (h + 30) + "px";
+			checkResult.style.height = (h + 20) + "px";
 			checkResult.keys.push(key);
 		}
 	}
@@ -70,7 +70,7 @@ var send = function send(){
 
 var check = function check(key, date){
 	for(var i = 0; i < bars.length; i++){
-		console.log(date + " against " + bars[i].id)
+		console.log(date + " against " + bars[i].id);
 				if(bars[i].id === date){
 					for(var k = 0; k < bars[i].keys.length; k++){
 							if(bars[i].keys[k] === key){

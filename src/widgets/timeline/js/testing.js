@@ -19,7 +19,7 @@ var add = function add(sender, msg){
 		time.setSeconds(0);
 		time.setMilliseconds(0);
 		time.setHours(0);
-		var date = time.toString();
+		var date = time;
 		console.log(date);
 		var key = objs[i];
 		var checkResult = check(key, date);
@@ -27,8 +27,8 @@ var add = function add(sender, msg){
 		if(checkResult == 0){		
 			var bar = document.createElement("span");
 			bar.className = "element";
-			bar.h = 30;
-			bar.style.height = this.h + "px";
+			bar.h = 20;
+			bar.style.height = bar.h + "px";
  	  	bar.id = date;
 			bar.onclick = send;
 			bar.keys = [];
@@ -38,7 +38,7 @@ var add = function add(sender, msg){
 				//do nothing
 		} else {
 			var h = checkResult.h;		
-			checkResult.style.height = (h + 30) + "px";
+			checkResult.style.height = (h + 20) + "px";
 			checkResult.keys.push(key);
 		}
 	}
