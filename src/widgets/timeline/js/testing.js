@@ -69,14 +69,9 @@ var send = function send(){
 
 	year = "20" + year;
 
-	var date1 = new Date();
-	date1.setFullYear(year, month, day);
-	date1.setHours(0);
-	date1.setMinutes(0);
-	date1.setSeconds(0);
-	date1.setMilliseconds(0);
-	var date2 = new Date();
-	date2.setFullYear(year, month, day + 1);
+	var date1 = year + "," + month + "," + day;
+	var date2 = year + "," + month + "," + (parseInt(day) + 1);
+
 //	var d1 = date1.parse();
 //	var d2 = date2.parse();
 
