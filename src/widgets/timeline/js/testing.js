@@ -42,7 +42,7 @@ var add = function add(sender, msg){
 	
 	 	
 		} else {
-			if(!checkResult.newBar){
+			if(checkResult.newBar){
 				var h = checkResult.style.height;		
 				checkResult.style.height = (parseInt(h.substr(0,2)) + 10) + "px";
 			}
