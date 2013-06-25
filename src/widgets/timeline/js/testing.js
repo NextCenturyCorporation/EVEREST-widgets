@@ -70,7 +70,7 @@ var send = function send(){
 
 var check = function check(key, date){
 	for(var i = 0; i < bars.length; i++){
-		console.log(date + " against " + bars[i].id)
+		console.log(date + " against " + bars[i].id);
 				if(bars[i].id === date){
 					for(var k = 0; k < bars[i].keys.length; k++){
 							if(bars[i].keys[k] === key){
