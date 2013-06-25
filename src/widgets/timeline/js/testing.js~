@@ -37,16 +37,14 @@ var add = function add(sender, msg){
 			bar.id = date;
 			bar.onclick = send;
 			bar.keys = [];
-			bar.keys.push(key);
-			bar.newBar = true;		
+			bar.keys.push(key);		
 			bars.push(bar);
-	
-	 	
+		} else if (checkResult == -1) {
+				//do nothing
 		} else {
-			if(checkResult.newBar){
-				var h = checkResult.style.height;		
-				checkResult.style.height = (parseInt(h.substr(0,2)) + 10) + "px";
-			}
+			var h = checkResult.style.height;		
+			checkResult.style.height = (parseInt(h.substr(0,2)) + 10) + "px";
+			checkResult.keys.push(key);
 		}
 	}
 	
@@ -56,7 +54,6 @@ var add = function add(sender, msg){
 	
 	for(var i = 0; i < bars.length; i++){
 	
-		bars[i].newBar = false;
 		container.appendChild(bars[i]);
 
 	}
@@ -64,7 +61,10 @@ var add = function add(sender, msg){
 };
 
 var send = function send(){
-	var date = new Date(parseInt(this.id));
+	var date = this.id;
+	var year = date.substr(0,2);
+	var month = date.substr(2,4);
+	var day = date.substr(4,6);
 	var year = date.getYear().toString();
 	year = "20" + year.substr(1,year.length);
 	var month = date.getMonth();
@@ -76,7 +76,7 @@ var send = function send(){
 	date1.setSeconds(0);
 	date1.setMilliseconds(0);
 	var date2 = new Date();
-	date2.setFullYear(parseInt(year), month, day + 1);
+	date2.setFullYear(year, month, day + 1);
 //	var d1 = date1.parse();
 //	var d2 = date2.parse();
 

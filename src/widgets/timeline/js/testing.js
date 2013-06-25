@@ -61,19 +61,20 @@ var add = function add(sender, msg){
 };
 
 var send = function send(){
-	var date = new Date(parseInt(this.id));
-	var year = date.getYear().toString();
+	var date = this.id;
+	var year = date.substr(0,2);
+	var month = date.substr(2,4);
+	var day = date.substr(4,6);
+
 	year = "20" + year.substr(1,year.length);
-	var month = date.getMonth();
-	var day = date.getDate();
-	var date1 = new Date();
+
 	date1.setFullYear(year, month, day);
 	date1.setHours(0);
 	date1.setMinutes(0);
 	date1.setSeconds(0);
 	date1.setMilliseconds(0);
 	var date2 = new Date();
-	date2.setFullYear(parseInt(year), month, day + 1);
+	date2.setFullYear(year, month, day + 1);
 //	var d1 = date1.parse();
 //	var d2 = date2.parse();
 
