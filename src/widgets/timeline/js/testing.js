@@ -16,17 +16,10 @@ var add = function add(sender, msg){
 	
 	for (var i = 0; i < objs.length; i++){
 		var time = new Date(parseInt(objs[i]));
-		var month = time.getMonth().toString();
-		var day = time.getDate().toString();
-		var year = time.getYear().toString();	
-		if (month < 10){
-			month = "0" + month;				
-		}
-		if (day < 10){
-			day = "0" + day;			
-		}
-		year = year.substr(1,year.length);
-		var date = year + month + day;
+		time.setSeconds(0);
+		time.setMilliseconds(0);
+		time.setHours(0);
+		var date = time.parse();
 		var key = objs[i];
 		var checkResult = check(key, date);
 		
@@ -62,15 +55,6 @@ var add = function add(sender, msg){
 
 var send = function send(){
 	var date = this.id;
-	// yymmdd 012345
-	var year = date.substr(0,2);
-	var month = date.substr(2,3);
-	var day = date.substr(4);
-
-	year = "20" + year;
-
-	var date1 = year + "," + month + "," + day;
-	var date2 = year + "," + month + "," + (parseInt(day) + 1);
 
 //	var d1 = date1.parse();
 //	var d2 = date2.parse();
