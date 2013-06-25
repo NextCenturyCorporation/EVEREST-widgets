@@ -1,4 +1,7 @@
 OWF.relayFile = '/owf-sample-html/js/eventing/rpc_relay.uncompressed.html';
+owfdojo.addOnLoad(function(){
+	OWF.ready(init);
+});
 
 var bars = [];
 function init() {
@@ -51,10 +54,15 @@ var add = function add(sender, msg){
 var send = function send(){
 	var date = new Date(parseInt(this.id));
 	var year = date.getYear();
+	year = "20" + year.substr(1,year.length);
 	var month = date.getMonth();
 	var day = date.getDate();
 	var date1 = new Date();
 	date1.setFullYear(year, month, day);
+	date1.setHours(0);
+	date1.setMinutes(0);
+	date1.setSeconds(0);
+	date1.setMilliseconds(0);
 	var date2 = new Date();
 	date2.setFullYear(year, month, day + 1);
 //	var d1 = date1.parse();
@@ -65,9 +73,7 @@ var send = function send(){
 
 }
 
-owfdojo.addOnLoad(function(){
-	OWF.ready(init);
-});
+
 
 var check = function check(key){
 	for(var i = 0; i < bars.length; i++){
