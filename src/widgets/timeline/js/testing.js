@@ -62,8 +62,9 @@ var check = function check(key){
 	for(var i = 0; i < events.length; i++){
 				console.log(events[i] + " against " + key);
 				if(events[i] === key){
+					i++;
 					return true;					
 				} 
-				return false;		
 		}	
+		return false;		
 }

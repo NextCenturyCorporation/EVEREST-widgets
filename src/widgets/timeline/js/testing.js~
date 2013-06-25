@@ -30,6 +30,7 @@ var add = function add(sender, msg){
 		}
 
 		var key = year + month + day;
+		console.log("key to check: " + key);
 		if(!check(key)){		
 		
 			var container = document.getElementById("container");
@@ -61,8 +62,10 @@ var check = function check(key){
 	for(var i = 0; i < events.length; i++){
 				console.log(events[i] + " against " + key);
 				if(events[i] === key){
+					i++;
 					return true;					
 				} 
+				i++;
 				return false;		
 		}	
 }
