@@ -19,7 +19,7 @@ var add = function add(sender, msg){
 		time.setSeconds(0);
 		time.setMilliseconds(0);
 		time.setHours(0);
-		var date = time.parse();
+		var date = time.toString();
 		var key = objs[i];
 		var checkResult = check(key, date);
 		
