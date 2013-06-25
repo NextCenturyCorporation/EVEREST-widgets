@@ -23,6 +23,7 @@ var add = function add(sender, msg){
 		var month = time.getMonth().toString();
 		var day = time.getDate().toString();
 		var year = time.getYear().toString();	
+		console.log(year);
 		if (month < 10){
 			month = "0" + month;				
 		}
@@ -31,16 +32,14 @@ var add = function add(sender, msg){
 		}
 
 		var key = year + month + day;
-		console.log("key to check: " + key);
+		console.log(key);
 		if(!check(key)){		
-		
-
-
 			var bar = document.createElement("span");
 			bar.className = "element";
 			bar.style.height = 30 + "px";
 			bar.id = objs[i];
 			bar.onclick = send;
+			bar.key = key;
 			bars.push(bar);			
 			
 //	 	container.insertBefore(bar, current[0]);
@@ -48,7 +47,7 @@ var add = function add(sender, msg){
 			events.push(key);		 	
 		}
 	}
-			bars.sort(function(a,b) {return a.id - b.id});
+			bars.sort(function(a,b) {return a.key - b.key});
 			var container = document.getElementById("container");
 			var current = container.childNodes;
 			
@@ -71,7 +70,6 @@ owfdojo.addOnLoad(function(){
 
 var check = function check(key){
 	for(var i = 0; i < events.length; i++){
-				console.log(events[i] + " against " + key);
 				if(events[i] === key){
 					i++;
 					return true;					
