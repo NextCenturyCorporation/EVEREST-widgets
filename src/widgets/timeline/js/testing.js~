@@ -27,8 +27,10 @@ var add = function add(sender, msg){
 		}
 		year = year.substr(1,year.length);
 		var key = year + month + day;
-		var num = objs[i];
-		if(!check(key)){		
+
+		var checkResult = check(key);
+		
+		if(checkResult == 0){		
 			var bar = document.createElement("span");
 			bar.className = "element";
 			bar.style.height = 30 + "px";
@@ -38,8 +40,8 @@ var add = function add(sender, msg){
 			bars.push(bar);			
 	 	
 		} else {
-			var h = document.getElementById(num).style.height;		
-			document.getElementById(num).style.height = (parseInt(h.substr(0,2)) + 10) + "px";
+			var h = checkResult.style.height;		
+			checkResult.style.height = (parseInt(h.substr(0,2)) + 10) + "px";
 		}
 	}
 	
@@ -80,8 +82,9 @@ var send = function send(){
 var check = function check(key){
 	for(var i = 0; i < bars.length; i++){
 				if(bars[i].key === key){
-					return true;					
+					return bars[i];			
 				} 
 		}	
-		return false;		
+		return 0;		
 }
+
