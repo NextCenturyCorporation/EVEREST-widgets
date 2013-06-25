@@ -28,7 +28,6 @@ var add = function add(sender, msg){
 		}
 		year = "20" + year.substr(1);
 		var date = year + month + day;
-		console.log(date);
 		var key = objs[i];
 		var checkResult = check(key, date);
 		
@@ -65,8 +64,11 @@ var add = function add(sender, msg){
 };
 
 var send = function send(){
-	var date = this.id;
-	OWF.Eventing.publish("testChannel2", date);
+	var date = new Date(this.keys[0]);
+	date.setHours(0);
+	date.setSeconds(0);
+	date.setMilliseconds(0);
+	OWF.Eventing.publish("testChannel2", date.toString());
 
 }
 
