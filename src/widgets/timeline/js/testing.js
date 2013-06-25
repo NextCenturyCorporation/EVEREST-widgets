@@ -62,11 +62,12 @@ var add = function add(sender, msg){
 
 var send = function send(){
 	var date = this.id;
+	// yymmdd 012345
 	var year = date.substr(0,2);
-	var month = date.substr(2,4);
-	var day = date.substr(4,6);
+	var month = date.substr(2,3);
+	var day = date.substr(4);
 
-	year = "20" + year.substr(1,year.length);
+	year = "20" + year;
 
 	var date1 = new Date();
 	date1.setFullYear(year, month, day);
