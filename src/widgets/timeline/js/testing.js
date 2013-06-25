@@ -82,8 +82,9 @@ var send = function send(){
 //	var d1 = date1.parse();
 //	var d2 = date2.parse();
 
-	var range = "[" + date1 + ", " + date2 +"]";
-	OWF.Eventing.publish("testChannel2", range);
+	OWF.Eventing.publish("testChannel2", date);
+	OWF.Eventing.publish("testChannel2", date1);
+	OWF.Eventing.publish("testChannel2", date2);
 
 }
 
