@@ -57,10 +57,10 @@ var send = function send(){
 	date1.setFullYear(year, month, day);
 	var date2 = new Date();
 	date2.setFullYear(year, month, day + 1);
-	var d1 = date1.parse();
-	var d2 = date2.parse();
+//	var d1 = date1.parse();
+//	var d2 = date2.parse();
 
-	var range = "[" + d1 + "," + d2 +"]";
+	var range = "[" + date1 + "," + date2 +"]";
 	OWF.Eventing.publish("testChannel2", range);
 
 }
