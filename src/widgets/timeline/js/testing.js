@@ -27,19 +27,19 @@ var add = function add(sender, msg){
 		}
 		year = year.substr(1,year.length);
 		var key = year + month + day;
-		
+		var num = objs[i];
 		if(!check(key)){		
 			var bar = document.createElement("span");
 			bar.className = "element";
 			bar.style.height = 30 + "px";
-			bar.id = objs[i];
+			bar.id = num;
 			bar.onclick = send;
 			bar.key = key;
 			bars.push(bar);			
 	 	
 		} else {
-			var h = document.getElementById(objs[i]).style.height;		
-			document.getElementById(objs[i]).style.height = (parseInt(h.substr(0,2)) + 10) + "px";
+			var h = document.getElementById(num).style.height;		
+			document.getElementById(num).style.height = (parseInt(h.substr(0,2)) + 10) + "px";
 		}
 	}
 	
