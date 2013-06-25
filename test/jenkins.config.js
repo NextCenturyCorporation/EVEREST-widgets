@@ -11,7 +11,7 @@ files = [
   JASMINE,
   JASMINE_ADAPTER,
   'lib/underscore-min.js',
-  'lib/backbone-min.js',
+  'lib/backbone.js',
   'lib/d3.v3.min.js',
   'lib/owf-widget-debug.js',
   'lib/jquery-2.0.2.min.js',
