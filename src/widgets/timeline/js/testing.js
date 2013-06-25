@@ -64,7 +64,7 @@ var add = function add(sender, msg){
 };
 
 var send = function send(){
-	var date = new Date(this.keys[0]);
+	var date = new Date(parseInt(this.keys[0]));
 	date.setHours(0);
 	date.setSeconds(0);
 	date.setMilliseconds(0);
