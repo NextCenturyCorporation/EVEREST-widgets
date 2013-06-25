@@ -18,7 +18,7 @@ var add = function add(sender, msg){
 	objs = objs.split(",");
 	
 	for (var i = 0; i < objs.length; i++){
-				var time = new Date(parseInt(objs[i]));
+		var time = new Date(parseInt(objs[i]));
 		var month = time.getMonth().toString();
 		if (month < 10){
 			month = "0" + month;				
@@ -26,7 +26,7 @@ var add = function add(sender, msg){
 		var day = time.getDate().toString();
 		var year = time.getYear().toString();	
 		var key = year + month + day;
-		
+		console.log(key);
 		if(!check(key)){		
 		
 			var container = document.getElementById("container");
@@ -40,7 +40,7 @@ var add = function add(sender, msg){
 		 	container.insertBefore(bar, current[0]);
 			
 			events.push(key);		 	
-		 	}
+		}
 	}
 };
 
@@ -56,9 +56,10 @@ owfdojo.addOnLoad(function(){
 
 var check = function check(key){
 	for(var i = 0; i < events.length; i++){
+				console.log(events[i] + " against " + key);
 				if(events[i] == key){
-					return false;					
+					return true;					
 				} 
-				return true;		
+				return false;		
 		}	
 }
