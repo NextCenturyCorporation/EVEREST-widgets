@@ -55,8 +55,8 @@ var send = function send(){
 	var date = new Date(parseInt(this.id));
 	var year = date.getYear().toString();
 	year = "20" + year.substr(1,year.length);
-	var month = date.getMonth().toString();
-	var day = date.getDate().toString();
+	var month = date.getMonth();
+	var day = date.getDate();
 	var date1 = new Date();
 	date1.setFullYear(year, month, day);
 	date1.setHours(0);
@@ -64,7 +64,7 @@ var send = function send(){
 	date1.setSeconds(0);
 	date1.setMilliseconds(0);
 	var date2 = new Date();
-	date2.setFullYear(year, month, day + 1);
+	date2.setFullYear(parseInt(year), month, day + 1);
 //	var d1 = date1.parse();
 //	var d2 = date2.parse();
 
