@@ -34,7 +34,7 @@ var add = function add(sender, msg){
 			var bar = document.createElement("span");
 			bar.className = "element";
 			bar.style.height = 30 + "px";
-			bar.id = num;
+			bar.id = objs[i];
 			bar.onclick = send;
 			bar.key = key;
 			bars.push(bar);			
