@@ -27,7 +27,7 @@ var add = function add(sender, msg){
 		}
 		year = year.substr(1,year.length);
 		var key = year + month + day;
-		var num = objs[i];
+		var num = objs[i].toString();
 		if(!check(key)){		
 			var bar = document.createElement("span");
 			bar.className = "element";

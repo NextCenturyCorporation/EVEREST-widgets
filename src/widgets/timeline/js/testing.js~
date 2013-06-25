@@ -39,7 +39,7 @@ var add = function add(sender, msg){
 	 	
 		} else {
 			var h = document.getElementById(num).style.height;		
-			document.getElementById(objs[i]).style.height = (parseInt(h.substr(0,2)) + 10) + "px";
+			document.getElementById(num).style.height = (parseInt(h.substr(0,2)) + 10) + "px";
 		}
 	}
 	
