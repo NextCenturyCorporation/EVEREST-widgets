@@ -20,13 +20,16 @@ var add = function add(sender, msg){
 	for (var i = 0; i < objs.length; i++){
 		var time = new Date(parseInt(objs[i]));
 		var month = time.getMonth().toString();
+		var day = time.getDate().toString();
+		var year = time.getYear().toString();	
 		if (month < 10){
 			month = "0" + month;				
 		}
-		var day = time.getDate().toString();
-		var year = time.getYear().toString();	
+		if (day < 10){
+			day = "0" + day;			
+		}
+
 		var key = year + month + day;
-		console.log(key);
 		if(!check(key)){		
 		
 			var container = document.getElementById("container");
@@ -57,7 +60,7 @@ owfdojo.addOnLoad(function(){
 var check = function check(key){
 	for(var i = 0; i < events.length; i++){
 				console.log(events[i] + " against " + key);
-				if(events[i] == key){
+				if(events[i] === key){
 					return true;					
 				} 
 				return false;		
