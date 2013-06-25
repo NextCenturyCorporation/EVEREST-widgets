@@ -39,7 +39,7 @@ var add = function add(sender, msg){
 };
 
 var send = function send(){
-	var date = new Date(parseInt(this.id));
+	var date = new Date(parseInt(this.id)).toString();
 	OWF.Eventing.publish("testChannel2", date);
 
 }
