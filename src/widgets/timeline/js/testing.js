@@ -19,7 +19,6 @@ var add = function add(sender, msg){
 		var month = time.getMonth().toString();
 		var day = time.getDate().toString();
 		var year = time.getYear().toString();	
-		console.log(year);
 		if (month < 10){
 			month = "0" + month;				
 		}
@@ -38,6 +37,9 @@ var add = function add(sender, msg){
 			bar.key = key;
 			bars.push(bar);			
 	 	
+		} else {
+			var h = document.getElementById(objs[i]).style.height;		
+			document.getElementById(objs[i]).style.height = (parseInt(h.substr(0,2)) + 10) + "px";
 		}
 	}
 	

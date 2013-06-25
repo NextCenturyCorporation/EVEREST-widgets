@@ -19,7 +19,6 @@ var add = function add(sender, msg){
 		var month = time.getMonth().toString();
 		var day = time.getDate().toString();
 		var year = time.getYear().toString();	
-		console.log(year);
 		if (month < 10){
 			month = "0" + month;				
 		}
@@ -38,7 +37,10 @@ var add = function add(sender, msg){
 			bar.key = key;
 			bars.push(bar);			
 	 	
-		}
+		} else {
+			var h = document.getElementById(objs[i]).style.height;		
+			document.getElementById(objs[i]).style.height = (parseInt(h.substr(0,2)) + 10) + "px";
+			}
 	}
 	
 	bars.sort(function(a,b) {return a.key - b.key});
@@ -64,7 +66,7 @@ var send = function send(){
 	date1.setSeconds(0);
 	date1.setMilliseconds(0);
 	var date2 = new Date();
-	date2.setFullYear(year, month, day + 1);
+	date2.setFullYear(parseInt(year), month, day + 1);
 //	var d1 = date1.parse();
 //	var d2 = date2.parse();
 
