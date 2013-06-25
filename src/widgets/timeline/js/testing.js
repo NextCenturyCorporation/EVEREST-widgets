@@ -53,10 +53,10 @@ var add = function add(sender, msg){
 
 var send = function send(){
 	var date = new Date(parseInt(this.id));
-	var year = date.getYear();
+	var year = date.getYear().toString();
 	year = "20" + year.substr(1,year.length);
-	var month = date.getMonth();
-	var day = date.getDate();
+	var month = date.getMonth().toString();
+	var day = date.getDate().toString();
 	var date1 = new Date();
 	date1.setFullYear(year, month, day);
 	date1.setHours(0);
