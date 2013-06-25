@@ -1,13 +1,5 @@
 OWF.relayFile = '/owf-sample-html/js/eventing/rpc_relay.uncompressed.html';
 
-// have a global array of current bars
-var EVENTS = [];	
-function Event(t, k){
-	this.time = t;
-	this.key = k;
-	this.count = 0;
-}
-
 // Get an array of timestamps from Ashley
 function init() {
 	OWF.Eventing.subscribe("testChannel1", this.add);		
@@ -33,46 +25,16 @@ var add = function add(sender, msg){
 			var year = time.getYear().toString();	
 			
 			var key = year + month + day;
-			console.log(key);
-			var len = EVENTS.length;
-			if (len > 0) {			
-				for (var k = 0; k < len; k++){
-					if(key == EVENTS[k].key){
-						EVENTS[k].count = EVENTS[k].count + 1;
-						document.getElementById(key).style.height = (EVENTS[k].count * 10) + "px";							
-					} else {
-						var e = new Event(time, key);
-						e.count = 1;
-												
-						var container = document.getElementById("container");
-						var current = container.childNodes;
 
-						var bar = document.createElement("span");
-						bar.className = "element";
-						bar.style.height = (e.count * 10) + "px";
-						bar.id = key;
-						bar.onclick = send;
-					 	container.insertBefore(bar, current[0]);
-						 	
-						EVENTS.push(e);
-						console.log(key + " added with count " + e.count);
-					}
-				}
-		} else {
-			console.log(key + " is first element");
-			var e = new Event(time, key);
-			e.count = 1;
-									
 			var container = document.getElementById("container");
+			var current = container.childNodes;
+
 			var bar = document.createElement("span");
 			bar.className = "element";
 			bar.style.height = (e.count * 10) + "px";
 			bar.id = key;
 			bar.onclick = send;
-		 	container.appendChild(bar);
-			 	
-			EVENTS.push(e);
-		}
+		 	container.insertBefore(bar, current[0]);
 	}
 };
 
