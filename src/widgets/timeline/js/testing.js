@@ -16,10 +16,17 @@ var add = function add(sender, msg){
 	
 	for (var i = 0; i < objs.length; i++){
 		var time = new Date(parseInt(objs[i]));
-		time.setSeconds(0);
-		time.setMilliseconds(0);
-		time.setHours(0);
-		var date = time;
+		var month = time.getMonth().toString();
+		var day = time.getDate().toString();
+		var year = time.getYear().toString();	
+		if (month < 10){
+			month = "0" + month;				
+		}
+		if (day < 10){
+			day = "0" + day;			
+		}
+		year = year.substr(1,year.length);
+		var date = year + month + day;
 		console.log(date);
 		var key = objs[i];
 		var checkResult = check(key, date);
@@ -27,9 +34,8 @@ var add = function add(sender, msg){
 		if(checkResult == 0){		
 			var bar = document.createElement("span");
 			bar.className = "element";
-			bar.h = 20;
-			bar.style.height = bar.h + "px";
- 	  	bar.id = date;
+			bar.style.height = 30 + "px";
+			bar.id = date;
 			bar.onclick = send;
 			bar.keys = [];
 			bar.keys.push(key);		
@@ -37,8 +43,8 @@ var add = function add(sender, msg){
 		} else if (checkResult == -1) {
 				//do nothing
 		} else {
-			var h = checkResult.h;		
-			checkResult.style.height = (h + 20) + "px";
+			var h = checkResult.style.height;		
+			checkResult.style.height = (parseInt(h.substr(0,2)) + 10) + "px";
 			checkResult.keys.push(key);
 		}
 	}
@@ -57,6 +63,15 @@ var add = function add(sender, msg){
 
 var send = function send(){
 	var date = this.id;
+	// yymmdd 012345
+	var year = date.substr(0,2);
+	var month = date.substr(2,3);
+	var day = date.substr(4);
+
+	year = "20" + year;
+
+	var date1 = year + "," + month + "," + day;
+	var date2 = year + "," + month + "," + (parseInt(day) + 1);
 
 //	var d1 = date1.parse();
 //	var d2 = date2.parse();
@@ -70,7 +85,6 @@ var send = function send(){
 
 var check = function check(key, date){
 	for(var i = 0; i < bars.length; i++){
-		console.log(date + " against " + bars[i].id);
 				if(bars[i].id === date){
 					for(var k = 0; k < bars[i].keys.length; k++){
 							if(bars[i].keys[k] === key){
