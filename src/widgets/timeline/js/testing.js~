@@ -26,23 +26,24 @@ var add = function add(sender, msg){
 			day = "0" + day;			
 		}
 		year = year.substr(1,year.length);
-		var key = year + month + day;
-
-		var checkResult = check(key);
+		var date = year + month + day;
+		var key = objs[i];
+		var checkResult = check(key, date);
 		
 		if(checkResult == 0){		
 			var bar = document.createElement("span");
 			bar.className = "element";
 			bar.style.height = 30 + "px";
-			bar.id = objs[i];
+			bar.id = date;
 			bar.onclick = send;
-			bar.key = key;
+			bar.keys = [];
+			bar.keys.push(key);
 			bar.newBar = true;		
 			bars.push(bar);
 	
 	 	
 		} else {
-			if(!checkResult.newBar){
+			if(checkResult.newBar){
 				var h = checkResult.style.height;		
 				checkResult.style.height = (parseInt(h.substr(0,2)) + 10) + "px";
 			}
@@ -86,9 +87,14 @@ var send = function send(){
 
 
 
-var check = function check(key){
+var check = function check(key, date){
 	for(var i = 0; i < bars.length; i++){
-				if(bars[i].key === key){
+				if(bars[i].id === date){
+					for(var k = 0; k < bars[i].keys.length; k++){
+							if(bars[i].keys[k] === key){
+								return -1;								
+								}
+						}
 					return bars[i];			
 				} 
 		}	

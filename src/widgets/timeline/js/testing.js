@@ -26,26 +26,25 @@ var add = function add(sender, msg){
 			day = "0" + day;			
 		}
 		year = year.substr(1,year.length);
-		var key = year + month + day;
-
-		var checkResult = check(key);
+		var date = year + month + day;
+		var key = objs[i];
+		var checkResult = check(key, date);
 		
 		if(checkResult == 0){		
 			var bar = document.createElement("span");
 			bar.className = "element";
 			bar.style.height = 30 + "px";
-			bar.id = objs[i];
+			bar.id = date;
 			bar.onclick = send;
-			bar.key = key;
-			bar.newBar = true;		
+			bar.keys = [];
+			bar.keys.push(key);		
 			bars.push(bar);
-	
-	 	
+		} else if (checkResult == -1) {
+				//do nothing
 		} else {
-			if(checkResult.newBar){
-				var h = checkResult.style.height;		
-				checkResult.style.height = (parseInt(h.substr(0,2)) + 10) + "px";
-			}
+			var h = checkResult.style.height;		
+			checkResult.style.height = (parseInt(h.substr(0,2)) + 10) + "px";
+			checkResult.keys.push(key);
 		}
 	}
 	
@@ -55,7 +54,6 @@ var add = function add(sender, msg){
 	
 	for(var i = 0; i < bars.length; i++){
 	
-		bars[i].newBar = false;
 		container.appendChild(bars[i]);
 
 	}
@@ -86,9 +84,14 @@ var send = function send(){
 
 
 
-var check = function check(key){
+var check = function check(key, date){
 	for(var i = 0; i < bars.length; i++){
-				if(bars[i].key === key){
+				if(bars[i].id === date){
+					for(var k = 0; k < bars[i].keys.length; k++){
+							if(bars[i].keys[k] === key){
+								return -1;								
+								}
+						}
 					return bars[i];			
 				} 
 		}	
