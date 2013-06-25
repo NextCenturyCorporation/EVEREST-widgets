@@ -1,6 +1,6 @@
 OWF.relayFile = '/owf-sample-html/js/eventing/rpc_relay.uncompressed.html';
 
-
+var bars = [];
 function init() {
 	OWF.Eventing.subscribe("testChannel1", this.add);		
 
@@ -9,7 +9,7 @@ function init() {
 var add = function add(sender, msg){
 	var objs = msg.substr(1,msg.length-1);
 	objs = objs.split(",");
-	var bars = [];
+
 	
 	for (var i = 0; i < objs.length; i++){
 		var time = new Date(parseInt(objs[i]));
