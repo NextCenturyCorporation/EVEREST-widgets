@@ -28,7 +28,6 @@ var add = function add(sender, msg){
 		}
 		year = "20" + year.substr(1);
 		var date = year + month + day;
-		console.log(date);
 		var key = objs[i];
 		var checkResult = check(key, date);
 		
