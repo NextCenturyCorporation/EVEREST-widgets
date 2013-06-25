@@ -1,8 +1,11 @@
 OWF.relayFile = '/owf-sample-html/js/eventing/rpc_relay.uncompressed.html';
 
+
+
 // Get an array of timestamps from Ashley
 function init() {
 	OWF.Eventing.subscribe("testChannel1", this.add);		
+	var events = [];
 }
 // For each item in the array:
 // check to see if we've already added that day before
@@ -15,26 +18,29 @@ var add = function add(sender, msg){
 	objs = objs.split(",");
 	
 	for (var i = 0; i < objs.length; i++){
-			var time = new Date(parseInt(objs[i]));
-//			console.log(time);
-			var month = time.getMonth().toString();
-			if (month < 10){
-				month = "0" + month;				
-			}
-			var day = time.getDate().toString();
-			var year = time.getYear().toString();	
-			
-			var key = year + month + day;
-
+				var time = new Date(parseInt(objs[i]));
+		var month = time.getMonth().toString();
+		if (month < 10){
+			month = "0" + month;				
+		}
+		var day = time.getDate().toString();
+		var year = time.getYear().toString();	
+		var key = year + month + day;
+		
+		if(!check(key)){		
+		
 			var container = document.getElementById("container");
 			var current = container.childNodes;
 
 			var bar = document.createElement("span");
 			bar.className = "element";
-			bar.style.height = 10 + "px";
+			bar.style.height = 30 + "px";
 			bar.id = objs[i];
 			bar.onclick = send;
 		 	container.insertBefore(bar, current[0]);
+			
+			events.push(key);		 	
+		 	}
 	}
 };
 
@@ -47,3 +53,12 @@ var send = function send(){
 owfdojo.addOnLoad(function(){
 	OWF.ready(init);
 });
+
+var check = function check(key){
+	for(var i = 0; i < events.length; i++){
+				if(events[i] == key){
+					return false;					
+				} 
+				return true;		
+		}	
+}
