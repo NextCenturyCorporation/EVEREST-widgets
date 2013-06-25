@@ -16,6 +16,7 @@ function init() {
 var add = function add(sender, msg){
 	var objs = msg.substr(1,msg.length-1);
 	objs = objs.split(",");
+	var bars = [];
 	
 	for (var i = 0; i < objs.length; i++){
 		var time = new Date(parseInt(objs[i]));
@@ -33,19 +34,29 @@ var add = function add(sender, msg){
 		console.log("key to check: " + key);
 		if(!check(key)){		
 		
-			var container = document.getElementById("container");
-			var current = container.childNodes;
+
 
 			var bar = document.createElement("span");
 			bar.className = "element";
 			bar.style.height = 30 + "px";
 			bar.id = objs[i];
 			bar.onclick = send;
-		 	container.insertBefore(bar, current[0]);
+			bars.push(bar);			
+			
+//	 	container.insertBefore(bar, current[0]);
 			
 			events.push(key);		 	
 		}
 	}
+			bars.sort(function(a,b) {return a.id - b.id});
+			var container = document.getElementById("container");
+			var current = container.childNodes;
+			
+			for(var i = 0; i < bars.length; i++){
+				container.appendChild(bars[i]);
+			}
+
+	
 };
 
 var send = function send(){
