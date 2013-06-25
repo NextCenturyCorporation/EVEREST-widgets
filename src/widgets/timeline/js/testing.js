@@ -16,7 +16,8 @@ var add = function add(sender, msg){
 	
 	for (var i = 0; i < objs.length; i++){
 		var time = new Date(parseInt(objs[i]));
-		var month = time.getMonth().toString();
+		var month = time.getMonth() + 1;
+		month = month.toString();
 		var day = time.getDate().toString();
 		var year = time.getYear().toString();	
 		if (month < 10){
@@ -91,6 +92,7 @@ var check = function check(key, date){
 								return -1;								
 								}
 						}
+					OWF.Eventing.publish("testChannel3", "changing " + date);	
 					return bars[i];			
 				} 
 		}	
