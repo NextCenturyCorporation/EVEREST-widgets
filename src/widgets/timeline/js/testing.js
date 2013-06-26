@@ -4,6 +4,7 @@ owfdojo.addOnLoad(function(){
 });
 
 var bars = [];
+
 function init() {
 	OWF.Eventing.subscribe("testChannel1", this.add);		
 
@@ -80,16 +81,22 @@ var send = function send(){
 
 
 var check = function check(key, date){
+	console.log(key + " key, " + date);
 	for(var i = 0; i < bars.length; i++){
+		console.log("checking date " + bars[i].id)
 				if(bars[i].id === date){
+					console.log("match");
 					for(var k = 0; k < bars[i].keys.length; k++){
+						console.log("checking " + bars[i].keys.length + " keys");
 							if(bars[i].keys[k] === key){
 								return -1;								
 								}
 						}
+					console.log("no key match");
 					return bars[i];			
 				} 
 		}	
+		console.log("no date match");
 		return 0;		
 }
 
