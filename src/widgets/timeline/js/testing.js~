@@ -12,6 +12,7 @@ function init() {
 
 var add = function add(sender, msg){
 	var objs = msg.substr(1,msg.length-1);
+	console.log(objs);
 	objs = objs.split(",");
 
 	
@@ -83,12 +84,13 @@ var send = function send(){
 var check = function check(key, date){
 	console.log(key + " key, " + date);
 	for(var i = 0; i < bars.length; i++){
-		console.log("checking date " + bars[i].id)
+	//	console.log("checking date " + bars[i].id)
 				if(bars[i].id === date){
-					console.log("match");
+					console.log("date match");
+					console.log("checking " + bars[i].keys.length + " keys");
 					for(var k = 0; k < bars[i].keys.length; k++){
-						console.log("checking " + bars[i].keys.length + " keys");
 							if(bars[i].keys[k] === key){
+								console.log("key match");
 								return -1;								
 								}
 						}
