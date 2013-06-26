@@ -112,7 +112,7 @@ function createClickers(){
 		.on("click", function(){
 			var col = parseInt(this.id, 10);
 			col = Object.keys(temp[0])[col];
-			sorter(this, col);
+			sorter(this, col, temp);
 			table = new TableView(temp);
 		});
 
@@ -138,17 +138,17 @@ function createClickers(){
 		});
 }
 
-function sorter(elem, colId){
+function sorter(elem, colId, list){
 	if (elem.className == "up"){
 		d3.selectAll("th").attr("class","unsorted");
 		elem.className = "down";
-		temp.sort( function (a, b){ return a[colId] < b[colId] ? 1 : -1; });
+		list.sort( function (a, b){ return a[colId] < b[colId] ? 1 : -1; });
 	} else {
 		d3.selectAll("th").attr("class","unsorted");
 		elem.className = "up";
-		temp.sort( function (a, b){ return a[colId] > b[colId] ? 1 : -1; });
+		list.sort( function (a, b){ return a[colId] > b[colId] ? 1 : -1; });
 	}
-	return temp;
+	return list;
 }
 
 //grab the x coordinate of the center of the element in the dom with id tag
