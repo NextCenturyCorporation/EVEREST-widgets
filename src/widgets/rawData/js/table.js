@@ -99,7 +99,7 @@ function createTable(s, e){
 	temp = extractData(s, e);	
 	
 	for (var i = 0; i < temp.length; i++){
-		temp[i].time = new Date(Date.parse(temp[i].time));
+		temp[i].time = new Date(temp[i].time);
 	}
 	
 	table = new TableView(temp);
@@ -112,16 +112,7 @@ function createClickers(){
 		.on("click", function(){
 			var col = parseInt(this.id, 10);
 			col = Object.keys(temp[0])[col];
-			
-			if (this.className == "up"){
-				d3.selectAll("th").attr("class","unsorted");
-				this.className = "down";
-				temp.sort( function (a, b){ return a[col] < b[col] ? 1 : -1; });
-			} else {
-				d3.selectAll("th").attr("class","unsorted");
-				this.className = "up";
-				temp.sort( function (a, b){ return a[col] > b[col] ? 1 : -1; });
-			}
+			sorter(this, col);
 			table = new TableView(temp);
 		});
 
@@ -131,11 +122,11 @@ function createClickers(){
 		.on('click', function(){
 			var s = Date.parse($('#start').val());
 			var e = Date.parse($('#end').val());
+			$('#start').val('');
+			$('#end').val('');
 			
-			if (s && e && s <= e)
-				createTable(s,e);
-			else
-				createTable(MIN,MAX);
+			if (s && e && s <= e) { createTable(s,e); }
+			else { createTable(MIN,MAX); }
 				
 			resetAndSend();
 		});
@@ -147,32 +138,50 @@ function createClickers(){
 		});
 }
 
-function getCenter(tag){
-	var center = d3.select(tag).style("width");
-	center = center.split("px")[0];
-	return parseInt(center,10)/2;
+function sorter(elem, colId){
+	if (elem.className == "up"){
+		d3.selectAll("th").attr("class","unsorted");
+		elem.className = "down";
+		temp.sort( function (a, b){ return a[colId] < b[colId] ? 1 : -1; });
+	} else {
+		d3.selectAll("th").attr("class","unsorted");
+		elem.className = "up";
+		temp.sort( function (a, b){ return a[colId] > b[colId] ? 1 : -1; });
+	}
 }
 
+//grab the x coordinate of the center of the element in the dom with id tag
+function getCenter(tag){
+	var width = d3.select(tag).style("width");
+	width = width.split("px")[0];
+	return parseInt(width,10)/2;
+}
+
+/*Allows for automatic resizing and recentering of all objects within the
+widget when the window/frame is resized */
 function setLocations(){
 	var center = getCenter("#hold");
 	var title_center = getCenter("#title");
 	var input_center = getCenter("#inputs");
 	
+	//push title and inputs over until they are centered
 	d3.select("#title").style("margin-left", (center - title_center) + "px");
-	d3.select("#raw_data").attr("width", (center * 2) + "px");
 	d3.select("#inputs").style("margin-left", (center - input_center) + "px");
+	
+	//expand the table until it takes up entire width of frame
+	d3.select("#raw_data").attr("width", (center * 2) + "px");
 }
 
 /*Create the headers of the table*/
 function createHeaders(arr){
 	var header = d3.select("#raw_data");
-	var h;
 	for (var i = 0; i < arr.length; i++){
-		h = header.append("th")
+		header.append("th")
 				.text(arr[i])
 				.attr("id", i)
 				.attr("class", "unsorted");
 	}
+	return header;
 }
 
 /*Get a range of data based on start and end params
@@ -190,8 +199,8 @@ function extractData(start, end){
 
 function resetAndSend(){
 	d3.selectAll("th").attr("class","unsorted");
-	$('#start').val('');
-	$('#end').val('');
+	//$('#start').val('');
+	//$('#end').val('');
 			
 	apple = table.getTimes();
 	for (i = 0; i< apple.length; i++){ apple[i] = Date.parse(apple[i]);	}
@@ -210,12 +219,14 @@ d3.json('./raw_data.txt', function(text){
 	
 	owfdojo.addOnLoad(function(){
 		OWF.ready(function(){
-			setInterval(resetAndSend, 10000);					//to be removed later on
+			setInterval(resetAndSend, 10000);					//to be removed later on, and put back clearing into resetAndSend
 		
 			OWF.Eventing.subscribe("testChannel2", function(sender, msg){
 				var range = msg.substring(1,msg.length - 1).split(',');
 				createTable(Date.parse(range[0]), Date.parse(range[1]));
 				resetAndSend();
+				$('#start').val('');
+				$('#end').val('');
 			});
 		});
 	});
