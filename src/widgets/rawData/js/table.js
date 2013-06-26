@@ -148,6 +148,7 @@ function sorter(elem, colId){
 		elem.className = "up";
 		temp.sort( function (a, b){ return a[colId] > b[colId] ? 1 : -1; });
 	}
+	return temp;
 }
 
 //grab the x coordinate of the center of the element in the dom with id tag
