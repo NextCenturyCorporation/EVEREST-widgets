@@ -11,7 +11,7 @@ function init() {
 }
 
 var add = function add(sender, msg){
-	var objs = objs.split("[");
+	var objs = msg.split("[");
 	var objs1 = objs[1].split("]");
 	var objs2 = objs1[0];
 	console.log(objs);
