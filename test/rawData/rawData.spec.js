@@ -1,4 +1,4 @@
-var datas = [{
+datas = [{
 			"time": "2012-08-04T02:37:47-07:00",
 			"ent1": "the ongoing reports of fraud",
 			"rel": "establish",
