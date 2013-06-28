@@ -581,6 +581,7 @@ describe('Test src/widgets/rawFeed/js/table.js base functions', function(){
 				return {};
 			});
 			
+			
 			result = createTable(startDate, endDate);
 	
 			//function that should have been called

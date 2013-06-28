@@ -16,7 +16,6 @@ th {
 }
 .up{
 	background-image:url('img/asc.png');
-
 }
 .down{
 	background-image:url('img/des.png');
@@ -31,6 +30,10 @@ th {
 	background-color:#d5d8d9;
 }
 #inputs{
+	display:inline-block;
+}
+#title{
+	color:#004785;
 	display:inline-block;
 }
 
