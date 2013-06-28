@@ -14,6 +14,9 @@ describe('Test src/widgets/timeline/js/testing.js base functions', function(){
 	
 			expect(document.getElementById("container").childNodes.length).toBe(datas.length);	
 
+			expect(d3.selectAll).toHaveBeenCalledWith('th');
+			expect(d3.select).toHaveBeenCalledWith('#submit');
+			expect(d3.select).toHaveBeenCalledWith('#reset');
 		});
 	});
 });
