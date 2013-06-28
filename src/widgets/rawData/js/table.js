@@ -112,7 +112,7 @@ function createClickers(){
 		.on("click", function(){
 			var col = parseInt(this.id, 10);
 			col = Object.keys(temp[0])[col];
-			sorter(this, col, temp);
+			sorter(this, col);
 			table = new TableView(temp);
 		});
 
