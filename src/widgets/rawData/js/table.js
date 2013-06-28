@@ -88,7 +88,6 @@ var TableView = Backbone.View.extend({
 		//underscore function to grab all of the times from the data
 		return this.collection.pluck('time');							//JSON
 	}
-	
 });
 
 /*Create the table based on start and end params, atm creates an
@@ -213,7 +212,8 @@ function resetAndSend(){
 
 d3.json('./raw_data.txt', function(text){
 	if (text){
-		datas = text;
+		$('#title').html('<h1>'+text.title+'</h1>');
+		datas = text.fields;
 		
 		createHeaders(Object.keys(datas[0]));
 		table = createTable(MIN,MAX);
