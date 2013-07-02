@@ -25,7 +25,7 @@ datas = [{
 			"ent2": "a scheme"
 		}];	
 
-describe('Test src/widgets/rawFeed/js/table.js backbone MVC implementation', function(){
+describe('Test src/widgets/rawData/js/table.js backbone MVC implementation', function(){
 	it("should expose and attribute", function(){
 		var body = d3.select('body').attr('id', 'raw_data');
 		createHeaders(Object.keys(datas[0]));
