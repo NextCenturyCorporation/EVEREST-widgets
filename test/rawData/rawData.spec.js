@@ -1,4 +1,5 @@
-/* use spyOn(window, apple).andCallThrough()
+/**
+ *  use spyOn(window, apple).andCallThrough()
    when the function is called like this : apple(s1,s2)
    you want the function to still call as normal and you
    just want to see if it was called, maybe with what 
@@ -9,12 +10,9 @@
    
    use spyOn(object, apple).andCallFake() 
    when you want to bypass what object.apple actually does and
-   make it return or perform something else */
+   make it return or perform something else 
+**/
    
-
-
-
-describe('Test src/widgets/rawData/js/table.js base functions', function(){
 	
 	var datas = [{
 			"time": "2012-08-04T02:37:47-07:00",
@@ -41,6 +39,9 @@ describe('Test src/widgets/rawData/js/table.js base functions', function(){
 			"ent2": "a scheme"
 		}];	
 
+
+describe('Test src/widgets/rawData/js/table.js base functions', function(){
+	
 	describe('by testing the createClickers function', function(){
 	
 		beforeEach(function(){
