@@ -36,9 +36,9 @@ describe('Test src/widgets/rawData/js/table.js backbone MVC implementation', fun
 		//spyOn(window, 'Table').andCallThrough();
 		spyOn(_, 'each').andCallThrough();
 		
-		var table = new TableView(data);
+		var tv = new TableView(data);
 		
-		var apple = table.getTimes();
+		var apple = tv.getTimes();
 		
 		//if collection is holding the correct number of elements
 		expect(apple.length).toEqual(4);
@@ -60,7 +60,7 @@ describe('Test src/widgets/rawData/js/table.js backbone MVC implementation', fun
 	});
 	
 	it('should create a Table', function(){
-		var t = new Table(datas);
+		var t = new Table(data);
 		expect(t.model).toBe(Sentence);
 		expect(t.length).toBe(4);
 		
