@@ -1,0 +1,5 @@
+/* Additional css for testing purposes */
+#dayChart svg, #weekChart svg, #monthChart svg {
+	width: 940px;
+	height: 940px;
+}
