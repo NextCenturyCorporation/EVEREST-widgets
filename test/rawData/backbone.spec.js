@@ -1,5 +1,6 @@
 //an attempt to create a backbone testing file
 
+describe('Test src/widgets/rawData/js/table.js backbone MVC implementation', function(){
  
 this.data =
 		[{
@@ -27,7 +28,6 @@ this.data =
 			"ent2": "a scheme"
 		}];	
 
-describe('Test src/widgets/rawData/js/table.js backbone MVC implementation', function(){
 	it("should expose and attribute", function(){
 		var body = d3.select('body').attr('id', 'raw_data');
 		createHeaders(Object.keys(data[0]));
