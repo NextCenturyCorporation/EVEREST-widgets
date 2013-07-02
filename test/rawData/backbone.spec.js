@@ -1,7 +1,8 @@
 //an attempt to create a backbone testing file
 
-describe('Test src/widgets/rawData/js/table.js backbone MVC implementation', function(){
-	var datas = [{
+ 
+this.data =
+		[{
 			"time": "2012-08-04T02:37:47-07:00",
 			"ent1": "the ongoing reports of fraud",
 			"rel": "establish",
@@ -24,17 +25,18 @@ describe('Test src/widgets/rawData/js/table.js backbone MVC implementation', fun
 			"ent1": "his co-conspirators",
 			"rel": "devise",
 			"ent2": "a scheme"
-		}];
+		}];	
 
+describe('Test src/widgets/rawData/js/table.js backbone MVC implementation', function(){
 	it("should expose and attribute", function(){
 		var body = d3.select('body').attr('id', 'raw_data');
-		createHeaders(Object.keys(datas[0]));
+		createHeaders(Object.keys(data[0]));
 		
 		spyOn(d3, 'selectAll').andCallThrough();
 		//spyOn(window, 'Table').andCallThrough();
 		spyOn(_, 'each').andCallThrough();
 		
-		var table = new TableView(datas);
+		var table = new TableView(data);
 		
 		var apple = table.getTimes();
 		
@@ -64,3 +66,4 @@ describe('Test src/widgets/rawData/js/table.js backbone MVC implementation', fun
 		
 	});
 });
+
