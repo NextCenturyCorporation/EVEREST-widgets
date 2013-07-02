@@ -10,11 +10,11 @@ basePath = '..';
 files = [
   JASMINE,
   JASMINE_ADAPTER,
-  'lib/jquery-2.0.2.min.js',
   'lib/underscore-min.js',
   'lib/backbone.js',
   'lib/d3.v3.min.js',
   'lib/owf-widget-debug.js',
+  'lib/jquery-2.0.2.min.js',
   'src/**/*.js',
   'test/**/*.spec.js'
 ];
@@ -61,7 +61,7 @@ autoWatch = false;
 // - Safari (only Mac)
 // - PhantomJS
 // - IE (only Windows)
-browsers = ['PhantomJS'];
+browsers = ['Chrome'];
 
 
 // If browser does not capture in given timeout [ms], kill it
