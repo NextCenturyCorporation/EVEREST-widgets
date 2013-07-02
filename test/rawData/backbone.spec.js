@@ -1,6 +1,7 @@
 //an attempt to create a backbone testing file
 
-datas = [{
+describe('Test src/widgets/rawData/js/table.js backbone MVC implementation', function(){
+	var datas = [{
 			"time": "2012-08-04T02:37:47-07:00",
 			"ent1": "the ongoing reports of fraud",
 			"rel": "establish",
@@ -23,9 +24,8 @@ datas = [{
 			"ent1": "his co-conspirators",
 			"rel": "devise",
 			"ent2": "a scheme"
-		}];	
+		}];
 
-describe('Test src/widgets/rawData/js/table.js backbone MVC implementation', function(){
 	it("should expose and attribute", function(){
 		var body = d3.select('body').attr('id', 'raw_data');
 		createHeaders(Object.keys(datas[0]));

@@ -11,7 +11,12 @@
    when you want to bypass what object.apple actually does and
    make it return or perform something else */
    
-datas = [{
+
+
+
+describe('Test src/widgets/rawData/js/table.js base functions', function(){
+	
+	var datas = [{
 			"time": "2012-08-04T02:37:47-07:00",
 			"ent1": "the ongoing reports of fraud",
 			"rel": "establish",
@@ -36,9 +41,6 @@ datas = [{
 			"ent2": "a scheme"
 		}];	
 
-
-describe('Test src/widgets/rawData/js/table.js base functions', function(){
-	
 	describe('by testing the createClickers function', function(){
 	
 		beforeEach(function(){
