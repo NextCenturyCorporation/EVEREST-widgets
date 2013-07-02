@@ -1,7 +1,8 @@
+
 var datas = [1387959625000,1353282133000,1344038600000,1340092813000];	
 
 
-describe('Test src/widgets/timeline/js/testing.js base functions', function(){
+describe('Test src/widgets/timeline/js/timeline.js base functions', function(){
 	
 	describe('Tests the add function', function(){
 	

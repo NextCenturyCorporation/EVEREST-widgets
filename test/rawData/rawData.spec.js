@@ -37,7 +37,7 @@ datas = [{
 		}];	
 
 
-describe('Test src/widgets/rawFeed/js/table.js base functions', function(){
+describe('Test src/widgets/rawData/js/table.js base functions', function(){
 	
 	describe('by testing the createClickers function', function(){
 	
