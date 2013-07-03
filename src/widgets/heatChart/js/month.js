@@ -5,7 +5,7 @@ var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
 var chart = circularHeatChart()
 	.range(["white", "red"])
 	.segmentLabels(months)
-	.segmentHeight(10)
+	.segmentHeight(9)
 	.numSegments(12)
 	.innerRadius(10);
 
