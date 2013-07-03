@@ -5,7 +5,7 @@ var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
 var chart = circularHeatChart()
 	.range(["white", "green"])
 	.segmentLabels(days)
-	.segmentHeight(13)
+	.segmentHeight(12)
 	.innerRadius(10)
 	.numSegments(7);
 

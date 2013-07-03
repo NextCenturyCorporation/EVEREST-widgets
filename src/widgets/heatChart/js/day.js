@@ -16,7 +16,7 @@ var hours = ['12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am', '8am',
 var chart = circularHeatChart()
 	.range(["white", "blue"])
 	.segmentLabels(hours)
-	.segmentHeight(5)
+	.segmentHeight(4.7)
 	.innerRadius(10);
 
 /* 
