@@ -81,6 +81,15 @@ var data_table = function(datas_to_set, announce_function) {
 		}
 	});
 
+	me.generateTable = function() {
+		var headers_to_use = Object.keys(me.datas[0]);
+		
+		me.createHeaders(headers_to_use);
+		me.createTable(me.MIN,me.MAX);
+		me.createClickers();
+		me.setLocations();
+	};
+
 	me.createTable = function(s, e){
 		temp = me.extractData(s, e);	
 
