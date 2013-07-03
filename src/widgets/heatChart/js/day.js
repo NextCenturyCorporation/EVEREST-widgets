@@ -19,10 +19,24 @@ var chart = circularHeatChart()
 	.segmentHeight(5)
 	.innerRadius(10);
 
+/* 
+ * adds 'width' zeros to the left of the number. Useful for time
+ * (ex. 12:1pm vs 12:01pm)
+ */
+function padZero(number, width) {
+	width -= number.toString().length;
+
+	if(width > 0) {
+		return new Array(width + (/\./.test(number) ? 2 : 1)).join('0') + number;
+	}
+
+	return number + "";
+}
+
 for(var i = 0; i < 1440; i++){
 
 	var hour = i % 24;
-	var minutes = Math.floor((i / 24) % 60);
+	var minutes = padZero(Math.floor((i / 24) % 60), 2);
 	var meridiem = "am";
 
 	if(hour === 0) {
