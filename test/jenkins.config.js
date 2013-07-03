@@ -10,11 +10,11 @@ basePath = '..';
 files = [
   JASMINE,
   JASMINE_ADAPTER,
+  'lib/owf-widget-debug.js',
   'lib/jquery-2.0.2.min.js',
+  'lib/d3.v3.min.js',
   'lib/underscore-min.js',
   'lib/backbone.js',
-  'lib/d3.v3.min.js',
-  'lib/owf-widget-debug.js',
   'src/**/*.js',
   'test/**/*.spec.js'
 ];
