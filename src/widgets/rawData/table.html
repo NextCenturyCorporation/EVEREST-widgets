@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <head>
 	<meta charset="utf-8">
-	<title>EVEREST Raw Data Table</title>
-	<script src="../../lib/underscore.js"></script>
-	<script src="../../lib/jquery-2.0.2.js"></script>
-	<script src="../../lib/backbone.js"></script>
-	<script src="../../lib/d3.v3.js"></script>
-	<script src="../../lib/table.js"></script>
-	<script src="../../lib/owf-widget-debug.js"></script>
+	<title>Raw Data Table</title>
+	<script src="../../../lib/underscore.js"></script>
+	<script src="../../../lib/jquery-2.0.2.js"></script>
+	<script src="../../../lib/backbone.js"></script>
+	<script src="../../../lib/d3.v3.js"></script>
+	<script src="../../../lib/owf-widget-debug.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
+	<script src="../../components/dataTable/data_table.js"></script>
+	<script src="./js/raw_data.js"></script>
 </head>
 <body>
 	<div id="hold">
@@ -21,5 +22,9 @@
 			<input type="button" value="Show All" id="reset">
 		</div>
 	</div>
+
+	<script type="text/javascript">
+		$(raw_data_widget.execute());
+	</script>
 </body>
 </html>

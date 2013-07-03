@@ -1,5 +1,5 @@
 { 
-	"title": "EVEREST Raw Data",
+	"title": "Raw Data",
 	"fields":[
 	{
 		"time": "2013-12-25T00:20:25-08:00",

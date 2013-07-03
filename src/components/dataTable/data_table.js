@@ -52,8 +52,12 @@ data_table.sentenceView = Backbone.View.extend({
 	}
 });
 
+data_table.getRenderEl = function() {
+	
+}
+
 data_table.tableView = Backbone.View.extend({
-	el:$('#raw_data'),
+	el:$('#raw_data')[0],
 	initialize: function(te){
 		this.collection = new data_table.table(te);
 		this.render();
@@ -70,7 +74,7 @@ data_table.tableView = Backbone.View.extend({
 			model: item
 		});
 		//render this item and add it to the table
-		this.$el.append(sentView.render().el);
+		$('#raw_data').append(sentView.render().el);
 	},
 	getTimes: function(){
 		//underscore function to grab all of the times from the data
@@ -98,7 +102,7 @@ data_table.createClickers = function() {
 			var col = parseInt(this.id, 10);
 			col = Object.keys(temp[0])[col];
 			data_table.sorter(this, col);
-			table = new tableView(temp);
+			table = new data_table.tableView(temp);
 		});
 
 	//grab times from forms for use in re-rendering the table will be removed
@@ -111,15 +115,15 @@ data_table.createClickers = function() {
 			$('#end').val('');
 		
 			if (s && e && s <= e) { data_table.createTable(s,e); }
-			else { data_table.createTable(MIN,MAX); }
+			else { data_table.createTable(data_table.MIN,data_table.MAX); }
 			
-			resetAndSend();
+			data_table.resetAndSend();
 		});
 
 	d3.select('#reset')
 		.on('click', function(){
-			data_table.createTable(MIN,MAX);
-			resetAndSend();
+			data_table.createTable(data_table.MIN,data_table.MAX);
+			data_table.resetAndSend();
 		});
 };
 
@@ -148,9 +152,9 @@ data_table.getCenter = function(tag){
 /*Allows for automatic resizing and recentering of all objects within the
 widget when the window/frame is resized */
 data_table.setLocations = function(){
-	var center = getCenter("#hold");
-	var title_center = getCenter("#title");
-	var input_center = getCenter("#inputs");
+	var center = data_table.getCenter("#hold");
+	var title_center = data_table.getCenter("#title");
+	var input_center = data_table.getCenter("#inputs");
 	
 	//push title and inputs over until they are centered
 	d3.select("#title").style("margin-left", (center - title_center) + "px");
@@ -186,45 +190,24 @@ data_table.extractData = function(start, end) {
 };
 
 data_table.resetAndSend = function(){
-	var headers = d3.selectAll("th").attr("class","unsorted");
+	var headers = d3.selectAll("th")
+	headers.classed('up', false);
+	headers.classed('down', false);
+	headers.classed('unsorted', true);
 	//$('#start').val('');
 	//$('#end').val('');
 			
 	apple = table.getTimes();
 	for (i = 0; i < apple.length; i++){ apple[i] = Date.parse(apple[i]); }
 	
-	OWF.Eventing.publish("testChannel1", JSON.stringify(apple));
+	if(data_table.announce) {
+		data_table.announce(JSON.stringify(apple));
+	}
 };
 
 data_table.execute = function() {
 
-	d3.json('./raw_data.txt', function(text){
-		if (text){
-			$('#title').html('<h1>'+text.title+'</h1>');
-			datas = text.fields;
-		
-			createHeaders(Object.keys(datas[0]));
-			table = data_table.createTable(MIN,MAX);
-			data_table.createClickers();
-			setLocations();
-		
-			owfdojo.addOnLoad(function(){
-				OWF.ready(function(){
-					setInterval(data_table.resetAndSend, 10000);					//to be removed later on, and put back clearing into resetAndSend
-			
-					OWF.Eventing.subscribe("testChannel2", function(sender, msg){
-						var range = msg.substring(1,msg.length - 1).split(',');
-						data_table.createTable(Date.parse(range[0]), Date.parse(range[1]));
-						data_table.resetAndSend();
-						$('#start').val('');
-						$('#end').val('');
-					});
-				});
-			});
-		}
-	});
-
 	window.onresize = function(){
-		setLocations();
+		data_table.setLocations();
 	};
 };
