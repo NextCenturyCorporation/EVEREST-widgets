@@ -5,7 +5,7 @@
 describe('Test src/widgets/rawData/js/table.js base functions', function(){
 
 	describe('Tests the createTable function', function(){
-		it('for proper initialization and method call logic', function() {
+		xit('for proper initialization and method call logic', function() {
 			var startDate = Date.parse('2012-09-04T01:00:00-08:00'); //before second event;
 			var endDate = Date.parse('2012-09-05T01:00:00-08:00'); //after second event;
 	
