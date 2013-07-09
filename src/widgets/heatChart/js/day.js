@@ -1,14 +1,30 @@
-//OWF.relayFile = '/owf/sample/html/js/eventing/rpc_relay.uncompressed.html';
-//
-//owfdojo.addOnLoad(function(){
-//	OWF.ready(init);
-//});
-//
-//function init(){
-//	OWF.Eventing.subscribe("testChannel1", this.add);
-//}
+var raw_data = [1440];
 
-var data = [];
+for (var i = 0; i < 1440; i++){
+	raw_data[i] = 0;
+}
+
+owfdojo.addOnLoad(function(){
+	OWF.ready(function(){
+		OWF.Eventing.subscribe("testChannel1", function(sender, msg){
+			var fields_start = msg.split("[");
+			var fields_end = fields_start[1].split("]");
+			var fields = fields_start_end[0];
+			var data = fields.split(",");
+			
+			for (var i = 0; i < objs.length; i++){
+				var time = new Date(parse(data[i]));
+				var hour = time.getHours();
+				var minutes = time.getMinutes();
+
+                                console.log(hour);
+				raw_data[(60 * hour) + minutes] = raw_data[(60 * hour) + minutes] + 1;
+			}
+		});
+	});
+});
+
+heatChart_chunks = [];
 var hours = ['12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am', '8am',
 	'9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm',
 	'7pm', '8pm', '9pm', '10pm', '11pm'];
@@ -19,24 +35,10 @@ var chart = circularHeatChart()
 	.segmentHeight(4.7)
 	.innerRadius(10);
 
-/* 
- * adds 'width' zeros to the left of the number. Useful for time
- * (ex. 12:1pm vs 12:01pm)
- */
-function padZero(number, width) {
-	width -= number.toString().length;
-
-	if(width > 0) {
-		return new Array(width + (/\./.test(number) ? 2 : 1)).join('0') + number;
-	}
-
-	return number + "";
-}
-
 for(var i = 0; i < 1440; i++){
 
 	var hour = i % 24;
-	var minutes = padZero(Math.floor((i / 24) % 60), 2);
+	var minutes = Math.floor((i / 24) % 60);
 	var meridiem = "am";
 
 	if(hour === 0) {
@@ -50,8 +52,12 @@ for(var i = 0; i < 1440; i++){
 		meridiem = "pm";
 	}
 
-	data[i] = {title: hour + ":" + minutes + " " + meridiem,
-		value: Math.random()};
+	if(minutes < 10) {
+		minutes = "0" + minutes;
+	}
+
+	heatChart_chunks[i] = {title: hour + ":" + minutes + " " + meridiem,
+		value: raw_data[i]};
 }
 
 
@@ -59,7 +65,7 @@ chart.accessor(function(d) {return d.value});
 
 d3.select('#dayChart')
 	.selectAll('svg')
-	.data([data])
+	.data([heatChart_chunks])
 	.enter()
 	.append('svg')
 	.call(chart);
