@@ -1,9 +1,14 @@
 var data_table = function(datas_to_set, announce_function) {
 	var me = this;
+	
+
+	var time = "time";
+	var TYPE_OF_DATE = "created_at";
 		
 	me.MIN = 0;
 	me.MAX = Number.MAX_VALUE;
 	me.datas = datas_to_set;
+	me.headers = [];
 
 	me.announce = announce_function;
 
@@ -24,10 +29,16 @@ var data_table = function(datas_to_set, announce_function) {
 		},
 		render: function(){
 			//get keys and values of the attributes of this model
-			var keys = Object.keys(this.model.attributes);
+			var keys = me.headers;		//Object.keys(this.model.attributes);
 			var vals = [];
 			for (var i = 0; i < keys.length; i++)
-				vals[i] = this.model.attributes[keys[i]];
+				//if (this.model.attributes[keys[i]]){
+					//vals[i] = JSON.stringify(this.model.attributes[keys[i]]);
+					vals[i] = this.model.attributes[keys[i]];
+				//} else {
+				//	vals[i] = ""
+				//}
+				
 	
 			//grab this element and add d3 functionality
 			d3.select(this.el)
@@ -42,15 +53,7 @@ var data_table = function(datas_to_set, announce_function) {
 				.selectAll('td')
 				.data(vals)
 				.enter().append('td')
-					.text(function(d){ 
-						if (typeof(d) === 'object') {
-							// Don't display GMT part and after (for now)?
-							var reg = /(.*) GMT-/i;
-							var results = reg.test(d.toString());
-							return RegExp.$1;
-						}
-						return d;
-					});
+					.text(function(d){ return d; });
 			return this;
 		}
 	});
@@ -77,7 +80,7 @@ var data_table = function(datas_to_set, announce_function) {
 		},
 		getTimes: function(){
 			//underscore function to grab all of the times from the data
-			return this.collection.pluck('time');							//JSON
+			return this.collection.pluck(time);								//JSON
 		}
 	});
 
@@ -93,8 +96,9 @@ var data_table = function(datas_to_set, announce_function) {
 	me.createTable = function(s, e){
 		temp = me.extractData(s, e);	
 
-		for (var i = 0; i < temp.length; i++){
-			temp[i].time = new Date(temp[i].time);
+		if (time === TYPE_OF_DATE){
+			for (var i = 0; i < temp.length; i++)
+				temp[i][time] = new Date(temp[i][time]);
 		}
 
 		table = new me.tableView(temp);
@@ -172,9 +176,18 @@ var data_table = function(datas_to_set, announce_function) {
 
 	/*Create the headers of the table*/
 	me.createHeaders = function(arr){
+		if ($.inArray(TYPE_OF_DATE, arr) !== -1){
+			time = TYPE_OF_DATE;
+		} else {
+			time = arr[0];
+		}
+		
+		me.headers = arr;
+	
 		var header = d3.select("#raw_data");
-		for (var i = 0; i < arr.length; i++){
-			header.append("th")
+		header.selectAll("th").remove();
+		for (var i = arr.length - 1; i >= 0; i--){
+			header.insert("th",":first-child")
 					.text(arr[i])
 					.attr("id", i)
 					.attr("class", "unsorted");
@@ -188,7 +201,7 @@ var data_table = function(datas_to_set, announce_function) {
 	me.extractData = function(start, end) {
 		var currData = [];
 		for (var i = 0; i < this.datas.length; i++){
-			var ti = Date.parse(this.datas[i].time);
+			var ti = Date.parse(this.datas[i][time]);
 	
 			if (ti <= end && ti >= start) { currData.push(this.datas[i]); }
 		}
