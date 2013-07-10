@@ -32,7 +32,7 @@
 						$('#monthInfo').hide();
 						$('#dayChart').show();
 						$('#dayInfo').show();
-					});
+						});
 					$('#weekButton').click(function() {
 						$('#weekChart').show();
 						$('#weekInfo').show();
@@ -40,15 +40,15 @@
 						$('#monthInfo').hide();
 						$('#dayChart').hide();
 						$('#dayInfo').hide();
-					});
+						});
 					$('#monthButton').click(function() {
-						$('#weekChart').hide();
-						$('#weekInfo').hide();
-						$('#monthChart').show();
-						$('#monthInfo').show();
-						$('#dayChart').hide();
-						$('#dayInfo').hide();
-					});
+							$('#weekChart').hide();
+							$('#weekInfo').hide();
+							$('#monthChart').show();
+							$('#monthInfo').show();
+							$('#dayChart').hide();
+							$('#dayInfo').hide();
+							});
 			});
 		</script>
 	</head>
@@ -68,7 +68,7 @@
 		<div id="monthInfo"></div>
 
 		<script type="text/javascript">
-			$(day_heatChart_widget.execute());
+			$( new day_heatChart_widget.execute());
 		</script>
 
 		<script type="text/javascript">
