@@ -5,7 +5,7 @@
 	font-size:15px;
 }
 td {
-	padding:0px 15px 0px 5px;
+	padding:0px 10px 0px 5px;
 }
 th {
 	cursor: pointer;
@@ -35,5 +35,11 @@ th {
 #title{
 	color:#004785;
 	display:inline-block;
+}
+#text{
+	word-wrap: break-word;
+	border-style:solid;
+	border-color:#004785;
+	text-align:center;
 }
 

@@ -13,14 +13,22 @@
 </head>
 <body>
 	<div id="hold">
-	<div id="title"></div>
-	<table border="1" id='raw_data'></table>
+		<div id="title"></div>
+		<form> Please select the number of rows to display 
+			<label><input type="radio" name="rows" value="10" checked>10</label>
+			<label><input type="radio" name="rows" value="25">25</label>
+			<label><input type="radio" name="rows" value="50">50</label>
+			<label><input type="radio" name="rows" value="100">100</label>
+			<label><input type="radio" name="rows" value="all" id="all">All</label>
+		</form>
+		<table border="1" id='raw_data'></table>
 		<div id="inputs">
 			Start Date: <input type="text" name="start" id="start">
 			End Date: <input type="text" name="end" id="end">
 			<input type="button" value="Submit" id="submit">
 			<input type="button" value="Show All" id="reset">
 		</div>
+		<div id="text"></div>
 	</div>
 
 	<script type="text/javascript">
