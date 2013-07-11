@@ -17,6 +17,7 @@
 
 		<script type="text/javascript">
 			$(document).ready(function() {
+
 					// Only show heat chart for day on load
 					$('#weekChart').hide(0);
 					$('#weekInfo').hide(0);
@@ -34,7 +35,7 @@
 						$('#dayChart').show();
 						$('#dayInfo').show();
 						day_heatChart_widget.execute()
-						});
+					});
 					$('#weekButton').click(function() {
 						$('#weekChart').show();
 						$('#weekInfo').show();
@@ -43,16 +44,16 @@
 						$('#dayChart').hide();
 						$('#dayInfo').hide();
 						week_heatChart_widget.execute()
-						});
+					});
 					$('#monthButton').click(function() {
-							$('#weekChart').hide();
-							$('#weekInfo').hide();
-							$('#monthChart').show();
-							$('#monthInfo').show();
-							$('#dayChart').hide();
-							$('#dayInfo').hide();
-							month_heatChart_widget.execute();
-							});
+						$('#weekChart').hide();
+						$('#weekInfo').hide();
+						$('#monthChart').show();
+						$('#monthInfo').show();
+						$('#dayChart').hide();
+						$('#dayInfo').hide();
+						month_heatChart_widget.execute();
+					});
 			});
 		</script>
 	</head>
