@@ -56,7 +56,7 @@ var data_table = function(datas_to_set, announce_function) {
 	});
 
 	me.tableView = Backbone.View.extend({
-		el:$('#raw_data')[0],
+		el:$('div.data_table_data')[0],
 		initialize: function(te){
 			this.collection = new me.table(te);
 			this.render();
@@ -73,7 +73,7 @@ var data_table = function(datas_to_set, announce_function) {
 				model: item
 			});
 			//render this item and add it to the table
-			$('#raw_data').append(sentView.render().el);
+			$('div.data_table_data').append(sentView.render().el);
 		},
 		getTimes: function(){
 			//underscore function to grab all of the times from the data
@@ -113,12 +113,12 @@ var data_table = function(datas_to_set, announce_function) {
 
 		//grab times from forms for use in re-rendering the table will be removed
 		//but shows example handling of future input from timeline widget
-		d3.select('#submit')
+		d3.select('input.data_table_submit')
 			.on('click', function(){
-				var s = Date.parse($('#start').val());
-				var e = Date.parse($('#end').val());
-				$('#start').val('');
-				$('#end').val('');
+				var s = Date.parse($('input.data_table_start').val());
+				var e = Date.parse($('input.data_table_end').val());
+				$('input.data_table_start').val('');
+				$('input.data_table_end').val('');
 		
 				if (s && e && s <= e) { me.createTable(s,e); }
 				else { me.createTable(me.MIN,me.MAX); }
@@ -126,7 +126,7 @@ var data_table = function(datas_to_set, announce_function) {
 				me.resetAndSend();
 			});
 
-		d3.select('#reset')
+		d3.select('input.data_table_reset')
 			.on('click', function(){
 				me.createTable(me.MIN,me.MAX);
 				me.resetAndSend();
@@ -137,12 +137,18 @@ var data_table = function(datas_to_set, announce_function) {
 		//don't bother sorting if temp is empty
 		if (temp.length !== 0){
 			if (elem.className == "up"){
-				d3.selectAll("th").attr("class","unsorted");
-				elem.className = "down";
+				var elements = d3.selectAll("th")
+				elements.classed('up', false)
+				elements.classed('down', false)
+				elements.classed('unsorted', true);
+				elem.classed('down', true);
 				temp.sort( function (a, b){ return a[colId] < b[colId] ? 1 : -1; });
 			} else {
-				d3.selectAll("th").attr("class","unsorted");
-				elem.className = "up";
+				var elements = d3.selectAll("th")
+				elements.classed('up', false)
+				elements.classed('down', false)
+				elements.classed('unsorted', true);
+				elem.classed('up', true);
 				temp.sort( function (a, b){ return a[colId] > b[colId] ? 1 : -1; });
 			}
 		}
@@ -158,21 +164,21 @@ var data_table = function(datas_to_set, announce_function) {
 	/*Allows for automatic resizing and recentering of all objects within the
 	widget when the window/frame is resized */
 	me.setLocations = function(){
-		var center = me.getCenter("#hold");
-		var title_center = me.getCenter("#title");
-		var input_center = me.getCenter("#inputs");
+		var center = me.getCenter("div.data_table_hold");
+		var title_center = me.getCenter("div.data_table_title");
+		var input_center = me.getCenter("div.data_table_inputs");
 	
 		//push title and inputs over until they are centered
-		d3.select("#title").style("margin-left", (center - title_center) + "px");
-		d3.select("#inputs").style("margin-left", (center - input_center) + "px");
+		d3.select("div.data_table_title").style("margin-left", (center - title_center) + "px");
+		d3.select("div.data_table_inputs").style("margin-left", (center - input_center) + "px");
 	
 		//expand the table until it takes up entire width of frame
-		d3.select("#raw_data").style("width", (center * 2) + "px");
+		d3.select("div.data_table_data").style("width", (center * 2) + "px");
 	}
 
 	/*Create the headers of the table*/
 	me.createHeaders = function(arr){
-		var header = d3.select("#raw_data");
+		var header = d3.select("div.data_table_data");
 		for (var i = 0; i < arr.length; i++){
 			header.append("th")
 					.text(arr[i])
