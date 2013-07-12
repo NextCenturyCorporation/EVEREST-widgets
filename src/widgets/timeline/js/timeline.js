@@ -10,7 +10,7 @@ var bars = [];
 
 // Subscribe to the channel provided by raw feed widget
 function init() {
-	OWF.Eventing.subscribe("testChannel1", this.add);		
+	OWF.Eventing.subscribe("com.nextcentury.everest.data_table_announcing.raw_data", this.add);		
 }
 
 // Add the new elements to the group
@@ -86,7 +86,7 @@ var send = function send(){
 	date2.setHours(0);
 	date2.setSeconds(0);
 	date2.setMilliseconds(0);
-	OWF.Eventing.publish("testChannel2", "["+date1.toString()+","+date2.toString()+"]");
+	OWF.Eventing.publish("com.nextcentury.everest.timeline_announcing", "["+date1.toString()+","+date2.toString()+"]");
 
 };
 

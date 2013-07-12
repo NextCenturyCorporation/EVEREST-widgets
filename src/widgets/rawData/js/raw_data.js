@@ -5,10 +5,12 @@ var url = 'http://10.10.16.48:8081/rawfeed/';
 var raw_data_table, datas_to_use = [], table = null;
 
 function initTable(data){
-	datas_to_use = data === [] ? {} : data;
+	datas_to_use = (data === [] ? {} : data);
+	
 	console.log("CREATING table of " + datas_to_use + "with a max number of rows of " + max_rows);
+	
 	raw_data_table = new data_table(datas_to_use, function(announcement) {
-		OWF.Eventing.publish("testChannel1", announcement);
+		OWF.Eventing.publish("com.nextcentury.everest.data_table_announcing.raw_data", announcement);
 	}, max_rows);
 	//console.log(max_rows);
 	
@@ -39,7 +41,7 @@ raw_data_widget.execute = function() {
 				OWF.ready(function(){
 					setInterval(raw_data_table.resetAndSend, 10000);					//to be removed later on, and put back clearing into resetAndSend
 			
-					OWF.Eventing.subscribe("testChannel2", function(sender, msg){
+					OWF.Eventing.subscribe("com.nextcentury.everest.timeline_announcing", function(sender, msg){
 						var range = msg.substring(1,msg.length - 1).split(',');
 						raw_data_table.createTable(Date.parse(range[0]), Date.parse(range[1]));
 						raw_data_table.resetAndSend();
