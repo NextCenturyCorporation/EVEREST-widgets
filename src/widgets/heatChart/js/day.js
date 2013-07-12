@@ -14,7 +14,7 @@ day_heatChart_widget.execute = function() {
 
 	owfdojo.addOnLoad(function(){
 		OWF.ready(function(){
-			OWF.Eventing.subscribe("testChannel1", function(sender, msg){
+			OWF.Eventing.subscribe("com.nextcentury.everest.data_table_announcing.raw_data", function(sender, msg){
 				// Get an array of all date objects
 				var fields_start = msg.split("[");
 				var fields_end = fields_start[1].split("]");
