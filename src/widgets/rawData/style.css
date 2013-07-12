@@ -1,12 +1,14 @@
-#raw_data {
+.data_table_data {
 	border-color:#004785;
 	border-width:3px;
 	border-collapse:collapse;
 	font-size:15px;
 }
+
 td {
 	padding:0px 10px 0px 5px;
 }
+
 th {
 	cursor: pointer;
 	padding: 10px 30px 10px 5px;
@@ -14,32 +16,39 @@ th {
 	background-repeat:no-repeat;
 	background-position:right;
 }
+
 .up{
 	background-image:url('img/asc.png');
 }
+
 .down{
 	background-image:url('img/des.png');
 }
+
 .unsorted{
 	background-image:url('img/uns.png');
 }
+
 .lit {
 	background-color:#366fb4;
 }
+
 .unlit {
 	background-color:#d5d8d9;
 }
-#inputs{
+
+.data_table_inputs{
 	display:inline-block;
 }
-#title{
-	color:#004785;
-	display:inline-block;
-}
-#text{
+
+.data_table_text{
 	word-wrap: break-word;
 	border-style:solid;
 	border-color:#004785;
 	text-align:center;
+}
+.data_table_title{
+	color:#004785;
+	display:inline-block;
 }
 
