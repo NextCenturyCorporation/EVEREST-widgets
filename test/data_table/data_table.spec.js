@@ -207,10 +207,8 @@ describe('To test src/components/data_table/data_table.js', function(){
 			expect(test_data_table.tableView).toHaveBeenCalled();
 		});
 		
-		it('for proper resetting of all attributes of each element', function(){		
-			
-			var he = d3.select('.data_table_data').selectAll('th');
-						
+		it('for proper resetting of all attributes of each element', function(){	
+								
 			//grab each of the headers
 			var ex0 = document.getElementById('0');
 			var ex1 = document.getElementById('1');
