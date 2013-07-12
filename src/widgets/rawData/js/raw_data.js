@@ -1,6 +1,6 @@
 var raw_data_widget = {};
 
-var max_rows = 1000;
+var max_rows = 10;
 var url = 'http://10.10.16.48:8081/rawfeed/';
 var raw_data_table, datas_to_use = [], table = null;
 
@@ -12,8 +12,8 @@ function initTable(data){
 	raw_data_table = new data_table(datas_to_use, function(announcement) {
 		OWF.Eventing.publish("com.nextcentury.everest.data_table_announcing.raw_data", announcement);
 	}, max_rows);
-	//console.log(max_rows);
-	
+	console.log(max_rows);
+		
 	raw_data_table.createHeaders(Object.keys(raw_data_table.datas[0]));
 	table = raw_data_table.createTable(raw_data_table.MIN,raw_data_table.MAX);
 	raw_data_table.createClickers();
@@ -24,9 +24,9 @@ function initTable(data){
 raw_data_widget.execute = function() {
 	
 	d3.selectAll("input").on("change", function(){
-		//max_rows = this.value !== 'all' ? parseInt(this.value,10) : datas_to_use.length;
-		//raw_data_table.setMaxRows(max_rows);
-		//console.log(max_rows);
+		max_rows = this.value !== 'all' ? parseInt(this.value,10) : raw_data_table.MAX;
+		raw_data_table.setMaxRows(max_rows);
+		console.log(max_rows);
 		table.render();
 	});
 
@@ -52,6 +52,7 @@ raw_data_widget.execute = function() {
 			});
 		}
 	});
+	
 	//look for changes and add them to table, no new table creations
 	setInterval(function(){
 		$.getJSON(url + "?callback=?", function(data){
@@ -76,14 +77,7 @@ raw_data_widget.execute = function() {
 						table.addSentence(new_data[i]);
 					}
 					datas_to_use = data;
-					table.render();
-					
-					//make entire list grow if all is checked
-					if ($("#all").checked){
-						console.log(max_rows);
-						//max_rows += diff;
-						//raw_data_table.setMaxRows(max_rows);
-					}
+					//table.render();					
 				}
 			}
 		});

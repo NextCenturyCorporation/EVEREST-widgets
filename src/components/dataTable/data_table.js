@@ -1,6 +1,7 @@
 var data_table = function(datas_to_set, announce_function, rows) {
 	var me = this;
 	var MAX_CHARS = 100;
+	var count = 0;
 	
 	var time = 'time';
 	var TYPE_OF_DATE = "createdDate";
@@ -9,7 +10,8 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	me.MAX = Number.MAX_VALUE;
 	me.datas = datas_to_set;
 	me.max_rows = (rows ? rows : 10);
-	//me.shownDatas = datas_to_set.splice(0, me.max_rows);
+	
+	me.temp_datas = me.datas.slice(0, me.max_rows);
 	
 	me.headers = [];
 
@@ -35,7 +37,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			var keys = me.headers;
 			var vals = [];
 			var obj = this.model.attributes ? this.model.attributes : this.model;
-		
+			
 			for (var i = 0; i < keys.length; i++){
 				vals[i] = obj[keys[i]];
 			}
@@ -51,16 +53,29 @@ var data_table = function(datas_to_set, announce_function, rows) {
 					d3.select(this)
 						.classed("unlit", true)
 						.classed("lit", false);
-				})
+				})					
 				.selectAll('td')
 				.data(vals)
 				.enter().append('td')
 					.text(function(d){ 
 						var str = d.toString();
 						return str.length > MAX_CHARS ? str.substring(0, MAX_CHARS) + "..." : str;
-					});
-
-				
+					})
+					.on("click", function(d){
+						var coord = d3.mouse(this);
+						d3.selectAll(".data_table_descr").remove();
+						d3.select('.data_table_text')
+							.append("text")
+							.text(d)
+							.classed("data_table_descr", true);
+						d3.selectAll('td').style("font-weight", "normal");
+						d3.select(this).style("font-weight", "bold");
+					})
+					.style("color", "red")
+					.transition()
+						.duration(10000)
+						.style("color", "black");
+									
 			return this;
 		}
 	});
@@ -72,14 +87,16 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			this.render();
 		},
 		render: function(){	
-			var count = 0;
+			count = 0;
+			this.collection = new me.table(me.temp_datas);
 			d3.selectAll("tr").remove();
 			var that = this;
 			_.each(this.collection.models, function (item){
-				//if ( count < me.max_rows) {
+				if ( count < me.max_rows) {
 					that.renderSentence(item);
-					//count++;
-				//}
+					count++;
+					console.log(count);
+				}
 			}, this);
 		},
 		renderSentence: function(item){
@@ -87,7 +104,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				model: item
 			});
 			//render this item and add it to the table
-
+	
 			$('.data_table_data').append(sentView.render().el);
 		},
 		getTimes: function(){
@@ -97,6 +114,12 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			me.datas.push(item);
 			
 			this.collection = new me.table(me.datas);
+			if ( count < me.max_rows) {
+				this.renderSentence(item);
+				me.temp_datas.push(item);
+				count++;
+				console.log(count);
+			}
 		}
 	});
 
@@ -110,8 +133,8 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	};
 
 	me.createTable = function(s, e){
-		temp = me.extractData(s, e);	
-		table = new me.tableView(temp);
+		me.temp_datas = me.extractData(s, e);	
+		table = new me.tableView(me.temp_datas);
 		return table;
 	};
 
@@ -120,22 +143,10 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		d3.selectAll("th")
 			.on("click", function() {
 				var col = parseInt(this.id, 10);
-				col = Object.keys(temp[0])[col];
+				col = Object.keys(me.temp_datas[0])[col];
 				me.sorter(this, col);
-				table = new me.tableView(temp);
-			});
-			
-		//clicker on data to show all data and bold location in table					
-		d3.selectAll('td')
-			.on("click", function(d){
-				var coord = d3.mouse(this);
-				d3.selectAll(".data_table_descr").remove();
-				d3.select('.data_table_text')
-					.append("text")
-					.text(d)
-					.classed("data_table_descr", true);
-				d3.selectAll('td').style("font-weight", "normal");
-				d3.select(this).style("font-weight", "bold");
+				//table = new me.tableView(me.temp_datas);
+				table.render();
 			});
 
 		//grab times from forms for use in re-rendering the table will be removed
@@ -162,7 +173,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 
 	me.sorter = function(elem, colId){
 		//don't bother sorting if temp is empty
-		if (temp.length !== 0){
+		if (me.temp_datas.length !== 0){
 			elem = d3.select(elem);
 
 			if (elem.classed("up")){
@@ -173,7 +184,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 
 				elem.classed('unsorted', false);
 				elem.classed('down', true);
-				temp.sort( function (a, b){ return a[colId] < b[colId] ? 1 : -1; });
+				me.temp_datas.sort( function (a, b){ return a[colId] < b[colId] ? 1 : -1; });
 			} else {
 				var elements = d3.selectAll("th")
 				elements.classed('up', false)
@@ -182,7 +193,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 
 				elem.classed('unsorted', false);
 				elem.classed('up', true);
-				temp.sort( function (a, b){ return a[colId] > b[colId] ? 1 : -1; });
+				me.temp_datas.sort( function (a, b){ return a[colId] > b[colId] ? 1 : -1; });
 			}
 		}
 	}
@@ -221,7 +232,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		
 		me.headers = arr;
 	
-		var header = d3.select(".data_table_data");
+		var header = d3.select(".data_table_data").append("thead");
 		header.selectAll("th").remove();
 		for (var i = arr.length - 1; i >= 0; i--){
 			header.insert("th",":first-child")
@@ -238,13 +249,13 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	me.extractData = function(start, end) {
 		var currData = [];
 		if(time === TYPE_OF_DATE){
-			for (var i = 0; i < this.datas.length; i++){
-				var ti = Date.parse(this.datas[i][time]);
+			for (var i = 0; i < me.temp_datas.length; i++){
+				var ti = Date.parse(me.datas[i][time]);
 		
-				if (ti <= end && ti >= start) { currData.push(this.datas[i]); }
+				if (ti <= end && ti >= start) { currData.push(me.temp_datas[i]); }
 			}
 		} else {
-			currData = this.datas;
+			currData = me.temp_datas;
 		}
 		return currData;
 	};
@@ -258,14 +269,17 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		//$('#start').val('');
 		//$('#end').val('');
 			
-		apple = table.getTimes();
-		for (i = 0; i < apple.length; i++){ apple[i] = Date.parse(apple[i]); }
-	
-		me.announce(JSON.stringify(apple));
+		time_data = table.getTimes();
+		
+		if (Date.parse(time_data[0])){
+			for (i = 0; i < time_data.length; i++){ time_data[i] = Date.parse(time_data[i]); }
+		
+			me.announce(JSON.stringify(time_data));
+		}
+		
 	};
 
 	me.execute = function() {
-
 		window.onresize = function(){
 			me.setLocations();
 		};
@@ -273,5 +287,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	
 	me.setMaxRows = function(r){
 		me.max_rows = r;
+		console.log("Max rows updated to " +me.max_rows);
+		me.temp_datas = me.datas.slice(0, me.max_rows);
 	};
 }
