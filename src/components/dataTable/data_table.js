@@ -42,8 +42,16 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			
 			//grab this element and add d3 functionality
 			d3.select(this.el)
-				.on("mouseover", function(){ d3.select(this).attr("class", "lit"); })
-				.on("mouseout", function(){	d3.select(this).attr("class", "unlit");	})
+				.on("mouseover", function() { 
+					d3.select(this)
+						.classed("lit", true)
+						.classed("unlit", false);
+				})
+				.on("mouseout", function() {
+					d3.select(this)
+						.classed("unlit", true)
+						.classed("lit", false);
+				})
 				.selectAll('td')
 				.data(vals)
 				.enter().append('td')
@@ -55,11 +63,11 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				d3.selectAll('td')
 					.on("click", function(d){
 						var coord = d3.mouse(this);
-						d3.selectAll("#descr").remove();
-						d3.select('#text')
+						d3.selectAll("data_table_descr").remove();
+						d3.select('.data_table_text')
 							.append("text")
 							.text(d)
-							.attr("id", "descr");
+							.classed("data_table_descr", true);
 						d3.selectAll('td').style("font-weight", "normal");
 						d3.select(this).style("font-weight", "bold");
 					});
@@ -70,7 +78,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	});
 
 	me.tableView = Backbone.View.extend({
-		el:$('div.data_table_data')[0],
+		el:$('.data_table_data')[0],
 		initialize: function(te){
 			this.collection = new me.table(te);
 			this.render();
@@ -91,7 +99,8 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				model: item
 			});
 			//render this item and add it to the table
-			$('div.data_table_data').append(sentView.render().el);
+
+			$('.data_table_data').append(sentView.render().el);
 		},
 		getTimes: function(){
 			return this.collection.pluck(time);
@@ -130,12 +139,12 @@ var data_table = function(datas_to_set, announce_function, rows) {
 
 		//grab times from forms for use in re-rendering the table will be removed
 		//but shows example handling of future input from timeline widget
-		d3.select('input.data_table_submit')
+		d3.select('.data_table_submit')
 			.on('click', function(){
-				var s = Date.parse($('input.data_table_start').val());
-				var e = Date.parse($('input.data_table_end').val());
-				$('input.data_table_start').val('');
-				$('input.data_table_end').val('');
+				var s = Date.parse($('.data_table_start').val());
+				var e = Date.parse($('.data_table_end').val());
+				$('.data_table_start').val('');
+				$('.data_table_end').val('');
 		
 				if (s && e && s <= e) { me.createTable(s,e); }
 				else { me.createTable(me.MIN,me.MAX); }
@@ -143,7 +152,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				me.resetAndSend();
 			});
 
-		d3.select('input.data_table_reset')
+		d3.select('.data_table_reset')
 			.on('click', function(){
 				me.createTable(me.MIN,me.MAX);
 				me.resetAndSend();
@@ -153,11 +162,15 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	me.sorter = function(elem, colId){
 		//don't bother sorting if temp is empty
 		if (temp.length !== 0){
-			if (elem.className == "up"){
+			elem = d3.select(elem);
+
+			if (elem.classed("up")){
 				var elements = d3.selectAll("th")
 				elements.classed('up', false)
 				elements.classed('down', false)
 				elements.classed('unsorted', true);
+
+				elem.classed('unsorted', false);
 				elem.classed('down', true);
 				temp.sort( function (a, b){ return a[colId] < b[colId] ? 1 : -1; });
 			} else {
@@ -165,6 +178,8 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				elements.classed('up', false)
 				elements.classed('down', false)
 				elements.classed('unsorted', true);
+
+				elem.classed('unsorted', false);
 				elem.classed('up', true);
 				temp.sort( function (a, b){ return a[colId] > b[colId] ? 1 : -1; });
 			}
@@ -181,16 +196,16 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	/*Allows for automatic resizing and recentering of all objects within the
 	widget when the window/frame is resized */
 	me.setLocations = function(){
-		var center = me.getCenter("div.data_table_hold");
-		var text_center = me.getCenter("#text");
-		var input_center = me.getCenter("div.data_table_inputs");
+		var center = me.getCenter(".data_table_hold");
+		var text_center = me.getCenter(".data_table_text");
+		var input_center = me.getCenter(".data_table_inputs");
 	
 		//push title and inputs over until they are centered
-		d3.select("#text").style("margin-left", (center - text_center) + "px");
-		d3.select("#inputs").style("margin-left", (center - input_center) + "px");
+		d3.select(".data_table_text").style("margin-left", (center - text_center) + "px");
+		d3.select(".data_table_inputs").style("margin-left", (center - input_center) + "px");
 
 		//expand the table until it takes up entire width of frame
-		d3.select("div.data_table_data").style("width", (center * 2) + "px");
+		d3.select(".data_table_data").style("width", (center * 2) + "px");
 	}
 
 	/*Create the headers of the table*/
@@ -203,7 +218,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		
 		me.headers = arr;
 	
-		var header = d3.select("div.data_table_data");
+		var header = d3.select(".data_table_data");
 		header.selectAll("th").remove();
 		for (var i = arr.length - 1; i >= 0; i--){
 			header.insert("th",":first-child")
