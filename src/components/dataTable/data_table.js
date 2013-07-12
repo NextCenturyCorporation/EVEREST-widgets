@@ -276,7 +276,6 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		
 			me.announce(JSON.stringify(time_data));
 		}
-		
 	};
 
 	me.execute = function() {

@@ -1,28 +1,30 @@
 describe('To test src/components/data_table/data_table.js', function(){
 	var datas_to_use = [{
-		"time": "2012-08-04T02:37:47-07:00",
+		"createdDate": "2012-08-04T02:37:47-07:00",
 		"ent1": "the ongoing reports of fraud",
 		"rel": "establish",
 		"ent2": "contacts"
 	},
 	{
-		"time": "2012-09-04T16:41:56-08:00",
+		"createdDate": "2012-09-04T16:41:56-08:00",
 		"ent1": "# co-conspirators",
 		"rel": "conspire to defraud",
 		"ent2": "the united states government"
 	},
 	{
-		"time": "2012-10-04T17:41:56-08:00",
+		"createdDate": "2012-10-04T17:41:56-08:00",
 		"ent1": "the defendant",
 		"rel": "convict of",
 		"ent2": "the conspiracy charge"
 	},
 	{
-		"time": "2012-11-04T17:42:56-08:00",
+		"createdDate": "2012-11-04T17:42:56-08:00",
 		"ent1": "his co-conspirators",
 		"rel": "devise",
 		"ent2": "a scheme"
 	}];	
+	
+	d3.select('body').attr('class', 'data_table_data');
 
 	var test_data_table = new data_table(datas_to_use, function(msg) {
 		console.log(msg);
@@ -71,7 +73,7 @@ describe('To test src/components/data_table/data_table.js', function(){
 			var extracted_data = test_data_table.extractData(s, e);
 
 			for (var i = 0; i < extracted_data.length; i++){
-				extracted_data[i].time = new Date(extracted_data[i].time);
+				extracted_data[i].createdDate = new Date(extracted_data[i].createdDate);
 			}			
 
 			var test_table = new test_data_table.table(extracted_data);
@@ -94,7 +96,7 @@ describe('To test src/components/data_table/data_table.js', function(){
 			var extracted_data = test_data_table.extractData(s, e);
 
 			for (var i = 0; i < extracted_data.length; i++){
-				extracted_data[i].time = new Date(extracted_data[i].time);
+				extracted_data[i].createdDate = new Date(extracted_data[i].createdDate);
 			}
 
 			var test_table_view = new test_data_table.tableView(extracted_data);
@@ -122,6 +124,11 @@ describe('To test src/components/data_table/data_table.js', function(){
 	});
 
 	describe('Tests extractData function', function(){
+		beforeEach(function(){
+			var arr = ['createdDate', 'ent1', 'rel', 'ent2'];
+			var h = test_data_table.createHeaders(arr);
+		});
+		
 		it('for correct lower limiting', function() {
 			var startDate = Date.parse('2012-09-04T01:00:00-08:00'); //before second event
 			var endDate = new Date();
@@ -136,7 +143,6 @@ describe('To test src/components/data_table/data_table.js', function(){
 			var endDate = Date.parse('2012-09-05T01:00:00-08:00'); //after second event;
 	
 			var result = test_data_table.extractData(startDate, endDate);
-			
 			expect(result.length).toBe(2);
 		});
 	
@@ -180,6 +186,10 @@ describe('To test src/components/data_table/data_table.js', function(){
 			
 			//create a table based on valid dates
 			var result = test_data_table.createTable(startDate, endDate);
+			
+			d3.selectAll('th').remove();
+			var arr = ['createdDate', 'ent1', 'rel', 'ent2'];
+			var h = test_data_table.createHeaders(arr);
 		});
 		
 		it('for proper method call logic', function(){
@@ -187,20 +197,20 @@ describe('To test src/components/data_table/data_table.js', function(){
 			spyOn(JSON, 'stringify').andCallThrough();
 			spyOn(Date, 'parse').andCallThrough();
 			
+			console.log(test_data_table.time);
+			
 			//test only to see if the methods are called with proper params
 			test_data_table.resetAndSend();
 			
 			expect(d3.selectAll).toHaveBeenCalledWith('th');
-			expect(JSON.stringify).toHaveBeenCalledWith([]);
-			expect(test_data_table.tableView).toHaveBeenCall
+			expect(Date.parse).toHaveBeenCalled();
+			expect(test_data_table.tableView).toHaveBeenCalled();
 		});
 		
-		it('for proper resetting of all attributes of each element', function(){
-			d3.selectAll('th').remove();
-			d3.select('body').attr('id', 'raw_data');
-			var arr = ['time', 'ent1', 'rel', 'ent2'];
-			var h = test_data_table.createHeaders(arr);
+		it('for proper resetting of all attributes of each element', function(){		
 			
+			var he = d3.select('.data_table_data').selectAll('th');
+						
 			//grab each of the headers
 			var ex0 = document.getElementById('0');
 			var ex1 = document.getElementById('1');
@@ -208,7 +218,7 @@ describe('To test src/components/data_table/data_table.js', function(){
 			var ex3 = document.getElementById('3');
 			
 			//sort ex0 to up
-			test_data_table.sorter(ex0, 'time');
+			test_data_table.sorter(ex0, 'createdDate');
 			expect(ex0.className).toBe('up');
 			
 			//sort ex2 to up
@@ -241,7 +251,7 @@ describe('To test src/components/data_table/data_table.js', function(){
 			//just make extractData return an array of a single element
 			spyOn(test_data_table, 'extractData').andCallFake(function(start, end) {
 				return [{
-					"time": "2000-11-04T17:42:56-08:00",
+					"createdDate": "2000-11-04T17:42:56-08:00",
 					"ent1": "his co-conspirators",
 					"rel": "devise",
 					"ent2": "a scheme"
@@ -252,7 +262,6 @@ describe('To test src/components/data_table/data_table.js', function(){
 			spyOn(test_data_table, 'tableView').andCallFake(function(x) {
 				return result;
 			});
-			
 			
 			call_result = test_data_table.createTable(startDate, endDate);
 	
