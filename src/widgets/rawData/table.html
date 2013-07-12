@@ -13,14 +13,24 @@
 </head>
 <body>
 	<div class="data_table_hold">
-	<div class="data_table_title"></div>
-	<table border="1" class='data_table_raw_data'></table>
+		<div class="data_table_title"></div>
+		<form> Please select the number of rows to display 
+			<label><input type="radio" name="rows" value="10" checked>10</label>
+			<label><input type="radio" name="rows" value="25">25</label>
+			<label><input type="radio" name="rows" value="50">50</label>
+			<label><input type="radio" name="rows" value="100">100</label>
+			<label><input type="radio" name="rows" value="all" class="data_table_all_radio">All</label>
+		</form>
+		
+		<table border="1" class='data_table_data'></table>
+		
 		<div class="data_table_inputs">
 			Start Date: <input type="text" name="start" class="data_table_start">
 			End Date: <input type="text" name="end" class="data_table_end">
 			<input type="button" value="Submit" class="data_table_submit">
 			<input type="button" value="Show All" class="data_table_reset">
 		</div>
+		<div id="text"></div>
 	</div>
 
 	<script type="text/javascript">

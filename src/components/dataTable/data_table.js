@@ -1,9 +1,17 @@
-var data_table = function(datas_to_set, announce_function) {
+var data_table = function(datas_to_set, announce_function, rows) {
 	var me = this;
-		
+	var MAX_CHARS = 100;
+	
+	var time = 'time';
+	var TYPE_OF_DATE = "createdDate";
+	
 	me.MIN = 0;
 	me.MAX = Number.MAX_VALUE;
 	me.datas = datas_to_set;
+	me.max_rows = rows;
+	//me.shownDatas = datas_to_set.splice(0, me.max_rows);
+	
+	me.headers = [];
 
 	me.announce = announce_function;
 
@@ -24,34 +32,40 @@ var data_table = function(datas_to_set, announce_function) {
 		},
 		render: function(){
 			//get keys and values of the attributes of this model
-			var keys = Object.keys(this.model.attributes);
+			var keys = me.headers;
 			var vals = [];
-			for (var i = 0; i < keys.length; i++)
-				vals[i] = this.model.attributes[keys[i]];
-	
+			var obj = this.model.attributes ? this.model.attributes : this.model;
+		
+			for (var i = 0; i < keys.length; i++){
+				vals[i] = obj[keys[i]];
+			}
+			
 			//grab this element and add d3 functionality
 			d3.select(this.el)
-				.on("mouseover", function(){
-					//d3.select(this).style("background", "#366fb4");
-					d3.select(this).attr("class", "lit");
-				})
-				.on("mouseout", function(){
-					//d3.select(this).style("background", "white");
-					d3.select(this).attr("class", "unlit");
-				})
+				.on("mouseover", function(){ d3.select(this).attr("class", "lit"); })
+				.on("mouseout", function(){	d3.select(this).attr("class", "unlit");	})
 				.selectAll('td')
 				.data(vals)
 				.enter().append('td')
 					.text(function(d){ 
-						if (typeof(d) === 'object') {
-							// Don't display GMT part and after (for now)?
-							var reg = /(.*) GMT-/i;
-							var results = reg.test(d.toString());
-							return RegExp.$1;
-						}
-						return d;
+						var str = d.toString();
+						return str.length > MAX_CHARS ? str.substring(0, MAX_CHARS) + "..." : str;
 					});
+						
+				d3.selectAll('td')
+					.on("click", function(d){
+						var coord = d3.mouse(this);
+						d3.selectAll("#descr").remove();
+						d3.select('#text')
+							.append("text")
+							.text(d)
+							.attr("id", "descr");
+						d3.selectAll('td').style("font-weight", "normal");
+						d3.select(this).style("font-weight", "bold");
+					});
+				
 			return this;
+			
 		}
 	});
 
@@ -62,10 +76,14 @@ var data_table = function(datas_to_set, announce_function) {
 			this.render();
 		},
 		render: function(){	
+			var count = 0;
 			d3.selectAll("tr").remove();
 			var that = this;
 			_.each(this.collection.models, function (item){
-				that.renderSentence(item);
+				//if ( count < me.max_rows) {
+					that.renderSentence(item);
+					//count++;
+				//}
 			}, this);
 		},
 		renderSentence: function(item){
@@ -76,8 +94,12 @@ var data_table = function(datas_to_set, announce_function) {
 			$('div.data_table_data').append(sentView.render().el);
 		},
 		getTimes: function(){
-			//underscore function to grab all of the times from the data
-			return this.collection.pluck('time');							//JSON
+			return this.collection.pluck(time);
+		},
+		addSentence: function(item){
+			me.datas.push(item);
+			
+			this.collection = new me.table(me.datas);
 		}
 	});
 
@@ -92,11 +114,6 @@ var data_table = function(datas_to_set, announce_function) {
 
 	me.createTable = function(s, e){
 		temp = me.extractData(s, e);	
-
-		for (var i = 0; i < temp.length; i++){
-			temp[i].time = new Date(temp[i].time);
-		}
-
 		table = new me.tableView(temp);
 		return table;
 	};
@@ -130,7 +147,7 @@ var data_table = function(datas_to_set, announce_function) {
 			.on('click', function(){
 				me.createTable(me.MIN,me.MAX);
 				me.resetAndSend();
-			});
+			});			
 	};
 
 	me.sorter = function(elem, colId){
@@ -165,22 +182,31 @@ var data_table = function(datas_to_set, announce_function) {
 	widget when the window/frame is resized */
 	me.setLocations = function(){
 		var center = me.getCenter("div.data_table_hold");
-		var title_center = me.getCenter("div.data_table_title");
+		var text_center = me.getCenter("#text");
 		var input_center = me.getCenter("div.data_table_inputs");
 	
 		//push title and inputs over until they are centered
-		d3.select("div.data_table_title").style("margin-left", (center - title_center) + "px");
-		d3.select("div.data_table_inputs").style("margin-left", (center - input_center) + "px");
-	
+		d3.select("#text").style("margin-left", (center - text_center) + "px");
+		d3.select("#inputs").style("margin-left", (center - input_center) + "px");
+
 		//expand the table until it takes up entire width of frame
 		d3.select("div.data_table_data").style("width", (center * 2) + "px");
 	}
 
 	/*Create the headers of the table*/
 	me.createHeaders = function(arr){
+		if ($.inArray(TYPE_OF_DATE, arr) !== -1){
+			time = TYPE_OF_DATE;
+		} else {
+			time = arr[0];
+		}
+		
+		me.headers = arr;
+	
 		var header = d3.select("div.data_table_data");
-		for (var i = 0; i < arr.length; i++){
-			header.append("th")
+		header.selectAll("th").remove();
+		for (var i = arr.length - 1; i >= 0; i--){
+			header.insert("th",":first-child")
 					.text(arr[i])
 					.attr("id", i)
 					.attr("class", "unsorted");
@@ -193,13 +219,18 @@ var data_table = function(datas_to_set, announce_function) {
 	only rows that occur in the specified time range*/
 	me.extractData = function(start, end) {
 		var currData = [];
-		for (var i = 0; i < this.datas.length; i++){
-			var ti = Date.parse(this.datas[i].time);
-	
-			if (ti <= end && ti >= start) { currData.push(this.datas[i]); }
+		if(time === TYPE_OF_DATE){
+			for (var i = 0; i < this.datas.length; i++){
+				var ti = Date.parse(this.datas[i][time]);
+		
+				if (ti <= end && ti >= start) { currData.push(this.datas[i]); }
+			}
+		} else {
+			currData = this.datas;
 		}
 		return currData;
 	};
+
 
 	me.resetAndSend = function(){
 		var headers = d3.selectAll("th")
@@ -220,5 +251,9 @@ var data_table = function(datas_to_set, announce_function) {
 		window.onresize = function(){
 			me.setLocations();
 		};
+	};	
+	
+	me.setMaxRows = function(r){
+		me.max_rows = r;
 	};
 }
