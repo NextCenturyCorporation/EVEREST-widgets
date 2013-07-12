@@ -59,21 +59,9 @@ var data_table = function(datas_to_set, announce_function, rows) {
 						var str = d.toString();
 						return str.length > MAX_CHARS ? str.substring(0, MAX_CHARS) + "..." : str;
 					});
-						
-				d3.selectAll('td')
-					.on("click", function(d){
-						var coord = d3.mouse(this);
-						d3.selectAll("data_table_descr").remove();
-						d3.select('.data_table_text')
-							.append("text")
-							.text(d)
-							.classed("data_table_descr", true);
-						d3.selectAll('td').style("font-weight", "normal");
-						d3.select(this).style("font-weight", "bold");
-					});
+
 				
 			return this;
-			
 		}
 	});
 
@@ -135,6 +123,19 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				col = Object.keys(temp[0])[col];
 				me.sorter(this, col);
 				table = new me.tableView(temp);
+			});
+			
+		//clicker on data to show all data and bold location in table					
+		d3.selectAll('td')
+			.on("click", function(d){
+				var coord = d3.mouse(this);
+				d3.selectAll(".data_table_descr").remove();
+				d3.select('.data_table_text')
+					.append("text")
+					.text(d)
+					.classed("data_table_descr", true);
+				d3.selectAll('td').style("font-weight", "normal");
+				d3.select(this).style("font-weight", "bold");
 			});
 
 		//grab times from forms for use in re-rendering the table will be removed
