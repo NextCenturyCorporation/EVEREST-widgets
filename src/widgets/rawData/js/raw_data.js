@@ -24,8 +24,7 @@ function initTable(data){
 raw_data_widget.execute = function() {
 	
 	d3.selectAll("input").on("change", function(){
-		max_rows = this.value !== 'all' ? parseInt(this.value,10) : raw_data_table.MAX;
-		raw_data_table.setMaxRows(max_rows);
+		raw_data_table.setMaxRows(parseInt(this.value,10));
 		console.log(max_rows);
 		table.render();
 	});

@@ -45,8 +45,24 @@ th {
 	word-wrap: break-word;
 	border-style:solid;
 	border-color:#004785;
-	text-align:center;
 }
+
+.data_table_pages{
+	float: right;
+}
+
+a.other{
+	color: #004785;
+	text-decoration:underline;
+	margin: 5px;	
+	cursor: pointer;
+}
+
+a.current{
+	font-weight: bold;
+	margin: 5px;	
+}
+
 .data_table_title{
 	color:#004785;
 	display:inline-block;
