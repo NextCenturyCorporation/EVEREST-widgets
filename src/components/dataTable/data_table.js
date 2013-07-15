@@ -1,7 +1,6 @@
 var data_table = function(datas_to_set, announce_function, rows) {
 	var me = this;
 	var MAX_CHARS = 100;
-	var page = 0;
 	
 	var time = 'time';
 	var TYPE_OF_DATE = "createdDate";
@@ -11,9 +10,9 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	me.datas = datas_to_set;
 	me.max_rows = (rows ? rows : 10);
 	me.max_pages = Math.floor(me.datas.length / rows);
-	console.log("Max pages is " +me.max_pages);
-	me.count = page * max_rows;
+	me.count = me.page * max_rows;
 	me.temp_datas = me.datas.slice(0, me.max_rows);
+	me.page = 0;
 	
 	me.headers = [];
 
@@ -31,7 +30,6 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	me.sentenceView = Backbone.View.extend({
 		tagName: 'tr',
 		className: 'unlit',
-		isNew: false,
 		initialize: function(){
 			this.render();
 		},
@@ -75,14 +73,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 							.classed("data_table_descr", true);
 						d3.selectAll('td').style("font-weight", "normal");
 						d3.select(this).style("font-weight", "bold");
-					})
-					.style("color", function(){
-						var temp = (1 + page) * me.max_rows;
-						return me.count > temp ? "red" : "black";
-					})
-					.transition()
-						.duration(10000)
-						.style("color", "black");
+					});
 									
 			return this;
 		}
@@ -90,8 +81,8 @@ var data_table = function(datas_to_set, announce_function, rows) {
 
 	me.tableView = Backbone.View.extend({
 		el:$('.data_table_data')[0],
-		initialize: function(te){
-			this.collection = new me.table(te);
+		initialize: function(data_array){
+			this.collection = new me.table(data_array);
 			this.render();
 		},
 		render: function(){	
@@ -102,20 +93,20 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			var pages = d3.select(".data_table_pages");
 			for (i = 1; i <= me.max_pages + 1; i++){
 				pages.append('a')
-					.attr('class', i === (page + 1) ? 'current' : 'other')
+					.attr('class', i === (me.page + 1) ? 'current' : 'other')
 					.text(i)
 					.on('click', function(){
-						page = parseInt(this.text,10) - 1;
+						me.page = parseInt(this.text,10) - 1;
+						me.temp_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);
 						that.render();
-					});
+					});											//re renders table when a new page number is added( probs pull out later)
 			}
 
-			me.count = page * me.max_rows;
-			var temp = (1 + page) * me.max_rows;
-			this.collection = new me.table(me.datas.slice(me.count, temp));
-			
+			me.count = me.page * me.max_rows;
+			var temp = (1 + me.page) * me.max_rows;
+			this.collection = new me.table(me.temp_datas);		//this is the problem for sorting, uses datas again 
+							
 			d3.selectAll("tr").remove();
-			var that = this;
 			_.each(this.collection.models, function (item){
 				if ( me.count < temp) {
 					that.renderSentence(item);
@@ -128,8 +119,6 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				model: item
 			});
 			//render this item and add it to the table
-	
-			//$('.data_table_data').append(sentView.render().el);
 			$('.data_table_data').append(sentView.el);
 		},
 		getTimes: function(){
@@ -137,16 +126,25 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		},
 		addSentence: function(item){
 			me.datas.push(item);
-			var temp = (1 + page) * me.max_rows;
-			
-			this.collection = new me.table(me.datas);
-			
+			var temp = (1 + me.page) * me.max_rows;
+						
 			//render data only between beginning of page and end of page, of length me.max_rows
 			if ( me.count < temp) {
 				me.count++;
-				this.renderSentence(item);
 				me.temp_datas.push(item);
+				
+				this.renderSentence(item);
+				
+				//hi-light the row as it is added, with a fade out
+				var rows = d3.select('.data_table_data').selectAll('tr');
+				var lastRow = rows[0][rows[0].length - 1];
+				d3.select(lastRow).style("color", "red")
+					.transition()
+					.duration(10000)
+					.style("color", "black");
 			}
+			
+			this.collection = new me.table(me.temp_datas);
 			
 			//pages @ top, if data becomes large enough to add another page,
 			if (Math.floor(me.datas.length / me.max_rows) > me.max_pages){
@@ -156,9 +154,10 @@ var data_table = function(datas_to_set, announce_function, rows) {
 					.attr('class', 'other')
 					.text(me.max_pages + 2)
 					.on('click', function(){
-						page = parseInt(this.text,10) - 1;							//the entire table may not need to be re-rendered
+						me.page = parseInt(this.text,10) - 1;							//the entire table may not need to be re-rendered
+						me.temp_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);
 						that.render();												//when a page number is simply added, maybe pull this out	
-					});
+					});																	
 				
 				//updated me.max_pages	
 				me.max_pages = Math.floor(me.datas.length / me.max_rows);
@@ -177,7 +176,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 
 	me.createTable = function(s, e){
 		me.temp_datas = me.extractData(s, e);	
-		table = new me.tableView(me.temp_datas);
+		table = new me.tableView(me.temp_datas);								
 		return table;
 	};
 
@@ -188,7 +187,6 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				var col = parseInt(this.id, 10);
 				col = Object.keys(me.temp_datas[0])[col];
 				me.sorter(this, col);
-				//table = new me.tableView(me.temp_datas);
 				table.render();
 			});
 
