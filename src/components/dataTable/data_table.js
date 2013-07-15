@@ -1,7 +1,7 @@
 var data_table = function(datas_to_set, announce_function, rows) {
 	var me = this;
 	var MAX_CHARS = 100;
-	var count = 0;
+	var page = 0;
 	
 	var time = 'time';
 	var TYPE_OF_DATE = "createdDate";
@@ -10,7 +10,9 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	me.MAX = Number.MAX_VALUE;
 	me.datas = datas_to_set;
 	me.max_rows = (rows ? rows : 10);
-	
+	me.max_pages = Math.floor(me.datas.length / rows);
+	console.log("Max pages is " +me.max_pages);
+	me.count = page * max_rows;
 	me.temp_datas = me.datas.slice(0, me.max_rows);
 	
 	me.headers = [];
@@ -29,6 +31,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	me.sentenceView = Backbone.View.extend({
 		tagName: 'tr',
 		className: 'unlit',
+		isNew: false,
 		initialize: function(){
 			this.render();
 		},
@@ -41,6 +44,8 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			for (var i = 0; i < keys.length; i++){
 				vals[i] = obj[keys[i]];
 			}
+			
+			var that = this;
 			
 			//grab this element and add d3 functionality
 			d3.select(this.el)
@@ -71,7 +76,10 @@ var data_table = function(datas_to_set, announce_function, rows) {
 						d3.selectAll('td').style("font-weight", "normal");
 						d3.select(this).style("font-weight", "bold");
 					})
-					.style("color", "red")
+					.style("color", function(){
+						var temp = (1 + page) * me.max_rows;
+						return me.count > temp ? "red" : "black";
+					})
 					.transition()
 						.duration(10000)
 						.style("color", "black");
@@ -87,15 +95,31 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			this.render();
 		},
 		render: function(){	
-			count = 0;
-			this.collection = new me.table(me.temp_datas);
+		
+			//create the links at the top that indicate pages in the table
+			d3.selectAll('a').remove();
+			var that = this;
+			var pages = d3.select(".data_table_pages");
+			for (i = 1; i <= me.max_pages + 1; i++){
+				pages.append('a')
+					.attr('class', i === (page + 1) ? 'current' : 'other')
+					.text(i)
+					.on('click', function(){
+						page = parseInt(this.text,10) - 1;
+						that.render();
+					});
+			}
+
+			me.count = page * me.max_rows;
+			var temp = (1 + page) * me.max_rows;
+			this.collection = new me.table(me.datas.slice(me.count, temp));
+			
 			d3.selectAll("tr").remove();
 			var that = this;
 			_.each(this.collection.models, function (item){
-				if ( count < me.max_rows) {
+				if ( me.count < temp) {
 					that.renderSentence(item);
-					count++;
-					console.log(count);
+					me.count++;
 				}
 			}, this);
 		},
@@ -105,20 +129,39 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			});
 			//render this item and add it to the table
 	
-			$('.data_table_data').append(sentView.render().el);
+			//$('.data_table_data').append(sentView.render().el);
+			$('.data_table_data').append(sentView.el);
 		},
 		getTimes: function(){
 			return this.collection.pluck(time);
 		},
 		addSentence: function(item){
 			me.datas.push(item);
+			var temp = (1 + page) * me.max_rows;
 			
 			this.collection = new me.table(me.datas);
-			if ( count < me.max_rows) {
+			
+			//render data only between beginning of page and end of page, of length me.max_rows
+			if ( me.count < temp) {
+				me.count++;
 				this.renderSentence(item);
 				me.temp_datas.push(item);
-				count++;
-				console.log(count);
+			}
+			
+			//pages @ top, if data becomes large enough to add another page,
+			if (Math.floor(me.datas.length / me.max_rows) > me.max_pages){
+				var that = this;
+				d3.select(".data_table_pages")
+					.append('a')
+					.attr('class', 'other')
+					.text(me.max_pages + 2)
+					.on('click', function(){
+						page = parseInt(this.text,10) - 1;							//the entire table may not need to be re-rendered
+						that.render();												//when a page number is simply added, maybe pull this out	
+					});
+				
+				//updated me.max_pages	
+				me.max_pages = Math.floor(me.datas.length / me.max_rows);
 			}
 		}
 	});
@@ -240,6 +283,8 @@ var data_table = function(datas_to_set, announce_function, rows) {
 					.attr("id", i)
 					.attr("class", "unsorted");
 		}
+		
+
 		return header;
 	}
 
@@ -288,5 +333,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		me.max_rows = r;
 		console.log("Max rows updated to " +me.max_rows);
 		me.temp_datas = me.datas.slice(0, me.max_rows);
+		
+		me.max_pages = Math.floor(me.datas.length / me.max_rows);
 	};
 }
