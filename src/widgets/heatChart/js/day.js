@@ -6,7 +6,11 @@ var HOURS_PER_DAY = 24;
 var day_heatChart_widget = {};
 
 day_heatChart_widget.execute = function() {
+	var hours = ['12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am', '8am',
+		'9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm',
+		'7pm', '8pm', '9pm', '10pm', '11pm'];
 	var raw_data = [MINUTES_PER_DAY];
+	var day_chunks= [];
 
 	for (var i = 0; i < MINUTES_PER_DAY; i++){
 		raw_data[i] = 0;
@@ -30,16 +34,11 @@ day_heatChart_widget.execute = function() {
 
 				}
 
-				var day_chunks= [];
-				var hours = ['12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am', '8am',
-				'9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm',
-				'7pm', '8pm', '9pm', '10pm', '11pm'];
-
 				var chart = circularHeatChart()
-					.range(["white", "blue"])
-					.segmentLabels(hours)
-					.segmentHeight(4.7)
-					.innerRadius(10);
+				.range(["white", "blue"])
+				.segmentLabels(hours)
+				.segmentHeight(4.7)
+				.innerRadius(10);
 
 				for(var k = 0; k < MINUTES_PER_DAY; k++){
 

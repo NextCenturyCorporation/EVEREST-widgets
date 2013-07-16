@@ -7,11 +7,11 @@ week_heatChart_widget.execute = function() {
 	var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
 		'Saturday'];
 	var raw_data = [HOURS_PER_WEEK];
-	var week_chunks = []
+	var week_chunks = [];
 
-		for (var i = 0; i < HOURS_PER_WEEK; i++) {
-			raw_data[i] = 0;
-		}
+	for (var i = 0; i < HOURS_PER_WEEK; i++) {
+		raw_data[i] = 0;
+	}
 
 	owfdojo.addOnLoad(function() {
 		OWF.ready(function() {
