@@ -91,15 +91,22 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			d3.selectAll('a').remove();
 			var that = this;
 			var pages = d3.select(".data_table_pages");
-			for (i = 1; i <= me.max_pages + 1; i++){
-				pages.append('a')
-					.attr('class', i === (me.page + 1) ? 'current' : 'other')
-					.text(i)
-					.on('click', function(){
-						me.page = parseInt(this.text,10) - 1;
-						me.temp_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);
-						that.render();
-					});											//re renders table when a new page number is added( probs pull out later)
+			var nums = me.getPageNumbers(me.page + 1, me.max_pages + 1);
+
+			for (i = 0; i <= nums.length; i++){
+				if (nums[i] === "..."){
+					pages.append('a')
+						.text(nums[i]);
+				} else {
+					pages.append('a')
+						.attr('class', nums[i] === (me.page + 1) ? 'current' : 'other')
+						.text(nums[i])
+						.on('click', function(){
+							me.page = parseInt(this.text,10) - 1;
+							me.temp_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);
+							that.render();
+						});											//re renders table when a new page number is added( probs pull out later)
+				}
 			}
 
 			me.count = me.page * me.max_rows;
@@ -178,6 +185,40 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		me.temp_datas = me.extractData(s, e);	
 		table = new me.tableView(me.temp_datas);								
 		return table;
+	};
+	
+	me.getPageNumbers = function(current, last){
+		var maxNumPages = 10; 		
+		var nums = [],
+			j = 0;
+			
+		if (last <= maxNumPages){
+			for (var i = 1; i <= last; i++){
+				nums[i] = i;
+			}
+			return nums;
+		}
+		
+		if (current - (maxNumPages/2) > 1){
+			nums[j] = 1;
+			nums[j+1] = "...";
+			j += 2;
+		}
+		
+		var low = Math.max(1, current - (maxNumPages/2));
+		var high = Math.min(last, low + maxNumPages - 1);
+		
+		for (var i = low; i <= high; i++){
+			nums[j] = i;
+			j++;
+		}
+		
+		if (current + (maxNumPages/2) <= last){
+			nums[j] = "...";
+			nums[j+1] = last;
+		}
+		
+		return nums;
 	};
 
 	me.createClickers = function() {
