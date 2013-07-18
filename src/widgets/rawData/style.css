@@ -1,17 +1,28 @@
-.data_table_data {
+.data_table_data {	
 	border-color:#004785;
-	border-width:3px;
 	border-collapse:collapse;
 	font-size:15px;
 }
 
+thead{
+	margin:0px auto;
+	background: white;
+	//position: fixed;
+	z-index: 100;
+	border-color:#004785;
+}
+
+tbody{
+	padding: 100px 0px 0px 0px;
+}
+
 td {
-	padding:0px 10px 0px 5px;
+	padding: 5px 20px 5px 5px;
 }
 
 th {
 	cursor: pointer;
-	padding: 10px 30px 10px 5px;
+	padding: 5px 20px 5px 5px;
 	text-align:left;
 	background-repeat:no-repeat;
 	background-position:right;

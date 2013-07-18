@@ -1,23 +1,26 @@
 var raw_data_widget = {};
 
 var max_rows = 10;
-var url = 'http://everest-build:8081/rawfeed/';
-var raw_data_table, datas_to_use = [], table = null;
+var url = 'http://localhost:8081/rawfeed/';
+var raw_data_table;
+var datas_to_use = [];
+var table = null;
 
 function initTable(data){
 	datas_to_use = (data === [] ? {} : data);
 	
-	console.log("CREATING table of " + datas_to_use + "with a max number of rows of " + max_rows);
+	//console.log("CREATING table of " + datas_to_use + "with a max number of rows of " + max_rows);
 	
 	raw_data_table = new data_table(datas_to_use, function(announcement) {
 		OWF.Eventing.publish("com.nextcentury.everest.data_table_announcing.raw_data", announcement);
 	}, max_rows);
-	console.log(max_rows);
+	//console.log(max_rows);
 		
 	raw_data_table.createHeaders(Object.keys(raw_data_table.datas[0]));
-	table = raw_data_table.createTable(raw_data_table.MIN,raw_data_table.MAX);	//LOCATION OF RENDER TABLE
+	table = raw_data_table.createTable(raw_data_table.MIN,raw_data_table.MAX);
 	raw_data_table.createClickers();
 	raw_data_table.setLocations();
+	//raw_data_table.adjustDataWidths();
 	raw_data_table.execute();
 };
 
@@ -26,7 +29,7 @@ raw_data_widget.execute = function() {
 	d3.selectAll("input").on("change", function(){
 		raw_data_table.setMaxRows(parseInt(this.value,10));
 		raw_data_table.page = 0;
-		table.render();	//LOCATION OF RENDER TABLE
+		table.render();
 	});
 
 	$.getJSON(url + "?callback=?", function(data){
@@ -34,11 +37,12 @@ raw_data_widget.execute = function() {
 			//datas_to_use = data.slice(0, max_rows);
 			datas_to_use = data;
 					
-			initTable(datas_to_use);//LOCATION OF RENDER TABLE
+			initTable(datas_to_use);
 
 			owfdojo.addOnLoad(function(){
 				OWF.ready(function(){
-					setInterval(raw_data_table.resetAndSend, 10000);					//to be removed later on, and put back clearing into resetAndSend
+					//to be removed later on, and put back clearing into resetAndSend
+					setInterval(raw_data_table.resetAndSend, 10000);
 			
 					OWF.Eventing.subscribe("com.nextcentury.everest.timeline_announcing", function(sender, msg){
 						var range = msg.substring(1,msg.length - 1).split(',');
@@ -56,21 +60,45 @@ raw_data_widget.execute = function() {
 	setInterval(function(){
 		$.getJSON(url + "?callback=?", function(data){
 			
-			
-			if (data !== [] && data.length !== datas_to_use.length){
-				var diff = data.length - datas_to_use.length - 1;
+			if (data !== []){// && data.length !== datas_to_use.length){
+				//var diff = data.length - datas_to_use.length - 1;
 			
 				if (!table ){
-					initTable(data);//LOCATION OF RENDER TABLE
+					initTable(data);
 					datas_to_use = data;
 				} else {
-					var new_data = data.slice(datas_to_use.length, data.length);
-					for (var i = 0; i <= diff; i++){
-						table.addSentence(new_data[i]);
+					var new_data = [];
+					var tdata = [];
+					var tdatas_to_use = [];
+					
+					for (var m = 0; m < data.length; m++){
+						tdata[m] = JSON.stringify(data[m]);
 					}
-					datas_to_use = data;					
+					
+					for (m = 0; m < datas_to_use.length; m++){
+						tdatas_to_use[m] = JSON.stringify(datas_to_use[m]);
+					}
+					
+					new_data = $(tdata).not(tdatas_to_use);
+					
+					for(m = 0; m < new_data.length; m++){
+						new_data[m] = JSON.parse(new_data[m]);
+					}
+					
+					//console.log(new_data);
+					//console.log(new_data.length);
+					
+					tdata = [];
+					tdatas_to_use = [];
+					//var new_data = data.slice(datas_to_use.length, data.length);
+					for (var i = 0; i < new_data.length; i++){
+						table.addSentence(new_data[i]);
+						datas_to_use.push(new_data[i]);
+					}
+					//datas_to_use = data;					
 				}
 			}
 		});
-	}, 2500);
+	}, 10000);
+
 };
