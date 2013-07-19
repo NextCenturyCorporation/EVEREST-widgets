@@ -1,13 +1,16 @@
 var data_table = function(datas_to_set, announce_function, rows) {
 	var me = this;
-	var MAX_CHARS = 100;
-	
 	var time = 'time';
-	var TYPE_OF_DATE = "createdDate";
+	
+	var MAX_CHARS = 100;
+	var TYPE_OF_DATE = 'createdDate';
 	var FADE_OUT_TIME = 10000;
+	var HILIGHT = 'red';
+	var STANDARD = 'black';
 	
 	me.MIN = 0;
 	me.MAX = Number.MAX_VALUE;
+	
 	me.datas = datas_to_set;
 	me.max_rows = (rows ? rows : 10);
 	me.max_pages = Math.floor(me.datas.length / rows);
@@ -21,7 +24,6 @@ var data_table = function(datas_to_set, announce_function, rows) {
 
 	me.sentence = Backbone.Model.extend({
 		defaults: {	}
-		//something needs to go here....
 	});
 
 	me.table = Backbone.Collection.extend({
@@ -44,44 +46,36 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				vals[i] = obj[keys[i]];
 			}
 			
-			var that = this;
-			
 			//grab this element and add d3 functionality
 			d3.select(this.el)
 				.on("mouseover", function() { 
-						d3.select(this)
-							.classed("lit", true)
-							.classed("unlit", false);
-					}
-				)
+					d3.select(this)
+						.classed("lit", true)
+						.classed("unlit", false);
+				})
 				.on("mouseout", function() {
-						d3.select(this)
-							.classed("unlit", true)
-							.classed("lit", false);
-					}
-				)					
+					d3.select(this)
+						.classed("unlit", true)
+						.classed("lit", false);
+				})					
 				.selectAll('td')
 				.data(vals)
 				.enter().append('td')
 					.text(function(d){ 
-							var str = d.toString();
-							return str.length > MAX_CHARS ? str.substring(0, MAX_CHARS) + "..." : str;
-						}
-					)
+						var str = d.toString();
+						return str.length > MAX_CHARS ? str.substring(0, MAX_CHARS) + "..." : str;
+					})
 					.on("click", function(d){
-							var coord = d3.mouse(this);
-							d3.selectAll(".data_table_descr").remove();
-							d3.select('.data_table_text')
-								.append("text")
-								.text(d)
-								.classed("data_table_descr", true);
-								
-							d3.selectAll('td').style("font-weight", "normal");
-							d3.select(this).style("font-weight", "bold");
-						}
-					);
-									
-			return this;
+						var coord = d3.mouse(this);
+						d3.selectAll(".data_table_descr").remove();
+						d3.select('.data_table_text')
+							.append("text")
+							.text(d)
+							.classed("data_table_descr", true);
+							
+						d3.selectAll('td').style("font-weight", "normal");
+						d3.select(this).style("font-weight", "bold");
+					});
 		}
 	});
 
@@ -94,13 +88,15 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			render: function(){	
 				var that = this;
 				me.showPageNumbers(that);
-
+				
+				me.temp_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);
+				this.collection = new me.table(me.temp_datas);
+				
 				var s = "Displaying " + me.temp_datas.length + " of " + me.datas.length + " objects";
 				$('.data_table_display_info').text(s);
 	
 				me.count = me.page * me.max_rows;
 				var temp = (1 + me.page) * me.max_rows;
-				this.collection = new me.table(me.temp_datas);
 								
 				d3.selectAll("tr").remove();
 				_.each(this.collection.models, function (item){
@@ -120,7 +116,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				//render this item and add it to the table
 				if (loc === false){	
 					$('.data_table_data').append(sentView.el);
-				} else {	//including when loc === 0
+				} else {				//including when loc === 0
 					$($('tbody').children()[location]).before(sentView.el);
 				}
 			},
@@ -128,69 +124,55 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				return this.collection.pluck(time);
 			},
 			addSentence: function(item){
-			
-				//add item to entire data collection
 				me.datas.push(item);
-				me.temp_datas.push(item);
-				
-				var temp = (1 + me.page) * me.max_rows;
-				var isIn = false;
 				
 				//grab the column we want to sort by
 				var col = me.getSortedColumn();
 				var colText = me.headers[col.id];
 				
+				//make sure new item is in its correct location in me.datas 
 				if(col.class === 'up'){
-					me.datas.sort(function(a,b){ 
-						return a[colText] > b[colText] ? 1 : -1; 
-					});
-				
-					me.temp_datas.sort(function(a,b){ 
-						return a[colText] > b[colText] ? 1 : -1; 
-					});
-					isIn = me.max_rows === me.temp_datas.indexOf(item) ? false : true;
-				
+					me.datas.sort(function(a,b){ return a[colText] > b[colText] ? 1 : -1; });
 				} else if (col.class === 'down'){
-					me.datas.sort(function(a,b){ 
-						return a[colText] > b[colText] ? 1 : -1; 
-					});
-					
-					me.temp_datas.sort(function(a,b){ 
-						return a[colText] < b[colText] ? 1 : -1; 
-					});
-					isIn = 0 === me.temp_datas.indexOf(item) ? false : true;
-					
+					me.datas.sort(function(a,b){ return a[colText] < b[colText] ? 1 : -1; });
 				}
 				
-				if (me.temp_datas.length <= me.max_rows){
-					isIn = true;
-				}
+				me.temp_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);						
+				this.collection = new me.table(me.temp_datas);
 				
+				var isIn = -1 === me.temp_datas.indexOf(item) ? false : true;
 				var ind = me.temp_datas.indexOf(item);
+				
 				if (isIn){
 					
 					if (ind === me.temp_datas.length - 1){
 						this.renderSentence(item, false);
-						me.count++;
 					} else {
 						this.renderSentence(item, ind);
-						if (me.temp_datas.length > me.max_rows){
-							$('tbody').children()[me.max_rows].remove();
-							me.temp_datas.pop();
-						}
+					}
+					
+					me.count++;
+					var rs = d3.selectAll('tr')[0].length;
+					console.log(rs);
+					
+					if (rs === me.max_rows + 1){
+						$('tbody').children()[me.max_rows].remove();
+						me.temp_datas.pop();
 					}
 					
 					//hi-light the row as it is added, with a fade out
 					var rows = d3.select('.data_table_data').selectAll('tr');
-					var lastRow = rows[0][me.temp_datas.indexOf(item)];
-					d3.select(lastRow).style("color", "red")
+					var lastRow = rows[0][ind];
+					d3.select(lastRow).style("color", HILIGHT)
 						.transition()
 						.duration(FADE_OUT_TIME)
-						.style("color", "black");
-						
-					this.collection = new me.table(me.temp_datas);
+						.style("color", STANDARD);
+
 				} else {
-					me.temp_datas.splice(ind, 1);
+					//item inserted before this page, re-render table to show shift of elements down
+					if (me.datas.indexOf(item) < me.page * me.max_rows){
+						this.render();
+					}
 				}
 				
 				//pages @ top, if data becomes large enough to add another page,
@@ -224,23 +206,22 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	
 	me.getPageNumbers = function(current, last){
 		var maxNumPages = 10; 		
-		var nums = [],
-			j = 0;
+		var nums = [], j = 0;
 			
+		//if there are less pages than the max number of pages to show
 		if (last <= maxNumPages){
-			for (var i = 1; i <= last; i++){
-				nums[i] = i;
-			}
+			for (var i = 1; i <= last; i++){ nums[i] = i; }
 			return nums;
 		}
 		
-		if (current - (maxNumPages/2) > 1){
+		//if on page at least half the max number of pages to show above page 1
+		if (current - (maxNumPages / 2) > 1){
 			nums[j] = 1;
 			nums[j+1] = "...";
 			j += 2;
 		}
 		
-		var low = Math.max(1, current - (maxNumPages/2));
+		var low = Math.max(1, current - (maxNumPages / 2));
 		var high = Math.min(last, low + maxNumPages - 1);
 		
 		for (var i = low; i <= high; i++){
@@ -248,7 +229,8 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			j++;
 		}
 		
-		if (current + (maxNumPages/2) <= last){
+		//if on page at least half the max number of pages below last page
+		if (current + (maxNumPages / 2) <= last){
 			nums[j] = "...";
 			nums[j+1] = last;
 		}
@@ -270,16 +252,8 @@ var data_table = function(datas_to_set, announce_function, rows) {
 					.text(nums[i])
 					.on('click', function(){
 						me.page = parseInt(this.text,10) - 1;
-						me.temp_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);
-						//grab the column we want to sort by
-						var col = me.getSortedColumn();
-						var colText = me.headers[col.id];
-						
-						if (col.class === 'down'){
-							me.temp_datas.sort(function(a,b){ return a[colText] < b[colText] ? 1 : -1; });
-						}
 						that.render();
-					});											//re renders table when a new page number is added( probs pull out later)
+					});
 			}
 		}
 	}
@@ -313,24 +287,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				me.resetAndSend();
 			});			
 	};
-	
-	me.adjustDataWidths = function(){
-		var rowData = d3.select('tr').selectAll('td')[0];
-		var heads = d3.selectAll('th')[0];
-		for (var i = 0; i < rowData.length; i++){
-			var rowWidth = parseInt(d3.select(rowData[i]).style('width').split('px')[0], 10);
-			var headerWidth = parseInt(d3.select(heads[i]).style('width').split('px')[0], 10);
-			if (rowWidth > headerWidth){
-				d3.select(heads[i]).style('width', rowWidth + "px");
-			} else if (headerWidth > rowWidth){
-				d3.selectAll('tr').each(function(d,j){
-					var c = d3.select(this).selectAll('td')[0][i];
-					d3.select(c).style('width', headerWidth + 'px');
-				});
-				
-			}
-		}
-	}
+
 
 	me.sorter = function(elem, colId){
 		//don't bother sorting if temp is empty
@@ -345,7 +302,8 @@ var data_table = function(datas_to_set, announce_function, rows) {
 
 				elem.classed('unsorted', false);
 				elem.classed('down', true);
-				me.temp_datas.sort( function (a, b){ return a[colId] < b[colId] ? 1 : -1; });
+				me.datas.sort( function (a, b){ return a[colId] < b[colId] ? 1 : -1; });
+				//me.temp_datas.sort( function (a, b){ return a[colId] < b[colId] ? 1 : -1; });
 			} else {
 				var elements = d3.selectAll("th")
 				elements.classed('up', false)
@@ -354,7 +312,8 @@ var data_table = function(datas_to_set, announce_function, rows) {
 
 				elem.classed('unsorted', false);
 				elem.classed('up', true);
-				me.temp_datas.sort( function (a, b){ return a[colId] > b[colId] ? 1 : -1; });
+				//me.temp_datas.sort( function (a, b){ return a[colId] > b[colId] ? 1 : -1; });
+				me.datas.sort( function (a, b){ return a[colId] > b[colId] ? 1 : -1; });
 			}
 		}
 	}
@@ -394,19 +353,13 @@ var data_table = function(datas_to_set, announce_function, rows) {
 
 		//expand the table until it takes up entire width of frame
 		d3.select(".data_table_container").style("width", (center * 2) + "px");
-		//d3.select(".data_table_data").style("width", (center * 2 - 15) + "px");
+		d3.select(".data_table_data").style("width", (center * 2 - 15) + "px");
 		//d3.select(".data_table_headers").style("width", (center * 2 - 15) + "px");
-		
 	}
 
 	/*Create the headers of the table*/
 	me.createHeaders = function(arr){
-		if ($.inArray(TYPE_OF_DATE, arr) !== -1){
-			time = TYPE_OF_DATE;
-		} else {
-			time = arr[0];
-		}
-		
+		time = $.inArray(TYPE_OF_DATE, arr) !== -1 ? TYPE_OF_DATE : arr[0];
 		me.headers = arr;
 	
 		var header = d3.select(".data_table_data").append("thead");
@@ -418,8 +371,6 @@ var data_table = function(datas_to_set, announce_function, rows) {
 					.attr("id", i)
 					.attr("class", "unsorted");
 		}
-
-		return header;
 	}
 
 	/*Get a range of data based on start and end params
@@ -445,8 +396,6 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		headers.classed('up', false);
 		headers.classed('down', false);
 		headers.classed('unsorted', true);
-		//$('#start').val('');
-		//$('#end').val('');
 			
 		time_data = table.getTimes();
 		
@@ -465,9 +414,24 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	
 	me.setMaxRows = function(r){
 		me.max_rows = r;
-		console.log("Max rows updated to " +me.max_rows);
 		me.temp_datas = me.datas.slice(0, me.max_rows);
-		
 		me.max_pages = Math.floor(me.datas.length / me.max_rows);
+	};
+		
+	me.adjustDataWidths = function(){
+		var rowData = d3.select('tr').selectAll('td')[0];
+		var heads = d3.selectAll('th')[0];
+		for (var i = 0; i < rowData.length; i++){
+			var rowWidth = parseInt(d3.select(rowData[i]).style('width').split('px')[0], 10);
+			var headerWidth = parseInt(d3.select(heads[i]).style('width').split('px')[0], 10);
+			if (rowWidth > headerWidth){
+				d3.select(heads[i]).style('width', rowWidth + "px");
+			} else if (headerWidth > rowWidth){
+				d3.selectAll('tr').each(function(d,j){
+					var c = d3.select(this).selectAll('td')[0][i];
+					d3.select(c).style('width', headerWidth + 'px');
+				});
+			}
+		}
 	};
 }

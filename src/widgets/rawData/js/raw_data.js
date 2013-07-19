@@ -23,7 +23,7 @@ function initTable(data){
 
 raw_data_widget.execute = function() {
 	
-	d3.selectAll("input").on("change", function(){
+	d3.selectAll('input').on('change', function(){
 		raw_data_table.setMaxRows(parseInt(this.value,10));
 		raw_data_table.page = 0;
 		table.render();
@@ -85,7 +85,6 @@ raw_data_widget.execute = function() {
 
 					for (var i = 0; i < new_data.length; i++){
 						table.addSentence(new_data[i]);
-						//datas_to_use.push(new_data[i]);
 					}				
 				}
 			}
