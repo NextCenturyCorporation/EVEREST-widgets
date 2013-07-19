@@ -115,9 +115,9 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				});
 				var loc = location;
 				//render this item and add it to the table
-				if (!loc){
+				if (loc === false){	
 					$('.data_table_data').append(sentView.el);
-				} else {
+				} else {	//including when loc === 0
 					$($('tbody').children()[location]).before(sentView.el);
 				}
 			},
@@ -127,7 +127,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			addSentence: function(item){
 			
 				//add item to entire data collection
-				//me.datas.push(item);
+				me.datas.push(item);
 				me.temp_datas.push(item);
 				
 				var temp = (1 + me.page) * me.max_rows;
@@ -149,7 +149,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				
 				} else if (col.class === 'down'){
 					me.datas.sort(function(a,b){ 
-						return a[colText] < b[colText] ? 1 : -1; 
+						return a[colText] > b[colText] ? 1 : -1; 
 					});
 					
 					me.temp_datas.sort(function(a,b){ 
@@ -265,6 +265,13 @@ var data_table = function(datas_to_set, announce_function, rows) {
 					.on('click', function(){
 							me.page = parseInt(this.text,10) - 1;
 							me.temp_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);
+							//grab the column we want to sort by
+							var col = me.getSortedColumn();
+							var colText = me.headers[col.id];
+							
+							if (col.class === 'down'){
+								me.temp_datas.sort(function(a,b){ return a[colText] < b[colText] ? 1 : -1; });
+							}
 							that.render();
 						}
 					);											//re renders table when a new page number is added( probs pull out later)

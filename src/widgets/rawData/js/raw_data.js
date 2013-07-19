@@ -8,14 +8,11 @@ var table = null;
 
 function initTable(data){
 	datas_to_use = (data === [] ? {} : data);
-	
-	//console.log("CREATING table of " + datas_to_use + "with a max number of rows of " + max_rows);
-	
+		
 	raw_data_table = new data_table(datas_to_use, function(announcement) {
 		OWF.Eventing.publish("com.nextcentury.everest.data_table_announcing.raw_data", announcement);
 	}, max_rows);
-	//console.log(max_rows);
-		
+	
 	raw_data_table.createHeaders(Object.keys(raw_data_table.datas[0]));
 	table = raw_data_table.createTable(raw_data_table.MIN,raw_data_table.MAX);
 	raw_data_table.createClickers();
@@ -34,7 +31,6 @@ raw_data_widget.execute = function() {
 
 	$.getJSON(url + "?callback=?", function(data){
 		if (data !== []){
-			//datas_to_use = data.slice(0, max_rows);
 			datas_to_use = data;
 					
 			initTable(datas_to_use);
@@ -60,8 +56,7 @@ raw_data_widget.execute = function() {
 	setInterval(function(){
 		$.getJSON(url + "?callback=?", function(data){
 			
-			if (data !== []){// && data.length !== datas_to_use.length){
-				//var diff = data.length - datas_to_use.length - 1;
+			if (data !== []){
 			
 				if (!table ){
 					initTable(data);
@@ -84,18 +79,14 @@ raw_data_widget.execute = function() {
 					for(m = 0; m < new_data.length; m++){
 						new_data[m] = JSON.parse(new_data[m]);
 					}
-					
-					//console.log(new_data);
-					//console.log(new_data.length);
-					
+									
 					tdata = [];
 					tdatas_to_use = [];
-					//var new_data = data.slice(datas_to_use.length, data.length);
+
 					for (var i = 0; i < new_data.length; i++){
 						table.addSentence(new_data[i]);
-						datas_to_use.push(new_data[i]);
-					}
-					//datas_to_use = data;					
+						//datas_to_use.push(new_data[i]);
+					}				
 				}
 			}
 		});
