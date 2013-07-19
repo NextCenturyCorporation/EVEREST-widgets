@@ -110,7 +110,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 					}
 				}, this);
 								
-				me.adjustDataWidths();
+				//me.adjustDataWidths();
 			},
 			renderSentence: function(item, location){
 				var sentView = new me.sentenceView({
@@ -394,8 +394,9 @@ var data_table = function(datas_to_set, announce_function, rows) {
 
 		//expand the table until it takes up entire width of frame
 		d3.select(".data_table_container").style("width", (center * 2) + "px");
-		d3.select(".data_table_data").style("width", (center * 2 - 15) + "px");
-		d3.select(".data_table_headers").style("width", (center * 2 - 15) + "px");
+		//d3.select(".data_table_data").style("width", (center * 2 - 15) + "px");
+		//d3.select(".data_table_headers").style("width", (center * 2 - 15) + "px");
+		
 	}
 
 	/*Create the headers of the table*/
@@ -408,7 +409,8 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		
 		me.headers = arr;
 	
-		var header = d3.select(".data_table_headers").append("thead");
+		var header = d3.select(".data_table_data").append("thead");
+		//var header = d3.select(".data_table_header").append("thead");   //for fixed header
 		header.selectAll("th").remove();
 		for (var i = arr.length - 1; i >= 0; i--){
 			header.insert("th",":first-child")

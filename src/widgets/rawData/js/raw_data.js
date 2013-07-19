@@ -17,7 +17,7 @@ function initTable(data){
 	table = raw_data_table.createTable(raw_data_table.MIN,raw_data_table.MAX);
 	raw_data_table.createClickers();
 	raw_data_table.setLocations();
-	raw_data_table.adjustDataWidths();
+	//raw_data_table.adjustDataWidths();
 	raw_data_table.execute();
 };
 
