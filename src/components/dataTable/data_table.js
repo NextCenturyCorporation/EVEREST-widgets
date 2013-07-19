@@ -4,6 +4,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	
 	var time = 'time';
 	var TYPE_OF_DATE = "createdDate";
+	var FADE_OUT_TIME = 10000;
 	
 	me.MIN = 0;
 	me.MAX = Number.MAX_VALUE;
@@ -184,7 +185,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 					var lastRow = rows[0][me.temp_datas.indexOf(item)];
 					d3.select(lastRow).style("color", "red")
 						.transition()
-						.duration(10000)
+						.duration(FADE_OUT_TIME)
 						.style("color", "black");
 						
 					this.collection = new me.table(me.temp_datas);
@@ -415,7 +416,6 @@ var data_table = function(datas_to_set, announce_function, rows) {
 					.attr("id", i)
 					.attr("class", "unsorted");
 		}
-		
 
 		return header;
 	}

@@ -10,18 +10,14 @@ table {
 }
 
 .data_table_data{
-	margin-top:29px;
+	//margin-top:29px;
 }
 
 .data_table_headers{
 	margin:0px;
 	background: white;
-	position: fixed;
+	//position: fixed;
 	border-color:#004785;
-}
-
-tbody{
-	margin-top:100px;
 }
 
 td {
