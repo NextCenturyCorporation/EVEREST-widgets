@@ -128,7 +128,7 @@ describe('To test src/components/data_table/data_table.js', function(){
 	describe('Tests extractData function', function(){
 		beforeEach(function(){
 			var arr = ['createdDate', 'ent1', 'rel', 'ent2'];
-			var h = test_data_table.createHeaders(arr);
+			test_data_table.createHeaders(arr);
 		});
 		
 		it('for correct lower limiting', function() {
@@ -189,11 +189,11 @@ describe('To test src/components/data_table/data_table.js', function(){
 			//create a table based on valid dates
 			var result = test_data_table.createTable(startDate, endDate);
 			
-			d3.select('body').attr('class', 'data_table_headers');
+			//d3.select('body').attr('class', 'data_table_headers');	used when headers are put into their own table
 			
 			d3.selectAll('th').remove();
 			var arr = ['createdDate', 'ent1', 'rel', 'ent2'];
-			var h = test_data_table.createHeaders(arr);
+			test_data_table.createHeaders(arr);
 		});
 		
 		it('for proper method call logic', function(){
