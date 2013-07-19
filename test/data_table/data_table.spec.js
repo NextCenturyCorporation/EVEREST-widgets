@@ -25,6 +25,8 @@ describe('To test src/components/data_table/data_table.js', function(){
 	}];	
 	
 	d3.select('body').attr('class', 'data_table_data');
+	
+	
 
 	var test_data_table = new data_table(datas_to_use, function(msg) {
 		console.log(msg);
@@ -187,6 +189,8 @@ describe('To test src/components/data_table/data_table.js', function(){
 			//create a table based on valid dates
 			var result = test_data_table.createTable(startDate, endDate);
 			
+			d3.select('body').attr('class', 'data_table_headers');
+			
 			d3.selectAll('th').remove();
 			var arr = ['createdDate', 'ent1', 'rel', 'ent2'];
 			var h = test_data_table.createHeaders(arr);
@@ -208,7 +212,7 @@ describe('To test src/components/data_table/data_table.js', function(){
 		});
 		
 		it('for proper resetting of all attributes of each element', function(){	
-								
+									
 			//grab each of the headers
 			var ex0 = document.getElementById('0');
 			var ex1 = document.getElementById('1');
@@ -216,6 +220,7 @@ describe('To test src/components/data_table/data_table.js', function(){
 			var ex3 = document.getElementById('3');
 			
 			//sort ex0 to up
+			
 			test_data_table.sorter(ex0, 'createdDate');
 			expect(ex0.className).toBe('up');
 			
