@@ -1,19 +1,27 @@
-.data_table_data {	
+.data_table_container{
+	overflow: auto;
+	height: 450px;
+}
+
+table {	
 	border-color:#004785;
 	border-collapse:collapse;
 	font-size:15px;
 }
 
-thead{
-	margin:0px auto;
+.data_table_data{
+	margin-top:29px;
+}
+
+.data_table_headers{
+	margin:0px;
 	background: white;
-	//position: fixed;
-	z-index: 100;
+	position: fixed;
 	border-color:#004785;
 }
 
 tbody{
-	padding: 100px 0px 0px 0px;
+	margin-top:100px;
 }
 
 td {

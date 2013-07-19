@@ -109,7 +109,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 					}
 				}, this);
 								
-				//me.adjustDataWidths();
+				me.adjustDataWidths();
 			},
 			renderSentence: function(item, location){
 				var sentView = new me.sentenceView({
@@ -268,18 +268,17 @@ var data_table = function(datas_to_set, announce_function, rows) {
 					.attr('class', nums[i] === (me.page + 1) ? 'current' : 'other')
 					.text(nums[i])
 					.on('click', function(){
-							me.page = parseInt(this.text,10) - 1;
-							me.temp_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);
-							//grab the column we want to sort by
-							var col = me.getSortedColumn();
-							var colText = me.headers[col.id];
-							
-							if (col.class === 'down'){
-								me.temp_datas.sort(function(a,b){ return a[colText] < b[colText] ? 1 : -1; });
-							}
-							that.render();
+						me.page = parseInt(this.text,10) - 1;
+						me.temp_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);
+						//grab the column we want to sort by
+						var col = me.getSortedColumn();
+						var colText = me.headers[col.id];
+						
+						if (col.class === 'down'){
+							me.temp_datas.sort(function(a,b){ return a[colText] < b[colText] ? 1 : -1; });
 						}
-					);											//re renders table when a new page number is added( probs pull out later)
+						that.render();
+					});											//re renders table when a new page number is added( probs pull out later)
 			}
 		}
 	}
@@ -393,8 +392,9 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		d3.select(".data_table_inputs").style("margin-left", (center - input_center) + "px");
 
 		//expand the table until it takes up entire width of frame
-		d3.select(".data_table_data").style("width", (center * 2) + "px");
-		d3.select("thead").style("width", (center * 2) + "px");
+		d3.select(".data_table_container").style("width", (center * 2) + "px");
+		d3.select(".data_table_data").style("width", (center * 2 - 15) + "px");
+		d3.select(".data_table_headers").style("width", (center * 2 - 15) + "px");
 	}
 
 	/*Create the headers of the table*/
@@ -407,7 +407,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		
 		me.headers = arr;
 	
-		var header = d3.select(".data_table_data").append("thead");
+		var header = d3.select(".data_table_headers").append("thead");
 		header.selectAll("th").remove();
 		for (var i = arr.length - 1; i >= 0; i--){
 			header.insert("th",":first-child")
