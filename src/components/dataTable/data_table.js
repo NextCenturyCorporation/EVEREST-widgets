@@ -93,11 +93,13 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			render: function(){	
 				var that = this;
 				me.showPageNumbers(that);
+
+				var s = "Displaying " + me.temp_datas.length + " of " + me.datas.length + " objects";
+				$('.data_table_display_info').text(s);
 	
 				me.count = me.page * me.max_rows;
 				var temp = (1 + me.page) * me.max_rows;
-				//this.collection = new me.table(me.datas.slice(me.page * me.max_rows, temp));
-				this.collection = new me.table(me.temp_datas);		//this is the problem for sorting, uses datas again 
+				this.collection = new me.table(me.temp_datas);
 								
 				d3.selectAll("tr").remove();
 				_.each(this.collection.models, function (item){
@@ -197,6 +199,9 @@ var data_table = function(datas_to_set, announce_function, rows) {
 					me.max_pages = expectedPages;
 					me.showPageNumbers(that);
 				}
+				
+				var s = "Displaying " + me.temp_datas.length + " of " + me.datas.length + " objects";
+				$('.data_table_display_info').text(s);
 			}
 		}
 	);
@@ -382,12 +387,10 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		var center = me.getCenter(".data_table_hold");
 		var text_center = me.getCenter(".data_table_text");
 		var input_center = me.getCenter(".data_table_inputs");
-		var count_center = me.getCenter(".data_table_display_count");
 	
 		//push title and inputs over until they are centered
 		d3.select(".data_table_text").style("margin-left", (center - text_center) + "px");
 		d3.select(".data_table_inputs").style("margin-left", (center - input_center) + "px");
-		d3.select(".data_table_display_count").style("margin-left", (center - count_center) + "px");
 
 		//expand the table until it takes up entire width of frame
 		d3.select(".data_table_data").style("width", (center * 2) + "px");

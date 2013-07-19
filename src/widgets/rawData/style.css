@@ -59,6 +59,7 @@ th {
 }
 
 .data_table_pages{
+	display:inline-block;
 	float: right;
 }
 
@@ -76,6 +77,14 @@ a.current{
 
 .data_table_title{
 	color:#004785;
+	display:inline-block;
+}
+
+.data_table_display_info{
+	
+}
+
+.data_table_display_count{
 	display:inline-block;
 }
 
