@@ -99,6 +99,6 @@ raw_data_widget.execute = function() {
 				}
 			}
 		});
-	}, 10000);
+	}, 5000);
 
 };

@@ -127,7 +127,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			addSentence: function(item){
 			
 				//add item to entire data collection
-				me.datas.push(item);
+				//me.datas.push(item);
 				me.temp_datas.push(item);
 				
 				var temp = (1 + me.page) * me.max_rows;
@@ -138,13 +138,23 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				var colText = me.headers[col.id];
 				
 				if(col.class === 'up'){
+					me.datas.sort(function(a,b){ 
+						return a[colText] > b[colText] ? 1 : -1; 
+					});
 				
-					me.temp_datas.sort(function(a,b){ return a[colText] > b[colText] ? 1 : -1; });
+					me.temp_datas.sort(function(a,b){ 
+						return a[colText] > b[colText] ? 1 : -1; 
+					});
 					isIn = me.max_rows === me.temp_datas.indexOf(item) ? false : true;
 				
 				} else if (col.class === 'down'){
-				
-					me.temp_datas.sort(function(a,b){ return a[colText] < b[colText] ? 1 : -1; });
+					me.datas.sort(function(a,b){ 
+						return a[colText] < b[colText] ? 1 : -1; 
+					});
+					
+					me.temp_datas.sort(function(a,b){ 
+						return a[colText] < b[colText] ? 1 : -1; 
+					});
 					isIn = 0 === me.temp_datas.indexOf(item) ? false : true;
 					
 				}
@@ -153,15 +163,18 @@ var data_table = function(datas_to_set, announce_function, rows) {
 					isIn = true;
 				}
 				
+				var ind = me.temp_datas.indexOf(item);
 				if (isIn){
 					
-					var ind = me.temp_datas.indexOf(item);
 					if (ind === me.temp_datas.length - 1){
 						this.renderSentence(item, false);
 						me.count++;
 					} else {
 						this.renderSentence(item, ind);
-						me.temp_datas.pop();
+						if (me.temp_datas.length > me.max_rows){
+							$('tbody').children()[me.max_rows].remove();
+							me.temp_datas.pop();
+						}
 					}
 					
 					//hi-light the row as it is added, with a fade out
@@ -171,9 +184,11 @@ var data_table = function(datas_to_set, announce_function, rows) {
 						.transition()
 						.duration(10000)
 						.style("color", "black");
-				} 
-				
-				this.collection = new me.table(me.temp_datas);
+						
+					this.collection = new me.table(me.temp_datas);
+				} else {
+					me.temp_datas.splice(ind, 1);
+				}
 				
 				//pages @ top, if data becomes large enough to add another page,
 				var expectedPages = Math.floor(me.datas.length / me.max_rows);
