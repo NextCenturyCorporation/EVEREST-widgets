@@ -25,8 +25,6 @@ describe('To test src/components/data_table/data_table.js', function(){
 	}];	
 	
 	d3.select('body').attr('class', 'data_table_data');
-	
-	
 
 	var test_data_table = new data_table(datas_to_use, function(msg) {
 		console.log(msg);
@@ -276,5 +274,132 @@ describe('To test src/components/data_table/data_table.js', function(){
 			//result should just be an empty object, per spy fake above
 			expect(call_result).toEqual(result);
 		});
+	});
+	
+	describe('Tests the getPageNumbers function', function(){
+		beforeEach(function(){
+			
+		});
+		
+		it('for proper method call logic with more than the max number of pages', function(){
+			spyOn(Math, 'min').andCallThrough();
+			spyOn(Math, 'max').andCallThrough();
+			
+			test_data_table.getPageNumbers(0, 100);
+			
+			expect(Math.min).toHaveBeenCalledWith(100, 10);
+			expect(Math.max).toHaveBeenCalledWith(1, -5);
+		});
+		
+		it('for proper method call logic with less than the max number of pages', function(){
+			spyOn(Math, 'min').andCallThrough();
+			spyOn(Math, 'max').andCallThrough();
+			
+			test_data_table.getPageNumbers(0, 1);
+			
+			expect(Math.min).not.toHaveBeenCalled();
+			expect(Math.max).not.toHaveBeenCalled();
+		});
+		
+		it('to return an array of proper length', function(){
+			var ns = test_data_table.getPageNumbers(10, 100);
+			expect(ns.length).toBeLessThan(15);
+			
+			ns = test_data_table.getPageNumbers(0, 1);
+			expect(ns.length).toEqual(1);
+		});
+		
+		it('to contain ellipses when on a page too far from beginning and end', function(){
+			var ns = test_data_table.getPageNumbers(4, 10);
+			expect(ns.indexOf("...")).toEqual(-1);
+			
+			//too far from beginning
+			ns = test_data_table.getPageNumbers(7, 11);
+			expect(ns.indexOf("...")).toEqual(1);
+			
+			//too far from end
+			ns = test_data_table.getPageNumbers(2, 20);
+			expect(ns.indexOf("...")).toEqual(10);
+			
+			//too far from both
+			ns = test_data_table.getPageNumbers(10, 100);
+			expect(ns.indexOf("...")).toEqual(1);
+			expect(ns.lastIndexOf("...")).toEqual(12);
+		});
+	});
+	
+	describe('Tests the showPageNumbers function ', function(){
+		
+		it('for proper method call logic ', function(){
+			spyOn(d3, 'selectAll').andCallThrough();
+			spyOn(d3, 'select').andCallThrough();
+			spyOn(test_data_table, 'getPageNumbers').andCallThrough();
+			
+			test_data_table.page = 0;
+			test_data_table.max_pages = 15;
+			
+			test_data_table.showPageNumbers();
+			
+			expect(d3.selectAll).toHaveBeenCalledWith('a');
+			expect(d3.select).toHaveBeenCalledWith('.data_table_pages');
+			expect(test_data_table.getPageNumbers).toHaveBeenCalledWith(1, 16);
+		
+		});
+	});
+	
+	describe('Tests the getSortedColumn function', function(){
+		
+		it('for proper method call logic', function(){
+			spyOn(d3, 'selectAll').andCallThrough();
+			
+			test_data_table.getSortedColumn();
+			
+			expect(d3.selectAll).toHaveBeenCalledWith('th');
+		});
+		
+		it('for correct object return when no columns are sorted', function(){
+			var arr = ['createdDate', 'ent1', 'rel', 'ent2'];
+			test_data_table.createHeaders(arr);
+			
+			var f = test_data_table.getSortedColumn();
+			
+			expect(f.id).toEqual('-1');
+			expect(f.class).toEqual('unsorted');
+		});
+		
+		it('for correct object return when one column is sorted', function(){
+			var arr = ['createdDate', 'ent1', 'rel', 'ent2'];
+			test_data_table.createHeaders(arr);
+			
+			var ex0 = document.getElementById('0');
+			var ex1 = document.getElementById('1');
+			
+			test_data_table.sorter(ex0, 'createdDate');
+			var f = test_data_table.getSortedColumn();
+			
+			expect(f.id).toEqual('0');
+			expect(f.class).toEqual('up');
+			
+			test_data_table.sorter(ex1, 'ent1');
+			test_data_table.sorter(ex1, 'ent1');
+			f = test_data_table.getSortedColumn();
+			
+			expect(f.id).toEqual('1');
+			expect(f.class).toEqual('down');
+		});
+	});
+	
+	describe('Tests the adjustDataWidths function ', function(){
+		
+		it('for proper method call logic ', function(){
+			spyOn(d3, 'selectAll').andCallThrough();
+			spyOn(d3, 'select').andCallThrough();
+			
+			test_data_table.adjustDataWidths();
+			
+			expect(d3.select).toHaveBeenCalledWith('tr');
+			expect(d3.selectAll).toHaveBeenCalledWith('th');
+		});
+		
 	});
 });

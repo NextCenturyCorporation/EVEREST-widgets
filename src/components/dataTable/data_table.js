@@ -139,41 +139,8 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				
 				me.temp_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);						
 				this.collection = new me.table(me.temp_datas);
-				
-				var isIn = -1 === me.temp_datas.indexOf(item) ? false : true;
-				var ind = me.temp_datas.indexOf(item);
-				
-				if (isIn){
-					
-					if (ind === me.temp_datas.length - 1){
-						this.renderSentence(item, false);
-					} else {
-						this.renderSentence(item, ind);
-					}
-					
-					me.count++;
-					var rs = d3.selectAll('tr')[0].length;
-					console.log(rs);
-					
-					if (rs === me.max_rows + 1){
-						$('tbody').children()[me.max_rows].remove();
-						me.temp_datas.pop();
-					}
-					
-					//hi-light the row as it is added, with a fade out
-					var rows = d3.select('.data_table_data').selectAll('tr');
-					var lastRow = rows[0][ind];
-					d3.select(lastRow).style("color", HILIGHT)
-						.transition()
-						.duration(FADE_OUT_TIME)
-						.style("color", STANDARD);
 
-				} else {
-					//item inserted before this page, re-render table to show shift of elements down
-					if (me.datas.indexOf(item) < me.page * me.max_rows){
-						this.render();
-					}
-				}
+				me.addRow(item, this);
 				
 				//pages @ top, if data becomes large enough to add another page,
 				var expectedPages = Math.floor(me.datas.length / me.max_rows);
@@ -210,7 +177,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			
 		//if there are less pages than the max number of pages to show
 		if (last <= maxNumPages){
-			for (var i = 1; i <= last; i++){ nums[i] = i; }
+			for (var i = 0; i < last; i++){ nums[i] = i+1; }
 			return nums;
 		}
 		
@@ -321,7 +288,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	me.getSortedColumn = function(){
 		var cols = d3.selectAll('th');
 		var found = { 
-			id: -1,
+			id: '-1',
 			class: "unsorted"
 		};
 		cols.each(function(){
@@ -416,6 +383,42 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		me.max_rows = r;
 		me.temp_datas = me.datas.slice(0, me.max_rows);
 		me.max_pages = Math.floor(me.datas.length / me.max_rows);
+	};
+	
+	me.addRow = function(item, that){
+		var isIn = -1 === me.temp_datas.indexOf(item) ? false : true;
+		var ind = me.temp_datas.indexOf(item);
+	
+		if (isIn){
+			
+			if (ind === me.temp_datas.length - 1){
+				that.renderSentence(item, false);
+			} else {
+				that.renderSentence(item, ind);
+			}
+			
+			me.count++;
+			var rs = d3.selectAll('tr')[0].length;
+			
+			if (rs === me.max_rows + 1){
+				$('tbody').children()[me.max_rows].remove();
+				me.temp_datas.pop();
+			}
+			
+			//hi-light the row as it is added, with a fade out
+			var rows = d3.select('.data_table_data').selectAll('tr');
+			var lastRow = rows[0][ind];
+			d3.select(lastRow).style("color", HILIGHT)
+				.transition()
+				.duration(FADE_OUT_TIME)
+				.style("color", STANDARD);
+
+		} else {
+			//item inserted before this page, re-render table to show shift of elements down
+			if (me.datas.indexOf(item) < me.page * me.max_rows){
+				that.render();
+			}
+		}		
 	};
 		
 	me.adjustDataWidths = function(){
