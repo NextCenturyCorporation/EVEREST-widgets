@@ -3,6 +3,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	var time = 'time';
 	
 	var MAX_CHARS = 100;
+	var MAX_ROWS = 1000;
 	var TYPE_OF_DATE = 'createdDate';
 	var FADE_OUT_TIME = 10000;
 	var HILIGHT = 'red';
@@ -380,15 +381,17 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	};	
 	
 	me.setMaxRows = function(r){
-		me.max_rows = r;
-		me.temp_datas = me.datas.slice(0, me.max_rows);
-		me.max_pages = Math.floor(me.datas.length / me.max_rows);
+		if( r > 0 && r < MAX_ROWS){
+			me.max_rows = r;
+			me.temp_datas = me.datas.slice(0, me.max_rows);
+			me.max_pages = Math.floor( me.datas.length / me.max_rows );
+		}
 	};
 	
 	me.addRow = function(item, that){
-		var isIn = -1 === me.temp_datas.indexOf(item) ? false : true;
 		var ind = me.temp_datas.indexOf(item);
-	
+		var isIn = -1 === ind ? false : true;
+		
 		if (isIn){
 			
 			if (ind === me.temp_datas.length - 1){

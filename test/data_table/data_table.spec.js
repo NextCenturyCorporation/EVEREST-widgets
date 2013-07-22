@@ -209,7 +209,7 @@ describe('To test src/components/data_table/data_table.js', function(){
 			expect(test_data_table.tableView).toHaveBeenCalled();
 		});
 		
-		it('for proper resetting of all attributes of each element', function(){	
+		it('for proper sorting', function(){	
 									
 			//grab each of the headers
 			var ex0 = document.getElementById('0');
@@ -277,9 +277,6 @@ describe('To test src/components/data_table/data_table.js', function(){
 	});
 	
 	describe('Tests the getPageNumbers function', function(){
-		beforeEach(function(){
-			
-		});
 		
 		it('for proper method call logic with more than the max number of pages', function(){
 			spyOn(Math, 'min').andCallThrough();
@@ -399,6 +396,103 @@ describe('To test src/components/data_table/data_table.js', function(){
 			
 			expect(d3.select).toHaveBeenCalledWith('tr');
 			expect(d3.selectAll).toHaveBeenCalledWith('th');
+		});
+		
+	});
+	
+	describe('Tests the setLocations function ', function(){
+		
+		it('for proper method call logic ', function(){
+			d3.select('.data_table_data')
+				.append('div').attr('class', 'data_table_hold')
+				.append('div').attr('class', 'data_table_text')
+				.append('div').attr('class', 'data_table_inputs');
+				
+			spyOn(test_data_table, 'getCenter').andCallThrough();
+			spyOn(d3, 'select').andCallThrough();
+			
+			test_data_table.setLocations();
+			
+			expect(test_data_table.getCenter).toHaveBeenCalledWith('.data_table_hold');
+			expect(test_data_table.getCenter).toHaveBeenCalledWith('.data_table_text');
+			expect(test_data_table.getCenter).toHaveBeenCalledWith('.data_table_inputs');
+			
+			expect(d3.select).toHaveBeenCalledWith('.data_table_text');
+			expect(d3.select).toHaveBeenCalledWith('.data_table_inputs');
+			expect(d3.select).toHaveBeenCalledWith('.data_table_container');
+			expect(d3.select).toHaveBeenCalledWith('.data_table_data');
+		});
+	});
+	
+	describe('Tests the setMaxRows function ', function(){
+	
+		it('for proper method call logic ',  function(){
+			d3.select('body').attr('class', 'data_table_data');
+		
+			spyOn(test_data_table.datas, 'slice').andCallThrough();
+			spyOn(Math, 'floor').andCallThrough();
+			
+			test_data_table.setMaxRows(10);
+			
+			expect(test_data_table.datas.slice).toHaveBeenCalledWith(0, 10);
+			expect(Math.floor).toHaveBeenCalled();
+		});
+		
+		it('for proper input validation ', function(){
+			spyOn(test_data_table.datas, 'slice').andCallThrough();
+			
+			test_data_table.setMaxRows(-10);
+			expect(test_data_table.datas.slice).not.toHaveBeenCalledWith(0, -10);	
+			
+			test_data_table.setMaxRows(0);
+			expect(test_data_table.datas.slice).not.toHaveBeenCalledWith(0, 0);	
+			
+			test_data_table.setMaxRows(10000);
+			expect(test_data_table.datas.slice).not.toHaveBeenCalledWith(0, 10000);	
+			
+			test_data_table.setMaxRows(100);
+			expect(test_data_table.datas.slice).toHaveBeenCalledWith(0, 100);	
+		});
+	});
+	
+	describe('Tests the addRow function ', function(){
+		
+		it('for proper method call logic when isIn is false', function(){
+			spyOn(test_data_table.temp_datas, 'indexOf').andCallThrough();
+			spyOn(test_data_table.datas, 'indexOf').andCallThrough();
+			
+			var that = {
+				render: function(){ console.log("hello"); },
+				renderSentence: function(){ console.log("there"); }
+			};
+			
+			var a = {
+				monkey: "see"
+			};
+			
+			test_data_table.addRow(a, that);
+			
+			expect(test_data_table.temp_datas.indexOf).toHaveBeenCalledWith(a);
+			expect(test_data_table.datas.indexOf).toHaveBeenCalledWith(a);
+		});
+		
+		it('for proper method call logic when isIn is true', function(){
+			spyOn(d3, 'selectAll').andCallThrough();
+			spyOn(d3, 'select').andCallThrough();
+		
+			var that = {
+				render: function(){ console.log("hello"); },
+				renderSentence: function(){ console.log("there"); }
+			};
+		
+			var a = {
+				monkey: "see"
+			};
+		
+			test_data_table.temp_datas = [a];
+			test_data_table.addRow(a, that);
+			
+			expect(d3.selectAll).toHaveBeenCalledWith('tr');
 		});
 		
 	});
