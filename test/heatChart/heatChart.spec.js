@@ -36,18 +36,17 @@ describe('Test src/widget/heatChart/js/day.js', function() {
 				d3.selectAll("#dayChart svg").on('mouseout', function(){
 					d3.select("#dayInfo").text('');
 				});
+
+				// Doesn't matter what we return, just make sure all code is called
+				return 1;
 			});
 
 			spyOn(day_heatChart_widget, 'createChart').andCallFake(function() {
-				day_heatChart_widget.drawChart();
+				return day_heatChart_widget.drawChart();
 			});
 
 			day_heatChart_widget.execute = jasmine.createSpy('day_heatChart_widget.execute()').andCallFake(function() {
-
-				day_heatChart_widget.createChart(date_list, raw_data, day_chunks, hour_labels);
-
-				return 1;
-
+				return day_heatChart_widget.createChart(date_list, raw_data, day_chunks, hour_labels);
 			});
 
 			var result = day_heatChart_widget.execute();
@@ -95,17 +94,17 @@ describe('Test src/widget/heatChart/js/week.js', function() {
 				d3.selectAll("#weekChart svg").on('mouseout', function(){
 					d3.select("#weekInfo").text('');
 				});
-			});
 
-			spyOn(week_heatChart_widget, 'createChart').andCallFake(function() {
+				// Doesn't matter what we return, just make sure all code is called
 				return 1;
 			});
 
+			spyOn(week_heatChart_widget, 'createChart').andCallFake(function() {
+				return week_heatChart_widget.drawChart();
+			});
+
 			week_heatChart_widget.execute = jasmine.createSpy('week_heatChart_widget.execute()').andCallFake(function() {
-
 				return week_heatChart_widget.createChart(date_list, raw_data, week_chunks, day_labels);
-
-
 			});
 
 			var result = week_heatChart_widget.execute();
@@ -128,7 +127,7 @@ describe('Test src/widget/heatChart/js/month.js', function() {
 			var raw_data = [DAYS_PER_YEAR];
 			var month_chunks= [];
 
-			spyOn(day_heatChart_widget, 'drawChart').andCallFake(function() {
+			spyOn(month_heatChart_widget, 'drawChart').andCallFake(function() {
 				
 				var chart = circularHeatChart()
 				.range(["white", "blue"])
@@ -153,17 +152,17 @@ describe('Test src/widget/heatChart/js/month.js', function() {
 				d3.selectAll("#monthChart svg").on('mouseout', function(){
 					d3.select("#monthInfo").text('');
 				});
-			});
 
-			spyOn(month_heatChart_widget, 'createChart').andCallFake(function() {
+				// Doesn't matter what we return, just make sure all code is called
 				return 1;
 			});
 
+			spyOn(month_heatChart_widget, 'createChart').andCallFake(function() {
+				return month_heatChart_widget.drawChart();
+			});
+
 			month_heatChart_widget.execute = jasmine.createSpy('month_heatChart_widget.execute()').andCallFake(function() {
-
 				return month_heatChart_widget.createChart(date_list, raw_data, month_chunks, month_labels);
-
-
 			});
 
 			var result = month_heatChart_widget.execute();
