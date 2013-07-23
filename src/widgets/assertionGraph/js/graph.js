@@ -4,10 +4,10 @@
 
 // Sample data, in the future, we will handle this with a seperate json file
 var links = [
-{source: "dog", target: "cat", name: "chased"},
-{source: "Sally", target: "Sam", name: "saw"},
-{source: "Samsung", target: "Apple", name: "sued"},
-{source: "Antartica", target: "snow", name: "has"},
+{source: "dog", target: "cat", relationship: "chased"},
+{source: "Sally", target: "Sam", relationship: "saw"},
+{source: "Samsung", target: "Apple", relationship: "sued"},
+{source: "Antartica", target: "snow", relationship: "has"},
 ];
 
 var nodes = {};
@@ -54,7 +54,7 @@ var linktext = svg.selectAll("g.linklabelholder").data(force.links());
 	.attr("dx", 1)
 	.attr("dy", "1em")
 	.attr("text-anchor", "middle")
-	.text(function(d) { return d.name });
+	.text(function(d) { return d.relationship });
 
 	node.append("circle")
 	.attr("r", 8);
