@@ -4,18 +4,18 @@
 
 // Sample data, in the future, we will handle this with a seperate json file
 var links = [
-{source: "dog", target: "cat", relationship: "chased"},
-{source: "Sally", target: "Sam", relationship: "saw"},
-{source: "Samsung", target: "Apple", relationship: "sued"},
-{source: "Antartica", target: "snow", relationship: "has"},
+{entity1: "dog", enitity2: "cat", relationship: "chased"},
+{entity1: "Sally", entity2: "Sam", relationship: "saw"},
+{entity1: "Samsung", entity2: "Apple", relationship: "sued"},
+{entity1: "Antartica", entity2: "snow", relationship: "has"},
 ];
 
 var nodes = {};
 
 // Compute the distinct nodes from the links.
 links.forEach(function(link) {
-	link.source = nodes[link.source] || (nodes[link.source] = {name: link.source});
-	link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
+	link.source = nodes[link.entity1] || (nodes[link.entity1] = {name: link.entity1});
+	link.target = nodes[link.entity2] || (nodes[link.entity2] = {name: link.entity2});
 });
 
 var width = 960
@@ -92,4 +92,3 @@ function mouseout() {
 		.duration(750)
 		.attr("r", 8);
 }
-
