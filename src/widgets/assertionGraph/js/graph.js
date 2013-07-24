@@ -21,8 +21,8 @@ var links = [
 	{"source": 6, "target": 7, "value": "has"}
 ];
 
-var width = 960,
-	height = 500;
+var width = 1200,
+	height = 700;
 
 var color = d3.scale.category10();
 
