@@ -1,0 +1,221 @@
+[
+	{
+		"time": "2013-12-25T00:20:25-08:00",
+		"entity1": "false claims",
+		"relationship": "aggravate",
+		"entity2": "identity theft",
+		"other": "a"
+	},
+	{
+		"time": "2012-11-18T15:42:13-08:00",
+		"entity1": "the core group of defendants",
+		"relationship": "file",
+		"entity2": "false claims",
+		"other": "b"
+	},
+	{
+		"time": "2012-08-03T17:03:20-07:00",
+		"entity1": "they",
+		"relationship": "expand",
+		"entity2": "their fraud scheme",
+		"other": "c"
+	},
+	{
+		"time": "2012-06-19T01:00:13-07:00",
+		"entity1": "they",
+		"relationship": "recruit more than",
+		"entity2": "# individuals",
+		"other": "d"
+	},
+	{
+		"time": "2013-03-30T08:07:07-07:00",
+		"entity1": "false claims",
+		"relationship": "file in",
+		"entity2": "their names",
+		"other": "e"
+	},
+	{
+		"time": "2013-07-22T08:59:14-07:00",
+		"entity1": "the recruiters",
+		"relationship": "receive",
+		"entity2": "a kick-back",
+		"other": "f"
+	},
+	{
+		"time": "2013-05-29T08:35:43-07:00",
+		"entity1": "most of the 100+ fraudulent claims",
+		"relationship": "file via",
+		"entity2": "the internet",
+		"other": "g"
+	},
+	{
+		"time": "2012-12-15T19:25:08-08:00",
+		"entity1": "most of the 100+ fraudulent claims",
+		"relationship": "receive through",
+		"entity2": "the u.s. mail",
+		"other": "h"
+	},
+	{
+		"time": "2014-05-22T06:48:02-07:00",
+		"entity1": "their scheme",
+		"relationship": "check",
+		"entity2": "depot",
+		"other": "i"
+	},
+	{
+		"time": "2013-05-28T07:11:19-07:00",
+		"entity1": "depot customer database",
+		"relationship": "provide",
+		"entity2": "it",
+		"other": "j"
+	},
+	{
+		"time": "2013-11-09T06:30:56-08:00",
+		"entity1": "this ongoing investigation",
+		"relationship": "conduct by",
+		"entity2": "the u.s. secret service",
+		"other": "k"
+	},
+	{
+		"time": "2013-07-22T16:51:00-07:00",
+		"entity1": "# additional individuals",
+		"relationship": "sentence on",
+		"entity2": "charges",
+		"other": "l"
+		
+	},
+	{
+		"time": "2014-01-08T23:43:50-08:00",
+		"entity1": "the defendant",
+		"relationship": "plead guilty in",
+		"entity2": "september #",
+		"other": "m"
+	},
+	{
+		"time": "2012-09-29T14:01:28-07:00",
+		"entity1": "the government",
+		"relationship": "aggravate",
+		"entity2": "identity theft",
+		"other": "n"
+	},
+	{
+		"time": "2012-08-22T05:49:01-07:00",
+		"entity1": "she",
+		"relationship": "make to",
+		"entity2": "fema",
+		"other": "o"
+	},
+	{
+		"time": "2013-02-12T02:30:27-08:00",
+		"entity1": "alabama",
+		"relationship": "damage by",
+		"entity2": "the hurricane",
+		"other": "p"
+	},
+	{
+		"time": "2013-12-08T23:08:13-08:00",
+		"entity1": "she",
+		"relationship": "file",
+		"entity2": "## fraudulent claims",
+		"other": "q"
+	},
+	{
+		"time": "2013-05-07T17:07:26-07:00",
+		"entity1": "the wife",
+		"relationship": "make claim to",
+		"entity2": "fema",
+		"other": "r"
+	},
+	{
+		"time": "2013-12-13T19:38:43-08:00",
+		"entity1": "the husband",
+		"relationship": "assign at",
+		"entity2": "the time",
+		"other": "s"
+	},
+	{
+		"time": "2014-04-03T12:04:03-07:00",
+		"entity1": "the husband",
+		"relationship": "resign from",
+		"entity2": "the police force",
+		"other": "t"
+	},
+	{
+		"time": "2013-12-07T23:08:09-08:00",
+		"entity1": "the u.s. attorney’s office",
+		"relationship": "continue",
+		"entity2": "its coordination and cooperation",
+		"other": "u"
+	},
+	{
+		"time": "2013-08-04T02:37:47-07:00",
+		"entity1": "the ongoing reports of fraud",
+		"relationship": "establish",
+		"entity2": "contacts",
+		"other": "v"
+	},
+	{
+		"time": "2012-11-25T16:41:56-08:00",
+		"entity1": "# co-conspirators",
+		"relationship": "conspire to defraud",
+		"entity2": "the united states government",
+		"other": "w"
+	},
+	{
+		"time": "2012-11-25T17:41:56-08:00",
+		"entity1": "the defendant",
+		"relationship": "convict of",
+		"entity2": "the conspiracy charge",
+		"other": "x"
+	},
+	{
+		"time": "2012-11-25T17:42:56-08:00",
+		"entity1": "his co-conspirators",
+		"relationship": "devise",
+		"entity2": "a scheme",
+		"other": "y"
+	},
+	{
+		"time": "2013-08-19T14:21:26-07:00",
+		"entity1": "the defendants",
+		"relationship": "agree to back",
+		"entity2": "each other’s false applications",
+		"other": "z"
+	},
+	{
+		"time": "2012-12-15T02:43:22-08:00",
+		"entity1": "the # co-conspirators",
+		"relationship": "convict of",
+		"entity2": "the conspiracy charge",
+		"other": "a"
+		
+	},
+	{
+		"time": "2012-09-11T19:34:54-07:00",
+		"entity1": "# co-conspirator",
+		"relationship": "sentence to",
+		"entity2": "# months imprisonment",
+		"other": "b"
+	},
+	{
+		"time": "2013-03-15T17:16:52-07:00",
+		"entity1": "both co-conspirators",
+		"relationship": "order to pay",
+		"entity2": "full restitution",
+		"other": "c"
+	},
+	{
+		"time": "2013-06-01T15:37:20-07:00",
+		"entity1": "the defendant",
+		"relationship": "apply for",
+		"entity2": "emergency fema funds",
+		"other": "d"
+	},
+	{
+		"time": "2012-08-31T07:00:23-07:00",
+		"entity1": "the defendant",
+		"relationship": "obtain most of",
+		"entity2": "this information",
+		"other": "e"
+	}
+]
