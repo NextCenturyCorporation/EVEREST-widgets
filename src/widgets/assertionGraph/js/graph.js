@@ -3,26 +3,31 @@
 
 
 // Sample data, in the future, we will handle this with a seperate json file
-var links = [
-{entity1: "dog", enitity2: "cat", relationship: "chased"},
-{entity1: "Sally", entity2: "Sam", relationship: "saw"},
-{entity1: "Samsung", entity2: "Apple", relationship: "sued"},
-{entity1: "Antartica", entity2: "snow", relationship: "has"},
+var nodes = [
+	{name: "dog", group: 0},
+	{name: "cat", group: 1},
+	{name: "Sally", group: 0},
+	{name: "Sam", group: 1},
+	{name: "Samsung", group:0},
+	{name: "Apple", group: 1},
+	{name: "Antartica", group:0},
+	{name: "snow", group: 1}
 ];
 
-var nodes = {};
+var links = [
+	{source: 0, target: 1, value: "chased"},
+	{source: 2, target: 3, value: "saw"},
+	{source: 4, target: 5, value: "sued"},
+	{source: 6, target: 7, value: "has"}
+];
 
-// Compute the distinct nodes from the links.
-links.forEach(function(link) {
-	link.source = nodes[link.entity1] || (nodes[link.entity1] = {name: link.entity1});
-	link.target = nodes[link.entity2] || (nodes[link.entity2] = {name: link.entity2});
-});
+var width = 960,
+	height = 500;
 
-var width = 960
-var height = 500;
+var color = d3.scale.category10();
 
 var force = d3.layout.force()
-	.nodes(d3.values(nodes))
+	.nodes(nodes)
 	.links(links)
 	.size([width, height])
 	.linkDistance(200)
@@ -35,16 +40,17 @@ var svg = d3.select("body").append("svg")
 	.attr("height", height);
 
 var link = svg.selectAll(".link")
-	.data(force.links())
+	.data(links)
 	.enter().append("line")
 	.attr("class", "link");
 
 var node = svg.selectAll(".node")
-	.data(force.nodes())
+	.data(nodes)
 	.enter().append("g")
 	.attr("class", "node")
 	.on("mouseover", mouseover)
 	.on("mouseout", mouseout)
+	.style("fill", function(d) {return color(d.group); })
 	.call(force.drag);
 
 var linktext = svg.selectAll("g.linklabelholder").data(force.links());
@@ -54,7 +60,7 @@ var linktext = svg.selectAll("g.linklabelholder").data(force.links());
 	.attr("dx", 1)
 	.attr("dy", "1em")
 	.attr("text-anchor", "middle")
-	.text(function(d) { return d.relationship });
+	.text(function(d) { return d.value});
 
 	node.append("circle")
 	.attr("r", 8);
