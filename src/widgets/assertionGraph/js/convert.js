@@ -34,18 +34,14 @@ function createArrays(data){
 		console.log(item);
 		var ent1 = {
 			name: item.entity1,
-			// 0 for entity1 and 1 for entity2 bunches up nodes
-			group: 0
-			//count separates each ent-rel-ent by itself
-			//group: count
+			group: count
+			//group:0
 		};
 
 		var ent2 = {
 			name: item.entity2,
-			// 0 for entity1 and 1 for entity2 bunches up nodes
-			group: 0
-			//count separates each ent-rel-ent by itself
-			//group: count
+			group: -count
+			//group: 1
 		};
 
 		if(nodes.indexOf(JSON.stringify(ent1)) === -1) {
@@ -74,9 +70,3 @@ function createArrays(data){
 		nodes[i] = JSON.parse(nodes[i]);
 	}
 };
-
-d3.json('json/raw_data.json', function(data){
-	createArrays(data);
-	console.log(nodes);
-	console.log(links);
-});

@@ -26,51 +26,59 @@ var width = 1200,
 
 var color = d3.scale.category10();
 
-var force = d3.layout.force()
-	.nodes(nodes)
-	.links(links)
-	.size([width, height])
-	.linkDistance(200)
-	.charge(-1000)
-	.on("tick", tick)
-	.start();
+var link, node, linktext;
 
 var svg = d3.select("body").append("svg")
 	.attr("width", width)
 	.attr("height", height);
+	
+d3.json('./js/raw_data.json', function(data){
+	createArrays(data);
 
-var link = svg.selectAll(".link")
-	.data(links)
-	.enter().append("line")
-	.attr("class", "link");
+	var force = d3.layout.force()
+		.nodes(nodes)
+		.links(links)
+		.size([width, height])
+		.linkDistance(100)
+		.charge(-200)
+		.on("tick", tick)
+		.start();
+	
+	link = svg.selectAll(".link")
+		.data(links)
+		.enter().append("line")
+		.attr("class", "link");
+	
+	node = svg.selectAll(".node")
+		.data(nodes)
+		.enter().append("g")
+		.attr("class", "node")
+		.on("mouseover", mouseover)
+		.on("mouseout", mouseout)
+		.style("fill", function(d) {
+			var c = d.group < 0 ? 0 : 1;
+			return color(c); 
+		})
+		.call(force.drag);
+	
+	linktext = svg.selectAll("g.linklabelholder").data(force.links());
+		linktext.enter().append("g").attr("class", "linklabelholder")
+		.append("text")
+		.attr("class", "linklabel")
+		.attr("dx", 1)
+		.attr("dy", "1em")
+		.attr("text-anchor", "middle")
+		.text(function(d) { return d.value});
+	
+		node.append("circle")
+		.attr("r", 8);
+	
+		node.append("text")
+		.attr("x", 12)
+		.attr("dy", ".35em")
+		.text(function(d) { return d.name; });
 
-var node = svg.selectAll(".node")
-	.data(nodes)
-	.enter().append("g")
-	.attr("class", "node")
-	.on("mouseover", mouseover)
-	.on("mouseout", mouseout)
-	.style("fill", function(d) {return color(d.group); })
-	.call(force.drag);
-
-var linktext = svg.selectAll("g.linklabelholder").data(force.links());
-	linktext.enter().append("g").attr("class", "linklabelholder")
-	.append("text")
-	.attr("class", "linklabel")
-	.attr("dx", 1)
-	.attr("dy", "1em")
-	.attr("text-anchor", "middle")
-	.text(function(d) { return d.value});
-
-	node.append("circle")
-	.attr("r", 8);
-
-	node.append("text")
-	.attr("x", 12)
-	.attr("dy", ".35em")
-	.text(function(d) { return d.name; });
-
-
+});
 
 function tick() {
 	link
