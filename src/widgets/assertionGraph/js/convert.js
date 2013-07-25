@@ -5,7 +5,8 @@
  * 		"entity2": "identity theft"
  * }
  *
- * into two arrays, nodes and links, the proper format to use the force d3 example:
+ * into two arrays, nodes and links, the proper format to use the force d3
+ * example:
  * 
  * nodes = [
  * 		{"name": "false claims", "group":0},
@@ -17,9 +18,10 @@
  * 		{"source":0, "target":1, "value":"aggravate"},
  *		{"source":2, "target":3, "value":"file"},
  *		{"source":4, "target":5, "value":"expand"},
+ * ];
  *
- *		where the number after source and target point to the index location in
- *		the nodes array of the node to point to for this link
+ * where the number after source and target point to the index location in
+ * the nodes array of the node to point to for this link
  */
 
 var nodes = [],
