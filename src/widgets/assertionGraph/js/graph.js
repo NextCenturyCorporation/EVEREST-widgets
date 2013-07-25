@@ -2,25 +2,6 @@
 // and http://stackoverflow.com/questions/8663844/add-text-label-onto-links-in-d3-force-directed-graph
 
 
-// Sample data. In the future, we will handle this with a seperate json file
-var nodes = [
-	{"name": "dog", "group": 0},
-	{"name": "cat", "group": 1},
-	{"name": "Sally", "group": 0},
-	{"name": "Sam", "group": 1},
-	{"name": "Samsung", "group":0},
-	{"name": "Apple", "group": 1},
-	{"name": "Antartica", "group":0},
-	{"name": "snow", "group": 1}
-];
-
-var links = [
-	{"source": 0, "target": 1, "value": "chased"},
-	{"source": 2, "target": 3, "value": "saw"},
-	{"source": 4, "target": 5, "value": "sued"},
-	{"source": 6, "target": 7, "value": "has"}
-];
-
 var width = 1200,
 	height = 700;
 
