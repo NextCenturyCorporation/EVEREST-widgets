@@ -42,7 +42,7 @@ function createArrays(data){
 
 		var ent2 = {
 			name: item.entity2,
-			group: -count
+			group: -(count+1)
 			//group: 1
 		};
 

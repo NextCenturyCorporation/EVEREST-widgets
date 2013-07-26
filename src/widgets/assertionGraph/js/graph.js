@@ -1,6 +1,6 @@
 // Code based on http://bl.ocks.org/mbostock/2706022
 // and http://stackoverflow.com/questions/8663844/add-text-label-onto-links-in-d3-force-directed-graph
-
+var url = 'http://everest-build:8081/';
 
 var width = 700,
 	height = 700;
@@ -12,7 +12,8 @@ var link, node, linktext;
 var svg = d3.select("body").append("svg")
 	.attr("width", width)
 	.attr("height", height);
-	
+
+//$.getJSON(url + 'assertion/?callback=?', function(data){
 d3.json('./js/raw_data.json', function(data){
 	createArrays(data);
 
