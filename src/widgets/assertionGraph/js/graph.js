@@ -2,8 +2,8 @@
 // and http://stackoverflow.com/questions/8663844/add-text-label-onto-links-in-d3-force-directed-graph
 var url = 'http://everest-build:8081/';
 
-var width = 700,
-	height = 700;
+var width = 600,
+	height = 600;
 
 var color = d3.scale.category10();
 
