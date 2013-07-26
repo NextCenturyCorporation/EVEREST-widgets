@@ -1,7 +1,7 @@
 var raw_data_widget = {};
 
 var max_rows = 10;
-var url = 'http://localhost:8081/rawfeed/';
+var url = 'http://everest-build:8081/rawfeed/';
 var raw_data_table;
 var datas_to_use = [];
 var table = null;
