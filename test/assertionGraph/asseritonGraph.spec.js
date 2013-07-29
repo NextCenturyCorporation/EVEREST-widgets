@@ -16,10 +16,12 @@ describe('Test src/widget/assertionGraph/js/convert.js', function() {
 				"entity2": "ball"
 			}];
 
+			spyOn(nodes, 'push').andCallThrough();
 			createArrays(data);
 
 			expect(nodes).toBeDefined();
-
+			expect(links).toBeDefined();
+			expect(nodes.push).toHaveBeenCalled();
 		});
 
 	});
