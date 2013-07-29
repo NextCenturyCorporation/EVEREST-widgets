@@ -3,7 +3,7 @@
  */
 
 /**
- * Test what happens during a normal run.
+ * Test what happens during a run of the assertion widget.
  */
 describe('Test src/widget/assertionGraph/js/convert.js', function() {
 
@@ -28,17 +28,20 @@ describe('Test src/widget/assertionGraph/js/convert.js', function() {
 });
 
 describe('Test src/widget/assertionGraph/js/graph.js', function() {
+	
+	describe('Test the drawing of the assertion graph widget', function() {
+		it('for correct behavior', function() {
 
-});
+			var test;
+			spyOn(d3, 'json').andCallFake(function() {
+				return "test data";
 
-/**
- * Test what happens if one of the json entries is missing an entity or
- * relationship.
- */
-describe('Test src/widget/assertionGraph/js/convert.js', function() {
+			});
 
-});
+			test = d3.json();
 
-describe('Test src/widget/assertionGraph/js/graph.js', function() {
+			expect(test).toEqual("test data");
+		});
+	});
 
 });
