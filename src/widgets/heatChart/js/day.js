@@ -7,11 +7,16 @@ var day_heatChart_widget = {};
 
 day_heatChart_widget.execute = function() {
 
-	var hour_labels = ['12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am', '8am',
-	    '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm',
-	    '7pm', '8pm', '9pm', '10pm', '11pm'];
+	var hour_labels = ['00', '01', '02', '03', '04', '05', '06', '07', '08',
+	    '09', '10', '11', '12', '13', '14', '15', '16', '17', '18',
+	    '19', '20', '21', '22', '23'];
+	var minute_labels = [];
 	var raw_data = [MINUTES_PER_DAY];
 	var day_chunks= [];
+
+	for (var i = 0; i < MINUTES_PER_HOUR; i++) {
+		i % 10 === 0 ? minute_labels.push(i) : minute_labels.push('');
+	}
 
 	for (var i = 0; i < MINUTES_PER_DAY; i++){
 		raw_data[i] = 0;
@@ -48,18 +53,6 @@ day_heatChart_widget.createChart = function(date_list, raw_data, day_chunks, hou
 
 		var hour = k % HOURS_PER_DAY;
 		var minutes = Math.floor((k / HOURS_PER_DAY) % MINUTES_PER_HOUR);
-		var meridiem = "am";
-
-		if(hour === 0) {
-			hour = 12;
-		}
-		else if(hour === 12){
-			meridiem = "pm";
-		}
-		else if(hour > 12){
-			hour = hour - 12;
-			meridiem = "pm";
-		}
 
 		if(minutes < 10) {
 			minutes = "0" + minutes;
@@ -77,6 +70,7 @@ day_heatChart_widget.drawChart = function(hours, day_chunks, hour_labels) {
 	var chart = circularHeatChart()
 		.range(["white", "blue"])
 		.segmentLabels(hour_labels)
+		.radialLabels(minute_labels)
 		.segmentHeight(4.7)
 		.innerRadius(10);
 

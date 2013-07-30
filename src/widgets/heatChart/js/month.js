@@ -8,8 +8,13 @@ var month_heatChart_widget = {};
 month_heatChart_widget.execute = function() {
 	var month_labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
 		'August', 'September', 'October', 'November', 'December'];
+	var day_labels = [];
 	var raw_data = [DAYS_PER_YEAR];
 	var month_chunks = [];
+
+	for (var i = 0; i < DAYS_PER_MONTH; i++) {
+		i % 5 === 0 ? day_labels.push(i) : day_labels.push('');
+	}
 
 	for (var i = 0; i < DAYS_PER_YEAR; i++) {
 		raw_data[i] = 0;

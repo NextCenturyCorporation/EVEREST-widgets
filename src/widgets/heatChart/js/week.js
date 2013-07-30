@@ -7,8 +7,13 @@ week_heatChart_widget.execute = function() {
 
 	var day_labels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
 		'Saturday'];
+	var hour_labels = [];
 	var raw_data = [HOURS_PER_WEEK];
 	var week_chunks = [];
+
+	for (var i = 0; i < HOURS_PER_DAY; i++) {
+		i % 4 === 0 ? minute_labels.push(i) : minute_labels.push('');
+	}
 
 	for (var i = 0; i < HOURS_PER_WEEK; i++) {
 		raw_data[i] = 0;
@@ -46,17 +51,6 @@ week_heatChart_widget.createChart = function(date_list, raw_data, week_chunks, d
 		var hour = Math.floor((i / 7) % 24);
 		var meridiem = "am";
 
-		if(hour === 0) {
-			hour = 12;
-		}
-		else if(hour === 12) {
-			meridiem = "pm";
-		}
-		else if(hour > 12) {
-			hour = hour - 12;
-			meridiem = "pm";
-		}
-
 		week_chunks[i] = {title: day_labels[day] + ", " + hour + " " + meridiem,
 			value: raw_data[i]};
 	}
@@ -69,6 +63,7 @@ week_heatChart_widget.drawChart = function(day_labels, week_chunks) {
 	var chart = circularHeatChart()
 		.range(["white", "green"])
 		.segmentLabels(day_labels)
+		.radialLabels(hour_labels)
 		.segmentHeight(12)
 		.innerRadius(10)
 		.numSegments(7);
