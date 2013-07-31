@@ -1,0 +1,54 @@
+.toolbar{
+	float:top;
+	top:0px;
+	border-style:ridge;
+	display:inline-block;
+	border-color:#004785;
+}
+
+.canvas{
+	float:top;
+	border-style:ridge;
+	display:inline-block;
+	border-color:#004785;
+}
+
+.forms{
+	position: absolute;
+	display:inline-block;
+}
+
+.ent1-form{
+	top:-100;
+	background:white;
+	position: absolute;
+	border-style:ridge;
+	border-color:#004785;
+	height:100px;
+}
+
+.rel-form{
+	top:-200;
+	background:white;
+	position: absolute;
+	border-style:ridge;
+	border-color:#004785;
+	height:150px;
+}
+
+circle{
+	stroke:#004785;
+	stroke-width:2;
+	fill:white;
+	cursor:pointer;
+}
+
+line{
+	stroke:#004785;
+	stroke-width:3;
+	cursor:pointer;
+}
+
+label{
+	display:block;
+}

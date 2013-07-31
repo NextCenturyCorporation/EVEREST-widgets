@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="utf-8">
+	<title>Interactive Drawing Application -- Test</title>
+	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<script src='./js/draw.js'></script>
+</head>
+<body>
+	<div class="toolbar">
+	</div>
+	<div class="canvas"></div>
+	<div class="forms">
+		<div class="ent1-form">
+			<label>Entity 1</label><input type='text' class='ent1'>
+			<button class='ent'>Submit</button>
+		</div>
+		
+		<div class="rel-form">
+			<label>Relationship</label><input type='text' class='relate'>
+			<label>Entity 2</label><input type='text' class='ent2'>
+			<button class='rel'>Submit</button>
+		</div>
+	</div>
+	
+	<script type="text/javascript">
+		createToolbar();
+		createCanvas();
+		$('.ent1-form').animate({
+			top: '-'+$(this).height()
+		}, 0);		
+		$('.rel-form').animate({
+			top: '-'+$(this).height()
+		}, 0);	
+	</script>
+	
+</body>
+</html>
