@@ -13,53 +13,58 @@ var svg = d3.select("body").append("svg")
 	.attr("width", width)
 	.attr("height", height);
 
-//$.getJSON(url + 'assertion/?callback=?', function(data){
-d3.json('./js/raw_data.json', function(data){
-	createArrays(data);
+owfdojo.addOnLoad(function() {
+	OWF.ready(function() {
+		$.getJSON(url + 'assertion/?callback=?', function(data){
+		//d3.json('./js/raw_data.json', function(data){
 
-	var force = d3.layout.force()
-		.nodes(nodes)
-		.links(links)
-		.size([width, height])
-		.linkDistance(100)
-		.charge(-200)
-		.on("tick", tick)
-		.start();
-	
-	link = svg.selectAll(".link")
-		.data(links)
-		.enter().append("line")
-		.attr("class", "link");
-	
-	node = svg.selectAll(".node")
-		.data(nodes)
-		.enter().append("g")
-		.attr("class", "node")
-		.on("mouseover", mouseover)
-		.on("mouseout", mouseout)
-		.style("fill", function(d) {
-			var c = d.group < 0 ? 0 : 1;
-			return color(c); 
-		})
+			createArrays(data);
+
+			var force = d3.layout.force()
+			.nodes(nodes)
+			.links(links)
+			.size([width, height])
+			.linkDistance(100)
+			.charge(-1000)
+			.on("tick", tick)
+			.start();
+
+			link = svg.selectAll(".link")
+			.data(links)
+			.enter().append("line")
+			.attr("class", "link");
+
+			node = svg.selectAll(".node")
+			.data(nodes)
+			.enter().append("g")
+			.attr("class", "node")
+			.on("mouseover", mouseover)
+			.on("mouseout", mouseout)
+			.style("fill", function(d) {
+					var c = d.group < 0 ? 0 : 1;
+					return color(c); 
+					})
 		.call(force.drag);
-	
-	linktext = svg.selectAll("g.linklabelholder").data(force.links());
-		linktext.enter().append("g").attr("class", "linklabelholder")
-		.append("text")
-		.attr("class", "linklabel")
-		.attr("dx", 1)
-		.attr("dy", "1em")
-		.attr("text-anchor", "middle")
-		.text(function(d) { return d.value});
-	
-		node.append("circle")
-		.attr("r", 8);
-	
-		node.append("text")
-		.attr("x", 12)
-		.attr("dy", ".35em")
-		.text(function(d) { return d.name; });
 
+		linktext = svg.selectAll("g.linklabelholder").data(force.links());
+		linktext.enter().append("g").attr("class", "linklabelholder")
+			.append("text")
+			.attr("class", "linklabel")
+			.attr("dx", 1)
+			.attr("dy", "1em")
+			.attr("text-anchor", "middle")
+			.text(function(d) { return d.value});
+
+		node.append("circle")
+			.attr("r", 8);
+
+		node.append("text")
+			.attr("x", 12)
+			.attr("dy", ".35em")
+			.text(function(d) { return d.name; });
+
+		});
+	});
 });
 
 function tick() {
@@ -73,8 +78,8 @@ function tick() {
 		.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
 	linktext.attr("transform", function(d) {
-		return "translate(" + (d.source.x + d.target.x) / 2 + "," 
-		+ (d.source.y + d.target.y) / 2 + ")"; });
+			return "translate(" + (d.source.x + d.target.x) / 2 + "," 
+			+ (d.source.y + d.target.y) / 2 + ")"; });
 }
 
 function mouseover() {
