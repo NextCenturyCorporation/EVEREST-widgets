@@ -58,7 +58,7 @@ function circularHeatChart() {
                 .append("text")
                 .append("textPath")
                 .attr("xlink:href", function(d, i) {return "#radial-label-path-"+id+"-"+i;})
-                .style("font-size", 0.6 * segmentHeight + 'px')
+                .style("font-size", 12 + 'px')
                 .text(function(d) {return d;});
 
             //Segment labels
