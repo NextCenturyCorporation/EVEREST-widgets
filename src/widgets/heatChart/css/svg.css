@@ -1,5 +1,18 @@
 /* Additional css for testing purposes */
 #dayChart svg, #weekChart svg, #monthChart svg {
-	width: 620px;
-	height: 620px;
+	width: 650px;
+	height: 650px;
+}
+
+#dayChart .labels, #weekChart .labels, #monthChart .labels {
+	fill: #000;
+	letter-spacing: 0px;
+}
+
+#dayChart .labels.segment, #weekChart .labels.segment, #monthChart .labels.segment {
+	font-size: 12px;
+}
+
+#dayChart path, #weekChart path, #monthChart path {
+	stroke-width: 0.5px;
 }
