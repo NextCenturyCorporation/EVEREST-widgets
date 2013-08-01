@@ -26,8 +26,9 @@
 	</div>
 	
 	<script type="text/javascript">
-		createToolbar();
-		createCanvas();
+		var d = new draw();
+		d.createToolbar();
+		d.createCanvas();
 		$('.ent1-form').animate({
 			top: '-'+$(this).height()
 		}, 0);		
