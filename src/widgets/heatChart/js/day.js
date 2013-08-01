@@ -31,13 +31,13 @@ day_heatChart_widget.execute = function() {
 				var fields = fields_end[0];
 				var date_list = fields.split(",");
 
-				day_heatChart_widget.createChart(date_list, raw_data, day_chunks, hour_labels);
+				day_heatChart_widget.createChart(date_list, raw_data, day_chunks, hour_labels, minute_labels);
 			});
 		});
 	});
 };
 
-day_heatChart_widget.createChart = function(date_list, raw_data, day_chunks, hour_labels) {
+day_heatChart_widget.createChart = function(date_list, raw_data, day_chunks, hour_labels, minute_labels) {
 
 	for (var j = 0; j < date_list.length; j++){
 		var time = new Date(parseInt(date_list[j]));
@@ -58,19 +58,19 @@ day_heatChart_widget.createChart = function(date_list, raw_data, day_chunks, hou
 			minutes = "0" + minutes;
 		}
 
-		day_chunks[k] = {title: hour + ":" + minutes + " " + meridiem,
+		day_chunks[k] = {title: hour + ":" + minutes,
 			value: raw_data[k]};
 	}
 
-	day_heatChart_widget.drawChart(hours, day_chunks, hour_labels);
+	day_heatChart_widget.drawChart(hours, day_chunks, hour_labels, minute_labels);
 };
 
-day_heatChart_widget.drawChart = function(hours, day_chunks, hour_labels) {
+day_heatChart_widget.drawChart = function(hours, day_chunks, hour_labels, minute_labels) {
 
 	var chart = circularHeatChart()
 		.range(["white", "blue"])
-		.segmentLabels(hour_labels)
 		.radialLabels(minute_labels)
+		.segmentLabels(hour_labels)
 		.segmentHeight(4.7)
 		.innerRadius(10);
 

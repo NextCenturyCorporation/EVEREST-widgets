@@ -12,7 +12,7 @@ week_heatChart_widget.execute = function() {
 	var week_chunks = [];
 
 	for (var i = 0; i < HOURS_PER_DAY; i++) {
-		i % 4 === 0 ? minute_labels.push(i) : minute_labels.push('');
+		i % 4 === 0 ? hour_labels.push(i) : hour_labels.push('');
 	}
 
 	for (var i = 0; i < HOURS_PER_WEEK; i++) {
@@ -28,14 +28,14 @@ week_heatChart_widget.execute = function() {
 				var fields = fields_end[0];
 				var date_list = fields.split(",");
 
-				week_heatChart_widget.createChart(date_list, raw_data, week_chunks, day_labels);
+				week_heatChart_widget.createChart(date_list, raw_data, week_chunks, day_labels, hour_labels);
 
 			});
 		});
 	});
 };
 
-week_heatChart_widget.createChart = function(date_list, raw_data, week_chunks, day_labels) {
+week_heatChart_widget.createChart = function(date_list, raw_data, week_chunks, day_labels, hour_labels) {
 
 	for (var j = 0; j < date_list.length; j++) {
 		var time = new Date(parseInt(date_list[j]));
@@ -49,16 +49,15 @@ week_heatChart_widget.createChart = function(date_list, raw_data, week_chunks, d
 
 		var day = i % 7;
 		var hour = Math.floor((i / 7) % 24);
-		var meridiem = "am";
 
-		week_chunks[i] = {title: day_labels[day] + ", " + hour + " " + meridiem,
+		week_chunks[i] = {title: day_labels[day] + ", at " + hour + " hours",
 			value: raw_data[i]};
 	}
 
-	week_heatChart_widget.drawChart(day_labels, week_chunks);
+	week_heatChart_widget.drawChart(day_labels, week_chunks, hour_labels);
 };
 
-week_heatChart_widget.drawChart = function(day_labels, week_chunks) {
+week_heatChart_widget.drawChart = function(day_labels, week_chunks, hour_labels) {
 
 	var chart = circularHeatChart()
 		.range(["white", "green"])
