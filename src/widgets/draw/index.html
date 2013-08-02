@@ -14,14 +14,18 @@
 	<div class="canvas"></div>
 	<div class="forms">
 		<div class="ent1-form">
-			<label>Entity 1</label><input type='text' class='ent1'>
-			<button class='ent'>Submit</button>
+			<label>Entity</label><input type='text' class='ent1'>
+			<button class='ent-submit'>Submit</button>
 		</div>
 		
 		<div class="rel-form">
+			<label>Relationship</label><input type='text' class='rel-only'>
+			<button class='rel-submit'>Submit</button>
+		</div>
+		<div class="rel-ent2-form">
 			<label>Relationship</label><input type='text' class='relate'>
 			<label>Entity 2</label><input type='text' class='ent2'>
-			<button class='rel'>Submit</button>
+			<button class='rel-ent-submit'>Submit</button>
 		</div>
 	</div>
 	
@@ -31,8 +35,11 @@
 		d.createCanvas();
 		$('.ent1-form').animate({
 			top: '-'+$(this).height()
-		}, 0);		
+		}, 0);
 		$('.rel-form').animate({
+			top: '-'+$(this).height()
+		}, 0);	
+		$('.rel-ent2-form').animate({
 			top: '-'+$(this).height()
 		}, 0);	
 	</script>

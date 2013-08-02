@@ -28,6 +28,15 @@
 }
 
 .rel-form{
+	top:-100;
+	background:white;
+	position: absolute;
+	border-style:ridge;
+	border-color:#004785;
+	height:100px;
+}
+
+.rel-ent2-form{
 	top:-200;
 	background:white;
 	position: absolute;
@@ -51,4 +60,13 @@ line{
 
 label{
 	display:block;
+}
+
+.unselect{
+	fill:white;
+	border-color:#004785;
+}
+.select{
+	fill:#C0C0C0;
+	border-color:#004785;	
 }
