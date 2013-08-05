@@ -176,6 +176,20 @@ var draw = function(){
 			.attr('x2', me.toolC.x + me.radius)
 			.attr('y2', me.num_tools * shift);	
 			
+		var delete_hold = me.createSelection(svg, 'delete_hold');
+		delete_hold.append('circle')
+			.attr('cx', me.toolC.x)
+			.attr('cy', me.num_tools * shift)
+			.attr('r', me.radius)
+			.style('stroke', 'red');
+		
+		delete_hold.append('line')
+			.attr('x1', me.toolC.x - me.radius)
+			.attr('y1', me.num_tools * shift)
+			.attr('x2', me.toolC.x + me.radius)
+			.attr('y2', me.num_tools * shift)
+			.style('stroke', 'red');
+			
 		//add reset and submit buttons at the bottom of the toolbar	
 		var div = d3.select('body').append('div');
 		div.append('button')
@@ -229,7 +243,7 @@ var draw = function(){
 				.on('dblclick', me.doubleClickNode)
 				.on('mouseover', me.mouseover)
 				.on('mouseout', me.mouseout)
-				.on('click', me.mouseclick);
+				.on('click', me.nodeclick);
 			
 			//increment count, used with group classes	
 			count++;
@@ -354,6 +368,7 @@ var draw = function(){
 		});
 		
 		var lines = [];
+		var remove = [];
 		
 		//grab the entity's siblings and iterate through them
 		var immKids = that.parentNode.childNodes;
@@ -366,7 +381,7 @@ var draw = function(){
 					lines.push(immKids[i]);	
 				//this kid is part of an arrow, will be remade, remove
 				} else {
-					d3.select(immKids[i]).remove();
+					remove.push(immKids[i]);
 				}
 			//this kid is a group and should contain a line
 			} else if (immKids[i].localName === 'g'){
@@ -381,11 +396,15 @@ var draw = function(){
 							lines.push(grandKids[j]);	
 						//this kid is part of an arrow, will be remade, remove
 						} else {
-							d3.select(grandKids[j]).remove();
+							remove.push(grandKids[j]);
 						}
 					}
 				}
 			}
+		}
+		
+		for (i = 0; i < remove.length; i++){
+			d3.select(remove[i]).remove();
 		}
 		console.log(lines);
 		//for each line in array of lines
@@ -419,10 +438,22 @@ var draw = function(){
 			}
 			
 			//add a new arrow to the newly translated line
-			me.createArrow(l, this);
+			me.createArrow(l, this.parentNode);
 		});
 	};
 	
+	me.lineclick = function(){
+		if(me.mode === 'delete_hold'){
+			
+			d3.selectAll(this.parentNode.childNodes).each(function(){
+				console.log(this);
+				//remove all lines (relationship and arrows)
+				if (this.localName === 'line'){
+					d3.select(this).remove();
+				}
+			});
+		}
+	}
 	/**
 		used as a callback added to a new entity when it is clicked
 		@param - none
@@ -437,7 +468,7 @@ var draw = function(){
 							  me.mouseout
 							  me.createArrow
 	*/
-	me.mouseclick = function(){
+	me.nodeclick = function(){
 		//if the current mode is rel_hold
 		if(me.mode === 'rel_hold'){
 			//if no entities have been clicked before this one
@@ -483,11 +514,13 @@ var draw = function(){
 						.attr('y1', function(){ return me.computeCoord(p1.y, 'y'); })
 						.attr('x2', function(){ return me.computeCoord(p2.x, 'x'); })
 						.attr('y2', function(){ return me.computeCoord(p2.y, 'y'); })
+						.on('click', me.lineclick)
 						.on('mouseover', me.mouseover)
 						.on('mouseout', me.mouseout); 
 					
-					//add arrow indicating direction
-					me.createArrow(line, that);
+					//add arrow indicating direction				
+					console.log(that.parentNode);
+					me.createArrow(line, that.parentNode);
 					
 					//add the entity 2 group as a child of the 
 					//group containing entity 1
@@ -505,6 +538,10 @@ var draw = function(){
 				});	
 			}
 		}
+		else if (me.mode === 'delete_hold'){
+			var immKids = this.parentNode.childNodes;
+			d3.selectAll(immKids).remove();
+		}
 	};
 	
 	/**
@@ -516,7 +553,7 @@ var draw = function(){
 							  me.mouseover
 							  me.mouseout
 							  me.doubleClickNode (this function)
-							  me.mouseclick
+							  me.nodeclick
 							  me.createArrow
 	*/
 	me.doubleClickNode = function(){
@@ -566,6 +603,7 @@ var draw = function(){
 					.attr('y1', function(){ return me.computeCoord(p1.y, 'y'); })
 					.attr('x2', function(){ return me.computeCoord(p2.x, 'x'); })
 					.attr('y2', function(){ return me.computeCoord(p2.y, 'y'); })
+					.on('click', me.lineclick)
 					.on('mouseover', me.mouseover)
 					.on('mouseout', me.mouseout); 
 
@@ -581,10 +619,10 @@ var draw = function(){
 					.on('dblclick', me.doubleClickNode)
 					.on('mouseover', me.mouseover)
 					.on('mouseout', me.mouseout)
-					.on('click', me.mouseclick);
+					.on('click', me.nodeclick);
 				
 				//add arrow indicating direction
-				me.createArrow(line, that);
+				me.createArrow(line, that.nextSibling);
 				
 				//add this ent - rel - ent to asserts array
 				me.asserts.push({
@@ -688,7 +726,7 @@ var draw = function(){
 	
 	/**
 		called when a new line is created in the following functions
-		me.dragGroup, me.mouseclick, me.doubleClickNode
+		me.dragGroup, me.nodeclick, me.doubleClickNode
 		@param - line: the line that we want to add the arrow to
 				 that: the item to append the arrows to
 		@return - none
@@ -743,14 +781,14 @@ var draw = function(){
 			Dy2 = p2.y > p1.y ? -dy2 : dy2;
 		}
 		
-		d3.select(that.parentNode).append('line')
+		d3.select(that).append('line')
 			.attr('class', 'triangle')
 			.attr('x1', midlineX)
 			.attr('y1', midlineY)
 			.attr('x2', midlineX + Dx1)
 			.attr('y2', midlineY + Dy1);
 			
-		d3.select(that.parentNode).append('line')
+		d3.select(that).append('line')
 			.attr('class', 'triangle')
 			.attr('x1', midlineX)
 			.attr('y1', midlineY)
@@ -760,7 +798,7 @@ var draw = function(){
 	
 	/**
 		called when any line or entity is created, within the following
-		functions : me.moveLines, me.moveCircles, me.dragGroup, me.mouseclick
+		functions : me.moveLines, me.moveCircles, me.dragGroup, me.nodeclick
 		me.doubleClickNode
 		@param - newC: coordinate (x or y) within canvas to attempt to add new item
 				 axis: 'x' or 'y' to indicate what bound to compare against
@@ -768,6 +806,7 @@ var draw = function(){
 		@functionality - takes newC and checks to see if it is within the 
 				  bounds of the canvas, if it is, returns newC, if not, returns
 				  a proper min or max
+		@internal functions - none
 	*/
 	me.computeCoord = function(newC, axis){
 		//get the max coordinate based on what axis is
