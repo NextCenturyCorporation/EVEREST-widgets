@@ -97,6 +97,34 @@ var draw = function(){
 		}
 	};
 	
+	me.createCancelClickers = function(){
+		d3.select('.ent-cancel').on('click', function(){
+			//hide entity form
+			$('.ent1').val('');
+			$('.ent1-form').animate({
+				top: '-'+ 2*$('.ent1-form').height()
+			}, 750);
+		});
+		
+		d3.select('.rel-cancel').on('click', function(){
+			me.lastNodeClicked = null;
+			//hide the relationship form
+			$('.rel-only').val('');
+			$('.rel-form').animate({
+				top: '-'+ 2*$('.rel-form').height()
+			}, 750);
+		});
+		
+		d3.select('.rel-ent-cancel').on('click', function(){
+			//hide rel-ent2 form
+			$('.relate').val('');
+				$('.ent2').val('');
+				$('.rel-ent2-form').animate({
+					top: '-'+ 2*$('.rel-ent2-form').height()
+				}, 750);
+		});
+	};
+	
 	/**
 		called from javascript section in index.html
 		@param - none
@@ -372,7 +400,6 @@ var draw = function(){
 		
 		//grab the entity's siblings and iterate through them
 		var immKids = that.parentNode.childNodes;
-		console.log(immKids);
 		for (var i = 0; i < immKids.length; i++){
 			//this kid is a line
 			if (immKids[i].localName === 'line'){ 
@@ -387,7 +414,6 @@ var draw = function(){
 			} else if (immKids[i].localName === 'g'){
 				//grab the group's children and iterate through them
 				var grandKids = immKids[i].childNodes;
-				console.log(grandKids);
 				for (var j = 0; j < grandKids.length; j++){
 					//this kid is a line
 					if (grandKids[j].localName === 'line'){
@@ -406,11 +432,10 @@ var draw = function(){
 		for (i = 0; i < remove.length; i++){
 			d3.select(remove[i]).remove();
 		}
-		console.log(lines);
+		
 		//for each line in array of lines
 		d3.selectAll(lines).each(function(d, i){
 			var l = d3.select(this);
-			
 			//if entity1 was grabbed, p1 from line matches grabbed circle		
 			if (l.attr('x1') === cx && l.attr('y1') === cy){
 				x = 'x1';
@@ -438,15 +463,24 @@ var draw = function(){
 			}
 			
 			//add a new arrow to the newly translated line
-			me.createArrow(l, this.parentNode);
+			me.createArrow(l);
 		});
 	};
 	
+	/**
+		used as a callback added to a new relationship when it is clicked
+		@param - none
+		@return - none
+		@functionality - dependent upon what the current mode is
+				  is called when a relationship in the canvas is clicked
+				  if the current mode is delete_hold the line is remove
+				  along with the arrow that was with it
+		@internal functions - none
+	*/
 	me.lineclick = function(){
+		//current mode is delete_hold
 		if(me.mode === 'delete_hold'){
-			
 			d3.selectAll(this.parentNode.childNodes).each(function(){
-				console.log(this);
 				//remove all lines (relationship and arrows)
 				if (this.localName === 'line'){
 					d3.select(this).remove();
@@ -463,6 +497,9 @@ var draw = function(){
 				  if the current mode is rel_hold and two entities are 
 				  clicked, a line is drawn between the representing
 				  a relationship
+				  if the current mode is delete_hold it removes the entity
+				  and any of its siblings, group(with lines and entities),
+				  line or arrow
 		@internal functions - me.computeCoord
 							  me.mouseover
 							  me.mouseout
@@ -519,8 +556,7 @@ var draw = function(){
 						.on('mouseout', me.mouseout); 
 					
 					//add arrow indicating direction				
-					console.log(that.parentNode);
-					me.createArrow(line, that.parentNode);
+					me.createArrow(line);
 					
 					//add the entity 2 group as a child of the 
 					//group containing entity 1
@@ -622,7 +658,7 @@ var draw = function(){
 					.on('click', me.nodeclick);
 				
 				//add arrow indicating direction
-				me.createArrow(line, that.nextSibling);
+				me.createArrow(line);
 				
 				//add this ent - rel - ent to asserts array
 				me.asserts.push({
@@ -735,7 +771,7 @@ var draw = function(){
 				  between entity 1 and entity 2
 		@internal functions - none
 	*/
-	me.createArrow = function(line, that){
+	me.createArrow = function(line){
 		var p1 = {
 			x: parseInt(line.attr('x1'),10),
 			y: parseInt(line.attr('y1'),10)
@@ -781,14 +817,14 @@ var draw = function(){
 			Dy2 = p2.y > p1.y ? -dy2 : dy2;
 		}
 		
-		d3.select(that).append('line')
+		d3.select(line[0][0].parentNode).append('line')
 			.attr('class', 'triangle')
 			.attr('x1', midlineX)
 			.attr('y1', midlineY)
 			.attr('x2', midlineX + Dx1)
 			.attr('y2', midlineY + Dy1);
 			
-		d3.select(that).append('line')
+		d3.select(line[0][0].parentNode).append('line')
 			.attr('class', 'triangle')
 			.attr('x1', midlineX)
 			.attr('y1', midlineY)
@@ -820,7 +856,7 @@ var draw = function(){
 			return max;
 		//within canvas, safe, return newC
 		} else {
-			return newC;
+			return Math.floor(newC);
 		}
 	};
 };
