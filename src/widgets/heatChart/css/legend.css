@@ -1,0 +1,10 @@
+.legendText {
+	font-size:14px;
+	font-family:"Arial, sans-serif";
+	font-weight: bold;
+}
+
+#theBar svg{
+	float: right;
+	width:350px;
+}
