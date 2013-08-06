@@ -26,6 +26,7 @@
 					$('#monthInfo').hide(0);
 					$('#dayChart').show(0);
 					$('#dayInfo').show(0);
+					legend.execute(230, 230, 1);
 					day_heatChart_widget.execute();
 
 					$('#dayButton').click(function() {
@@ -35,6 +36,7 @@
 						$('#monthInfo').hide();
 						$('#dayChart').show();
 						$('#dayInfo').show();
+						legend.execute(230, 230,1);
 						day_heatChart_widget.execute();
 					});
 					$('#weekButton').click(function() {
@@ -44,6 +46,7 @@
 						$('#monthInfo').hide();
 						$('#dayChart').hide();
 						$('#dayInfo').hide();
+						legend.execute(120, 120, 0.4);
 						week_heatChart_widget.execute();
 					});
 					$('#monthButton').click(function() {
@@ -53,6 +56,7 @@
 						$('#monthInfo').show();
 						$('#dayChart').hide();
 						$('#dayInfo').hide();
+						legend.execute(0, 0, 1);
 						month_heatChart_widget.execute();
 					});
 			});
