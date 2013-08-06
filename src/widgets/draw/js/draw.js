@@ -16,6 +16,7 @@ var draw = function(){
 	me.canvasC = { x: (me.canvasW / 2), y: (me.canvasH / 2) };
 	
 	me.asserts = [];
+	me.lastState = null;
 	
 	me.mode = "";
 	me.lastNodeClicked = null;
@@ -23,7 +24,7 @@ var draw = function(){
 
 	/**
 		called in createToolbar when a new toolbar element is added 
-		@param - svg: the container to add the new elemnt to
+		@param - svg: the container to add the new element to
 				 class_name: a string that gives a short description of
 				 	  the new toolbar item, which becomes the group's class
 		@return - a group containing a rectangle to show mode selection
@@ -43,10 +44,10 @@ var draw = function(){
 		//add the background svg element to show tool usage
 		selection.append('rect')
 			.attr('class', 'unselect')
-			.attr('x', me.toolC.x - me.radius - 2)
-			.attr('y', me.num_tools * shift - me.radius - 2)
-			.attr('width', 2*(me.radius + 2) )
-			.attr('height', 2*(me.radius + 2) );
+			.attr('x', me.toolC.x - me.radius - 3)
+			.attr('y', me.num_tools * shift - me.radius - 3)
+			.attr('width', 2*(me.radius + 3) )
+			.attr('height', 2*(me.radius + 3) );
 			
 		return selection;
 	};
@@ -203,6 +204,16 @@ var draw = function(){
 			.attr('y1', me.num_tools * shift)
 			.attr('x2', me.toolC.x + me.radius)
 			.attr('y2', me.num_tools * shift);	
+			
+		//add the tool to show all labels for each item in the canvas
+		var undo_hold = me.createSelection(svg, 'undo_hold');
+		undo_hold.append('text')
+			.attr('x', me.toolC.x)
+			.attr('y', me.num_tools * shift)
+			.attr('text-anchor', 'middle')
+			.attr('dy', '0.35em')
+			.attr('font-size', 12)
+			.text('undo');
 			
 		var delete_hold = me.createSelection(svg, 'delete_hold');
 		delete_hold.append('circle')
@@ -478,14 +489,24 @@ var draw = function(){
 		@internal functions - none
 	*/
 	me.lineclick = function(){
+		var start = this;
+		while (start.parentNode.localName !== 'svg'){
+			start = start.parentNode;
+		}
+		start = start.parentNode;
+	
 		//current mode is delete_hold
 		if(me.mode === 'delete_hold'){
+			var t = this.parentNode;
 			d3.selectAll(this.parentNode.childNodes).each(function(){
 				//remove all lines (relationship and arrows)
 				if (this.localName === 'line'){
 					d3.select(this).remove();
-				}
+				//pull other siblings up to top
+				} 
 			});
+			console.log(t);
+			start.appendChild(t);
 		}
 	}
 	/**
@@ -854,7 +875,7 @@ var draw = function(){
 		//past width or height of canvas, return bound
 		} else if (newC > max){
 			return max;
-		//within canvas, safe, return newC
+		//within canvas, safe, return newC as integer
 		} else {
 			return Math.floor(newC);
 		}
