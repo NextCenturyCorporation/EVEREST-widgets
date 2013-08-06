@@ -58,6 +58,13 @@ line{
 	cursor:pointer;
 }
 
+path {
+	stroke:#004785;
+	stroke-width:1.6;
+	cursor:pointer;
+	fill:#004785;
+}
+
 label{
 	display:block;
 }

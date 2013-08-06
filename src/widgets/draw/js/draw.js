@@ -147,7 +147,17 @@ var draw = function(){
 					var ev = d3.mouse(this);
 					me.appendCircle(ev);
 				}
-			});
+			})
+			.append('svg:defs').append('svg:marker')
+				.attr('id', 'Triangle')
+				.attr('refX', 0)
+				.attr('refY', 3)
+				.attr('markerUnits', 'strokeWidth')
+				.attr('markerWidth', 100)
+				.attr('markerHeight', 100)
+				.attr('orient', 'auto')
+				.append('svg:path')
+					.attr('d', 'M 0 0 L 6 3 L 0 6 z');
 	};
 	
 	/**
@@ -189,8 +199,18 @@ var draw = function(){
 			.attr('x1', me.toolC.x - me.radius)
 			.attr('y1', me.num_tools * shift - me.radius)
 			.attr('x2', me.toolC.x + me.radius)
-			.attr('y2', me.num_tools * shift + me.radius);
-			
+			.attr('y2', me.num_tools * shift + me.radius)
+			.attr('marker-mid', 'url(#Triangle)');
+		
+		rel_hold.append('path')
+			.attr('class', 'relationship')
+			.attr('marker-mid', 'url(#Triangle)')
+			.attr('d', function(){
+				return 'M'+ (me.toolC.x - me.radius)+' ' + (me.num_tools * shift - me.radius) +
+					  ' L'+ me.toolC.x + ' ' + (me.num_tools * shift) +
+					  ' L'+ (me.toolC.x + me.radius)+' ' + (me.num_tools * shift + me.radius);
+			});
+		
 		//add the tool to allow the user to move entire groups	
 		var mover_hold = me.createSelection(svg, 'mover_hold');	
 		mover_hold.append('line')
@@ -205,7 +225,7 @@ var draw = function(){
 			.attr('x2', me.toolC.x + me.radius)
 			.attr('y2', me.num_tools * shift);	
 			
-		//add the tool to show all labels for each item in the canvas
+		//add the tool to undo last change in the canvas
 		var undo_hold = me.createSelection(svg, 'undo_hold');
 		undo_hold.append('text')
 			.attr('x', me.toolC.x)
@@ -335,6 +355,7 @@ var draw = function(){
 		@internal functions - me.computeCoord
 	*/
 	me.moveLines = function(parent){
+		d3.select(parent).selectAll('path').remove();
 		d3.select(parent).selectAll('line').each(function(d,i){
 			var line = d3.select(this);
 			
@@ -351,6 +372,16 @@ var draw = function(){
 				var newC = d3.event.dy + parseInt(line.attr('y2')); 
 				return me.computeCoord(newC, 'y'); 
 			});
+			
+			d3.select(line[0][0].parentNode).insert('path', ':first-child')
+				.attr('marker-mid', 'url(#Triangle)')
+				.attr('d', function(){
+					var midX = (parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2;
+					var midY = (parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2;
+					return 'M'+ line.attr('x1')+' ' + line.attr('y1') +
+						  ' L'+ midX + ' ' + midY +
+						  ' L'+ line.attr('x2')+' ' + line.attr('y2');
+				});
 		});
 	};
 	
@@ -385,7 +416,6 @@ var draw = function(){
 		@functionality - selects the clicked on entity and any lines 
 		attached to it and moves those end points attached to the entity 
 		@internal functions - me.computeCoord
-							  me.createArrow
 	*/
 	me.dragGroup = function(that){
 		
@@ -414,13 +444,7 @@ var draw = function(){
 		for (var i = 0; i < immKids.length; i++){
 			//this kid is a line
 			if (immKids[i].localName === 'line'){ 
-				//this kid is a relationship, add to lines array
-				if (!d3.select(immKids[i]).classed('triangle')){
-					lines.push(immKids[i]);	
-				//this kid is part of an arrow, will be remade, remove
-				} else {
-					remove.push(immKids[i]);
-				}
+				lines.push(immKids[i]);	
 			//this kid is a group and should contain a line
 			} else if (immKids[i].localName === 'g'){
 				//grab the group's children and iterate through them
@@ -428,15 +452,13 @@ var draw = function(){
 				for (var j = 0; j < grandKids.length; j++){
 					//this kid is a line
 					if (grandKids[j].localName === 'line'){
-						//this kid is a relationship, add to lines array
-						if (!d3.select(grandKids[j]).classed('triangle')){
-							lines.push(grandKids[j]);	
-						//this kid is part of an arrow, will be remade, remove
-						} else {
-							remove.push(grandKids[j]);
-						}
+						lines.push(grandKids[j]);	
+					} else if (grandKids[j].localName === 'path'){
+						remove.push(grandKids[j]);
 					}
 				}
+			} else if (immKids[i].localName === 'path'){
+				remove.push(immKids[i]);
 			}
 		}
 		
@@ -473,8 +495,15 @@ var draw = function(){
 				});
 			}
 			
-			//add a new arrow to the newly translated line
-			me.createArrow(l);
+			var path = d3.select(l[0][0].parentNode).insert('path', ':first-child')
+				.attr('marker-mid', 'url(#Triangle)')
+				.attr('d', function(){
+					var midX = (parseInt(l.attr('x1'), 10) + parseInt(l.attr('x2'), 10)) / 2;
+					var midY = (parseInt(l.attr('y1'), 10) + parseInt(l.attr('y2'), 10)) / 2;
+					return 'M'+ l.attr('x1')+' ' + l.attr('y1') +
+						  ' L'+ midX + ' ' + midY +
+						  ' L'+ l.attr('x2')+' ' + l.attr('y2');
+				});
 		});
 	};
 	
@@ -488,24 +517,20 @@ var draw = function(){
 				  along with the arrow that was with it
 		@internal functions - none
 	*/
-	me.lineclick = function(){
-		var start = this;
-		while (start.parentNode.localName !== 'svg'){
-			start = start.parentNode;
-		}
-		start = start.parentNode;
-	
+	me.lineclick = function(){	
+		var start = d3.select('.canvas svg')[0][0];
+		
 		//current mode is delete_hold
 		if(me.mode === 'delete_hold'){
 			var t = this.parentNode;
 			d3.selectAll(this.parentNode.childNodes).each(function(){
 				//remove all lines (relationship and arrows)
-				if (this.localName === 'line'){
+				if (this.localName === 'line' || this.localName === 'path'){
 					d3.select(this).remove();
-				//pull other siblings up to top
 				} 
 			});
-			console.log(t);
+			
+			//bring the deleted line's parent group to top level
 			start.appendChild(t);
 		}
 	}
@@ -524,7 +549,6 @@ var draw = function(){
 		@internal functions - me.computeCoord
 							  me.mouseover
 							  me.mouseout
-							  me.createArrow
 	*/
 	me.nodeclick = function(){
 		//if the current mode is rel_hold
@@ -576,8 +600,15 @@ var draw = function(){
 						.on('mouseover', me.mouseover)
 						.on('mouseout', me.mouseout); 
 					
-					//add arrow indicating direction				
-					me.createArrow(line);
+					var path = d3.select(that.parentNode).insert('path', ':first-child')
+						.attr('marker-mid', 'url(#Triangle)')
+						.attr('d', function(){
+							var midX = (parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2;
+							var midY = (parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2;
+							return 'M'+ line.attr('x1')+' ' + line.attr('y1') +
+								  ' L'+ midX + ' ' + midY +
+								  ' L'+ line.attr('x2')+' ' + line.attr('y2');
+						});
 					
 					//add the entity 2 group as a child of the 
 					//group containing entity 1
@@ -611,7 +642,6 @@ var draw = function(){
 							  me.mouseout
 							  me.doubleClickNode (this function)
 							  me.nodeclick
-							  me.createArrow
 	*/
 	me.doubleClickNode = function(){
 		if (me.mode === ''){
@@ -664,6 +694,16 @@ var draw = function(){
 					.on('mouseover', me.mouseover)
 					.on('mouseout', me.mouseout); 
 
+				var path = net.insert('path', ':first-child')
+					.attr('marker-mid', 'url(#Triangle)')
+					.attr('d', function(){
+						var midX = (parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2;
+						var midY = (parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2;
+						return 'M'+ line.attr('x1')+' ' + line.attr('y1') +
+							  ' L'+ midX + ' ' + midY +
+							  ' L'+ line.attr('x2')+' ' + line.attr('y2');
+					});
+	
 				//create the entity 2
 				net.append('circle')
 					.attr('d', $('.ent2').val())
@@ -677,10 +717,7 @@ var draw = function(){
 					.on('mouseover', me.mouseover)
 					.on('mouseout', me.mouseout)
 					.on('click', me.nodeclick);
-				
-				//add arrow indicating direction
-				me.createArrow(line);
-				
+								
 				//add this ent - rel - ent to asserts array
 				me.asserts.push({
 					entity1: circle.attr('d'),
@@ -700,8 +737,6 @@ var draw = function(){
 			});	
 		}
 	};
-	
-
 	
 	/**
 		used as a callback added to a new entity when it is hovered over
@@ -780,79 +815,7 @@ var draw = function(){
 			d3.selectAll('.canvas text').remove();
 		}
 	};
-	
-	/**
-		called when a new line is created in the following functions
-		me.dragGroup, me.nodeclick, me.doubleClickNode
-		@param - line: the line that we want to add the arrow to
-				 that: the item to append the arrows to
-		@return - none
-		@functionality - calculate the locations of the points that
-				  will be used for the arrows that indicate direction
-				  between entity 1 and entity 2
-		@internal functions - none
-	*/
-	me.createArrow = function(line){
-		var p1 = {
-			x: parseInt(line.attr('x1'),10),
-			y: parseInt(line.attr('y1'),10)
-		};
-		
-		var p2 = {
-			x: parseInt(line.attr('x2'),10),
-			y: parseInt(line.attr('y2'),10)
-		};
-		
-		var midlineX = (p2.x + p1.x) / 2;
-		var midlineY = (p2.y + p1.y) / 2;
-		var magline = Math.sqrt((p2.y - p1.y) * (p2.y - p1.y) + (p2.x - p1.x) * (p2.x - p1.x));
-		var alpha = Math.atan((p2.y - p1.y) / (p2.x - p1.x)) - 0.523598;
-		var beta = Math.atan((p2.y - p1.y) / (p2.x - p1.x)) + 0.523598;
 
-		var dx1 = me.arrowlength * Math.cos(alpha);
-		var dy1 = me.arrowlength * Math.sin(alpha);
-		
-		var dx2 = me.arrowlength * Math.cos(beta);
-		var dy2 = me.arrowlength * Math.sin(beta);
-		
-		var Dx1, Dy1, Dx2, Dy2;
-		
-		//(+, +) case, accounting for inverted y-axis
-		if ((p2.x > p1.x) && (p2.y < p1.y)){
-			Dx1 = -dx1;
-			Dy1 = -dy1;
-			Dx2 = -dx2;
-			Dy2 = -dy2;
-		//(-, -) case, accounting for inverted y-axis
-		} else if((p2.x < p1.x) && (p2.y > p1.y)){
-			Dx1 = dx1;
-			Dy1 = dy1;
-			Dx2 = dx2;
-			Dy2 = dy2;
-		//either (+, -) or (-, +)
-		} else {
-			Dx1 = p2.x > p1.x ? -dx1 : dx1;
-			Dy1 = p2.y > p1.y ? -dy1 : dy1;
-			
-			Dx2 = p2.x > p1.x ? -dx2 : dx2;
-			Dy2 = p2.y > p1.y ? -dy2 : dy2;
-		}
-		
-		d3.select(line[0][0].parentNode).append('line')
-			.attr('class', 'triangle')
-			.attr('x1', midlineX)
-			.attr('y1', midlineY)
-			.attr('x2', midlineX + Dx1)
-			.attr('y2', midlineY + Dy1);
-			
-		d3.select(line[0][0].parentNode).append('line')
-			.attr('class', 'triangle')
-			.attr('x1', midlineX)
-			.attr('y1', midlineY)
-			.attr('x2', midlineX + Dx2)
-			.attr('y2', midlineY + Dy2);
-	};
-	
 	/**
 		called when any line or entity is created, within the following
 		functions : me.moveLines, me.moveCircles, me.dragGroup, me.nodeclick
