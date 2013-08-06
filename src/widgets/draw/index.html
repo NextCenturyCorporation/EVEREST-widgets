@@ -15,16 +15,20 @@
 	<div class="forms">
 		<div class="ent1-form">
 			<label>Entity</label><input type='text' class='ent1'>
+			<button class='ent-cancel'>Cancel</button>
 			<button class='ent-submit'>Submit</button>
 		</div>
 		
 		<div class="rel-form">
 			<label>Relationship</label><input type='text' class='rel-only'>
+			<button class='rel-cancel'>Cancel</button>
 			<button class='rel-submit'>Submit</button>
 		</div>
+		
 		<div class="rel-ent2-form">
 			<label>Relationship</label><input type='text' class='relate'>
 			<label>Entity 2</label><input type='text' class='ent2'>
+			<button class='rel-ent-cancel'>Cancel</button>
 			<button class='rel-ent-submit'>Submit</button>
 		</div>
 	</div>
@@ -33,6 +37,7 @@
 		var d = new draw();
 		d.createToolbar();
 		d.createCanvas();
+		d.createCancelClickers();
 		$('.ent1-form').animate({
 			top: '-'+$(this).height()
 		}, 0);
