@@ -15,9 +15,13 @@ var draw = function(){
 	me.circles = [];
 	me.lines = [];
 	
+	me.circleCount = 0;
+	me.lineCount = 0;
+	
 	me.mode = "";
 	me.lastNodeClicked = null;
 	me.num_tools = 0;
+	me.count = 0;
 	
 	me.indexOf = function(c, array){
 		for (var i = 0; i < array.length; i++){
@@ -36,6 +40,40 @@ var draw = function(){
 			y: item.attr('cy'),
 			r: item.attr('r')
 		};
+	};
+	
+	/**
+		returns an array of indices pointing back to circles in me.circles
+	*/
+	me.extractCircles = function(g){
+		var array = [];
+		for (var i = 0; i < me.circles.length; i++){
+			if(me.circles[i].group === g){
+				array.push(i);
+			}
+		}
+		return array;
+	};
+	
+	/**
+		returns an array of indices pointing back to lines in me.lines
+	*/
+	me.extractLines = function(array){
+		var lines = [];
+		//for each circle in the array
+		for (var i = 0; i < array.length; i++){
+			var c = array[i];
+			//add a line if it is attached to the circle
+			for (var j = 0; j < me.lines.length; j++){
+				var l = me.lines[j];
+				if (c === l.source || c === l.target){
+					if(lines.indexOf(j) === -1){
+						lines.push(j);
+					}
+				}
+			}
+		}
+		return lines;
 	};
 
 	/**
@@ -305,11 +343,11 @@ var draw = function(){
 		//creates on click event for entity form submit button
 		d3.select('.ent-submit').on('click', function(){
 			//create a new group to hold new event
-			var group = d3.select('.canvas svg')
+			var group = d3.select('.canvas svg');
 			
 			var circle = group.append('circle')
 				.attr('d', $('.ent1').val())
-				.attr('class', me.circles.length)
+				.attr('class', me.circleCount)
 				.attr('cx', mouse_event[0])
 				.attr('cy', mouse_event[1])
 				.attr('r', me.radius)
@@ -319,10 +357,14 @@ var draw = function(){
 				.on('mouseout', me.mouseout)
 				.on('click', me.nodeclick);
 			
-			var c = me.simplify(circle);
 			if (me.indexOf(circle, me.circles) === -1){
+				var c = me.simplify(circle);
+				c.group = me.count;
 				me.circles.push(c);
 			}
+
+			me.count++;
+			me.circleCount++;
 			
 			//hide entity form
 			$('.ent1').val('');
@@ -348,12 +390,39 @@ var draw = function(){
 		//if the mover tool is selected, grab the topmost group that
 		//this is a child of and move the entire group around
 		if(me.mode === 'mover_hold'){
-			var start = this;
-			while (start.parentNode.localName !== 'svg'){
-				start = start.parentNode;
+			var circles = [];
+			var lines = [];
+			
+			var group = me.indexOf(d3.select(this), me.circles);
+			var x = me.extractCircles(me.circles[group].group);
+			
+			d3.selectAll('.canvas circle').each(function(){
+				for (var i = 0; i < x.length; i++){
+				
+					if(d3.select(this).attr('class') === me.circles[x[i]].class){
+						circles.push(this);
+					}
+				}
+			});
+			
+			var y = me.extractLines(x);
+			for (i = 0; i < y.length; i++){
+				d3.selectAll('.canvas line').each(function(){
+					if(d3.select(this).attr('class') === me.lines[y[i]].class){
+						lines.push(this);
+					}
+				});
+				var d = me.lines[y[i]].path;
+				d3.selectAll('.arrow').each(function(){
+					var arr = d3.select(this);
+					if (arr.attr('d') === d){
+						arr.remove();
+					} 
+				});
 			}
-			me.moveCircles(start);
-			me.moveLines(start);
+			
+			me.moveCircles(d3.selectAll(circles));
+			me.moveLines(d3.selectAll(lines));
 		//if in default/no mode, just drag the element that was selected
 		//also only moving any lines that are directly attached to it
 		} else if (me.mode === ''){
@@ -372,9 +441,8 @@ var draw = function(){
 		@internal functions - me.computeCoord
 							  me.createArrow
 	*/
-	me.moveLines = function(parent){
-		d3.selectAll('.arrow').remove();
-		d3.selectAll('.canvas line').each(function(d,i){
+	me.moveLines = function(lines){
+		lines.each(function(){
 			var line = d3.select(this);
 			
 			line.attr('x1', function() { 
@@ -393,6 +461,7 @@ var draw = function(){
 			
 			var path = me.createArrow(line);
 			me.lines[me.indexOf(line, me.lines)].path = path.attr('d');
+			
 		});
 	};
 	
@@ -405,8 +474,9 @@ var draw = function(){
 				  canvas
 		@internal functions - me.computeCoord
 	*/
-	me.moveCircles = function(parent){
-		d3.selectAll('.canvas circle').each(function(d,i){
+	me.moveCircles = function(circles){
+
+		circles.each(function(){
 			var circle = d3.select(this);
 			
 			circle.attr('cx', function() { 
@@ -418,8 +488,8 @@ var draw = function(){
 			});
 			
 			var c = me.circles[me.indexOf(circle, me.circles)];
-			c.x = circle.attr('cx');
-			c.y = circle.attr('cy');
+				c.x = circle.attr('cx');
+				c.y = circle.attr('cy');
 			});
 	};
 	
@@ -558,6 +628,12 @@ var draw = function(){
 					var c1 = d3.select(me.lastNodeClicked);
 					var c2 = d3.select(that);
 					
+					var ind1 = me.indexOf(c1, me.circles);
+					var ind2 = me.indexOf(c2, me.circles);
+					
+					me.circles[ind2].group = me.circles[ind1].group;
+					me.count--;
+					
 					//center of entity 1
 					var p1 = {
 						x:parseInt(c1.attr('cx'), 10),
@@ -572,7 +648,7 @@ var draw = function(){
 					
 					//draw the line before the entities so that it appears behind
 					var line = d3.select('.canvas svg').insert('line', ':first-child')
-						.attr('class', me.lines.length)
+						.attr('class', me.linesCount)
 						.attr('d', $('.rel-only').val())
 						.attr('x1', function(){ return me.computeCoord(p1.x, 'x'); })
 						.attr('y1', function(){ return me.computeCoord(p1.y, 'y'); })
@@ -581,6 +657,8 @@ var draw = function(){
 						.on('click', me.lineclick)
 						.on('mouseover', me.mouseover)
 						.on('mouseout', me.mouseout); 
+					
+					me.lineCount++;
 					
 					var path = me.createArrow(line);
 					
@@ -656,7 +734,6 @@ var draw = function(){
 				//grab the entity and set variables from its attributes
 				var circle = d3.select(that);
 				var r = circle.attr('r');
-				var parentLayer = parseInt(circle.attr('class'), 10);
 				
 				//grab a random direction for new entity
 				var deg = 360 * Math.random();
@@ -681,7 +758,7 @@ var draw = function(){
 				
 				//create the line for the new entity 1 entity 2 relationship
 				var line = group.insert('line', ':first-child')
-					.attr('class', me.lines.length)
+					.attr('class', me.lineCount)
 					.attr('d', $('.relate').val())
 					.attr('x1', function(){ return me.computeCoord(p1.x, 'x'); })
 					.attr('y1', function(){ return me.computeCoord(p1.y, 'y'); })
@@ -691,24 +768,28 @@ var draw = function(){
 					.on('mouseover', me.mouseover)
 					.on('mouseout', me.mouseout); 
 
+				me.lineCount++;
+				
 				var path = me.createArrow(line);
 	
 				//create the entity 2
 				var circle2 = group.append('circle')
 					.attr('d', $('.ent2').val())
-					.attr('class', parentLayer + 1)
+					.attr('class', me.circleCount)
 					.attr('cx', function(){ return me.computeCoord(p2.x, 'x'); })
 					.attr('cy', function(){ return me.computeCoord(p2.y, 'y'); })
 					.attr('r', me.radius)
-					.style('fill', color(parentLayer + 1))
+					.style('fill', color(me.circles.length))
 					.call(d3.behavior.drag().on('drag', me.move))
 					.on('dblclick', me.doubleClickNode)
 					.on('mouseover', me.mouseover)
 					.on('mouseout', me.mouseout)
 					.on('click', me.nodeclick);
 								
+				me.circleCount++;
 				if(me.indexOf(circle2, me.circles) === -1){
 					var c = me.simplify(circle2);
+					c.group = me.circles[me.indexOf(circle, me.circles)].group;
 					me.circles.push(c);
 				}
 				
