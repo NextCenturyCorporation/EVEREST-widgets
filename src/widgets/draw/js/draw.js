@@ -309,7 +309,7 @@ var draw = function(){
 			
 			var circle = group.append('circle')
 				.attr('d', $('.ent1').val())
-				.attr('class', 0)
+				.attr('class', me.circles.length)
 				.attr('cx', mouse_event[0])
 				.attr('cy', mouse_event[1])
 				.attr('r', me.radius)
