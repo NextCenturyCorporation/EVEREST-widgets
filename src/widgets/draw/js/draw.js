@@ -24,7 +24,6 @@ var draw = function(){
 	me.count = 0;
 	
 	me.indexOf = function(c, array){
-		console.log(c);
 		for (var i = 0; i < array.length; i++){
 			if (c.attr('class') === array[i].class){
 				return i;
@@ -72,7 +71,7 @@ var draw = function(){
 		var lines = [];
 		//for each circle in the array
 		for (var i = 0; i < array.length; i++){
-			var c = array[i];
+			var c = me.circles[array[i]].class;
 			//add a line if it is attached to the circle
 			for (var j = 0; j < me.lines.length; j++){
 				var l = me.lines[j];
@@ -646,7 +645,6 @@ var draw = function(){
 					var ind2 = me.indexOf(c2, me.circles);
 					
 					me.circles[ind2].group = me.circles[ind1].group;
-					me.count--;
 					
 					//center of entity 1
 					var p1 = {
@@ -680,8 +678,8 @@ var draw = function(){
 						class: line.attr('class'),
 						html: line[0][0],
 						d: line.attr('d'),
-						source: me.indexOf(c1, me.circles),
-						target: me.indexOf(c2, me.circles),
+						source: c1.attr('class'),
+						target: c2.attr('class'),
 						path: path.attr('d')
 					};
 					
@@ -704,10 +702,11 @@ var draw = function(){
 			var index = me.indexOf(d3.select(this), me.circles);
 			var group = me.circles[index].group;
 			
+			
 			d3.selectAll('.canvas line').each(function(){
 				var line_index = me.indexOf(d3.select(this), me.lines);
 				var l = me.lines[line_index];
-				if (l.source === index || l.target === index){
+				if (l.source === me.circles[index].class || l.target === me.circles[index].class){
 					d3.selectAll('.arrow').each(function(){
 						if (d3.select(this).attr('d') === l.path){
 							d3.select(this).remove();
@@ -721,11 +720,57 @@ var draw = function(){
 			d3.select(this).remove();
 
 			var cIndicies = me.extractCircles(group);
-			console.log(cIndicies);
+			
+			for (var i = 0; i < cIndicies.length; i++){
+				me.circles[cIndicies[i]].group = me.count;
+				me.count++;
+			}
 			
 			//[0 1 2 5] all have the same group
 			//want to iterate through and divide them up
-
+			for (i = 0; i < cIndicies.length; i++){
+				var cObj = me.circles[cIndicies[i]];
+				var newGroup = me.count;
+				var thisGroup = [];
+				
+				//compare to those who have already been allocated a new group
+				for (var j = 0; j < i; j++){
+					var cObj2 = me.circles[cIndicies[j]];
+					d3.selectAll('.canvas line').each(function(){
+						var l = me.lines[me.indexOf(d3.select(this), me.lines)];
+						if(l.source === cObj.class && l.target === cObj2.class){
+							thisGroup.push(me.circles[cIndicies[j]]);	
+						} else if (l.source === cObj2.class && l.target === cObj.class){
+							thisGroup.push(me.circles[cIndicies[j]]);
+						}
+						
+					});
+					
+					if (thisGroup.length === 0){
+						cObj.group = newGroup;
+						me.count++;
+					} else {
+					
+						//this group contains at least one circle
+						var small = {group:999999};
+						
+						for(var k = 0; k < thisGroup.length; k++){
+							if (thisGroup[k].group < small.group){
+								small = thisGroup[k];
+							}
+						}
+						
+						for(k = 0; k < thisGroup.length; k++){
+							var t = me.extractCircles(thisGroup[k].group);
+							for (var m = 0; m < t.length; t++){
+								me.circles[t[m]].group = small.group;
+							}
+						}
+						
+						cObj.group = small.group;
+					}
+				}
+			}
 		}
 	};
 	
@@ -821,8 +866,8 @@ var draw = function(){
 						class: line.attr('class'),
 						html: line[0][0],
 						d: line.attr('d'),
-						source: me.indexOf(circle, me.circles),
-						target: me.indexOf(circle2, me.circles),
+						source: circle.attr('class'),
+						target: circle2.attr('class'),
 						path: path.attr('d')
 					};
 					me.lines.push(l);
