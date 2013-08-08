@@ -595,10 +595,21 @@ var draw = function(){
 				} 
 			});
 			
+			var group;
+			var cIndex = me.lines[index].source;
+			for (var i = 0; i < me.circles.length; i++){
+				if(me.circles[i].class === cIndex){
+					group = me.circles[i].group;
+				}
+			}
 			me.lines.splice(index,1);
 			d3.select(this).remove();
+			
+			var cIndicies = me.extractCircles(group);
+			me.separateGroups(cIndicies);
 		}
-	}
+	};
+	
 	/**
 		used as a callback added to a new entity when it is clicked
 		@param - none
@@ -720,57 +731,7 @@ var draw = function(){
 			d3.select(this).remove();
 
 			var cIndicies = me.extractCircles(group);
-			
-			for (var i = 0; i < cIndicies.length; i++){
-				me.circles[cIndicies[i]].group = me.count;
-				me.count++;
-			}
-			
-			//[0 1 2 5] all have the same group
-			//want to iterate through and divide them up
-			for (i = 0; i < cIndicies.length; i++){
-				var cObj = me.circles[cIndicies[i]];
-				var newGroup = me.count;
-				var thisGroup = [];
-				
-				//compare to those who have already been allocated a new group
-				for (var j = 0; j < i; j++){
-					var cObj2 = me.circles[cIndicies[j]];
-					d3.selectAll('.canvas line').each(function(){
-						var l = me.lines[me.indexOf(d3.select(this), me.lines)];
-						if(l.source === cObj.class && l.target === cObj2.class){
-							thisGroup.push(me.circles[cIndicies[j]]);	
-						} else if (l.source === cObj2.class && l.target === cObj.class){
-							thisGroup.push(me.circles[cIndicies[j]]);
-						}
-						
-					});
-					
-					if (thisGroup.length === 0){
-						cObj.group = newGroup;
-						me.count++;
-					} else {
-					
-						//this group contains at least one circle
-						var small = {group:999999};
-						
-						for(var k = 0; k < thisGroup.length; k++){
-							if (thisGroup[k].group < small.group){
-								small = thisGroup[k];
-							}
-						}
-						
-						for(k = 0; k < thisGroup.length; k++){
-							var t = me.extractCircles(thisGroup[k].group);
-							for (var m = 0; m < t.length; t++){
-								me.circles[t[m]].group = small.group;
-							}
-						}
-						
-						cObj.group = small.group;
-					}
-				}
-			}
+			me.separateGroups(cIndicies);
 		}
 	};
 	
@@ -1000,5 +961,55 @@ var draw = function(){
 			});
 		
 		return path;
+	};
+	
+	me.separateGroups = function(circleGroup){
+		for (var i = 0; i < circleGroup.length; i++){
+			me.circles[circleGroup[i]].group = me.count;
+			me.count++;
+		}
+		
+		//want to iterate through and divide them up
+		for (i = 0; i < circleGroup.length; i++){
+			var cObj = me.circles[circleGroup[i]];
+			var newGroup = me.count;
+			var thisGroup = [];
+			
+			//compare to those who have already been allocated a new group
+			for (var j = 0; j < i; j++){
+				var cObj2 = me.circles[circleGroup[j]];
+				d3.selectAll('.canvas line').each(function(){
+					var l = me.lines[me.indexOf(d3.select(this), me.lines)];
+					if(l.source === cObj.class && l.target === cObj2.class){
+						thisGroup.push(me.circles[circleGroup[j]]);	
+					} else if (l.source === cObj2.class && l.target === cObj.class){
+						thisGroup.push(me.circles[circleGroup[j]]);
+					}
+				});
+				
+				if (thisGroup.length === 0){
+					cObj.group = newGroup;
+					me.count++;
+				} else {
+					//this group contains at least one circle
+					var small = {group:999999};
+					
+					for(var k = 0; k < thisGroup.length; k++){
+						if (thisGroup[k].group < small.group){
+							small = thisGroup[k];
+						}
+					}
+					
+					for(k = 0; k < thisGroup.length; k++){
+						var t = me.extractCircles(thisGroup[k].group);
+						for (var m = 0; m < t.length; t++){
+							me.circles[t[m]].group = small.group;
+						}
+					}
+					
+					cObj.group = small.group;
+				}
+			}
+		}
 	};
 };
