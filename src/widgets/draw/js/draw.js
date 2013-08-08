@@ -24,6 +24,7 @@ var draw = function(){
 	me.count = 0;
 	
 	me.indexOf = function(c, array){
+		console.log(c);
 		for (var i = 0; i < array.length; i++){
 			if (c.attr('class') === array[i].class){
 				return i;
@@ -35,12 +36,21 @@ var draw = function(){
 	me.simplify = function(item){	
 		return {
 			class: item.attr('class'),
+			html: item[0][0],
 			d: item.attr('d'),
 			x: item.attr('cx'),
 			y: item.attr('cy'),
 			r: item.attr('r')
 		};
 	};
+	
+	me.print = function(obj){
+		console.log(JSON.stringify({
+			d: obj.d,
+			class: obj.class,
+			group: obj.group
+		}));
+	}
 	
 	/**
 		returns an array of indices pointing back to circles in me.circles
@@ -104,6 +114,14 @@ var draw = function(){
 			.attr('height', 2*(me.radius + 3) );
 			
 		return selection;
+	};
+	
+	me.getCircleByClass = function(clazz){
+		d3.selectAll('.canvas circle').each(function(){
+			if (d3.select(this).attr('class') === clazz){
+				return this;
+			}
+		});
 	};
 	
 	/**
@@ -316,8 +334,13 @@ var draw = function(){
 			.text('Submit')
 			.on('click', function(){
 				//temporary way to show the state of the current target event
-				console.log(JSON.stringify(me.lines));
-				console.log(JSON.stringify(me.circles));
+				for (var i = 0; i < me.lines.length; i++){
+					me.print(me.lines[i]);
+				}
+				
+				for (i = 0; i < me.circles.length; i++){
+					me.print(me.circles[i]);
+				}
 			});
 	};
 	
@@ -396,22 +419,15 @@ var draw = function(){
 			var group = me.indexOf(d3.select(this), me.circles);
 			var x = me.extractCircles(me.circles[group].group);
 			
-			d3.selectAll('.canvas circle').each(function(){
-				for (var i = 0; i < x.length; i++){
-				
-					if(d3.select(this).attr('class') === me.circles[x[i]].class){
-						circles.push(this);
-					}
-				}
-			});
+			for (var i = 0; i < x.length; i++){
+				circles.push(me.circles[x[i]].html);
+			}
 			
 			var y = me.extractLines(x);
 			for (i = 0; i < y.length; i++){
-				d3.selectAll('.canvas line').each(function(){
-					if(d3.select(this).attr('class') === me.lines[y[i]].class){
-						lines.push(this);
-					}
-				});
+				
+				lines.push(me.lines[y[i]].html);
+				
 				var d = me.lines[y[i]].path;
 				d3.selectAll('.arrow').each(function(){
 					var arr = d3.select(this);
@@ -420,7 +436,6 @@ var draw = function(){
 					} 
 				});
 			}
-			
 			me.moveCircles(d3.selectAll(circles));
 			me.moveLines(d3.selectAll(lines));
 		//if in default/no mode, just drag the element that was selected
@@ -461,7 +476,6 @@ var draw = function(){
 			
 			var path = me.createArrow(line);
 			me.lines[me.indexOf(line, me.lines)].path = path.attr('d');
-			
 		});
 	};
 	
@@ -648,7 +662,7 @@ var draw = function(){
 					
 					//draw the line before the entities so that it appears behind
 					var line = d3.select('.canvas svg').insert('line', ':first-child')
-						.attr('class', me.linesCount)
+						.attr('class', me.lineCount)
 						.attr('d', $('.rel-only').val())
 						.attr('x1', function(){ return me.computeCoord(p1.x, 'x'); })
 						.attr('y1', function(){ return me.computeCoord(p1.y, 'y'); })
@@ -664,6 +678,7 @@ var draw = function(){
 					
 					var l = {
 						class: line.attr('class'),
+						html: line[0][0],
 						d: line.attr('d'),
 						source: me.indexOf(c1, me.circles),
 						target: me.indexOf(c2, me.circles),
@@ -687,6 +702,7 @@ var draw = function(){
 		}
 		else if (me.mode === 'delete_hold'){
 			var index = me.indexOf(d3.select(this), me.circles);
+			var group = me.circles[index].group;
 			
 			d3.selectAll('.canvas line').each(function(){
 				var line_index = me.indexOf(d3.select(this), me.lines);
@@ -703,6 +719,13 @@ var draw = function(){
 			});
 			me.circles.splice(index, 1);
 			d3.select(this).remove();
+
+			var cIndicies = me.extractCircles(group);
+			console.log(cIndicies);
+			
+			//[0 1 2 5] all have the same group
+			//want to iterate through and divide them up
+
 		}
 	};
 	
@@ -796,6 +819,7 @@ var draw = function(){
 				if(me.indexOf(line, me.lines) === -1){
 					var l = {
 						class: line.attr('class'),
+						html: line[0][0],
 						d: line.attr('d'),
 						source: me.indexOf(circle, me.circles),
 						target: me.indexOf(circle2, me.circles),
