@@ -1,0 +1,40 @@
+div {
+	
+}
+.alpha, .matcher {
+	display:inline-block;
+	width:500px;
+	height:700px;
+	border-style:solid;
+	border-width:3px;
+	border-color:#004785;
+}
+
+.alpha-info, .confirmer {
+	display:block;
+	width:500px;
+	height:200px;
+}
+
+.asserts, .target-pattern{
+	border-top-style:dashed;
+	display:block;
+	width:500px;
+	height:500px;
+	font: 10px sans-serif;
+}
+
+.patterns{
+	float:right;
+}
+
+.link {
+	fill: none;
+	stroke: #666;
+	stroke-width: 1.5px;
+}
+
+text {
+	pointer-events: none;
+	fill: black;
+}
