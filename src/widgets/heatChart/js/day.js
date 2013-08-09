@@ -15,7 +15,7 @@ day_heatChart_widget.execute = function() {
 	var day_chunks= [];
 
 	for (var i = 0; i < MINUTES_PER_HOUR; i++) {
-		i % 10 === 0 ? minute_labels.push(i) : minute_labels.push('');
+		i % 10 === 0 && (i != 0 && i != 10) ? minute_labels.push(i) : minute_labels.push('');
 	}
 
 	for (var i = 0; i < MINUTES_PER_DAY; i++){
