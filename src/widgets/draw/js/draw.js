@@ -1,5 +1,6 @@
 var draw = function(){
 	var me =  this;
+	var url = 'http://localhost:8081/target_assertion/';
 		
 	var color = d3.scale.category20();
 	var shift = 25;
@@ -23,6 +24,15 @@ var draw = function(){
 	me.num_tools = 0;
 	me.count = 0;
 	
+	/**			
+		@param 	 		c: a d3.select()'ed element
+				 		array: the array to search for the element in
+				 			   me.circles or me.lines right now
+		@return 		index of c in the array, or -1 if not present
+		@functionality 	searches through the specified array for the
+						desired item c
+		@todo			array prototype?
+	*/
 	me.indexOf = function(c, array){
 		for (var i = 0; i < array.length; i++){
 			if (c.attr('class') === array[i].class){
@@ -32,6 +42,11 @@ var draw = function(){
 		return -1;
 	};
 	
+	/**
+		@param			item: a d3.select()'ed circle
+		@return			an object containing the desired attributes of item
+		@functionality	simplifies the circle for storage in me.circles
+	*/
 	me.simplify = function(item){	
 		return {
 			class: item.attr('class'),
@@ -43,16 +58,46 @@ var draw = function(){
 		};
 	};
 	
+	/**
+		@param			obj: item to display, since html contains circular
+		@return			none
+		@functionality	just prints out the data that needs to be seen (debugging)
+		@todo			probably to be removed
+	*/
 	me.print = function(obj){
 		console.log(JSON.stringify({
 			d: obj.d,
 			class: obj.class,
 			group: obj.group
 		}));
-	}
+	};
 	
 	/**
-		returns an array of indices pointing back to circles in me.circles
+		used when saving the state of the canvas
+		saves assertions (ent - rel - ent) and single entities
+		@pararm			circle: simplified circle object from me.circles
+		@return			boolean stating whether circle is connected by a line
+						to another circle
+		@functionality	search through each line in me.lines to see if this
+						circle's class is used as a source or target for any
+						of the lines. if it is, something is connected to it
+	*/
+	me.isAlone = function(circle){
+		var alone = true;
+		for (var i = 0; i < me.lines.length; i++){
+			if(me.lines[i].source === circle.class || me.lines[i].target === circle.class){
+				alone = false;
+			}
+		}
+		return alone;
+	};
+	
+	/**
+		@param 			g: group number 
+		@return 		an array of indicies pointing back to circles in
+						me.circles, which all have the same group number
+		@functionality	searches through me.circles for any circles that
+						have the same group as specified by g
 	*/
 	me.extractCircles = function(g){
 		var array = [];
@@ -65,7 +110,16 @@ var draw = function(){
 	};
 	
 	/**
-		returns an array of indices pointing back to lines in me.lines
+		@param 			array: array created from extractCircles
+							   a set of circles all with the same group
+		@return			an array of indicies pointing back to lines in
+						me.lines that are connected to the circles specified
+						by param array
+		@functionality	goes through each of the circles specified by array
+						and checks all the lines to see if the source or target
+						of that line matches the circle's class
+						add line index if it hasn't already been added
+						to the return array
 	*/
 	me.extractLines = function(array){
 		var lines = [];
@@ -124,10 +178,7 @@ var draw = function(){
 	};
 	
 	/**
-		the on click callback used when creating a new 
-		selection in me.createSelection
-		@param - none
-		@return - none
+		the on click callback used when creating a new selection
 		@functionality - either changes the current tool in use or
 			toggles the tool usage indicator off.	
 			intermediate stored variables are reset.
@@ -169,6 +220,10 @@ var draw = function(){
 		}
 	};
 	
+	/**
+		@functionality	selects all of the cancel buttons in each of the
+		hidden forms and adds a hide function to them for when they are clicked
+	*/
 	me.createCancelClickers = function(){
 		d3.select('.ent-cancel').on('click', function(){
 			//hide entity form
@@ -199,13 +254,10 @@ var draw = function(){
 	
 	/**
 		called from javascript section in index.html
-		@param - none
-		@return - none
-		@functionality - grabs the .canvas div and adds an svg element
-			      to it which will be where any target event definition
-			      elements are added to.
-			      an on click event is added to the svg element which
-			      executes me.appendCircle if the mode is currently node_hold
+		@functionality - grabs the .canvas div and adds an svg element to it 
+		which will be where any target event definition elements are added to.
+		an on click event is added to the svg element which executes 
+		me.appendCircle if the mode is currently node_hold
 		@internal functions - me.appendCircle
 	*/
 	me.createCanvas = function(){
@@ -232,11 +284,9 @@ var draw = function(){
 	
 	/**
 		called from javascript section in index.html
-		@param - none
-		@return - none
-		@functionality - grabs the .toolbar div and adds an svg element
-				  to it which will be where any toolbar items are held.
-				  currently there are 4 tools: label, node, rel and mover.
+		@functionality - grabs the .toolbar div and adds an svg element to it 
+		which will be where any toolbar items are held. currently there are 
+		five functioning tools: label, node, rel, mover and delete.
 		@internal functions - me.createSelection
 	*/
 	me.createToolbar = function(){
@@ -304,7 +354,8 @@ var draw = function(){
 			.attr('dy', '0.35em')
 			.attr('font-size', 12)
 			.text('undo');
-			
+		
+		//add the tool to delete circles or lines from canvas
 		var delete_hold = me.createSelection(svg, 'delete_hold');
 		delete_hold.append('circle')
 			.attr('cx', me.toolC.x)
@@ -321,28 +372,35 @@ var draw = function(){
 			
 		//add reset and submit buttons at the bottom of the toolbar	
 		var div = d3.select('body').append('div');
-		div.append('button')
-			.text('Reset')
+		div.append('button').text('Reset')
 			.on('click', function(){
-				//clear canvas and remove all items from list of asserts
-				d3.select('.canvas svg').selectAll('g').remove();
-				me.asserts = [];
+				//clear canvas and arrays
+				d3.select('.canvas svg').selectAll('line').remove();
+				d3.select('.canvas svg').selectAll('path').remove();
+				d3.select('.canvas svg').selectAll('circle').remove();
+				
+				me.circles = [];
+				me.lines = [];
 			});
 		
-		div.append('button')
-			.text('Submit')
-			.on('click', function(){
-				//temporary way to show the state of the current target event
-				for (var i = 0; i < me.lines.length; i++){
-					me.print(me.lines[i]);
-				}
-				
-				for (i = 0; i < me.circles.length; i++){
-					me.print(me.circles[i]);
-				}
-			});
+		div.append('button').text('Submit')
+			.on('click', me.saveTargetAssertions);
 	};
 	
+	me.createCircle = function(svg, x, y, d){
+		var circle = svg.append('circle')
+			.attr('d', d).attr('class', me.circleCount)
+			.attr('cx', x).attr('cy', y)
+			.attr('r', me.radius)
+			.style('fill', color(me.count))
+			.call(d3.behavior.drag().on('drag', me.move))
+			.on('dblclick', me.doubleClickNode)
+			.on('mouseover', me.mouseover)
+			.on('mouseout', me.mouseout)
+			.on('click', me.nodeclick);
+		
+		return circle;
+	};
 	/**
 		currently only called when the user clicks inside the svg canvas
 		and the node_hold selection is toggled from the toolbar
@@ -364,20 +422,11 @@ var draw = function(){
 		
 		//creates on click event for entity form submit button
 		d3.select('.ent-submit').on('click', function(){
-			//create a new group to hold new event
+			//grab canvas svg to hold new event
 			var group = d3.select('.canvas svg');
 			
-			var circle = group.append('circle')
-				.attr('d', $('.ent1').val())
-				.attr('class', me.circleCount)
-				.attr('cx', mouse_event[0])
-				.attr('cy', mouse_event[1])
-				.attr('r', me.radius)
-				.call(d3.behavior.drag().on('drag', me.move))
-				.on('dblclick', me.doubleClickNode)
-				.on('mouseover', me.mouseover)
-				.on('mouseout', me.mouseout)
-				.on('click', me.nodeclick);
+			var circle = me.createCircle(group, mouse_event[0], 
+								mouse_event[1], $('.ent1').val());
 			
 			if (me.indexOf(circle, me.circles) === -1){
 				var c = me.simplify(circle);
@@ -398,7 +447,7 @@ var draw = function(){
 	
 	/** 
 		used as a callback added to a new entity when it is dragged
-		in the canvas.
+		in the canvas
 		@param - none
 		@return - none
 		@functionality - depends on what the current mode is, based on 2 only.
@@ -655,7 +704,16 @@ var draw = function(){
 					var ind1 = me.indexOf(c1, me.circles);
 					var ind2 = me.indexOf(c2, me.circles);
 					
-					me.circles[ind2].group = me.circles[ind1].group;
+					var circ = me.circles[ind2];
+					var toAttach = me.extractCircles(circ.group);
+					
+					for (var j = 0; j < toAttach.length; j++){
+						var delta = me.circles[toAttach[j]];
+						delta.group = me.circles[ind1].group;
+						d3.select(delta.html)
+							.transition(2500)
+							.style('fill', color(circ.group));
+					}
 					
 					//center of entity 1
 					var p1 = {
@@ -673,10 +731,10 @@ var draw = function(){
 					var line = d3.select('.canvas svg').insert('line', ':first-child')
 						.attr('class', me.lineCount)
 						.attr('d', $('.rel-only').val())
-						.attr('x1', function(){ return me.computeCoord(p1.x, 'x'); })
-						.attr('y1', function(){ return me.computeCoord(p1.y, 'y'); })
-						.attr('x2', function(){ return me.computeCoord(p2.x, 'x'); })
-						.attr('y2', function(){ return me.computeCoord(p2.y, 'y'); })
+						.attr('x1', me.computeCoord(p1.x, 'x'))
+						.attr('y1', me.computeCoord(p1.y, 'y'))
+						.attr('x2', me.computeCoord(p2.x, 'x'))
+						.attr('y2', me.computeCoord(p2.y, 'y'))
 						.on('click', me.lineclick)
 						.on('mouseover', me.mouseover)
 						.on('mouseout', me.mouseout); 
@@ -789,10 +847,10 @@ var draw = function(){
 				var line = group.insert('line', ':first-child')
 					.attr('class', me.lineCount)
 					.attr('d', $('.relate').val())
-					.attr('x1', function(){ return me.computeCoord(p1.x, 'x'); })
-					.attr('y1', function(){ return me.computeCoord(p1.y, 'y'); })
-					.attr('x2', function(){ return me.computeCoord(p2.x, 'x'); })
-					.attr('y2', function(){ return me.computeCoord(p2.y, 'y'); })
+					.attr('x1', me.computeCoord(p1.x, 'x'))
+					.attr('y1', me.computeCoord(p1.y, 'y'))
+					.attr('x2', me.computeCoord(p2.x, 'x'))
+					.attr('y2', me.computeCoord(p2.y, 'y'))
 					.on('click', me.lineclick)
 					.on('mouseover', me.mouseover)
 					.on('mouseout', me.mouseout); 
@@ -800,25 +858,17 @@ var draw = function(){
 				me.lineCount++;
 				
 				var path = me.createArrow(line);
+				var cGroup = me.circles[me.indexOf(circle, me.circles)].group;
 	
 				//create the entity 2
-				var circle2 = group.append('circle')
-					.attr('d', $('.ent2').val())
-					.attr('class', me.circleCount)
-					.attr('cx', function(){ return me.computeCoord(p2.x, 'x'); })
-					.attr('cy', function(){ return me.computeCoord(p2.y, 'y'); })
-					.attr('r', me.radius)
-					.style('fill', color(me.circles.length))
-					.call(d3.behavior.drag().on('drag', me.move))
-					.on('dblclick', me.doubleClickNode)
-					.on('mouseover', me.mouseover)
-					.on('mouseout', me.mouseout)
-					.on('click', me.nodeclick);
-								
+				var circle2 = me.createCircle(group, me.computeCoord(p2.x, 'x'),
+							me.computeCoord(p2.y, 'y'), $('.ent2').val());
+					circle2.style('fill', color(cGroup));
+				
 				me.circleCount++;
 				if(me.indexOf(circle2, me.circles) === -1){
 					var c = me.simplify(circle2);
-					c.group = me.circles[me.indexOf(circle, me.circles)].group;
+					c.group = cGroup;
 					me.circles.push(c);
 				}
 				
@@ -936,14 +986,11 @@ var draw = function(){
 		//get the max coordinate based on what axis is
 		var max = axis === 'x' ? me.canvasW : me.canvasH;
 		
-		//on negative x or y axis, return 0
-		if (newC < 0){
+		if (newC < 0){	
 			return 0;
-		//past width or height of canvas, return bound
-		} else if (newC > max){
+		} else if (newC > max){	//past width or height of canvas, return bound
 			return max;
-		//within canvas, safe, return newC as integer
-		} else {
+		} else {	//within canvas, safe, return newC as integer
 			return Math.floor(newC);
 		}
 	};
@@ -964,8 +1011,12 @@ var draw = function(){
 	};
 	
 	me.separateGroups = function(circleGroup){
-		for (var i = 0; i < circleGroup.length; i++){
-			me.circles[circleGroup[i]].group = me.count;
+		for (var i = 1; i < circleGroup.length; i++){
+			var c = me.circles[circleGroup[i]];
+			c.group = me.count;
+			d3.select(c.html)
+				.transition(2500)
+				.style('fill', color(c.group));
 			me.count++;
 		}
 		
@@ -1012,4 +1063,74 @@ var draw = function(){
 			}
 		}
 	};
+	
+	me.saveTargetAssertions = function(){
+		for (var i = 0; i < me.lines.length; i++){
+			var line = me.lines[i];
+			var c1, c2;
+			for (var i = 0; i < me.circles.length; i++){
+				if(me.circles[i].class === line.source){
+					c1 = me.circles[i];
+				}
+				
+				if(me.circles[i].class === line.target){
+					c2 = me.circles[i];
+				}
+			}
+			
+			var entity1 = {
+				name: "entity1",
+				value: c1.d,
+				x: parseInt(c1.x, 10),
+				y: parseInt(c1.y, 10),
+				color: c1.group
+			};
+			var relationship = {
+				name: "relationship",
+				value: line.d,
+				color: 0
+			};
+			var entity2 = {
+				name: "entity2",
+				value: c2.d,
+				x: parseInt(c2.x, 10),
+				y: parseInt(c2.y, 10),
+				color: c2.group
+			
+			};
+			
+			var name = "assertion " + i;
+			
+			var postData = {
+				name: name,
+				description:"",
+				entity1: [entity1],
+				relationship: [relationship],
+				entity2: [entity2]
+			};
+			console.log(JSON.stringify(postData));
+		}
+		
+		for (i = 0; i < me.circles.length; i++){
+			var c = me.circles[i];
+			if(me.isAlone(c)){
+				var entity1 = {
+					name: "entity1",
+					value: c.d,
+					x: parseInt(c.x, 10),
+					y: parseInt(c.y, 10),
+					color: c.group				
+				};
+				var name = "Lone Entity " + i;
+				
+				var postData = {
+					name: name,
+					description:"",
+					entity1: [entity1]
+				};
+				console.log(JSON.stringify(postData));
+			}
+		}
+	};
+	
 };
