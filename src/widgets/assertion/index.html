@@ -6,8 +6,8 @@
 		<script src="../../../../lib/backbone.js"></script>
 		<script src="../../../../lib/d3.v3.js"></script>
 		<script src="../../../../lib/owf-widget-debug.js"></script>
-		<script src="../data_table.js"></script>
-		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="./components/data_table.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/style.css">
 	</head>
 	<body>
 		<div class="data_table_hold">
@@ -22,49 +22,31 @@
 				<input type="button" value="Show All" class="data_table_reset">
 			</div>
 			<div class="data_table_text"></div>
-			<div class="data_table_display_count"> Please select the number of rows to display 
+			<!--div class="data_table_display_count"> Please select the number of rows to display 
 				<label><input type="radio" name="rows" value="10" checked>10</label>
 				<label><input type="radio" name="rows" value="25">25</label>
 				<label><input type="radio" name="rows" value="50">50</label>
 				<label><input type="radio" name="rows" value="100">100</label>
 				<label><input type="radio" name="rows" value="all" class="data_table_all_radio">All</label>
-			</div>
+			</div-->
 		</div>
 
 		<script type="text/javascript">
-			var temp_data = [{
-				"time": "2012-08-04T02:37:47-07:00",
-				"ent1": "the ongoing reports of fraud",
-				"rel": "establish",
-				"ent2": "contacts"
-			},
-			{
-				"time": "2012-09-04T16:41:56-08:00",
-				"ent1": "# co-conspirators",
-				"rel": "conspire to defraud",
-				"ent2": "the united states government"
-			},
-			{
-				"time": "2012-10-04T17:41:56-08:00",
-				"ent1": "the defendant",
-				"rel": "convict of",
-				"ent2": "the conspiracy charge"
-			},
-			{
-				"time": "2012-11-04T17:42:56-08:00",
-				"ent1": "his co-conspirators",
-				"rel": "devise",
-				"ent2": "a scheme"
-			}];
-
 			//remove the previous data block and do something to get the data
 
-			$(function() {
-				var raw_data_table = new data_table(temp_data, function(announcement) {
-					OWF.Eventing.publish("com.nextcentury.everest.data_table_announcing.assertion", announcement);
-				}, null);
 
-				raw_data_table.generateTable();
+			$(function() {
+				var success = function(data, status, xhr) {
+					var raw_data_table = new data_table(data, function(announcement) {
+						OWF.Eventing.publish("com.nextcentury.everest.data_table_announcing.assertion", announcement);
+					}, null);
+
+					raw_data_table.generateTable();
+				};
+
+				var url = "http://everest-build:8081/assertion/?callback=?";
+
+				$.getJSON(url, success);
 			})
 		</script>
 	</body>
