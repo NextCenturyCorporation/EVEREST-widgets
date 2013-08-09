@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+
+		<script src="http://everest-build/owf-sample-html/js/owf-widget-debug.js"></script>
+		<script src="js/assertionFeed.js"></script>
+	</head>
+	<body>
+		<form onsubmit="return assertionFeed.updateFeed(ent1, rel, ent2)" >
+			Entity 1: <input id="ent1" type="text" name="ent1"><br>
+			Relationship: <input id="rel" type="text" name="rel"><br>
+			Entity 2: <input id="ent2" type="text" name="ent2"><br>
+			<input name="submit" type="submit" value="Submit">
+		</form>
+	</body>
+</html>
