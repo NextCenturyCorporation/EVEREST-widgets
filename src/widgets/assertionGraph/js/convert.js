@@ -25,11 +25,15 @@
  */
 
 var nodes = [],
-	links = [];
+    links = [];
 
 
-function createArrays(data){
+function createArrays(msg){
 	var count = 0;
+
+	var data = [];
+
+	data.push(msg);
 
 	for(var i = 0; i < data.length; i++){
 		var item = data[i];
@@ -63,7 +67,7 @@ function createArrays(data){
 			source: index1,
 			target: index2,
 			value: item.relationship
-		}
+		};
 
 		links.push(rel);
 	}
@@ -71,4 +75,4 @@ function createArrays(data){
 	for (i = 0; i < nodes.length; i++) {
 		nodes[i] = JSON.parse(nodes[i]);
 	}
-};
+}
