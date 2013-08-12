@@ -15,10 +15,13 @@ describe('Test src/widget/assertionGraph/js/convert.js', function() {
 				"relationship": "caught",
 				"entity2": "ball"
 			}];
+			
+			var nodes = [];
+			var links = [];
 
 			spyOn(nodes, 'push').andCallThrough();
-			createArrays(data);
-
+			var arrays = createArrays(nodes, links ,data,'disjoint');
+			
 			expect(nodes).toBeDefined();
 			expect(links).toBeDefined();
 			expect(nodes.push).toHaveBeenCalled();
