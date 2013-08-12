@@ -16,11 +16,8 @@ describe('Test src/widget/assertionGraph/js/convert.js', function() {
 				"entity2": "ball"
 			}];
 			
-			var nodes = [];
-			var links = [];
-
 			spyOn(nodes, 'push').andCallThrough();
-			var arrays = createArrays(nodes, links ,data,'disjoint');
+			var arrays = createArrays(data,'disjoint');
 			
 			expect(nodes).toBeDefined();
 			expect(links).toBeDefined();
