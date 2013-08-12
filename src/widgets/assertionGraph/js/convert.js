@@ -23,48 +23,59 @@
  * where the number after source and target point to the index location in
  * the nodes array of the node to point to for this link
  */
+ 
+function indexOfCircle(item, array){
+	for (var i = 0; i < array.length; i++){
+		if (item.value === array[i].value && item.group === array[i].group){
+			return i;
+		}
+	}
+	return -1;
+}
+
+function indexOfLink(item, array){
+	for (var i = 0; i < array.length; i++){
+		console.log(array[i]);
+		if (item.value === array[i].value && item.source === array[i].source.index
+				&& item.target === array[i].target.index){
+			return i;
+		}
+	}
+	return -1;
+}
 
 function createArrays(nodes, links, msg, mode){
 	var data = [];
 	var count = 0;
 
 	data.push(msg);
-	console.log("data is " +JSON.stringify(data));
-	
-	for (i = 0; i < nodes.length; i++) {
-		nodes[i] = JSON.stringify(nodes[i]);
-	}
-	
+
 	for(var i = 0; i < data.length; i++){
 		var item = data[i];
-		console.log(item);
 		var ent1 = {
-			name: item.entity1
+			value: item.entity1
 		};
 		
 		ent1.group = mode === 'disjoint' ? count : 0;
 
 		var ent2 = {
-			name: item.entity2
+			value: item.entity2
 		};
 
 		ent2.group = mode === 'disjoint' ? -(count+1) : 1;
 
-		if(nodes.indexOf(JSON.stringify(ent1)) === -1) {
-			nodes.push(JSON.stringify(ent1));
+		if(indexOfCircle(ent1, nodes) === -1) {
+			nodes.push(ent1);
 			count++;
-			console.log("not found");
-		} else {
-			console.log("found already");
-		}
+		} 
 
-		if(nodes.indexOf(JSON.stringify(ent2)) === -1){
-			nodes.push(JSON.stringify(ent2));
+		if(indexOfCircle(ent2, nodes) === -1){
+			nodes.push(ent2);
 			count++;
 		}
 
-		var index1 = nodes.indexOf(JSON.stringify(ent1));
-		var index2 = nodes.indexOf(JSON.stringify(ent2));
+		var index1 = indexOfCircle(ent1, nodes);
+		var index2 = indexOfCircle(ent2, nodes);
 
 		var rel = {
 			source: index1,
@@ -72,11 +83,10 @@ function createArrays(nodes, links, msg, mode){
 			value: item.relationship
 		};
 
-		links.push(rel);
-	}
-
-	for (i = 0; i < nodes.length; i++) {
-		nodes[i] = JSON.parse(nodes[i]);
+		console.log(rel);
+		if (indexOfLink(rel, links) === -1){
+			links.push(rel);
+		}
 	}
 	
 	return [nodes, links];

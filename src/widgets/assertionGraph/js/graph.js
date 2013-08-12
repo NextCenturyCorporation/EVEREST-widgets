@@ -35,7 +35,6 @@ var update = function(sender, msg) {
 	//$.getJSON(url + 'assertion/?callback=?', function(data){
 	//d3.json('./js/raw_data.json', function(data){
 	var arrays = createArrays(nodes, links, msg, 'disjoint');
-	console.log(msg);
 	nodes = arrays[0];
 	links = arrays[1];
 	console.log(nodes);
@@ -45,6 +44,9 @@ var update = function(sender, msg) {
 		.nodes(nodes)
 		.links(links)
 		.start();
+		
+	console.log(nodes);
+	console.log(links);
 
 	link = link.data(links, function(d) { return d.target.id; });
 	link.exit().remove();
@@ -65,23 +67,6 @@ var update = function(sender, msg) {
 			return color(c); 
 		})
 		.call(force.drag);
-	
-	//	.data(links)
-	//	.enter().append("line")
-	//	.attr("class", "link");
-
-	/*node = svg.selectAll(".node")
-		.data(nodes)
-		.enter().append("g")
-		.attr("class", "node")
-		.on("mouseover", mouseover)
-		.on("mouseout", mouseout)
-		.style("fill", function(d) {
-			var c = d.group < 0 ? 0 : 1;
-			return color(c); 
-		})
-		.call(force.drag);*/
-
 
 	linktext = svg.selectAll("g.linklabelholder").data(force.links());
 	linktext.enter().append("g").attr("class", "linklabelholder")
@@ -98,7 +83,7 @@ var update = function(sender, msg) {
 	nodeEnter.append("text")
 		.attr("x", 12)
 		.attr("dy", ".35em")
-		.text(function(d) { return d.name; });
+		.text(function(d) { return d.value; });
 };
 
 function tick() {
