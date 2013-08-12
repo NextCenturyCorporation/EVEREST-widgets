@@ -24,11 +24,9 @@
  * the nodes array of the node to point to for this link
  */
 
-var nodes = [],
-    links = [];
-
-
 function createArrays(msg){
+	var nodes = [],
+    links = [];
 	var count = 0;
 
 	var data = [];
