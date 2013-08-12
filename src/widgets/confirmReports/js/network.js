@@ -15,28 +15,41 @@ var network = function(svg, data, mode){
 	var nodes = arrays[0];
 	var links = arrays[1];
 	
-	var link, node;
+	var link = svg.selectAll('.link');
+	var node = svg.selectAll('.node');
 	var color = d3.scale.category10();
 	
-	me.draw = function(){
-		var force = d3.layout.force()
+	var force = d3.layout.force()
+		.size([svg.attr('width'), svg.attr('height')])
+		.linkDistance(100)
+		.charge(-1000);
+		
+	me.draw = function(sender, msg){
+		if(msg){
+			var arrays = addElement(nodes, links, msg, 'disjoint');
+			nodes = arrays[0];
+			links = arrays[1];
+			console.log(nodes);
+			console.log(links);
+		}
+		
+		force
 			.nodes(nodes)
 			.links(links)
-			.size([svg.attr('width'), svg.attr('height')])
-			.linkDistance(100)
-			.charge(-1000)
 			.on("tick", me.tick)
 			.start();
 		
-		link = svg.selectAll(".link")
-			.data(links)
-			.enter().append("path")
+		link = link.data(links);
+		link.exit().remove();
+		
+		link.enter().append("path")
 			.attr("class", "link")
 			.attr('marker-mid', 'url(#Triangle)');
 		
-		node = svg.selectAll(".node")
-			.data(nodes)
-			.enter().append("g")
+		node = node.data(nodes)
+		node.exit().remove();
+		
+		var nodeEnter = node.enter().append("g")
 			.attr("class", "node")
 			.on("mouseover", me.mouseover)
 			.on("mouseout", me.mouseout)
@@ -44,7 +57,7 @@ var network = function(svg, data, mode){
 				var c = d.group < 0 ? 0 : 1;
 				return color(c); 
 			})
-		.call(force.drag);
+			.call(force.drag);
 		
 		linktext = svg.selectAll("g.linklabelholder").data(force.links());
 		linktext.enter().append("g").attr("class", "linklabelholder")
@@ -53,15 +66,15 @@ var network = function(svg, data, mode){
 			.attr("dx", 1)
 			.attr("dy", "1em")
 			.attr("text-anchor", "middle")
-			.text(function(d) { return d.value});
+			.text(function(d) { return d.value; });
 		
-		node.append("circle")
+		nodeEnter.append("circle")
 			.attr("r", 8);
 		
-		node.append("text")
+		nodeEnter.append("text")
 			.attr("x", 12)
 			.attr("dy", ".35em")
-			.text(function(d) { return d.name; });
+			.text(function(d) { return d.value; });
 	};
 	
 	me.tick = function(){
@@ -89,5 +102,4 @@ var network = function(svg, data, mode){
 			.duration(750)
 			.attr("r", 8);
 	};
-	
 };
