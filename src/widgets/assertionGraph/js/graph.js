@@ -1,14 +1,11 @@
 // Code based on http://bl.ocks.org/mbostock/2706022
 // and http://stackoverflow.com/questions/8663844/add-text-label-onto-links-in-d3-force-directed-graph
 var url = 'http://everest-build:8081/';
-
+var color = d3.scale.category10();
 var width = 600,
     height = 600;
 
-var color = d3.scale.category10();
-
 var linktext;
-
 var svg = d3.select("body").append("svg")
 	.attr("width", width)
 	.attr("height", height);
@@ -34,8 +31,9 @@ var node = svg.selectAll('.node');
 var update = function(sender, msg) {
 	//$.getJSON(url + 'assertion/?callback=?', function(data){
 	//d3.json('./js/raw_data.json', function(data){
-	var arrays = createArrays(nodes, links, msg, 'disjoint');
+	//var arrays = createArrays(nodes, links, msg, 'disjoint');
 	//var arrays = createArrays(nodes, links, msg);
+	var arrays = addElement(nodes, links, msg, 'disjoint');
 	nodes = arrays[0];
 	links = arrays[1];
 	console.log(nodes);
@@ -56,7 +54,6 @@ var update = function(sender, msg) {
 		.attr('class', 'link');
 		
 	node = node.data(nodes, function(d) { return d.id; });
-	
 	node.exit().remove();
 	
 	var nodeEnter = node.enter().append('g')

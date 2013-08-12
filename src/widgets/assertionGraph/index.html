@@ -11,7 +11,23 @@
 	<body>
 		<p>Subject = Blue</p>
 		<p>Object = Orange</p>
-		<script src= "js/graph.js"></script>
+		<script src= "js/network.js"></script>
 		<script src= "js/convert.js"></script>
+		
+		<script>
+			var svg = d3.select("body").append("svg")
+				.attr("width", 600)
+				.attr("height", 600);
+				
+			var net = new network(svg, [], 'disjoint');
+			
+			owfdojo.addOnLoad(function() {
+				OWF.ready(function() {
+					OWF.Eventing.subscribe("com.nextcentury.everest.assertion_announcing.assertions", net.update);
+				});
+			});
+			
+			net.draw({}, { entity1: "A", relationship: "E", entity2: "B" });
+		</script>
 	</body>
 </html>

@@ -24,6 +24,10 @@
  * the nodes array of the node to point to for this link
  */
 var count = 0;
+var data = [],
+	nodes = [],
+	links = [];
+
 function indexOfCircle(item, array){
 	for (var i = 0; i < array.length; i++){
 		if (item.value === array[i].value && item.group === array[i].group){
@@ -35,7 +39,6 @@ function indexOfCircle(item, array){
 
 function indexOfLink(item, array){
 	for (var i = 0; i < array.length; i++){
-		console.log(array[i]);
 		if (item.value === array[i].value && item.source === array[i].source.index
 				&& item.target === array[i].target.index){
 			return i;
@@ -44,23 +47,22 @@ function indexOfLink(item, array){
 	return -1;
 }
 
-function createArrays(nodes, links, msg, mode){
-	var data = [];
-
-	data.push(msg);
-
+function indexOfMessage(item, array){
+	for (var i = 0; i < array.length; i++){
+		if (item.entity1 === array[i].entity1 && item.entity2 === array[i].entity2
+					&& item.relationship === array[i].relationship){
+			return i;
+		}
+	}
+	return -1;
+}
+function createArrays(data, mode){
 	for(var i = 0; i < data.length; i++){
 		var item = data[i];
-		var ent1 = {
-			value: item.entity1
-		};
-		
+		var ent1 = { value: item.entity1 };
 		ent1.group = mode === 'disjoint' ? count : 1;
 
-		var ent2 = {
-			value: item.entity2
-		};
-
+		var ent2 = { value: item.entity2 };
 		ent2.group = mode === 'disjoint' ? -(count+1) : -1;
 
 		if(indexOfCircle(ent1, nodes) === -1) {
@@ -87,6 +89,44 @@ function createArrays(nodes, links, msg, mode){
 			links.push(rel);
 		}
 	}
-	
 	return [nodes, links];
+}
+
+function addElement(n, l, msg, mode){
+	nodes = n;
+	links = l;
+	if(indexOfMessage(msg, data) === -1){
+		data.push(msg);
+		var ent1 = { value: msg.entity1 };
+		ent1.group = mode === 'disjoint' ? count : 1;
+	
+		var ent2 = { value: msg.entity2 };
+		ent2.group = mode === 'disjoint' ? -(count+1) : -1;
+	
+		if(indexOfCircle(ent1, nodes) === -1) {
+			nodes.push(ent1);
+			count++;
+		} 
+	
+		if(indexOfCircle(ent2, nodes) === -1){
+			nodes.push(ent2);
+			count++;
+		}
+	
+		var index1 = indexOfCircle(ent1, nodes);
+		var index2 = indexOfCircle(ent2, nodes);
+	
+		var rel = {
+			source: index1,
+			target: index2,
+			value: msg.relationship
+		};
+	
+		if (indexOfLink(rel, links) === -1){
+			links.push(rel);
+		}
+		
+	}
+	return [nodes, links];
+
 }
