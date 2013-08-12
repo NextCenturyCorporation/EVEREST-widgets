@@ -7,7 +7,7 @@ var width = 600,
 
 var color = d3.scale.category10();
 
-var link, node, linktext;
+var linktext;
 
 var svg = d3.select("body").append("svg")
 	.attr("width", width)
@@ -19,37 +19,69 @@ owfdojo.addOnLoad(function() {
 	});
 });
 
+var nodes = [];
+var links = [];
+
+var force = d3.layout.force()
+	.size([width, height])
+	.linkDistance(100)
+	.charge(-1000)
+	.on("tick", tick);
+		
+var link = svg.selectAll('.link');
+var node = svg.selectAll('.node');
+
 var update = function(sender, msg) {
 	//$.getJSON(url + 'assertion/?callback=?', function(data){
 	//d3.json('./js/raw_data.json', function(data){
-	createArrays(msg);
+	var arrays = createArrays(nodes, links, msg, 'disjoint');
+	console.log(msg);
+	nodes = arrays[0];
+	links = arrays[1];
 	console.log(nodes);
+	console.log(links);
 
-	var force = d3.layout.force()
+	force
 		.nodes(nodes)
 		.links(links)
-		.size([width, height])
-		.linkDistance(100)
-		.charge(-1000)
-		.on("tick", tick)
 		.start();
 
-	link = svg.selectAll(".link")
-		.data(links)
-		.enter().append("line")
-		.attr("class", "link");
+	link = link.data(links, function(d) { return d.target.id; });
+	link.exit().remove();
+	
+	link.enter().insert('line', '.node')
+		.attr('class', 'link');
+		
+	node = node.data(nodes, function(d) { return d.id; });
+	
+	node.exit().remove();
+	
+	var nodeEnter = node.enter().append('g')
+		.attr('class', 'node')
+		.on("mouseover", mouseover)
+		.on("mouseout", mouseout)
+		.style("fill", function(d) {
+			var c = d.group < 0 ? 0 : 1;
+			return color(c); 
+		})
+		.call(force.drag);
+	
+	//	.data(links)
+	//	.enter().append("line")
+	//	.attr("class", "link");
 
-	node = svg.selectAll(".node")
+	/*node = svg.selectAll(".node")
 		.data(nodes)
 		.enter().append("g")
 		.attr("class", "node")
 		.on("mouseover", mouseover)
 		.on("mouseout", mouseout)
 		.style("fill", function(d) {
-				var c = d.group < 0 ? 0 : 1;
-				return color(c); 
-				})
-	.call(force.drag);
+			var c = d.group < 0 ? 0 : 1;
+			return color(c); 
+		})
+		.call(force.drag);*/
+
 
 	linktext = svg.selectAll("g.linklabelholder").data(force.links());
 	linktext.enter().append("g").attr("class", "linklabelholder")
@@ -60,14 +92,13 @@ var update = function(sender, msg) {
 		.attr("text-anchor", "middle")
 		.text(function(d) { return d.value});
 
-	node.append("circle")
+	nodeEnter.append("circle")
 		.attr("r", 8);
 
-	node.append("text")
+	nodeEnter.append("text")
 		.attr("x", 12)
 		.attr("dy", ".35em")
 		.text(function(d) { return d.name; });
-
 };
 
 function tick() {
