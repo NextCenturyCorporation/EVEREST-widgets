@@ -35,6 +35,7 @@ var update = function(sender, msg) {
 	//$.getJSON(url + 'assertion/?callback=?', function(data){
 	//d3.json('./js/raw_data.json', function(data){
 	var arrays = createArrays(nodes, links, msg, 'disjoint');
+	//var arrays = createArrays(nodes, links, msg);
 	nodes = arrays[0];
 	links = arrays[1];
 	console.log(nodes);

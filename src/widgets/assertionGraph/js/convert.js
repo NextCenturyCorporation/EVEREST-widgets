@@ -23,7 +23,7 @@
  * where the number after source and target point to the index location in
  * the nodes array of the node to point to for this link
  */
- 
+var count = 0;
 function indexOfCircle(item, array){
 	for (var i = 0; i < array.length; i++){
 		if (item.value === array[i].value && item.group === array[i].group){
@@ -46,7 +46,6 @@ function indexOfLink(item, array){
 
 function createArrays(nodes, links, msg, mode){
 	var data = [];
-	var count = 0;
 
 	data.push(msg);
 
@@ -56,13 +55,13 @@ function createArrays(nodes, links, msg, mode){
 			value: item.entity1
 		};
 		
-		ent1.group = mode === 'disjoint' ? count : 0;
+		ent1.group = mode === 'disjoint' ? count : 1;
 
 		var ent2 = {
 			value: item.entity2
 		};
 
-		ent2.group = mode === 'disjoint' ? -(count+1) : 1;
+		ent2.group = mode === 'disjoint' ? -(count+1) : -1;
 
 		if(indexOfCircle(ent1, nodes) === -1) {
 			nodes.push(ent1);
