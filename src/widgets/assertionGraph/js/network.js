@@ -10,57 +10,61 @@ function midpoint(p1, p2){
 
 var network = function(svg, data, mode){
 	var me = this;
+	me.svg = svg;
 	
-	var arrays = createArrays(data, mode);
-	var nodes = arrays[0];
-	var links = arrays[1];
+	me.nodes = [];
+	me.links = [];
+	for (var i = 0; i < data.length; i++){
+		me.arrays = addNewAssertion(me.nodes, me.links, data[i], mode);
+		me.nodes = me.arrays[0];
+		me.links = me.arrays[1];
+	}
 	
-	var link = svg.selectAll('.link');
-	var node = svg.selectAll('.node');
-	var color = d3.scale.category10();
+	me.link = svg.selectAll('.link');
+	me.node = svg.selectAll('.node');
+	me.color = d3.scale.category10();
+	me.linktext;
 	
-	var force = d3.layout.force()
+	me.force = d3.layout.force()
 		.size([svg.attr('width'), svg.attr('height')])
 		.linkDistance(100)
 		.charge(-1000);
 		
 	me.draw = function(sender, msg){
 		if(msg){
-			var arrays = addElement(nodes, links, msg, 'disjoint');
-			nodes = arrays[0];
-			links = arrays[1];
-			console.log(nodes);
-			console.log(links);
+			var arrays = addNewAssertion(me.nodes, me.links, msg, mode);
+			me.nodes = arrays[0];
+			me.links = arrays[1];
 		}
 		
-		force
-			.nodes(nodes)
-			.links(links)
+		me.force
+			.nodes(me.nodes)
+			.links(me.links)
 			.on("tick", me.tick)
 			.start();
 		
-		link = link.data(links);
-		link.exit().remove();
+		me.link = me.link.data(me.links);
+		me.link.exit().remove();
 		
-		link.enter().append("path")
+		me.link.enter().insert("path", ":first-child")
 			.attr("class", "link")
 			.attr('marker-mid', 'url(#Triangle)');
 		
-		node = node.data(nodes)
-		node.exit().remove();
+		me.node = me.node.data(me.nodes)
+		me.node.exit().remove();
 		
-		var nodeEnter = node.enter().append("g")
+		var nodeEnter = me.node.enter().append("g")
 			.attr("class", "node")
 			.on("mouseover", me.mouseover)
 			.on("mouseout", me.mouseout)
 			.style("fill", function(d) {
 				var c = d.group < 0 ? 0 : 1;
-				return color(c); 
+				return me.color(c); 
 			})
-			.call(force.drag);
+			.call(me.force.drag);
 		
-		linktext = svg.selectAll("g.linklabelholder").data(force.links());
-		linktext.enter().append("g").attr("class", "linklabelholder")
+		me.linktext = me.svg.selectAll("g.linklabelholder").data(me.force.links());
+		me.linktext.enter().append("g").attr("class", "linklabelholder")
 			.append("text")
 			.attr("class", "linklabel")
 			.attr("dx", 1)
@@ -78,15 +82,14 @@ var network = function(svg, data, mode){
 	};
 	
 	me.tick = function(){
-		link.attr('d', function(d){
+		me.link.attr('d', function(d){
 			var mid = midpoint(d.source, d.target);
 			return 'M'+d.source.x+' '+d.source.y+' L'+mid.x+' '+mid.y+' L'+d.target.x+' '+d.target.y;
 		});
 		
-		node
-			.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+		me.node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 	
-		linktext.attr("transform", function(d) {
+		me.linktext.attr("transform", function(d) {
 				return "translate(" + (d.source.x + d.target.x) / 2 + "," 
 				+ (d.source.y + d.target.y) / 2 + ")"; });
 	};
