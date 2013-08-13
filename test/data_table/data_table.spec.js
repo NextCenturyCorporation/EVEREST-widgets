@@ -198,9 +198,7 @@ describe('To test src/components/data_table/data_table.js', function(){
 			spyOn(d3, 'selectAll').andCallThrough();
 			spyOn(JSON, 'stringify').andCallThrough();
 			spyOn(Date, 'parse').andCallThrough();
-			
-			console.log(test_data_table.time);
-			
+						
 			//test only to see if the methods are called with proper params
 			test_data_table.resetAndSend();
 			
@@ -462,8 +460,8 @@ describe('To test src/components/data_table/data_table.js', function(){
 			spyOn(test_data_table.datas, 'indexOf').andCallThrough();
 			
 			var that = {
-				render: function(){ console.log("hello"); },
-				renderSentence: function(){ console.log("there"); }
+				render: function(){  },
+				renderSentence: function(){  }
 			};
 			
 			var a = {
@@ -481,8 +479,8 @@ describe('To test src/components/data_table/data_table.js', function(){
 			spyOn(d3, 'select').andCallThrough();
 		
 			var that = {
-				render: function(){ console.log("hello"); },
-				renderSentence: function(){ console.log("there"); }
+				render: function(){ },
+				renderSentence: function(){  }
 			};
 		
 			var a = {
