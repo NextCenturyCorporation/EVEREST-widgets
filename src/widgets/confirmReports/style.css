@@ -34,7 +34,8 @@ div {
 	stroke-width: 1.5px;
 }
 
-text {
+.alpha-text {
 	pointer-events: none;
 	fill: black;
+	word-wrap:break-word;
 }
