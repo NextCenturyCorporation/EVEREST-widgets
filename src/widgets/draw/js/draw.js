@@ -13,6 +13,7 @@ var draw = function(){
 	me.toolH = 500;
 	me.toolC = { x: (me.toolW / 2), y: (me.toolH / 2) };
 	me.canvasC = { x: (me.canvasW / 2), y: (me.canvasH / 2) };
+	me.startClick;
 	
 	me.circles = [];
 	me.lines = [];
@@ -252,7 +253,7 @@ var draw = function(){
 				}, 750);
 		});
 	};
-	
+
 	/**
 		called from javascript section in index.html
 		@functionality - grabs the .canvas div and adds an svg element to it 
@@ -277,56 +278,24 @@ var draw = function(){
 						c.style('fill', color(me.circles[i].group));
 					});
 				}
-			})
-			.append('svg:defs').append('svg:marker')
-				.attr('id', 'Triangle')
-				.attr('refX', 0).attr('refY', 3)
-				.attr('markerUnits', 'strokeWidth')
-				.attr('markerWidth', 100)
-				.attr('markerHeight', 100)
-				.attr('orient', 'auto')
-				.append('svg:path')
-					.attr('class', 'keeper')
-					.attr('d', 'M 0 0 L 6 3 L 0 6 z');
-				
-		$('.canvas').drag('start', function (ev, dd ){
-			if (me.mode === 'select_hold'){
-				d3.select('.canvas svg').append('rect')
-					.attr('class', 'selection')
-					.style('opacity', 0.25);
-			}
-		})
-		.drag(function(ev, dd){			
-			if (me.mode === 'select_hold'){
-				$('.selection').attr('width', Math.abs( ev.pageX - dd.startX ))
-					.attr('height', Math.abs( ev.pageY - dd.startY ))
-					.attr('x', Math.min( ev.pageX - 169, dd.startX - 169))
-					.attr('y', Math.min( ev.pageY - 9, dd.startY - 9));
+			});
+			
+		svg.call(d3.behavior.drag().on('dragstart', me.dragstart)
+			.on('drag', me.drag)
+			.on('dragend', me.dragend));
+			
+		svg.append('svg:defs').append('svg:marker')
+			.attr('id', 'Triangle')
+			.attr('refX', 0).attr('refY', 3)
+			.attr('markerUnits', 'strokeWidth')
+			.attr('markerWidth', 100)
+			.attr('markerHeight', 100)
+			.attr('orient', 'auto')
+			.append('svg:path')
+				.attr('class', 'keeper')
+				.attr('d', 'M 0 0 L 6 3 L 0 6 z');
 					
-				d3.selectAll('.canvas circle').each(function(){
-					var c = d3.select(this);
-					var rect = d3.select('.selection');
-					var right = parseInt(rect.attr('x'),10) + parseInt(rect.attr('width'),10);
-					var bottom = parseInt(rect.attr('y'),10) + parseInt(rect.attr('height'),10);
-					if (c.attr('cx') < right & c.attr('cx') > parseInt(rect.attr('x'))){
-						if (c.attr('cy') < bottom & c.attr('cy') > parseInt(rect.attr('y'))){
-							c.style('fill', 'red');
-						} else {
-							var i = me.indexOf(c, me.circles);
-							c.style('fill', color(me.circles[i].group));
-						}
-					} else {
-						var i = me.indexOf(c, me.circles);
-						c.style('fill', color(me.circles[i].group));
-					}
-				});
-			}
-		})
-		.drag('end', function(ev, dd){
-			if (me.mode === 'select_hold'){
-				$('.selection').remove();
-			}
-		});
+
 	};
 	
 	/**
@@ -676,6 +645,49 @@ var draw = function(){
 			me.lines[me.indexOf(line, me.lines)].path = path.attr('d');
 		});
 	};
+	
+	me.dragstart = function(){
+		me.startClick = d3.mouse(this);
+		if (me.mode === 'select_hold'){
+			d3.select('.canvas svg').append('rect')
+				.attr('class', 'selection')
+				.style('opacity', 0.25);
+		}
+	};
+	
+	me.drag = function(){
+		var ev = d3.mouse(this);
+		if (me.mode === 'select_hold'){
+			d3.select('.selection').attr('width', Math.abs( ev[0] - me.startClick[0] ))
+				.attr('height', Math.abs( ev[1] - me.startClick[1] ))
+				.attr('x', Math.min( ev[0], me.startClick[0]))
+				.attr('y', Math.min( ev[1], me.startClick[1]));
+				
+			d3.selectAll('.canvas circle').each(function(){
+				var c = d3.select(this);
+				var rect = d3.select('.selection');
+				var right = parseInt(rect.attr('x'),10) + parseInt(rect.attr('width'),10);
+				var bottom = parseInt(rect.attr('y'),10) + parseInt(rect.attr('height'),10);
+				if (c.attr('cx') < right & c.attr('cx') > parseInt(rect.attr('x'))){
+					if (c.attr('cy') < bottom & c.attr('cy') > parseInt(rect.attr('y'))){
+						c.style('fill', 'red');
+					} else {
+						var i = me.indexOf(c, me.circles);
+						c.style('fill', color(me.circles[i].group));
+					}
+				} else {
+					var i = me.indexOf(c, me.circles);
+					c.style('fill', color(me.circles[i].group));
+				}
+			});
+		}
+	};
+	
+	me.dragend = function(){
+		if (me.mode === 'select_hold'){
+			d3.select('.selection').remove();
+		}
+	}
 	
 	/**
 		used as a callback added to a new relationship when it is clicked
