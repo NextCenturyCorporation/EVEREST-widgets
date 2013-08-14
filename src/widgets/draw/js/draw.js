@@ -1,4 +1,4 @@
-//threedubmedia.com/code/event/drop/demo/selection
+//with help from threedubmedia.com/code/event/drop/demo/selection
 var draw = function(){
 	var me =  this;
 	var url = 'http://localhost:8081/target_assertion/';
@@ -217,9 +217,24 @@ var draw = function(){
 		}	
 		
 		//if switched to label_hold mode, show all labels for any elements
-		if(me.mode === 'label_hold'){
+		if (me.mode === 'label_hold'){
 			me.addAllLabels();
+		} else if (me.mode === 'delete_hold'){
+			var nodesToRemove = [];
+			d3.selectAll('.canvas circle').each(function(){
+				var c = d3.select(this);
+				console.log(c.style('fill'));
+				if(c.style('fill') === '#ff0000'){
+					nodesToRemove.push(c[0][0]);
+				}
+			});
+			
+			for (var i = 0; i < nodesToRemove.length; i++){
+				me.deleteNode(nodesToRemove[i]);
+			}
 		}
+		
+		
 	};
 	
 	/**
@@ -280,10 +295,16 @@ var draw = function(){
 				}
 			});
 			
-		svg.call(d3.behavior.drag().on('dragstart', me.dragstart)
-			.on('drag', me.drag)
-			.on('dragend', me.dragend));
+		svg.append('rect')
+			.attr('class', 'background')
+			.attr('x', 0).attr('y', 0)
+			.attr('width', me.canvasW).attr('height', me.canvasH)
+			.style('opacity', 0)
+			.call(d3.behavior.drag().on('dragstart', me.dragstart)
+				.on('drag.svg', me.drag)
+				.on('dragend', me.dragend));
 			
+		svg.append('g').attr('class', 'node-link-container');	
 		svg.append('svg:defs').append('svg:marker')
 			.attr('id', 'Triangle')
 			.attr('refX', 0).attr('refY', 3)
@@ -294,9 +315,7 @@ var draw = function(){
 			.append('svg:path')
 				.attr('class', 'keeper')
 				.attr('d', 'M 0 0 L 6 3 L 0 6 z');
-					
-
-	};
+		};
 	
 	/**
 		called from javascript section in index.html
@@ -411,12 +430,12 @@ var draw = function(){
 	};
 	
 	me.createCircle = function(svg, x, y, d){
-		var circle = svg.append('circle')
+		var circle = d3.select('.node-link-container').append('circle')
 			.attr('d', d).attr('class', me.circleCount)
 			.attr('cx', x).attr('cy', y)
 			.attr('r', me.radius)
 			.style('fill', color(me.count))
-			.call(d3.behavior.drag().on('drag', me.move))
+			.call(d3.behavior.drag().on('drag.circle', me.move))
 			.on('dblclick', me.doubleClickNode)
 			.on('mouseover', me.mouseover)
 			.on('mouseout', me.mouseout)
@@ -446,7 +465,7 @@ var draw = function(){
 		//creates on click event for entity form submit button
 		d3.select('.ent-submit').on('click', function(){
 			//grab canvas svg to hold new event
-			var group = d3.select('.canvas svg');
+			var group = d3.select('.node-link-container');
 			
 			var circle = me.createCircle(group, mouse_event[0], 
 								mouse_event[1], $('.ent1').val());
@@ -680,6 +699,8 @@ var draw = function(){
 					c.style('fill', color(me.circles[i].group));
 				}
 			});
+		} else if (me.mode === ''){
+			console.log(this);
 		}
 	};
 	
@@ -794,7 +815,7 @@ var draw = function(){
 					};
 					
 					//draw the line before the entities so that it appears behind
-					var line = d3.select('.canvas svg').insert('line', ':first-child')
+					var line = d3.select('.node-link-container').insert('line', ':first-child')
 						.attr('class', me.lineCount)
 						.attr('d', $('.rel-only').val())
 						.attr('x1', me.computeCoord(p1.x, 'x'))
@@ -834,28 +855,7 @@ var draw = function(){
 			}
 		}
 		else if (me.mode === 'delete_hold'){
-			var index = me.indexOf(d3.select(this), me.circles);
-			var group = me.circles[index].group;
-			
-			
-			d3.selectAll('.canvas line').each(function(){
-				var line_index = me.indexOf(d3.select(this), me.lines);
-				var l = me.lines[line_index];
-				if (l.source === me.circles[index].class || l.target === me.circles[index].class){
-					d3.selectAll('.arrow').each(function(){
-						if (d3.select(this).attr('d') === l.path){
-							d3.select(this).remove();
-						}
-					});
-					me.lines.splice(line_index,1);
-					d3.select(this).remove();
-				}
-			});
-			me.circles.splice(index, 1);
-			d3.select(this).remove();
-
-			var cIndicies = me.extractCircles(group);
-			me.separateGroups(cIndicies);
+			me.deleteNode(this);
 		}
 	};
 	
@@ -991,6 +991,30 @@ var draw = function(){
 		}
 	};
 	
+	me.deleteNode = function(t){
+		var index = me.indexOf(d3.select(t), me.circles);
+		var group = me.circles[index].group;
+		
+		d3.selectAll('.canvas line').each(function(){
+			var line_index = me.indexOf(d3.select(this), me.lines);
+			var l = me.lines[line_index];
+			if (l.source === me.circles[index].class || l.target === me.circles[index].class){
+				d3.selectAll('.arrow').each(function(){
+					if (d3.select(this).attr('d') === l.path){
+						d3.select(this).remove();
+					}
+				});
+				me.lines.splice(line_index,1);
+				d3.select(this).remove();
+			}
+		});
+		me.circles.splice(index, 1);
+		d3.select(t).remove();
+
+		var cIndicies = me.extractCircles(group);
+		me.separateGroups(cIndicies);
+	};
+	
 	/**
 		called from me.toggleSelection when mode is label_hold
 		@param - none
@@ -1062,7 +1086,7 @@ var draw = function(){
 	};
 	
 	me.createArrow = function(line){
-		var path = d3.select('.canvas svg').insert('path', ':first-child')
+		var path = d3.select('.node-link-container').insert('path', ':first-child')
 			.attr('class', 'arrow')
 			.attr('marker-mid', 'url(#Triangle)')
 			.attr('d', function(){
