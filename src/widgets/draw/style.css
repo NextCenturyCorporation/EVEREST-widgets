@@ -77,3 +77,10 @@ label{
 	fill:#C0C0C0;
 	border-color:#004785;	
 }
+
+.selection{
+	border: 1px solid #89B;
+	background: #BCE;
+	background-color: #BEC;
+	border-color: #8B0;
+}

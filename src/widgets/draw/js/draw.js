@@ -1,3 +1,4 @@
+//threedubmedia.com/code/event/drop/demo/selection
 var draw = function(){
 	var me =  this;
 	var url = 'http://localhost:8081/target_assertion/';
@@ -269,6 +270,12 @@ var draw = function(){
 				if (me.mode === 'node_hold'){
 					var ev = d3.mouse(this);
 					me.appendCircle(ev);
+				} else if (me.mode === 'select_hold'){
+					d3.selectAll('.canvas circle').each(function(){
+						var c = d3.select(this);
+						var i = me.indexOf(c, me.circles);
+						c.style('fill', color(me.circles[i].group));
+					});
 				}
 			})
 			.append('svg:defs').append('svg:marker')
@@ -279,7 +286,47 @@ var draw = function(){
 				.attr('markerHeight', 100)
 				.attr('orient', 'auto')
 				.append('svg:path')
+					.attr('class', 'keeper')
 					.attr('d', 'M 0 0 L 6 3 L 0 6 z');
+				
+		$('.canvas').drag('start', function (ev, dd ){
+			if (me.mode === 'select_hold'){
+				d3.select('.canvas svg').append('rect')
+					.attr('class', 'selection')
+					.style('opacity', 0.25);
+			}
+		})
+		.drag(function(ev, dd){			
+			if (me.mode === 'select_hold'){
+				$('.selection').attr('width', Math.abs( ev.pageX - dd.startX ))
+					.attr('height', Math.abs( ev.pageY - dd.startY ))
+					.attr('x', Math.min( ev.pageX - 169, dd.startX - 169))
+					.attr('y', Math.min( ev.pageY - 9, dd.startY - 9));
+					
+				d3.selectAll('.canvas circle').each(function(){
+					var c = d3.select(this);
+					var rect = d3.select('.selection');
+					var right = parseInt(rect.attr('x'),10) + parseInt(rect.attr('width'),10);
+					var bottom = parseInt(rect.attr('y'),10) + parseInt(rect.attr('height'),10);
+					if (c.attr('cx') < right & c.attr('cx') > parseInt(rect.attr('x'))){
+						if (c.attr('cy') < bottom & c.attr('cy') > parseInt(rect.attr('y'))){
+							c.style('fill', 'red');
+						} else {
+							var i = me.indexOf(c, me.circles);
+							c.style('fill', color(me.circles[i].group));
+						}
+					} else {
+						var i = me.indexOf(c, me.circles);
+						c.style('fill', color(me.circles[i].group));
+					}
+				});
+			}
+		})
+		.drag('end', function(ev, dd){
+			if (me.mode === 'select_hold'){
+				$('.selection').remove();
+			}
+		});
 	};
 	
 	/**
@@ -370,14 +417,21 @@ var draw = function(){
 			.attr('y2', me.num_tools * shift)
 			.style('stroke', 'red');
 			
+		var select_hold = me.createSelection(svg, 'select_hold');
+		select_hold.select('rect').style('stroke', 'black');
+			
 		//add reset and submit buttons at the bottom of the toolbar	
 		var div = d3.select('body').append('div');
 		div.append('button').text('Reset')
 			.on('click', function(){
 				//clear canvas and arrays
-				d3.select('.canvas svg').selectAll('line').remove();
-				d3.select('.canvas svg').selectAll('path').remove();
-				d3.select('.canvas svg').selectAll('circle').remove();
+				d3.selectAll('.canvas line').remove();
+				d3.selectAll('.canvas path').each(function(){
+					if(d3.select(this).attr('class') !== 'keeper'){
+						d3.select(this).remove();
+					}
+				});
+				d3.selectAll('.canvas circle').remove();
 				
 				me.circles = [];
 				me.lines = [];
@@ -1014,9 +1068,6 @@ var draw = function(){
 		for (var i = 1; i < circleGroup.length; i++){
 			var c = me.circles[circleGroup[i]];
 			c.group = me.count;
-			d3.select(c.html)
-				.transition(2500)
-				.style('fill', color(c.group));
 			me.count++;
 		}
 		
@@ -1062,6 +1113,12 @@ var draw = function(){
 				}
 			}
 		}
+		
+		d3.selectAll('.canvas circle').each(function(){
+			var c = d3.select(this);
+			var i = me.indexOf(c, me.circles);
+			c.style('fill', color(me.circles[i].group));
+		});
 	};
 	
 	me.saveTargetAssertions = function(){
