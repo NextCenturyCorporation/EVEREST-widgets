@@ -488,14 +488,11 @@ var draw = function(){
 		@functionality - depends on what the current mode is, based on 2 only.
 			      will move the entire group or just pivot the selected
 			      node, depending on what the current mode is
-		@internal functions - me.moveCircles
-		 					  me.moveLines
-							  me.dragGroup
+		@internal functions - me.dragGroup
 	*/
 	me.move = function(){
 		if(me.mode === 'mover_hold'){
 			var circles = [];
-			var lines = [];
 			
 			var group = me.indexOf(d3.select(this), me.circles);
 			var x = me.extractCircles(me.circles[group].group);
@@ -506,12 +503,14 @@ var draw = function(){
 			
 			var y = me.extractLines(x);
 			for (i = 0; i < y.length; i++){
-				lines.push(me.lines[y[i]].html);
 				d3.select(me.lines[y[i]].html.parentNode)
 					.select('path').remove();
 			}
-			me.moveCircles(d3.selectAll(circles));
-			me.moveLines(d3.selectAll(lines));
+			
+			for (var i = 0; i < circles.length; i++){
+				me.dragGroup(circles[i]);	
+			}
+			
 		} else if (me.mode === 'select_hold'){
 			if (d3.select(this).style('fill') === '#ff0000'){
 				var nodesToDrag = [];
@@ -537,68 +536,6 @@ var draw = function(){
 		} else if (me.mode === ''){
 			me.dragGroup(this);
 		}
-	};
-	
-	
-	/**
-		called from the me.move function
-		@param - parent: the parent element to the item we want to move
-		@return - none
-		@functionality - grabs each line in the group and translates each
-				  of the endpoints, moving each line but staying within the
-				  bounds of the canvas
-		@internal functions - me.computeCoord
-							  me.createArrow
-	*/
-	me.moveLines = function(lines){
-		lines.each(function(){
-			var line = d3.select(this);
-			
-			line.attr('x1', function() { 
-				var newC = d3.event.dx + parseInt(line.attr('x1')); 
-				return me.computeCoord(newC, 'x');
-			}).attr('y1', function() { 
-				var newC = d3.event.dy + parseInt(line.attr('y1')); 
-				return me.computeCoord(newC, 'y'); 
-			}).attr('x2', function() { 
-				var newC = d3.event.dx + parseInt(line.attr('x2')); 
-				return me.computeCoord(newC, 'x');
-			}).attr('y2', function() { 
-				var newC = d3.event.dy + parseInt(line.attr('y2')); 
-				return me.computeCoord(newC, 'y'); 
-			});
-			
-			var path = me.createArrow(line);
-			//me.lines[me.indexOf(line, me.lines)].path = path.attr('d');
-		});
-	};
-	
-	/**
-		called from the me.move function
-		@param - parent: the parent element to the item we want to move
-		@return - none
-		@functionality - grabs each circle in the group and translates it,
-				  moving each circle but staying within the bounds of the
-				  canvas
-		@internal functions - me.computeCoord
-	*/
-	me.moveCircles = function(circles){
-
-		circles.each(function(){
-			var circle = d3.select(this);
-			
-			circle.attr('cx', function() { 
-				var newC = d3.event.dx + parseInt(circle.attr('cx'));
-				return me.computeCoord(newC, 'x');
-			}).attr('cy', function() { 
-				var newC =  d3.event.dy + parseInt(circle.attr('cy'));
-				return me.computeCoord(newC, 'y'); 
-			});
-			
-			var c = me.circles[me.indexOf(circle, me.circles)];
-				c.x = circle.attr('cx');
-				c.y = circle.attr('cy');
-			});
 	};
 	
 	/**
@@ -785,7 +722,6 @@ var draw = function(){
 				}, 750);
 				$('.rel-only').focus();		//apparently errors in IE if focus before visible
 				
-				//so not to confuse this when inside the d3.select function
 				var that = this;
 				
 				//creates on click event for relationship form submit button 
@@ -799,13 +735,15 @@ var draw = function(){
 					
 					var circ = me.circles[ind2];
 					var toAttach = me.extractCircles(circ.group);
+					console.log("items to change");
 					
 					for (var j = 0; j < toAttach.length; j++){
 						var delta = me.circles[toAttach[j]];
+						console.log(delta);
 						delta.group = me.circles[ind1].group;
 						d3.select(delta.html)
 							.transition(2500)
-							.style('fill', color(circ.group));
+							.style('fill', color(me.circles[ind1].group));
 					}
 					
 					//center of entity 1
@@ -1086,7 +1024,7 @@ var draw = function(){
 
 	/**
 		called when any line or entity is created, within the following
-		functions : me.moveLines, me.moveCircles, me.dragGroup, me.nodeclick
+		functions : me.dragGroup, me.nodeclick
 		me.doubleClickNode
 		@param - newC: coordinate (x or y) within canvas to attempt to add new item
 				 axis: 'x' or 'y' to indicate what bound to compare against
