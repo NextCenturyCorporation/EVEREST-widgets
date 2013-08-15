@@ -61,20 +61,6 @@ var draw = function(){
 	};
 	
 	/**
-		@param			obj: item to display, since html contains circular
-		@return			none
-		@functionality	just prints out the data that needs to be seen (debugging)
-		@todo			probably to be removed
-	*/
-	me.print = function(obj){
-		console.log(JSON.stringify({
-			d: obj.d,
-			class: obj.class,
-			group: obj.group
-		}));
-	};
-	
-	/**
 		used when saving the state of the canvas
 		saves assertions (ent - rel - ent) and single entities
 		@pararm			circle: simplified circle object from me.circles
@@ -195,20 +181,16 @@ var draw = function(){
 		
 		//if the item being toggled is already off, turn it on
 		if(item.select('rect').classed('unselect')){
-			//untoggle everything else
 			d3.selectAll('rect').classed('select', false);
 			d3.selectAll('rect').classed('unselect', true);
-			item.select('rect')
-				.classed('unselect', false)
+			item.select('rect').classed('unselect', false)
 				.classed('select', true);
 			
-			//update the mode
 			me.mode = item.attr('class');
 			
 		//if the item being toggled is currently on, just turn it off
 		} else {
-			item.select('rect')
-				.classed('select', false)
+			item.select('rect').classed('select', false)
 				.classed('unselect', true);
 				
 			//clear mode and remove any labels
@@ -216,25 +198,9 @@ var draw = function(){
 			d3.selectAll('.canvas text').remove();
 		}	
 		
-		//if switched to label_hold mode, show all labels for any elements
 		if (me.mode === 'label_hold'){
 			me.addAllLabels();
-		} else if (me.mode === 'delete_hold'){
-			var nodesToRemove = [];
-			d3.selectAll('.canvas circle').each(function(){
-				var c = d3.select(this);
-				console.log(c.style('fill'));
-				if(c.style('fill') === '#ff0000'){
-					nodesToRemove.push(c[0][0]);
-				}
-			});
-			
-			for (var i = 0; i < nodesToRemove.length; i++){
-				me.deleteNode(nodesToRemove[i]);
-			}
 		}
-		
-		
 	};
 	
 	/**
@@ -292,6 +258,9 @@ var draw = function(){
 						var i = me.indexOf(c, me.circles);
 						c.style('fill', color(me.circles[i].group));
 					});
+					
+					d3.selectAll('.canvas line').style('stroke', '#004785');
+					d3.selectAll('.canvas path').style('stroke', '#004785');
 				}
 			});
 			
@@ -315,7 +284,35 @@ var draw = function(){
 			.append('svg:path')
 				.attr('class', 'keeper')
 				.attr('d', 'M 0 0 L 6 3 L 0 6 z');
-		};
+				
+		$(document).keyup(function(e){
+			if (e.keyCode === 46){
+				var nodesToRemove = [];
+				var linksToRemove = [];
+				d3.selectAll('.canvas circle').each(function(){
+					var c = d3.select(this);
+					if(c.style('fill') === '#ff0000'){
+						nodesToRemove.push(this);
+					}
+				});
+				
+				for (var i = 0; i < nodesToRemove.length; i++){
+					me.deleteNode(nodesToRemove[i]);
+				}
+				
+				d3.selectAll('.canvas line').each(function(){
+					var l = d3.select(this);
+					if (l.style('stroke') === '#ff0000'){
+						linksToRemove.push(this);
+					}
+				});
+				
+				for (var i = 0; i < linksToRemove.length; i++){
+					me.deleteLink(linksToRemove[i]);
+				}
+			}
+		});
+	};
 	
 	/**
 		called from javascript section in index.html
@@ -413,13 +410,9 @@ var draw = function(){
 		div.append('button').text('Reset')
 			.on('click', function(){
 				//clear canvas and arrays
-				d3.selectAll('.canvas line').remove();
-				d3.selectAll('.canvas path').each(function(){
-					if(d3.select(this).attr('class') !== 'keeper'){
-						d3.select(this).remove();
-					}
-				});
-				d3.selectAll('.canvas circle').remove();
+				d3.select('.node-link-container').remove();
+				d3.select('.canvas svg').append('g')
+					.attr('class', 'node-link-container');
 				
 				me.circles = [];
 				me.lines = [];
@@ -500,8 +493,6 @@ var draw = function(){
 							  me.dragGroup
 	*/
 	me.move = function(){
-		//if the mover tool is selected, grab the topmost group that
-		//this is a child of and move the entire group around
 		if(me.mode === 'mover_hold'){
 			var circles = [];
 			var lines = [];
@@ -515,21 +506,34 @@ var draw = function(){
 			
 			var y = me.extractLines(x);
 			for (i = 0; i < y.length; i++){
-				
 				lines.push(me.lines[y[i]].html);
-				
-				var d = me.lines[y[i]].path;
-				d3.selectAll('.arrow').each(function(){
-					var arr = d3.select(this);
-					if (arr.attr('d') === d){
-						arr.remove();
-					} 
-				});
+				d3.select(me.lines[y[i]].html.parentNode)
+					.select('path').remove();
 			}
 			me.moveCircles(d3.selectAll(circles));
 			me.moveLines(d3.selectAll(lines));
-		//if in default/no mode, just drag the element that was selected
-		//also only moving any lines that are directly attached to it
+		} else if (me.mode === 'select_hold'){
+			if (d3.select(this).style('fill') === '#ff0000'){
+				var nodesToDrag = [];
+				
+				d3.selectAll('.canvas circle').each(function(){
+					var c = d3.select(this);
+					if (c.style('fill') === '#ff0000'){
+						nodesToDrag.push(this);
+					}
+				});
+				
+				d3.selectAll('.canvas line').each(function(){
+					if (d3.select(this).style('stroke') === '#ff0000'){
+						d3.select(this.parentNode).select('path').remove();
+					}
+				});
+				
+				for (var i = 0; i < nodesToDrag.length; i++){
+					me.dragGroup(nodesToDrag[i]);	
+				}
+			}
+			
 		} else if (me.mode === ''){
 			me.dragGroup(this);
 		}
@@ -565,7 +569,7 @@ var draw = function(){
 			});
 			
 			var path = me.createArrow(line);
-			me.lines[me.indexOf(line, me.lines)].path = path.attr('d');
+			//me.lines[me.indexOf(line, me.lines)].path = path.attr('d');
 		});
 	};
 	
@@ -661,7 +665,9 @@ var draw = function(){
 			}
 			
 			var path = me.createArrow(line);
-			me.lines[me.indexOf(line, me.lines)].path = path.attr('d');
+			if (line.style('stroke') === '#ff0000'){
+				path.style('stroke', '#ff0000');
+			}
 		});
 	};
 	
@@ -679,16 +685,20 @@ var draw = function(){
 		if (me.mode === 'select_hold'){
 			d3.select('.selection').attr('width', Math.abs( ev[0] - me.startClick[0] ))
 				.attr('height', Math.abs( ev[1] - me.startClick[1] ))
-				.attr('x', Math.min( ev[0], me.startClick[0]))
-				.attr('y', Math.min( ev[1], me.startClick[1]));
+				.attr('x', Math.min( ev[0], me.startClick[0] ))
+				.attr('y', Math.min( ev[1], me.startClick[1] ));
+			
+			var rect = d3.select('.selection');
+			var left = parseInt(rect.attr('x'),10);
+			var top = parseInt(rect.attr('y'),10);
+			var right = left + parseInt(rect.attr('width'),10);
+			var bottom = top + parseInt(rect.attr('height'),10);
 				
 			d3.selectAll('.canvas circle').each(function(){
 				var c = d3.select(this);
-				var rect = d3.select('.selection');
-				var right = parseInt(rect.attr('x'),10) + parseInt(rect.attr('width'),10);
-				var bottom = parseInt(rect.attr('y'),10) + parseInt(rect.attr('height'),10);
-				if (c.attr('cx') < right & c.attr('cx') > parseInt(rect.attr('x'))){
-					if (c.attr('cy') < bottom & c.attr('cy') > parseInt(rect.attr('y'))){
+				
+				if (c.attr('cx') < right && c.attr('cx') > left){
+					if (c.attr('cy') < bottom && c.attr('cy') > top){
 						c.style('fill', 'red');
 					} else {
 						var i = me.indexOf(c, me.circles);
@@ -699,8 +709,24 @@ var draw = function(){
 					c.style('fill', color(me.circles[i].group));
 				}
 			});
-		} else if (me.mode === ''){
-			console.log(this);
+			
+			d3.selectAll('.canvas line').each(function(){
+				var l = d3.select(this);
+				var path = d3.select(this.parentNode).select('path');
+				
+				var midX = (parseInt(l.attr('x1'), 10) + parseInt(l.attr('x2'), 10)) / 2;
+				var midY = (parseInt(l.attr('y1'), 10) + parseInt(l.attr('y2'), 10)) / 2;
+				
+				if (midX < right && midX > left){
+					if (midY < bottom && midY > top){
+						l.style('stroke', 'red');
+						path.style('stroke', 'red');
+					} else {
+						l.style('stroke', '#004785');
+						path.style('stroke', '#004785');
+					}
+				}
+			});
 		}
 	};
 	
@@ -722,27 +748,7 @@ var draw = function(){
 	*/
 	me.lineclick = function(){	
 		if(me.mode === 'delete_hold'){
-		
-			var index = me.indexOf(d3.select(this), me.lines);
-			var d = me.lines[index].path;
-			d3.selectAll('.arrow').each(function(){
-				if (d3.select(this).attr('d') === d){
-					d3.select(this).remove();
-				} 
-			});
-			
-			var group;
-			var cIndex = me.lines[index].source;
-			for (var i = 0; i < me.circles.length; i++){
-				if(me.circles[i].class === cIndex){
-					group = me.circles[i].group;
-				}
-			}
-			me.lines.splice(index,1);
-			d3.select(this).remove();
-			
-			var cIndicies = me.extractCircles(group);
-			me.separateGroups(cIndicies);
+			me.deleteLink(this);
 		}
 	};
 	
@@ -815,7 +821,10 @@ var draw = function(){
 					};
 					
 					//draw the line before the entities so that it appears behind
-					var line = d3.select('.node-link-container').insert('line', ':first-child')
+					var lineGroup = d3.select('.node-link-container')
+						.insert('g', ':first-child');
+					
+					var line = lineGroup.append('line', ':first-child')
 						.attr('class', me.lineCount)
 						.attr('d', $('.rel-only').val())
 						.attr('x1', me.computeCoord(p1.x, 'x'))
@@ -836,7 +845,7 @@ var draw = function(){
 						d: line.attr('d'),
 						source: c1.attr('class'),
 						target: c2.attr('class'),
-						path: path.attr('d')
+						//path: path.attr('d')
 					};
 					
 					if(me.indexOf(line, me.lines) === -1){
@@ -910,7 +919,10 @@ var draw = function(){
 				};
 				
 				//create the line for the new entity 1 entity 2 relationship
-				var line = group.insert('line', ':first-child')
+				var lineGroup = d3.select('.node-link-container')
+						.insert('g', ':first-child');
+					
+				var line = lineGroup.append('line', ':first-child')
 					.attr('class', me.lineCount)
 					.attr('d', $('.relate').val())
 					.attr('x1', me.computeCoord(p1.x, 'x'))
@@ -945,7 +957,7 @@ var draw = function(){
 						d: line.attr('d'),
 						source: circle.attr('class'),
 						target: circle2.attr('class'),
-						path: path.attr('d')
+						//path: path.attr('d')
 					};
 					me.lines.push(l);
 				}
@@ -999,11 +1011,7 @@ var draw = function(){
 			var line_index = me.indexOf(d3.select(this), me.lines);
 			var l = me.lines[line_index];
 			if (l.source === me.circles[index].class || l.target === me.circles[index].class){
-				d3.selectAll('.arrow').each(function(){
-					if (d3.select(this).attr('d') === l.path){
-						d3.select(this).remove();
-					}
-				});
+				d3.select(l.html.parentNode).select('path').remove();
 				me.lines.splice(line_index,1);
 				d3.select(this).remove();
 			}
@@ -1015,6 +1023,22 @@ var draw = function(){
 		me.separateGroups(cIndicies);
 	};
 	
+	me.deleteLink = function(t){
+		var group;
+		var index = me.indexOf(d3.select(t), me.lines);
+		var cIndex = me.lines[index].source;
+		for (var i = 0; i < me.circles.length; i++){
+			if(me.circles[i].class === cIndex){
+				group = me.circles[i].group;
+			}
+		}
+		
+		me.lines.splice(index,1);
+		d3.select(t.parentNode).remove();
+		
+		var cIndicies = me.extractCircles(group);
+		me.separateGroups(cIndicies);
+	};
 	/**
 		called from me.toggleSelection when mode is label_hold
 		@param - none
@@ -1086,7 +1110,7 @@ var draw = function(){
 	};
 	
 	me.createArrow = function(line){
-		var path = d3.select('.node-link-container').insert('path', ':first-child')
+		var path = d3.select(line[0][0].parentNode).append('path')
 			.attr('class', 'arrow')
 			.attr('marker-mid', 'url(#Triangle)')
 			.attr('d', function(){
@@ -1225,5 +1249,4 @@ var draw = function(){
 			}
 		}
 	};
-	
 };
