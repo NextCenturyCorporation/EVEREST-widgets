@@ -26,21 +26,17 @@ var draw = function(){
 	me.num_tools = 0;
 	me.count = 0;
 	
-	/**			
-		@param 	 		c: a d3.select()'ed element
-				 		array: the array to search for the element in
-				 			   me.circles or me.lines right now
-		@return 		index of c in the array, or -1 if not present
-		@functionality 	searches through the specified array for the
-						desired item c
-		@todo			array prototype?
-	*/
-	me.indexOf = function(c, array){
-		for (var i = 0; i < array.length; i++){
-			if (c.attr('class') === array[i].class){
+	Array.prototype.indexOfObj = function(d3obj, attribute){
+		if (!attribute){
+			attribute = 'class';
+		}
+		
+		for (var i = 0; i < this.length; i++){
+			if (d3obj.attr(attribute) === this[i][attribute]){
 				return i;
 			}
 		}
+		
 		return -1;
 	};
 	
@@ -209,7 +205,6 @@ var draw = function(){
 	*/
 	me.createCancelClickers = function(){
 		d3.select('.ent-cancel').on('click', function(){
-			//hide entity form
 			$('.ent1').val('');
 			$('.ent1-form').animate({
 				top: '-'+ 2*$('.ent1-form').height()
@@ -218,7 +213,6 @@ var draw = function(){
 		
 		d3.select('.rel-cancel').on('click', function(){
 			me.lastNodeClicked = null;
-			//hide the relationship form
 			$('.rel-only').val('');
 			$('.rel-form').animate({
 				top: '-'+ 2*$('.rel-form').height()
@@ -226,7 +220,6 @@ var draw = function(){
 		});
 		
 		d3.select('.rel-ent-cancel').on('click', function(){
-			//hide rel-ent2 form
 			$('.relate').val('');
 				$('.ent2').val('');
 				$('.rel-ent2-form').animate({
@@ -255,7 +248,7 @@ var draw = function(){
 				} else if (me.mode === 'select_hold'){
 					d3.selectAll('.canvas circle').each(function(){
 						var c = d3.select(this);
-						var i = me.indexOf(c, me.circles);
+						var i = me.circles.indexOfObj(c);
 						c.style('fill', color(me.circles[i].group));
 					});
 					
@@ -327,7 +320,6 @@ var draw = function(){
 			.attr('width', me.toolW)
 			.attr('height', me.toolH);
 		
-		//add the tool to show all labels for each item in the canvas
 		var label_hold = me.createSelection(svg, 'label_hold');
 		label_hold.append('text')
 			.attr('x', me.toolC.x)
@@ -336,7 +328,6 @@ var draw = function(){
 			.attr('dy', '0.35em')
 			.text('abc');
 		
-		//add the tool to allow the user to add new entities to the canvas
 		var node_hold = me.createSelection(svg, 'node_hold');
 		node_hold.append('circle')
 			.attr('class', 'entity')
@@ -344,7 +335,6 @@ var draw = function(){
 			.attr('cy', me.num_tools * shift)
 			.attr('r', me.radius);
 		
-		//add the tool to allow the user to connect two entities with a line
 		var rel_hold = me.createSelection(svg, 'rel_hold');
 		rel_hold.append('line')
 			.attr('class', 'relationship')
@@ -363,7 +353,6 @@ var draw = function(){
 					  ' L'+ (me.toolC.x + me.radius)+' ' + (me.num_tools * shift + me.radius);
 			});
 		
-		//add the tool to allow the user to move entire groups	
 		var mover_hold = me.createSelection(svg, 'mover_hold');	
 		mover_hold.append('line')
 			.attr('x1', me.toolC.x)
@@ -377,7 +366,6 @@ var draw = function(){
 			.attr('x2', me.toolC.x + me.radius)
 			.attr('y2', me.num_tools * shift);	
 			
-		//add the tool to undo last change in the canvas
 		var undo_hold = me.createSelection(svg, 'undo_hold');
 		undo_hold.append('text')
 			.attr('x', me.toolC.x)
@@ -387,7 +375,6 @@ var draw = function(){
 			.attr('font-size', 12)
 			.text('undo');
 		
-		//add the tool to delete circles or lines from canvas
 		var delete_hold = me.createSelection(svg, 'delete_hold');
 		delete_hold.append('circle')
 			.attr('cx', me.toolC.x)
@@ -409,7 +396,6 @@ var draw = function(){
 		var div = d3.select('body').append('div');
 		div.append('button').text('Reset')
 			.on('click', function(){
-				//clear canvas and arrays
 				d3.select('.node-link-container').remove();
 				d3.select('.canvas svg').append('g')
 					.attr('class', 'node-link-container');
@@ -449,7 +435,6 @@ var draw = function(){
 		@internal functions - none
 	*/
 	me.appendCircle = function(mouse_event){
-		//bring down entity form
 		$('.ent1-form').animate({
 			top:( $('.canvas').height() / 2 ) - ( $('.ent1-form').height() / 2 )
 		}, 750);
@@ -462,8 +447,7 @@ var draw = function(){
 			
 			var circle = me.createCircle(group, mouse_event[0], 
 								mouse_event[1], $('.ent1').val());
-			
-			if (me.indexOf(circle, me.circles) === -1){
+			if (me.circles.indexOfObj(circle) === -1){
 				var c = me.simplify(circle);
 				c.group = me.count;
 				me.circles.push(c);
@@ -472,7 +456,6 @@ var draw = function(){
 			me.count++;
 			me.circleCount++;
 			
-			//hide entity form
 			$('.ent1').val('');
 			$('.ent1-form').animate({
 				top: '-'+ 2*$('.ent1-form').height()
@@ -494,7 +477,7 @@ var draw = function(){
 		if(me.mode === 'mover_hold'){
 			var circles = [];
 			
-			var group = me.indexOf(d3.select(this), me.circles);
+			var group = me.circles.indexOfObj(d3.select(this));
 			var x = me.extractCircles(me.circles[group].group);
 			
 			for (var i = 0; i < x.length; i++){
@@ -566,13 +549,12 @@ var draw = function(){
 			return me.computeCoord(newC, 'y'); 
 		});
 		
-		var c = me.circles[me.indexOf(circle, me.circles)];
+		var c = me.circles[me.circles.indexOfObj(circle)];
 		c.x = circle.attr('cx');
 		c.y = circle.attr('cy');
 		
 		d3.selectAll('.arrow').remove();
 		
-		//for each line in array of lines
 		d3.selectAll('.canvas line').each(function(){
 			var line = d3.select(this);
 			//if entity1 was grabbed, p1 from line matches grabbed circle		
@@ -590,7 +572,6 @@ var draw = function(){
 			
 			//if the entity is attached to a relationship and other entity 
 			if (x && y){
-				//move the line
 				line.attr(x, function() { 
 					var newC = dx + parseInt(line.attr(x));
 					return me.computeCoord(newC, 'x');
@@ -638,11 +619,11 @@ var draw = function(){
 					if (c.attr('cy') < bottom && c.attr('cy') > top){
 						c.style('fill', 'red');
 					} else {
-						var i = me.indexOf(c, me.circles);
+						var i = me.circles.indexOfObj(c);
 						c.style('fill', color(me.circles[i].group));
 					}
 				} else {
-					var i = me.indexOf(c, me.circles);
+					var i = me.circles.indexOfObj(c);
 					c.style('fill', color(me.circles[i].group));
 				}
 			});
@@ -716,7 +697,6 @@ var draw = function(){
 				return;
 			//if this is the second unique entity chosen, draw a line 
 			} else {
-				//bring down relationship form for user to enter a description
 				$('.rel-form').animate({
 					top: ( $('.canvas').height() / 2 ) - ( $('.rel-form').height() / 2 )
 				}, 750);
@@ -726,12 +706,11 @@ var draw = function(){
 				
 				//creates on click event for relationship form submit button 
 				d3.select('.rel-submit').on('click', function(){	
-					//grabs the entities to draw a line/relationship between
 					var c1 = d3.select(me.lastNodeClicked);
 					var c2 = d3.select(that);
 					
-					var ind1 = me.indexOf(c1, me.circles);
-					var ind2 = me.indexOf(c2, me.circles);
+					var ind1 = me.circles.indexOfObj(c1);
+					var ind2 = me.circles.indexOfObj(c2);
 					
 					var circ = me.circles[ind2];
 					var toAttach = me.extractCircles(circ.group);
@@ -783,10 +762,9 @@ var draw = function(){
 						d: line.attr('d'),
 						source: c1.attr('class'),
 						target: c2.attr('class'),
-						//path: path.attr('d')
 					};
 					
-					if(me.indexOf(line, me.lines) === -1){
+					if(me.lines.indexOfObj(line) === -1){
 						me.lines.push(l);
 					}
 					
@@ -820,18 +798,15 @@ var draw = function(){
 	*/
 	me.doubleClickNode = function(){
 		if (me.mode === ''){
-			//bring down relationship - entity 2 form
 			$('.rel-ent2-form').animate({
 				top: ( $('.canvas').height() / 2 ) - ( $('.rel-ent2-form').height() / 2 )
 			}, 750);
 			$('.relate').focus();		//apparently errors in IE if focus before visible
 			
-			//so not to confuse this when inside the d3.select function
 			var that = this;
 	
 			//creates on click event for rel - entity 2 form submit button 
 			d3.select('.rel-ent-submit').on('click', function(){
-				//grab the entity and set variables from its attributes
 				var circle = d3.select(that);
 				var r = circle.attr('r');
 				
@@ -842,7 +817,6 @@ var draw = function(){
 				
 				//grab the double-clicked entity's parent and add a group to it
 				var group = d3.select(that.parentNode);
-				//var net = group.append('g');
 				
 				//center of double-clicked entity, point 1 for new line
 				var p1 = {
@@ -874,7 +848,7 @@ var draw = function(){
 				me.lineCount++;
 				
 				var path = me.createArrow(line);
-				var cGroup = me.circles[me.indexOf(circle, me.circles)].group;
+				var cGroup = me.circles[me.circles.indexOfObj(circle)].group;
 	
 				//create the entity 2
 				var circle2 = me.createCircle(group, me.computeCoord(p2.x, 'x'),
@@ -882,25 +856,23 @@ var draw = function(){
 					circle2.style('fill', color(cGroup));
 				
 				me.circleCount++;
-				if(me.indexOf(circle2, me.circles) === -1){
+				if(me.circles.indexOfObj(circle2) === -1){
 					var c = me.simplify(circle2);
 					c.group = cGroup;
 					me.circles.push(c);
 				}
 				
-				if(me.indexOf(line, me.lines) === -1){
+				if(me.lines.indexOfObj(line) === -1){
 					var l = {
 						class: line.attr('class'),
 						html: line[0][0],
 						d: line.attr('d'),
 						source: circle.attr('class'),
 						target: circle2.attr('class'),
-						//path: path.attr('d')
 					};
 					me.lines.push(l);
 				}
 				
-				//hide relationship - entity 2 form
 				$('.relate').val('');
 				$('.ent2').val('');
 				$('.rel-ent2-form').animate({
@@ -942,11 +914,11 @@ var draw = function(){
 	};
 	
 	me.deleteNode = function(t){
-		var index = me.indexOf(d3.select(t), me.circles);
+		var index = me.circles.indexOfObj(d3.select(t));
 		var group = me.circles[index].group;
 		
 		d3.selectAll('.canvas line').each(function(){
-			var line_index = me.indexOf(d3.select(this), me.lines);
+			var line_index = me.lines.indexOfObj(d3.select(this));
 			var l = me.lines[line_index];
 			if (l.source === me.circles[index].class || l.target === me.circles[index].class){
 				d3.select(l.html.parentNode).select('path').remove();
@@ -963,7 +935,8 @@ var draw = function(){
 	
 	me.deleteLink = function(t){
 		var group;
-		var index = me.indexOf(d3.select(t), me.lines);
+		var index = me.lines.indexOfObj(d3.select(t));
+		//var index = me.indexOf(d3.select(t), me.lines);
 		var cIndex = me.lines[index].source;
 		for (var i = 0; i < me.circles.length; i++){
 			if(me.circles[i].class === cIndex){
@@ -1035,14 +1008,13 @@ var draw = function(){
 		@internal functions - none
 	*/
 	me.computeCoord = function(newC, axis){
-		//get the max coordinate based on what axis is
 		var max = axis === 'x' ? me.canvasW : me.canvasH;
 		
 		if (newC < 0){	
 			return 0;
-		} else if (newC > max){	//past width or height of canvas, return bound
+		} else if (newC > max){
 			return max;
-		} else {	//within canvas, safe, return newC as integer
+		} else {
 			return Math.floor(newC);
 		}
 	};
@@ -1079,7 +1051,7 @@ var draw = function(){
 			for (var j = 0; j < i; j++){
 				var cObj2 = me.circles[circleGroup[j]];
 				d3.selectAll('.canvas line').each(function(){
-					var l = me.lines[me.indexOf(d3.select(this), me.lines)];
+					var l = me.lines[me.lines.indexOfObj(d3.select(this))];
 					if(l.source === cObj.class && l.target === cObj2.class){
 						thisGroup.push(me.circles[circleGroup[j]]);	
 					} else if (l.source === cObj2.class && l.target === cObj.class){
@@ -1114,7 +1086,7 @@ var draw = function(){
 		
 		d3.selectAll('.canvas circle').each(function(){
 			var c = d3.select(this);
-			var i = me.indexOf(c, me.circles);
+			var i = me.circles.indexOfObj(c);
 			c.style('fill', color(me.circles[i].group));
 		});
 	};
