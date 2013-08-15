@@ -936,7 +936,6 @@ var draw = function(){
 	me.deleteLink = function(t){
 		var group;
 		var index = me.lines.indexOfObj(d3.select(t));
-		//var index = me.indexOf(d3.select(t), me.lines);
 		var cIndex = me.lines[index].source;
 		for (var i = 0; i < me.circles.length; i++){
 			if(me.circles[i].class === cIndex){
