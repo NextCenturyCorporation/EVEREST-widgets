@@ -24,11 +24,30 @@ var network = function(svg, data, mode){
 	me.node = svg.selectAll('.node');
 	me.color = d3.scale.category10();
 	me.linktext;
+	me.mode = '';
 	
 	me.force = d3.layout.force()
 		.size([svg.attr('width'), svg.attr('height')])
 		.linkDistance(100)
 		.charge(-1000);
+		
+	me.svg.on('click', function(){
+		if (me.mode === 'node_hold'){
+			var ev = d3.mouse(this);
+			console.log(ev);
+			
+			var a = {
+				value: "ashley",
+				x: ev[0],
+				y: ev[1]
+			};
+			
+			me.nodes.push(a);
+			console.log(JSON.stringify(me.nodes));
+			
+			me.draw();
+		}
+	});
 		
 	me.draw = function(sender, msg){
 		if(msg){
@@ -57,10 +76,18 @@ var network = function(svg, data, mode){
 			.attr("class", "node")
 			.on("mouseover", me.mouseover)
 			.on("mouseout", me.mouseout)
-			.style("fill", function(d) {
-				var c = d.group < 0 ? 0 : 1;
-				return me.color(c); 
-			})
+			/*.style("fill", function(d){
+				var c = 0;
+				if (d.ent === 'entity1'){
+					c = 1
+				} else if (d.ent === 'entity2'){
+					c = 2;
+				} else {
+					c = 3;
+				}
+				
+				return me.color(c);
+			})*/
 			.call(me.force.drag);
 		
 		me.linktext = me.svg.selectAll("g.linklabelholder").data(me.force.links());
@@ -73,12 +100,36 @@ var network = function(svg, data, mode){
 			.text(function(d) { return d.value; });
 		
 		nodeEnter.append("circle")
+			.attr('class', function(d) { return d.value; })
 			.attr("r", 8);
 		
 		nodeEnter.append("text")
 			.attr("x", 12)
 			.attr("dy", ".35em")
 			.text(function(d) { return d.value; });
+			
+
+		for (var i = 0; i < me.nodes.length; i++){
+			var found;
+			d3.selectAll('circle').each(function(){
+				if (d3.select(this).attr('class') === me.nodes[i].value){
+					found = d3.select(this);
+				}
+			});
+			found.style('fill', function(){
+				var t = me.nodes[i].ent;
+				var c = 0;
+				if (t === 'entity1'){
+					c = 1;
+				} else if (t === 'entity2'){
+					c = 2;					
+				} else {
+					c = 3;
+				}
+				return me.color(c);
+			});
+			
+		}
 	};
 	
 	me.tick = function(){
