@@ -134,7 +134,6 @@ var draw = function(){
 		@internal functions - me.toggleSelction
 	*/
 	me.createSelection = function(svg, class_name){
-		//increment the variable representing the number of tools
 		me.num_tools++;
 		
 		//add a new space for the new tool, with an onclick event
@@ -152,15 +151,7 @@ var draw = function(){
 			
 		return selection;
 	};
-	
-	me.getCircleByClass = function(clazz){
-		d3.selectAll('.canvas circle').each(function(){
-			if (d3.select(this).attr('class') === clazz){
-				return this;
-			}
-		});
-	};
-	
+
 	/**
 		the on click callback used when creating a new selection
 		@functionality - either changes the current tool in use or
@@ -171,8 +162,6 @@ var draw = function(){
 	*/
 	me.toggleSelection = function(){
 		var item = d3.select(this);
-		
-		//clear since switching modes
 		me.lastNodeClicked = null;
 		
 		//if the item being toggled is already off, turn it on
@@ -196,6 +185,8 @@ var draw = function(){
 		
 		if (me.mode === 'label_hold'){
 			me.addAllLabels();
+		} else if (me.mode !== 'select_hold'){
+			me.resetColors();
 		}
 	};
 	
@@ -246,14 +237,7 @@ var draw = function(){
 					var ev = d3.mouse(this);
 					me.appendCircle(ev);
 				} else if (me.mode === 'select_hold'){
-					d3.selectAll('.canvas circle').each(function(){
-						var c = d3.select(this);
-						var i = me.circles.indexOfObj(c);
-						c.style('fill', color(me.circles[i].group));
-					});
-					
-					d3.selectAll('.canvas line').style('stroke', '#004785');
-					d3.selectAll('.canvas path').style('stroke', '#004785');
+					me.resetColors();
 				}
 			});
 			
@@ -263,7 +247,7 @@ var draw = function(){
 			.attr('width', me.canvasW).attr('height', me.canvasH)
 			.style('opacity', 0)
 			.call(d3.behavior.drag().on('dragstart', me.dragstart)
-				.on('drag.svg', me.drag)
+				.on('drag', me.drag)
 				.on('dragend', me.dragend));
 			
 		svg.append('g').attr('class', 'node-link-container');	
@@ -414,7 +398,7 @@ var draw = function(){
 			.attr('cx', x).attr('cy', y)
 			.attr('r', me.radius)
 			.style('fill', color(me.count))
-			.call(d3.behavior.drag().on('drag.circle', me.move))
+			.call(d3.behavior.drag().on('drag', me.move))
 			.on('dblclick', me.doubleClickNode)
 			.on('mouseover', me.mouseover)
 			.on('mouseout', me.mouseout)
@@ -440,9 +424,8 @@ var draw = function(){
 		}, 750);
 		$('.ent1').focus();
 		
-		//creates on click event for entity form submit button
+		//click event gets defined every time a new node is created...?
 		d3.select('.ent-submit').on('click', function(){
-			//grab canvas svg to hold new event
 			var group = d3.select('.node-link-container');
 			
 			var circle = me.createCircle(group, mouse_event[0], 
@@ -476,12 +459,12 @@ var draw = function(){
 	me.move = function(){
 		if(me.mode === 'mover_hold'){
 			var circles = [];
-			
 			var group = me.circles.indexOfObj(d3.select(this));
 			var x = me.extractCircles(me.circles[group].group);
 			
 			for (var i = 0; i < x.length; i++){
-				circles.push(me.circles[x[i]].html);
+				var circle = me.circles[x[i]].html
+				me.dragGroup(circle);
 			}
 			
 			var y = me.extractLines(x);
@@ -489,21 +472,9 @@ var draw = function(){
 				d3.select(me.lines[y[i]].html.parentNode)
 					.select('path').remove();
 			}
-			
-			for (var i = 0; i < circles.length; i++){
-				me.dragGroup(circles[i]);	
-			}
-			
 		} else if (me.mode === 'select_hold'){
 			if (d3.select(this).style('fill') === '#ff0000'){
 				var nodesToDrag = [];
-				
-				d3.selectAll('.canvas circle').each(function(){
-					var c = d3.select(this);
-					if (c.style('fill') === '#ff0000'){
-						nodesToDrag.push(this);
-					}
-				});
 				
 				d3.selectAll('.canvas line').each(function(){
 					if (d3.select(this).style('stroke') === '#ff0000'){
@@ -511,11 +482,15 @@ var draw = function(){
 					}
 				});
 				
-				for (var i = 0; i < nodesToDrag.length; i++){
-					me.dragGroup(nodesToDrag[i]);	
-				}
+				d3.selectAll('.canvas circle').each(function(){
+					var c = d3.select(this);
+					if (c.style('fill') === '#ff0000'){
+						me.dragGroup(this);
+					}
+				});
+				
+				
 			}
-			
 		} else if (me.mode === ''){
 			me.dragGroup(this);
 		}
@@ -643,6 +618,9 @@ var draw = function(){
 						l.style('stroke', '#004785');
 						path.style('stroke', '#004785');
 					}
+				} else {
+					l.style('stroke', '#004785');
+					path.style('stroke', '#004785');
 				}
 			});
 		}
@@ -714,11 +692,9 @@ var draw = function(){
 					
 					var circ = me.circles[ind2];
 					var toAttach = me.extractCircles(circ.group);
-					console.log("items to change");
 					
 					for (var j = 0; j < toAttach.length; j++){
 						var delta = me.circles[toAttach[j]];
-						console.log(delta);
 						delta.group = me.circles[ind1].group;
 						d3.select(delta.html)
 							.transition(2500)
@@ -748,6 +724,7 @@ var draw = function(){
 						.attr('y1', me.computeCoord(p1.y, 'y'))
 						.attr('x2', me.computeCoord(p2.x, 'x'))
 						.attr('y2', me.computeCoord(p2.y, 'y'))
+						.call(d3.behavior.drag().on('drag', me.move))
 						.on('click', me.lineclick)
 						.on('mouseover', me.mouseover)
 						.on('mouseout', me.mouseout); 
@@ -841,6 +818,7 @@ var draw = function(){
 					.attr('y1', me.computeCoord(p1.y, 'y'))
 					.attr('x2', me.computeCoord(p2.x, 'x'))
 					.attr('y2', me.computeCoord(p2.y, 'y'))
+					.call(d3.behavior.drag().on('drag', me.move))
 					.on('click', me.lineclick)
 					.on('mouseover', me.mouseover)
 					.on('mouseout', me.mouseout); 
@@ -949,6 +927,7 @@ var draw = function(){
 		var cIndicies = me.extractCircles(group);
 		me.separateGroups(cIndicies);
 	};
+	
 	/**
 		called from me.toggleSelection when mode is label_hold
 		@param - none
@@ -1088,6 +1067,17 @@ var draw = function(){
 			var i = me.circles.indexOfObj(c);
 			c.style('fill', color(me.circles[i].group));
 		});
+	};
+	
+	me.resetColors = function(){
+		d3.selectAll('.canvas circle').each(function(){
+			var c = d3.select(this);
+			var i = me.circles.indexOfObj(c);
+			c.style('fill', color(me.circles[i].group));
+		});
+		
+		d3.selectAll('.canvas line').style('stroke', '#004785');
+		d3.selectAll('.canvas path').style('stroke', '#004785');
 	};
 	
 	me.saveTargetAssertions = function(){
