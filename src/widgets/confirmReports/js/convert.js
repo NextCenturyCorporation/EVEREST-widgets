@@ -24,6 +24,9 @@
  * the nodes array of the node to point to for this link
  */
 var count = 0;
+var entity1Color = '#333399';
+var entity2Color = '#339966';
+var bothColor = '#9900cc';
 
 function getCircle(item, array){
 	var cs = [];
@@ -70,13 +73,13 @@ function indexOfMessage(item, links, circles){
 			if (a.source.value === item.entity1.toLowerCase() 
 					&& a.target.value == item.entity2.toLowerCase()
 					&& a.value === item.relationship.toLowerCase()){
-				return i;		
+				return i;
 			}
 		} else {
 			if (circles[a.source].value === item.entity1.toLowerCase()
-				 && circles[a.target].value === item.entity2.toLowerCase()
-				 && a.value === item.relationship.toLowerCase()){
-				return i;	
+				 	&& circles[a.target].value === item.entity2.toLowerCase()
+				 	&& a.value === item.relationship.toLowerCase()){
+				return i;
 			}
 		}
 	}
@@ -91,13 +94,13 @@ function addNewAssertion(nodes, links, msg, disjoint){
 		
 		ent1 = { 
 			value: msg.entity1.toLowerCase(),
-			type: 'entity1',
+			color: entity1Color,
 			group: count
 		};
 				
 		ent2 = { 
 			value: msg.entity2.toLowerCase(),
-			type: 'entity2',
+			color: entity2Color,
 			group: count+1
 		};
 		
@@ -110,9 +113,9 @@ function addNewAssertion(nodes, links, msg, disjoint){
 			nodes.push(ent1);
 			count++;
 		} else {			
-			if (nodes1[0].type !== ent1.type){
-				nodes1[0].type = 'both';
-				ent1.type = 'both';
+			if (nodes1[0].color !== ent1.color){
+				nodes1[0].color = bothColor;
+				ent1.color = bothColor;
 			}
 		}
 			
@@ -125,9 +128,9 @@ function addNewAssertion(nodes, links, msg, disjoint){
 			nodes.push(ent2);
 			count++;
 		} else {			
-			if (nodes2[0].type !== ent2.type){
-				nodes2[0].type = 'both';
-				ent2.type = 'both';
+			if (nodes2[0].color !== ent2.color){
+				nodes2[0].color = bothColor;
+				ent2.color = bothColor;
 			}
 		}
 	

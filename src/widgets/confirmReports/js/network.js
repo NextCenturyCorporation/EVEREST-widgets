@@ -59,15 +59,7 @@ var network = function(svg, data, disjoint){
 			.on("mouseover", me.mouseover)
 			.on("mouseout", me.mouseout)
 			.style("fill", function(d){
-				if (d.type === 'entity1'){
-					return '#339';
-				} else if (d.type === 'entity2'){
-					return '#396';
-				} else if (d.type === 'both'){
-					return '#90c';
-				} else { 
-					return 'black';
-				}
+				return d.color;
 			})
 			.call(me.force.drag);
 				
@@ -95,19 +87,8 @@ var network = function(svg, data, disjoint){
 				var c = d3.select(this);
 				for (var i = 0; i < me.nodes.length; i++){
 					if (c.attr('class') === me.nodes[i].value){
-						c.style('fill', function(){
-							var type = me.nodes[i].type;
-							var c = 0;
-							
-							if (type === 'entity1'){
-								return '#339';
-							} else if (type === 'entity2'){
-								return '#396';			
-							} else if (type === 'both'){
-								return '#90c';
-							} else {
-								return 'black';
-							}
+						c.style('fill', function(d){
+							return d.color;
 						});
 					}
 				}
