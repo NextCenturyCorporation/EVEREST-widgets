@@ -1,4 +1,7 @@
 var svg = d3.select('body').append('svg');
+var entity1Color = entity1Color;
+var entity2Color = entity2Color;
+var bothColor = bothColor;
 describe('test convert.js function', function(){
 	describe('addNewAssertion', function(){
 		var nodes = [];
@@ -12,8 +15,8 @@ describe('test convert.js function', function(){
 			expect(nodes.length).toEqual(2);
 			expect(links.length).toEqual(1);
 			
-			expect(nodes[0].color).toEqual('#333399');
-			expect(nodes[1].color).toEqual('#339966');
+			expect(nodes[0].color).toEqual(entity1Color);
+			expect(nodes[1].color).toEqual(entity2Color);
 			
 			expect(links[0].source).toEqual(0);
 			expect(links[0].target).toEqual(1);
@@ -33,9 +36,9 @@ describe('test convert.js function', function(){
 			expect(nodes.length).toEqual(3);
 			expect(links.length).toEqual(2);
 			
-			expect(nodes[0].color).toEqual('#9900cc');
-			expect(nodes[1].color).toEqual('#339966');
-			expect(nodes[2].color).toEqual('#333399');
+			expect(nodes[0].color).toEqual(bothColor);
+			expect(nodes[1].color).toEqual(entity2Color);
+			expect(nodes[2].color).toEqual(entity1Color);
 			
 			expect(links[1].source).toEqual(2);
 			expect(links[1].target).toEqual(0);
@@ -63,8 +66,8 @@ describe('test convert.js function', function(){
 			expect(nodes.length).toEqual(3);
 			expect(links.length).toEqual(2);
 			
-			expect(nodes[0].color).toEqual('#9900cc');
-			expect(nodes[1].color).toEqual('#339966');
+			expect(nodes[0].color).toEqual(bothColor);
+			expect(nodes[1].color).toEqual(entity2Color);
 		});
 		
 		it('add matching but other case', function(){
@@ -81,8 +84,8 @@ describe('test convert.js function', function(){
 			expect(nodes.length).toEqual(3);
 			expect(links.length).toEqual(2);
 			
-			expect(nodes[0].color).toEqual('#9900cc');
-			expect(nodes[1].color).toEqual('#339966');
+			expect(nodes[0].color).toEqual(bothColor);
+			expect(nodes[1].color).toEqual(entity2Color);
 		});
 		
 		it('entity1, entity1, entity2', function(){
@@ -96,8 +99,8 @@ describe('test convert.js function', function(){
 						
 			expect(nodes.length).toEqual(2);
 			expect(links.length).toEqual(1);
-			expect(nodes[0].color).toEqual('#333399');
-			expect(nodes[1].color).toEqual('#339966');
+			expect(nodes[0].color).toEqual(entity1Color);
+			expect(nodes[1].color).toEqual(entity2Color);
 			
 			expect(links[0].source).toEqual(0);
 			expect(links[0].target).toEqual(1);
@@ -109,9 +112,9 @@ describe('test convert.js function', function(){
 			
 			expect(nodes.length).toEqual(3);
 			expect(links.length).toEqual(2);
-			expect(nodes[0].color).toEqual('#333399');
-			expect(nodes[1].color).toEqual('#339966');
-			expect(nodes[2].color).toEqual('#339966');
+			expect(nodes[0].color).toEqual(entity1Color);
+			expect(nodes[1].color).toEqual(entity2Color);
+			expect(nodes[2].color).toEqual(entity2Color);
 			
 			expect(links[1].source).toEqual(0);
 			expect(links[1].target).toEqual(2);
@@ -123,10 +126,10 @@ describe('test convert.js function', function(){
 			
 			expect(nodes.length).toEqual(4);
 			expect(links.length).toEqual(3);
-			expect(nodes[0].color).toEqual('#9900cc');
-			expect(nodes[1].color).toEqual('#339966');
-			expect(nodes[2].color).toEqual('#339966');
-			expect(nodes[3].color).toEqual('#333399');
+			expect(nodes[0].color).toEqual(bothColor);
+			expect(nodes[1].color).toEqual(entity2Color);
+			expect(nodes[2].color).toEqual(entity2Color);
+			expect(nodes[3].color).toEqual(entity1Color);
 			
 			expect(links[2].source).toEqual(3);
 			expect(links[2].target).toEqual(0);
@@ -143,8 +146,8 @@ describe('test convert.js function', function(){
 						
 			expect(nodes.length).toEqual(2);
 			expect(links.length).toEqual(1);
-			expect(nodes[0].color).toEqual('#333399');
-			expect(nodes[1].color).toEqual('#339966');
+			expect(nodes[0].color).toEqual(entity1Color);
+			expect(nodes[1].color).toEqual(entity2Color);
 			
 			arrays = addNewAssertion(nodes, links, 
 				{ entity1: "lisa", relationship: "saw", entity2: "ashley" });	
@@ -153,9 +156,9 @@ describe('test convert.js function', function(){
 			
 			expect(nodes.length).toEqual(3);
 			expect(links.length).toEqual(2);
-			expect(nodes[0].color).toEqual('#9900cc');
-			expect(nodes[1].color).toEqual('#339966');
-			expect(nodes[2].color).toEqual('#333399');
+			expect(nodes[0].color).toEqual(bothColor);
+			expect(nodes[1].color).toEqual(entity2Color);
+			expect(nodes[2].color).toEqual(entity1Color);
 			
 			arrays = addNewAssertion(nodes, links, 
 				{ entity1: "ashley", relationship: "went", entity2: "home" });	
@@ -164,10 +167,10 @@ describe('test convert.js function', function(){
 			
 			expect(nodes.length).toEqual(4);
 			expect(links.length).toEqual(3);
-			expect(nodes[0].color).toEqual('#9900cc');
-			expect(nodes[1].color).toEqual('#339966');
-			expect(nodes[2].color).toEqual('#333399');
-			expect(nodes[3].color).toEqual('#339966');
+			expect(nodes[0].color).toEqual(bothColor);
+			expect(nodes[1].color).toEqual(entity2Color);
+			expect(nodes[2].color).toEqual(entity1Color);
+			expect(nodes[3].color).toEqual(entity2Color);
 		});
 		
 		it('entity2, entity1', function(){
@@ -178,11 +181,11 @@ describe('test convert.js function', function(){
 			
 			expect(nodes.length).toEqual(5);
 			expect(links.length).toEqual(4);
-			expect(nodes[0].color).toEqual('#9900cc');
-			expect(nodes[1].color).toEqual('#9900cc');
-			expect(nodes[2].color).toEqual('#333399');
-			expect(nodes[3].color).toEqual('#339966');
-			expect(nodes[4].color).toEqual('#339966');
+			expect(nodes[0].color).toEqual(bothColor);
+			expect(nodes[1].color).toEqual(bothColor);
+			expect(nodes[2].color).toEqual(entity1Color);
+			expect(nodes[3].color).toEqual(entity2Color);
+			expect(nodes[4].color).toEqual(entity2Color);
 		});
 		
 		it('cycle abc', function(){
@@ -206,9 +209,9 @@ describe('test convert.js function', function(){
 			
 			expect(nodes.length).toEqual(3);
 			expect(links.length).toEqual(3);
-			expect(nodes[0].color).toEqual('#9900cc');
-			expect(nodes[1].color).toEqual('#9900cc');
-			expect(nodes[2].color).toEqual('#9900cc');
+			expect(nodes[0].color).toEqual(bothColor);
+			expect(nodes[1].color).toEqual(bothColor);
+			expect(nodes[2].color).toEqual(bothColor);
 			
 			expect(links[0].source).toEqual(0);
 			expect(links[0].target).toEqual(1);
@@ -239,9 +242,9 @@ describe('test convert.js function', function(){
 			
 			expect(nodes.length).toEqual(3);
 			expect(links.length).toEqual(3);
-			expect(nodes[0].color).toEqual('#9900cc');
-			expect(nodes[1].color).toEqual('#9900cc');
-			expect(nodes[2].color).toEqual('#9900cc');
+			expect(nodes[0].color).toEqual(bothColor);
+			expect(nodes[1].color).toEqual(bothColor);
+			expect(nodes[2].color).toEqual(bothColor);
 		});
 		
 		it('cycle ac ab cb', function(){
@@ -265,9 +268,9 @@ describe('test convert.js function', function(){
 			
 			expect(nodes.length).toEqual(3);
 			expect(links.length).toEqual(3);
-			expect(nodes[0].color).toEqual('#333399');
-			expect(nodes[1].color).toEqual('#339966');
-			expect(nodes[2].color).toEqual('#9900cc');
+			expect(nodes[0].color).toEqual(entity1Color);
+			expect(nodes[1].color).toEqual(entity2Color);
+			expect(nodes[2].color).toEqual(bothColor);
 		});
 		
 		it('cycle ac ab bc', function(){
@@ -291,9 +294,9 @@ describe('test convert.js function', function(){
 			
 			expect(nodes.length).toEqual(3);
 			expect(links.length).toEqual(3);
-			expect(nodes[0].color).toEqual('#333399');
-			expect(nodes[1].color).toEqual('#9900cc');
-			expect(nodes[2].color).toEqual('#339966');
+			expect(nodes[0].color).toEqual(entity1Color);
+			expect(nodes[1].color).toEqual(bothColor);
+			expect(nodes[2].color).toEqual(entity2Color);
 		});
 		
 		it('msg a -> a', function(){
@@ -307,7 +310,7 @@ describe('test convert.js function', function(){
 			
 			expect(nodes.length).toEqual(1);
 			expect(links.length).toEqual(1);
-			expect(nodes[0].color).toEqual('#9900cc');
+			expect(nodes[0].color).toEqual(bothColor);
 		});
 	});
 });
@@ -323,8 +326,8 @@ describe('test network.js function', function(){
 			expect(net.nodes.length).toEqual(2);
 			expect(net.links.length).toEqual(1);
 			
-			expect(net.nodes[0].color).toEqual('#333399');
-			expect(net.nodes[1].color).toEqual('#339966');
+			expect(net.nodes[0].color).toEqual(entity1Color);
+			expect(net.nodes[1].color).toEqual(entity2Color);
 		});
 		
 		it('entity1, entity2', function(){
@@ -335,9 +338,9 @@ describe('test network.js function', function(){
 			expect(net1.nodes.length).toEqual(3);
 			expect(net1.links.length).toEqual(2);
 			
-			expect(net1.nodes[0].color).toEqual('#9900cc');
-			expect(net1.nodes[1].color).toEqual('#339966');
-			expect(net1.nodes[2].color).toEqual('#333399');
+			expect(net1.nodes[0].color).toEqual(bothColor);
+			expect(net1.nodes[1].color).toEqual(entity2Color);
+			expect(net1.nodes[2].color).toEqual(entity1Color);
 		});
 		
 		it('entity2, entity1', function(){
@@ -349,11 +352,11 @@ describe('test network.js function', function(){
 			
 			expect(net3.nodes.length).toEqual(5);
 			expect(net3.links.length).toEqual(4);
-			expect(net3.nodes[0].color).toEqual('#9900cc');
-			expect(net3.nodes[1].color).toEqual('#9900cc');
-			expect(net3.nodes[2].color).toEqual('#333399');
-			expect(net3.nodes[3].color).toEqual('#339966');
-			expect(net3.nodes[4].color).toEqual('#339966');
+			expect(net3.nodes[0].color).toEqual(bothColor);
+			expect(net3.nodes[1].color).toEqual(bothColor);
+			expect(net3.nodes[2].color).toEqual(entity1Color);
+			expect(net3.nodes[3].color).toEqual(entity2Color);
+			expect(net3.nodes[4].color).toEqual(entity2Color);
 		});
 		
 		it('cycle abc', function(){
@@ -364,9 +367,9 @@ describe('test network.js function', function(){
 					
 			expect(net4.nodes.length).toEqual(3);
 			expect(net4.links.length).toEqual(3);
-			expect(net4.nodes[0].color).toEqual('#9900cc');
-			expect(net4.nodes[1].color).toEqual('#9900cc');
-			expect(net4.nodes[2].color).toEqual('#9900cc');
+			expect(net4.nodes[0].color).toEqual(bothColor);
+			expect(net4.nodes[1].color).toEqual(bothColor);
+			expect(net4.nodes[2].color).toEqual(bothColor);
 		});
 		
 	});
@@ -386,12 +389,12 @@ describe('test network.js function', function(){
 					if (n.value === d3.select(this).attr('class')){
 						var color = d3.select(this).style('fill');
 						var color = n.color;
-						if (color === '#333399'){
-							expect(color).toEqual('#333399');
-						} else if (color === '#339966'){
-							expect(color).toEqual('#339966');
-						} else if (color === '#9900cc'){
-							expect(color).toEqual('#9900cc');
+						if (color === entity1Color){
+							expect(color).toEqual(entity1Color);
+						} else if (color === entity2Color){
+							expect(color).toEqual(entity2Color);
+						} else if (color === bothColor){
+							expect(color).toEqual(bothColor);
 						} else {
 							expect(color).toEqual('#000000');
 						}
