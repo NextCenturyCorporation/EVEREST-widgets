@@ -403,7 +403,6 @@ var draw = function(){
 			.attr('cx', x).attr('cy', y)
 			.attr('r', me.radius)
 			.style('fill', 'white')
-			//.style('fill', color(me.count))
 			.call(d3.behavior.drag().on('drag', me.move))
 			.on('dblclick', me.doubleClickNode)
 			.on('mouseover', me.mouseover)
@@ -592,11 +591,11 @@ var draw = function(){
 						c.style('fill', 'red');
 					} else {
 						var i = me.circles.indexOfObj(c);
-						//c.style('fill', color(me.circles[i].group));
+						c.style('fill', me.circles[i].color);
 					}
 				} else {
 					var i = me.circles.indexOfObj(c);
-					//c.style('fill', color(me.circles[i].group));
+					c.style('fill', me.circles[i].color);
 				}
 			});
 			
@@ -705,17 +704,12 @@ var draw = function(){
 					c2.transition(2500)
 						.style('fill', me.circles[ind2].color);
 					
-					//console.log(me.circles);
-					
 					var circ = me.circles[ind2];
 					var toAttach = me.extractCircles(circ.group);
 					
 					for (var j = 0; j < toAttach.length; j++){
 						var delta = me.circles[toAttach[j]];
 						delta.group = me.circles[ind1].group;
-						/*d3.select(delta.html)
-							.transition(2500)
-							.style('fill', delta.color);*/
 					}
 					
 					//center of entity 1
@@ -754,10 +748,8 @@ var draw = function(){
 						class: line.attr('class'),
 						html: line[0][0],
 						d: line.attr('d'),
-						//source: c1.attr('class'),
 						source: c1[0][0],
 						target: c2[0][0]
-						//target: c2.attr('class'),
 					};
 					
 					if(me.lines.indexOfObj(line) === -1){
@@ -874,8 +866,6 @@ var draw = function(){
 						d: line.attr('d'),
 						source: circle[0][0],
 						target: circle2[0][0]
-						//source: circle.attr('class'),
-						//target: circle2.attr('class'),
 					};
 					me.lines.push(l);
 				}
@@ -928,8 +918,7 @@ var draw = function(){
 			var line_index = me.lines.indexOfObj(d3.select(this));
 			var l = me.lines[line_index];
 			if (l.source === me.circles[index].html || 
-				l.target === me.circles[index].html){
-			//if (l.source === me.circles[index].class || l.target === me.circles[index].class){
+					l.target === me.circles[index].html){
 				d3.select(l.html.parentNode).select('path').remove();
 				me.lines.splice(line_index,1);
 				d3.select(this).remove();
@@ -974,10 +963,8 @@ var draw = function(){
 		var group;
 		var index = me.lines.indexOfObj(d3.select(t));
 		var cHtml = me.lines[index].source;
-		//var cIndex = me.lines[index].source;
 		for (var i = 0; i < me.circles.length; i++){
 			if (me.circles[i].html === cHmtl){
-			//if(me.circles[i].class === cIndex){
 				group = me.circles[i].group;
 			}
 		}
@@ -1097,10 +1084,8 @@ var draw = function(){
 					d3.selectAll('.canvas line').each(function(){
 						var l = me.lines[me.lines.indexOfObj(d3.select(this))];
 						if (l.source === cObj.html && l.target === cObj2.html){
-						//if(l.source === cObj.class && l.target === cObj2.class){
 							thisGroup.push(me.circles[circleGroup[j]]);	
 						} else if (l.source === cObj2.html && l.target === cObj.html){
-						//} else if (l.source === cObj2.class && l.target === cObj.class){
 							thisGroup.push(me.circles[circleGroup[j]]);
 						}
 					});
@@ -1129,50 +1114,18 @@ var draw = function(){
 					}
 				}
 			}
-			
-			d3.selectAll('.canvas circle').each(function(){
-				var c = d3.select(this);
-				var i = me.circles.indexOfObj(c);
-				//c.style('fill', color(me.circles[i].group));
-			});
 		}
 	};
 	
 	me.resetColors = function(){
-		/*d3.selectAll('.canvas circle').each(function(){
+		d3.selectAll('.canvas circle').each(function(){
 			var c = d3.select(this);
 			var i = me.circles.indexOfObj(c);
-			c.style('fill', color(me.circles[i].group));
+			c.style('fill', me.circles[i].color);
 		});
 		
 		d3.selectAll('.canvas line').style('stroke', '#004785');
 		d3.selectAll('.canvas path').style('stroke', '#004785');
-		
-		d3.selectAll('.canvas line').each(function(){
-			var lSvg = d3.select(this);
-			var lObj = me.lines[me.lines.indexOfObj(lSvg)];
-			
-			var c1 = d3.select(me.circles[lObj.source].html);
-			var c2 = d3.select(me.circles[lObj.target].html);
-			
-			if (c1.style('fill') === '#ffffff'){
-				c1.style('fill', '#339');
-			} else if ( c1.style('fill') === '#339966' ){
-				c1.style('fill', '#90c');
-			} else {
-				console.log(c1.style('fill'));
-			}
-			
-			if (c2.style('fill') === '#ffffff'){
-				c2.style('fill', '#396');
-			} else if ( c2.style('fill') === '#333366' ){
-				c2.style('fill', '#90c');
-			} else {
-				console.log(c2.style('fill'));
-			}
-			
-			
-		});*/
 	};
 	
 	me.saveTargetAssertions = function(){
