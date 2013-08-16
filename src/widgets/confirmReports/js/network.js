@@ -8,14 +8,14 @@ function midpoint(p1, p2){
 	};
 };
 
-var network = function(svg, data, mode){
+var network = function(svg, data, disjoint){
 	var me = this;
 	me.svg = svg;
 	
 	me.nodes = [];
 	me.links = [];
 	for (var i = 0; i < data.length; i++){
-		me.arrays = addNewAssertion(me.nodes, me.links, data[i], mode);
+		me.arrays = addNewAssertion(me.nodes, me.links, data[i], disjoint);
 		me.nodes = me.arrays[0];
 		me.links = me.arrays[1];
 	}
@@ -24,34 +24,16 @@ var network = function(svg, data, mode){
 	me.node = svg.selectAll('.node');
 	me.color = d3.scale.category10();
 	me.linktext;
-	me.mode = '';
+	
 	
 	me.force = d3.layout.force()
 		.size([svg.attr('width'), svg.attr('height')])
 		.linkDistance(100)
-		.charge(-1000);
-		
-	me.svg.on('click', function(){
-		if (me.mode === 'node_hold'){
-			var ev = d3.mouse(this);
-			console.log(ev);
-			
-			var a = {
-				value: "ashley",
-				x: ev[0],
-				y: ev[1]
-			};
-			
-			me.nodes.push(a);
-			console.log(JSON.stringify(me.nodes));
-			
-			me.draw();
-		}
-	});
+		.charge(-500);
 		
 	me.draw = function(sender, msg){
 		if(msg){
-			var arrays = addNewAssertion(me.nodes, me.links, msg, mode);
+			var arrays = addNewAssertion(me.nodes, me.links, msg, disjoint);
 			me.nodes = arrays[0];
 			me.links = arrays[1];
 		}
@@ -76,20 +58,19 @@ var network = function(svg, data, mode){
 			.attr("class", "node")
 			.on("mouseover", me.mouseover)
 			.on("mouseout", me.mouseout)
-			/*.style("fill", function(d){
-				var c = 0;
-				if (d.ent === 'entity1'){
-					c = 1
-				} else if (d.ent === 'entity2'){
-					c = 2;
-				} else {
-					c = 3;
+			.style("fill", function(d){
+				if (d.type === 'entity1'){
+					return '#339';
+				} else if (d.type === 'entity2'){
+					return '#396';
+				} else if (d.type === 'both'){
+					return '#90c';
+				} else { 
+					return 'black';
 				}
-				
-				return me.color(c);
-			})*/
+			})
 			.call(me.force.drag);
-		
+				
 		me.linktext = me.svg.selectAll("g.linklabelholder").data(me.force.links());
 		me.linktext.enter().append("g").attr("class", "linklabelholder")
 			.append("text")
@@ -107,28 +88,30 @@ var network = function(svg, data, mode){
 			.attr("x", 12)
 			.attr("dy", ".35em")
 			.text(function(d) { return d.value; });
-			
-
-		for (var i = 0; i < me.nodes.length; i++){
-			var found;
-			d3.selectAll('circle').each(function(){
-				if (d3.select(this).attr('class') === me.nodes[i].value){
-					found = d3.select(this);
+		
+		//d3.selectAll('circle').each(function(){		changes those in the other graphs too	
+		if(!disjoint){
+			svg.selectAll('circle').each(function(){
+				var c = d3.select(this);
+				for (var i = 0; i < me.nodes.length; i++){
+					if (c.attr('class') === me.nodes[i].value){
+						c.style('fill', function(){
+							var type = me.nodes[i].type;
+							var c = 0;
+							
+							if (type === 'entity1'){
+								return '#339';
+							} else if (type === 'entity2'){
+								return '#396';			
+							} else if (type === 'both'){
+								return '#90c';
+							} else {
+								return 'black';
+							}
+						});
+					}
 				}
 			});
-			found.style('fill', function(){
-				var t = me.nodes[i].ent;
-				var c = 0;
-				if (t === 'entity1'){
-					c = 1;
-				} else if (t === 'entity2'){
-					c = 2;					
-				} else {
-					c = 3;
-				}
-				return me.color(c);
-			});
-			
 		}
 	};
 	

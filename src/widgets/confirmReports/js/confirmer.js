@@ -1,6 +1,6 @@
 var confirmer = function(){
 	var me = this;
-	var url = 'http://localhost:8081/';
+	var url = 'http://everest-build:8081/';
 	me.alpha_reports = [];
 	me.assertions = [];
 
@@ -99,7 +99,7 @@ var confirmer = function(){
 				
 			if (assertions.length !== 0){			
 				//display assertions
-				var net = new network(svg, assertions, 'disjoint');
+				var net = new network(svg, assertions, true);
 				
 				net.draw();
 				net.draw({}, { entity1: "A", relationship: "E", entity2: "B" });
@@ -108,12 +108,12 @@ var confirmer = function(){
 				net.draw({}, { entity1: "B", relationship: "E", entity2: "C" });
 				
 				//display assertions
-				var net1 = new network(svg1, assertions);
+				var net1 = new network(svg1, assertions, false);
 				net1.draw();
 				net1.draw({}, { entity1: "A", relationship: "E", entity2: "B" });
 				net1.draw({}, { entity1: "B", relationship: "E", entity2: "C" });
-				net1.draw({}, { entity1: "b", relationship: "e", entity2: "f" });
-				net1.draw({}, { entity1: "b", relationship: "e", entity2: "c" });
+				//net1.draw({}, { entity1: "a", relationship: "e", entity2: "a" });
+				net1.draw({}, { entity1: "d", relationship: "e", entity2: "b" });
 			} 
 		});
 	};

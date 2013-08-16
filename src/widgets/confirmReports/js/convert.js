@@ -35,9 +35,9 @@ function getCircle(item, array){
 	return cs;
 }
 
-function indexOfCircle(item, array, mode){
+function indexOfCircle(item, array, disjoint){
 	for (var i = 0; i < array.length; i++){
-		if (mode === 'disjoint'){
+		if (disjoint){
 			if (item.value === array[i].value 
 					&& item.ent === array[i].ent
 					&& item.group === array[i].group){
@@ -83,17 +83,21 @@ function indexOfMessage(item, links, circles){
 	return -1;
 }
 
-function addNewAssertion(nodes, links, msg, mode){
+function addNewAssertion(nodes, links, msg, disjoint){
+	var ent1 = {};
+	var ent2 = {};
+	var nodes1, nodes2;
 	if(indexOfMessage(msg, links, nodes) === -1){
-		var ent1 = { 
+		
+		ent1 = { 
 			value: msg.entity1.toLowerCase(),
-			ent: 'entity1',
+			type: 'entity1',
 			group: count
 		};
 				
-		var ent2 = { 
+		ent2 = { 
 			value: msg.entity2.toLowerCase(),
-			ent: 'entity2',
+			type: 'entity2',
 			group: count+1
 		};
 		
@@ -102,13 +106,13 @@ function addNewAssertion(nodes, links, msg, mode){
 		if(nodes1.length === 0){
 			nodes.push(ent1);
 			count++;
-		} else if (mode === 'disjoint'){
+		} else if (disjoint){
 			nodes.push(ent1);
 			count++;
 		} else {			
-			if (nodes1[0].ent !== ent1.ent){
-				nodes1[0].ent = 'both';
-				ent1.ent = 'both';
+			if (nodes1[0].type !== ent1.type){
+				nodes1[0].type = 'both';
+				ent1.type = 'both';
 			}
 		}
 			
@@ -117,19 +121,18 @@ function addNewAssertion(nodes, links, msg, mode){
 		if(nodes2.length === 0){
 			nodes.push(ent2);
 			count++;
-		} else if (mode === 'disjoint'){
+		} else if (disjoint){
 			nodes.push(ent2);
 			count++;
 		} else {			
-			if (nodes2[0].ent !== ent2.ent){
-				
-				nodes2[0].ent = 'both';
-				ent2.ent = 'both';
+			if (nodes2[0].type !== ent2.type){
+				nodes2[0].type = 'both';
+				ent2.type = 'both';
 			}
 		}
 	
-		var index1 = indexOfCircle(ent1, nodes, mode);
-		var index2 = indexOfCircle(ent2, nodes, mode);
+		var index1 = indexOfCircle(ent1, nodes, disjoint);
+		var index2 = indexOfCircle(ent2, nodes, disjoint);
 	
 		var rel = {
 			source: index1,
