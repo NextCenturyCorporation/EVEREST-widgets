@@ -97,7 +97,7 @@ describe('Test src/widget/assertionGraph/js/convert.js', function() {
 	describe('Test the indexOf function', function(){
 		it('indexOfCircle', function(){
 			var circles = [];
-			var item = {value: "a", group: 1};
+			var item = {value: "z", group: 1};
 			expect(indexOfCircle(item, circles)).toEqual(-1);
 			
 			circles.push(item);
