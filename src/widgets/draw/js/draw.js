@@ -97,7 +97,31 @@ var draw = function(){
 		}
 		return array;
 	};
-
+	
+	/**
+		called when any line or entity is created, within the following
+		functions : me.dragGroup, me.nodeclick
+		me.doubleClickNode
+		@param - newC: coordinate (x or y) within canvas to attempt to add new item
+				 axis: 'x' or 'y' to indicate what bound to compare against
+		@return - a float within the bounds of the svg element
+		@functionality - takes newC and checks to see if it is within the 
+				  bounds of the canvas, if it is, returns newC, if not, returns
+				  a proper min or max
+		@internal functions - none
+	*/
+	me.computeCoord = function(newC, axis){
+		var max = axis === 'x' ? me.canvasW : me.canvasH;
+		
+		if (newC < 0){	
+			return 0;
+		} else if (newC > max){
+			return max;
+		} else {
+			return Math.floor(newC);
+		}
+	};
+	
 	/**
 		called in createToolbar when a new toolbar element is added 
 		@param - svg: the container to add the new element to
@@ -874,10 +898,25 @@ var draw = function(){
 		}
 	};
 	
+	/**
+		used as a callback added to a new entity after it is hovered over
+		then the mouse moves off of the object
+		@param - none
+		@return - none
+		@functionality - dependent upon what the mode is
+				  if label_hold, all text elements in the canvas
+				  are removed
+		@internal functions - none
+	*/
+	me.mouseout = function(){
+		if(me.mode !== 'label_hold'){
+			d3.selectAll('.canvas text').remove();
+		}
+	};
+	
 	me.deleteNode = function(t){
 		var index = me.circles.indexOfObj(d3.select(t));
 		var group = me.circles[index].group;
-		
 		d3.selectAll('.canvas line').each(function(){
 			var line_index = me.lines.indexOfObj(d3.select(this));
 			var l = me.lines[line_index];
@@ -928,7 +967,7 @@ var draw = function(){
 		var index = me.lines.indexOfObj(d3.select(t));
 		var cHtml = me.lines[index].source;
 		for (var i = 0; i < me.circles.length; i++){
-			if (me.circles[i].html === cHmtl){
+			if (me.circles[i].html === cHtml){
 				group = me.circles[i].group;
 			}
 		}
@@ -967,46 +1006,6 @@ var draw = function(){
 				.text(line.attr('d'));
 		});
 		
-	};
-	
-	/**
-		used as a callback added to a new entity after it is hovered over
-		then the mouse moves off of the object
-		@param - none
-		@return - none
-		@functionality - dependent upon what the mode is
-				  if label_hold, all text elements in the canvas
-				  are removed
-		@internal functions - none
-	*/
-	me.mouseout = function(){
-		if(me.mode !== 'label_hold'){
-			d3.selectAll('.canvas text').remove();
-		}
-	};
-
-	/**
-		called when any line or entity is created, within the following
-		functions : me.dragGroup, me.nodeclick
-		me.doubleClickNode
-		@param - newC: coordinate (x or y) within canvas to attempt to add new item
-				 axis: 'x' or 'y' to indicate what bound to compare against
-		@return - a float within the bounds of the svg element
-		@functionality - takes newC and checks to see if it is within the 
-				  bounds of the canvas, if it is, returns newC, if not, returns
-				  a proper min or max
-		@internal functions - none
-	*/
-	me.computeCoord = function(newC, axis){
-		var max = axis === 'x' ? me.canvasW : me.canvasH;
-		
-		if (newC < 0){	
-			return 0;
-		} else if (newC > max){
-			return max;
-		} else {
-			return Math.floor(newC);
-		}
 	};
 	
 	me.createArrow = function(line){
