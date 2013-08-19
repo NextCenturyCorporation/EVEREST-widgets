@@ -1132,13 +1132,13 @@ var draw = function(){
 		for (var i = 0; i < me.lines.length; i++){
 			var line = me.lines[i];
 			var c1, c2;
-			for (var i = 0; i < me.circles.length; i++){
-				if(me.circles[i].html === line.source){
-					c1 = me.circles[i];
+			for (var j = 0; j < me.circles.length; j++){
+				if(me.circles[j].html === line.source){
+					c1 = me.circles[j];
 				}
 				
-				if(me.circles[i].html === line.target){
-					c2 = me.circles[i];
+				if(me.circles[j].html === line.target){
+					c2 = me.circles[j];
 				}
 			}
 			
@@ -1147,7 +1147,7 @@ var draw = function(){
 				value: c1.d,
 				x: parseInt(c1.x, 10),
 				y: parseInt(c1.y, 10),
-				color: c1.group
+				color: c1.color
 			};
 			var relationship = {
 				name: "relationship",
@@ -1159,20 +1159,26 @@ var draw = function(){
 				value: c2.d,
 				x: parseInt(c2.x, 10),
 				y: parseInt(c2.y, 10),
-				color: c2.group
-			
+				color: c2.color
 			};
-			
-			var name = "assertion " + i;
-			
+						
 			var postData = {
-				name: name,
+				name: c1.d + ' ' + line.d + ' ' + c2.d,
 				description:"",
 				entity1: [entity1],
 				relationship: [relationship],
 				entity2: [entity2]
 			};
+			
 			console.log(JSON.stringify(postData));
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: postData,
+				success: function(){
+					console.log('yay');
+				}
+			});
 		}
 		
 		for (i = 0; i < me.circles.length; i++){
@@ -1185,14 +1191,22 @@ var draw = function(){
 					y: parseInt(c.y, 10),
 					color: c.group				
 				};
-				var name = "Lone Entity " + i;
 				
 				var postData = {
-					name: name,
+					name: c.d,
 					description:"",
 					entity1: [entity1]
 				};
+				
 				console.log(JSON.stringify(postData));
+				$.ajax({
+					type: "POST",
+					url: url,
+					data: postData,
+					success: function(){
+						console.log('yay');
+					}
+				});
 			}
 		}
 	};
