@@ -97,36 +97,6 @@ var draw = function(){
 		}
 		return array;
 	};
-	
-	/**
-		@param 			array: array created from extractCircles
-							   a set of circles all with the same group
-		@return			an array of indicies pointing back to lines in
-						me.lines that are connected to the circles specified
-						by param array
-		@functionality	goes through each of the circles specified by array
-						and checks all the lines to see if the source or target
-						of that line matches the circle's class
-						add line index if it hasn't already been added
-						to the return array
-	*/
-	me.extractLines = function(array){
-		var lines = [];
-		//for each circle in the array
-		for (var i = 0; i < array.length; i++){
-			var c = me.circles[array[i]].class;
-			//add a line if it is attached to the circle
-			for (var j = 0; j < me.lines.length; j++){
-				var l = me.lines[j];
-				if (c.html === l.source || c.html === l.target){
-					if(lines.indexOf(j) === -1){
-						lines.push(j);
-					}
-				}
-			}
-		}
-		return lines;
-	};
 
 	/**
 		called in createToolbar when a new toolbar element is added 
@@ -469,12 +439,6 @@ var draw = function(){
 			for (var i = 0; i < x.length; i++){
 				var circle = me.circles[x[i]].html;
 				me.dragGroup(circle);
-			}
-			
-			var y = me.extractLines(x);
-			for (i = 0; i < y.length; i++){
-				d3.select(me.lines[y[i]].html.parentNode)
-					.select('path').remove();
 			}
 		} else if (me.mode === 'select_hold'){
 			if (d3.select(this).style('fill') === '#ff0000'){
@@ -1174,10 +1138,7 @@ var draw = function(){
 			$.ajax({
 				type: "POST",
 				url: url,
-				data: postData,
-				success: function(){
-					console.log('yay');
-				}
+				data: postData
 			});
 		}
 		
@@ -1189,7 +1150,7 @@ var draw = function(){
 					value: c.d,
 					x: parseInt(c.x, 10),
 					y: parseInt(c.y, 10),
-					color: c.group				
+					color: c.color				
 				};
 				
 				var postData = {
@@ -1202,10 +1163,7 @@ var draw = function(){
 				$.ajax({
 					type: "POST",
 					url: url,
-					data: postData,
-					success: function(){
-						console.log('yay');
-					}
+					data: postData
 				});
 			}
 		}
