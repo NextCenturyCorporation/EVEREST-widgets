@@ -7,8 +7,13 @@ var getHexString = function(color){
 			
 		var str = '#';
 		for (var i = 0; i < array.length; i++){
-			var temp =  parseInt(array[i], 10).toString(16);
-			str += temp;
+			if (parseInt(array[i], 10)){
+				var temp = parseInt(array[i], 10).toString(16);
+				str += temp;
+			} else {
+				var temp = array[i].toString(16);
+				str += temp;
+			}
 		}
 		return str;
 	} else {
@@ -38,7 +43,7 @@ var draw = function(){
 	
 	var entity1Color = getHexString('.entity1Color');
 	var entity2Color = getHexString('.entity2Color');
-	var bothColor = getHexString('.bothColor');
+	var bothColor = '#9900cc';
 	var selectColor = 'ff0000';
 	var white = '#ffffff';
 	me.radius = 8;
