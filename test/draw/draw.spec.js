@@ -11,6 +11,13 @@ describe('To test the target event definition widget', function(){
 	});
 	
 	describe('to test the utility functions', function(){
+				
+		it('the createCancelClickers function', function(){
+			spyOn(d3, 'select').andCallThrough();
+			test_draw.createCancelClickers();
+			expect(d3.select.callCount).toEqual(3);
+		});
+	
 		it('specifically the Array.prototype.indexOfObj function', function(){
 			d3.selectAll('svg').remove();
 			var svg = d3.select('.canvas').append('svg').attr('class', 'svg');
@@ -67,69 +74,6 @@ describe('To test the target event definition widget', function(){
 			expect(test_draw.computeCoord(-9834, 'y')).toEqual(0);
 			
 			expect(Math.floor).toHaveBeenCalled();
-		});
-	});
-	
-	describe('the toolbar set up functions', function(){
-		it('the createSelection function', function(){					
-			expect(test_draw.num_tools).toEqual(0);
-			d3.selectAll('svg').remove();
-			var svg = d3.select('.toolbar').append('svg').attr('class', 'svg');
-			
-			var sel = test_draw.createSelection(svg, 'test_hold');
-			var rect = sel.select('rect');
-			expect(test_draw.num_tools).toEqual(1);
-			expect(sel.attr('class')).toEqual('test_hold');
-			expect(parseInt(rect.attr('x'))).toEqual(test_draw.toolC.x - test_draw.radius - 3);
-			expect(parseInt(rect.attr('y'))).toEqual(25 - test_draw.radius - 3);
-			expect(parseInt(rect.attr('width'))).toEqual(2*(test_draw.radius + 3));
-			expect(parseInt(rect.attr('height'))).toEqual(2*(test_draw.radius + 3));
-			
-			test_draw.createSelection(svg, 'test_hold1');
-			test_draw.createSelection(svg, 'test_hold2');
-			
-			var gs = d3.selectAll('g')[0];
-			expect(gs.length).toEqual(3);
-		});
-		
-		xit('the toggleSelection function', function(){
-			spyOn(d3, 'select').andCallThrough();
-			spyOn(d3, 'selectAll').andCallThrough();
-			spyOn(test_draw, 'toggleSelection').andCallThrough();
-			spyOn(test_draw, 'addAllLabels').andCallThrough();
-			spyOn(test_draw, 'resetColors').andCallThrough();
-			
-			d3.selectAll('svg').remove();
-			var svg = d3.select('.toolbar').append('svg').attr('class', 'svg');
-			test_draw.createToolbar();
-			
-			test_draw.mode = 'label_hold';
-			$('.label_hold').trigger('click');
-			
-			expect(test_draw.addAllLabels).toHaveBeenCalled();
-		});
-		
-		it('the createCancelClickers function', function(){
-			spyOn(d3, 'select').andCallThrough();
-			test_draw.createCancelClickers();
-			expect(d3.select.callCount).toEqual(3);
-		});
-		
-		it('the createToolbar function ', function(){
-			d3.selectAll('svg').remove();
-			var svg = d3.select('.toolbar').append('svg').attr('class', 'svg');
-			spyOn(d3, 'select').andCallThrough();
-			spyOn(test_draw, 'createSelection').andCallThrough();
-						
-			test_draw.createToolbar();
-			
-			expect(d3.select).toHaveBeenCalledWith('.toolbar');
-			expect(d3.select).toHaveBeenCalledWith('body');
-			expect(test_draw.createSelection).toHaveBeenCalled();
-			expect(test_draw.createSelection.callCount).toEqual(7);
-			
-			var gs = d3.selectAll('g')[0];
-			expect(gs.length).toEqual(7);
 		});
 	});
 	
@@ -422,7 +366,7 @@ describe('To test the target event definition widget', function(){
 			expect(p.attr('class')).toEqual('arrow');
 			expect(p[0][0].parentNode.localName).toEqual('g');
 			expect(p.attr('marker-mid')).toEqual('url(#Triangle)');
-			expect(p.attr('d')).toEqual('M0 1 L1 2 L2 3');
+			expect(p.attr('d')).toEqual('M 0 1 L 1 2 L 2 3');
 		});
 	});
 	

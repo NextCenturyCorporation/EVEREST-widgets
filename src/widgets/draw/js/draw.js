@@ -2,7 +2,10 @@
 var draw = function(){
 	var me =  this;
 	var url = 'http://localhost:8081/target_assertion/';
-		
+	var tool = new toolbar();
+	tool.createToolbar();
+	
+	//	
 	var color = d3.scale.category20();
 	var shift = 25;
 	
@@ -19,6 +22,8 @@ var draw = function(){
 	me.toolH = 500;
 	me.toolC = { x: (me.toolW / 2), y: (me.toolH / 2) };
 	me.canvasC = { x: (me.canvasW / 2), y: (me.canvasH / 2) };
+	//
+	
 	me.startClick;
 	
 	me.circles = [];
@@ -65,7 +70,7 @@ var draw = function(){
 	/**
 		used when saving the state of the canvas
 		saves assertions (ent - rel - ent) and single entities
-		@pararm			circle: simplified circle object from me.circles
+		@param			circle: simplified circle object from me.circles
 		@return			boolean stating whether circle is connected by a line
 						to another circle
 		@functionality	search through each line in me.lines to see if this
@@ -124,73 +129,6 @@ var draw = function(){
 	};
 	
 	/**
-		called in createToolbar when a new toolbar element is added 
-		@param - svg: the container to add the new element to
-				 class_name: a string that gives a short description of
-				 	  the new toolbar item, which becomes the group's class
-		@return - a group containing a rectangle to show mode selection
-		@functionality - adds a space for a new toolbar item, providing
-				  an on click event callback
-		@internal functions - me.toggleSelction
-	*/
-	me.createSelection = function(svg, class_name){
-		me.num_tools++;
-		
-		//add a new space for the new tool, with an onclick event
-		var selection = svg.append('g')
-			.attr('class', class_name)
-			.on('click', me.toggleSelection);
-		
-		//add the background svg element to show tool usage
-		selection.append('rect')
-			.attr('class', 'unselect')
-			.attr('x', me.toolC.x - me.radius - 3)
-			.attr('y', me.num_tools * shift - me.radius - 3)
-			.attr('width', 2*(me.radius + 3) )
-			.attr('height', 2*(me.radius + 3) );
-			
-		return selection;
-	};
-
-	/**
-		the on click callback used when creating a new selection
-		@functionality - either changes the current tool in use or
-			toggles the tool usage indicator off.	
-			intermediate stored variables are reset.
-			if the label selection is toggled, calls me.addAllLabels
-		@internal functions - me.addAllLabels
-	*/
-	me.toggleSelection = function(){
-		var item = d3.select(this);
-		me.lastNodeClicked = null;
-		
-		//if the item being toggled is already off, turn it on
-		if(item.select('rect').classed('unselect')){
-			d3.selectAll('rect').classed('select', false);
-			d3.selectAll('rect').classed('unselect', true);
-			item.select('rect').classed('unselect', false)
-				.classed('select', true);
-			
-			me.mode = item.attr('class');
-			
-		//if the item being toggled is currently on, just turn it off
-		} else {
-			item.select('rect').classed('select', false)
-				.classed('unselect', true);
-				
-			//clear mode and remove any labels
-			me.mode = '';
-			d3.selectAll('.canvas text').remove();
-		}	
-		
-		if (me.mode === 'label_hold'){
-			me.addAllLabels();
-		} else if (me.mode !== 'select_hold'){
-			me.resetColors();
-		}
-	};
-	
-	/**
 		@functionality	selects all of the cancel buttons in each of the
 		hidden forms and adds a hide function to them for when they are clicked
 	*/
@@ -233,14 +171,15 @@ var draw = function(){
 			.attr('width', me.canvasW)
 			.attr('height', me.canvasH)
 			.on('click', function(){
-				if (me.mode === 'node_hold'){
+				if (tool.getMode() === 'node_hold'){
 					var ev = d3.mouse(this);
 					me.appendCircle(ev);
-				} else if (me.mode === 'select_hold'){
+				} else if (tool.getMode() === 'select_hold'){
 					me.resetColors();
 				}
 			});
 			
+		//css
 		svg.append('rect')
 			.attr('class', 'background')
 			.attr('x', 0).attr('y', 0)
@@ -291,107 +230,6 @@ var draw = function(){
 		});
 	};
 	
-	/**
-		called from javascript section in index.html
-		@functionality - grabs the .toolbar div and adds an svg element to it 
-		which will be where any toolbar items are held. currently there are 
-		five functioning tools: label, node, rel, mover and delete.
-		@internal functions - me.createSelection
-	*/
-	me.createToolbar = function(){
-		var toolBar = d3.select('.toolbar');
-		var svg = toolBar.append('svg')
-			.attr('width', me.toolW)
-			.attr('height', me.toolH);
-		
-		var label_hold = me.createSelection(svg, 'label_hold');
-		label_hold.append('text')
-			.attr('x', me.toolC.x)
-			.attr('y', me.num_tools * shift)
-			.attr('text-anchor', 'middle')
-			.attr('dy', '0.35em')
-			.text('abc');
-		
-		var node_hold = me.createSelection(svg, 'node_hold');
-		node_hold.append('circle')
-			.attr('class', 'entity')
-			.attr('cx', me.toolC.x)
-			.attr('cy', me.num_tools * shift)
-			.attr('r', me.radius);
-		
-		var rel_hold = me.createSelection(svg, 'rel_hold');
-		rel_hold.append('line')
-			.attr('class', 'relationship')
-			.attr('x1', me.toolC.x - me.radius)
-			.attr('y1', me.num_tools * shift - me.radius)
-			.attr('x2', me.toolC.x + me.radius)
-			.attr('y2', me.num_tools * shift + me.radius)
-			.attr('marker-mid', 'url(#Triangle)');
-		
-		rel_hold.append('path')
-			.attr('class', 'relationship')
-			.attr('marker-mid', 'url(#Triangle)')
-			.attr('d', function(){
-				return 'M'+ (me.toolC.x - me.radius)+' ' + (me.num_tools * shift - me.radius) +
-					  ' L'+ me.toolC.x + ' ' + (me.num_tools * shift) +
-					  ' L'+ (me.toolC.x + me.radius)+' ' + (me.num_tools * shift + me.radius);
-			});
-		
-		var mover_hold = me.createSelection(svg, 'mover_hold');	
-		mover_hold.append('line')
-			.attr('x1', me.toolC.x)
-			.attr('y1', me.num_tools * shift - me.radius)
-			.attr('x2', me.toolC.x)
-			.attr('y2', me.num_tools * shift + me.radius);
-		
-		mover_hold.append('line')
-			.attr('x1', me.toolC.x - me.radius)
-			.attr('y1', me.num_tools * shift)
-			.attr('x2', me.toolC.x + me.radius)
-			.attr('y2', me.num_tools * shift);	
-			
-		var undo_hold = me.createSelection(svg, 'undo_hold');
-		undo_hold.append('text')
-			.attr('x', me.toolC.x)
-			.attr('y', me.num_tools * shift)
-			.attr('text-anchor', 'middle')
-			.attr('dy', '0.35em')
-			.attr('font-size', 12)
-			.text('undo');
-		
-		var delete_hold = me.createSelection(svg, 'delete_hold');
-		delete_hold.append('circle')
-			.attr('cx', me.toolC.x)
-			.attr('cy', me.num_tools * shift)
-			.attr('r', me.radius)
-			.style('stroke', selectColor);
-		
-		delete_hold.append('line')
-			.attr('x1', me.toolC.x - me.radius)
-			.attr('y1', me.num_tools * shift)
-			.attr('x2', me.toolC.x + me.radius)
-			.attr('y2', me.num_tools * shift)
-			.style('stroke', selectColor);
-			
-		var select_hold = me.createSelection(svg, 'select_hold');
-		select_hold.select('rect').style('stroke', 'black');
-			
-		//add reset and submit buttons at the bottom of the toolbar	
-		var div = d3.select('body').append('div');
-		div.append('button').text('Reset')
-			.on('click', function(){
-				d3.select('.node-link-container').remove();
-				d3.select('.canvas svg').append('g')
-					.attr('class', 'node-link-container');
-				
-				me.circles = [];
-				me.lines = [];
-			});
-		
-		div.append('button').text('Submit')
-			.on('click', me.saveTargetAssertions);
-	};
-	
 	me.createCircle = function(x, y, d){
 		var circle = d3.select('.node-link-container').append('circle')
 			.attr('d', d).attr('class', me.circleCount)
@@ -428,6 +266,7 @@ var draw = function(){
 		d3.select('.ent-submit').on('click', function(){			
 			var circle = me.createCircle(mouse_event[0], 
 								mouse_event[1], $('.ent1').val());
+								
 			if (me.circles.indexOfObj(circle) === -1){
 				var c = me.simplify(circle);
 				c.group = me.count;
@@ -456,7 +295,7 @@ var draw = function(){
 		@internal functions - me.dragGroup
 	*/
 	me.move = function(){
-		if(me.mode === 'mover_hold'){
+		if(tool.getMode() === 'mover_hold'){
 			var circles = [];
 			var group = me.circles.indexOfObj(d3.select(this));
 			var x = me.extractCircles(me.circles[group].group);
@@ -465,7 +304,7 @@ var draw = function(){
 				var circle = me.circles[x[i]].html;
 				me.dragGroup(circle);
 			}
-		} else if (me.mode === 'select_hold'){
+		} else if (tool.getMode() === 'select_hold'){
 			if (d3.select(this).style('fill') === '#ff0000'){
 				var nodesToDrag = [];
 				d3.selectAll('.canvas line').each(function(){
@@ -481,7 +320,7 @@ var draw = function(){
 					}
 				});
 			}
-		} else if (me.mode === ''){
+		} else if (tool.getMode() === ''){
 			me.dragGroup(this);
 		}
 	};
@@ -551,7 +390,7 @@ var draw = function(){
 	
 	me.dragstart = function(){
 		me.startClick = d3.mouse(this);
-		if (me.mode === 'select_hold'){
+		if (tool.getMode() === 'select_hold'){
 			d3.select('.canvas svg').append('rect')
 				.attr('class', 'selection')
 				.style('opacity', 0.25);
@@ -560,12 +399,12 @@ var draw = function(){
 	
 	me.drag = function(){
 		var ev = d3.mouse(this);
-		if (me.mode === 'select_hold'){
+		if (tool.getMode() === 'select_hold'){
 			d3.select('.selection').attr('width', Math.abs( ev[0] - me.startClick[0] ))
 				.attr('height', Math.abs( ev[1] - me.startClick[1] ))
 				.attr('x', Math.min( ev[0], me.startClick[0] ))
 				.attr('y', Math.min( ev[1], me.startClick[1] ));
-			
+			 
 			var rect = d3.select('.selection');
 			var left = parseInt(rect.attr('x'),10);
 			var top = parseInt(rect.attr('y'),10);
@@ -612,7 +451,7 @@ var draw = function(){
 	};
 	
 	me.dragend = function(){
-		if (me.mode === 'select_hold'){
+		if (tool.getMode() === 'select_hold'){
 			d3.select('.selection').remove();
 		}
 	}
@@ -628,7 +467,7 @@ var draw = function(){
 		@internal functions - none
 	*/
 	me.lineclick = function(){	
-		if(me.mode === 'delete_hold'){
+		if(tool.getMode() === 'delete_hold'){
 			me.deleteLink(this);
 		}
 	};
@@ -651,7 +490,7 @@ var draw = function(){
 							  me.createArrow
 	*/
 	me.nodeclick = function(){
-		if(me.mode === 'rel_hold'){
+		if(tool.getMode() === 'rel_hold'){
 			//if no entities have been clicked before this one
 			if (me.lastNodeClicked === null){
 				me.lastNodeClicked = this;
@@ -756,7 +595,7 @@ var draw = function(){
 				});	
 			}
 		}
-		else if (me.mode === 'delete_hold'){
+		else if (tool.getMode() === 'delete_hold'){
 			me.deleteNode(this);
 		}
 	};
@@ -774,7 +613,7 @@ var draw = function(){
 							  me.createArrow
 	*/
 	me.doubleClickNode = function(){
-		if (me.mode === ''){
+		if (tool.getMode() === ''){
 			$('.rel-ent2-form').animate({
 				top: ( $('.canvas').height() / 2 ) - ( $('.rel-ent2-form').height() / 2 )
 			}, 750);
@@ -878,7 +717,7 @@ var draw = function(){
 		@internal funcitons - none
 	*/
 	me.mouseover = function(){
-		if(me.mode !== 'label_hold'){
+		if(tool.getMode() !== 'label_hold'){
 			var x = 0, y = 0;
 			var item = d3.select(this);
 			
@@ -910,7 +749,7 @@ var draw = function(){
 		@internal functions - none
 	*/
 	me.mouseout = function(){
-		if(me.mode !== 'label_hold'){
+		if(tool.getMode() !== 'label_hold'){
 			d3.selectAll('.canvas text').remove();
 		}
 	};
@@ -1015,9 +854,9 @@ var draw = function(){
 			.attr('d', function(){
 				var midX = (parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2;
 				var midY = (parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2;
-				return 'M'+ line.attr('x1')+' ' + line.attr('y1') +
-					  ' L'+ midX + ' ' + midY +
-					  ' L'+ line.attr('x2')+' ' + line.attr('y2');
+				return 'M '+ line.attr('x1')+' ' + line.attr('y1') +
+					  ' L '+ midX + ' ' + midY +
+					  ' L '+ line.attr('x2')+' ' + line.attr('y2');
 			});
 		
 		return path;
