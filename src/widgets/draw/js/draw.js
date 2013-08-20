@@ -9,6 +9,7 @@ var draw = function(){
 	var entity1Color = '#333399';
 	var entity2Color = '#339966';
 	var bothColor = '#9900cc';
+	var selectColor = 'ff0000';
 	var white = '#ffffff';
 	me.radius = 8;
 	
@@ -363,14 +364,14 @@ var draw = function(){
 			.attr('cx', me.toolC.x)
 			.attr('cy', me.num_tools * shift)
 			.attr('r', me.radius)
-			.style('stroke', 'red');
+			.style('stroke', selectColor);
 		
 		delete_hold.append('line')
 			.attr('x1', me.toolC.x - me.radius)
 			.attr('y1', me.num_tools * shift)
 			.attr('x2', me.toolC.x + me.radius)
 			.attr('y2', me.num_tools * shift)
-			.style('stroke', 'red');
+			.style('stroke', selectColor);
 			
 		var select_hold = me.createSelection(svg, 'select_hold');
 		select_hold.select('rect').style('stroke', 'black');
@@ -576,7 +577,7 @@ var draw = function(){
 				
 				if (c.attr('cx') < right && c.attr('cx') > left){
 					if (c.attr('cy') < bottom && c.attr('cy') > top){
-						c.style('fill', 'red');
+						c.style('fill', selectColor);
 					} else {
 						var i = me.circles.indexOfObj(c);
 						c.style('fill', me.circles[i].color);
@@ -596,8 +597,8 @@ var draw = function(){
 				
 				if (midX < right && midX > left){
 					if (midY < bottom && midY > top){
-						l.style('stroke', 'red');
-						path.style('stroke', 'red');
+						l.style('stroke', selectColor);
+						path.style('stroke', selectColor);
 					} else {
 						l.style('stroke', '#004785');
 						path.style('stroke', '#004785');
@@ -949,8 +950,7 @@ var draw = function(){
 			} else if ( cObj1.color !== entity1Color ){
 				cObj1.color = bothColor;
 			}
-			cSvg1.transition(2500)
-				.style('fill', cObj1.color);
+			cSvg1.style('fill', cObj1.color);
 			
 			if (cObj2.color === white){
 				cObj2.color = entity2Color;
@@ -958,8 +958,7 @@ var draw = function(){
 				cObj2.color = bothColor;
 			}
 			
-			cSvg2.transition(2500)
-				.style('fill', cObj2.color);
+			cSvg2.style('fill', cObj2.color);
 		});
 	};
 	

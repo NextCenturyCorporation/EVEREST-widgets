@@ -353,22 +353,18 @@ describe('To test the target event definition widget', function(){
 			
 			var cT1 = test_draw.circles[0];
 			expect(cT1.color).toEqual('#ffffff');
+			expect(d3.select(cT1.html).style('fill')).toEqual('#ffffff');
 			
 			var cT2 = test_draw.circles[1];
 			expect(cT2.color).toEqual(entity1Color);
+			expect(d3.select(cT2.html).style('fill')).toEqual(entity1Color);
 			
 			var cT3 = test_draw.circles[2];
 			expect(cT3.color).toEqual(entity2Color);
+			expect(d3.select(cT3.html).style('fill')).toEqual(entity2Color);
 			
 			expect(cT1.group).not.toEqual(cT2.group);
 			expect(cT2.group).toEqual(cT3.group);
-			
-			//had to wait due to the transition taking 2500 ms to change the colors
-			setTimeout(function(){
-				expect(d3.select(cT1.html).style('fill')).toEqual('#ffffff');
-				expect(d3.select(cT2.html).style('fill')).toEqual(entity1Color);
-				expect(d3.select(cT3.html).style('fill')).toEqual(entity2Color);
-			}, 3000);
 			
 			test_draw.deleteNode(c[2].html);
 			expect(test_draw.circles.length).toEqual(2);
@@ -376,14 +372,11 @@ describe('To test the target event definition widget', function(){
 			
 			var cT1 = test_draw.circles[0];
 			expect(cT1.color).toEqual('#ffffff');
+			expect(d3.select(cT1.html).style('fill')).toEqual('#ffffff');
 			
 			var cT2 = test_draw.circles[1];
 			expect(cT2.color).toEqual('#ffffff');
-			
-			setTimeout(function(){
-				expect(d3.select(cT1.html).style('fill')).toEqual('#ffffff');
-				expect(d3.select(cT2.html).style('fill')).toEqual('#ffffff');
-			}, 3000);
+			expect(d3.select(cT2.html).style('fill')).toEqual('#ffffff');
 		});
 	});
 	
