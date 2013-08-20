@@ -390,8 +390,45 @@ describe('To test the target event definition widget', function(){
 			
 			expect(d3.selectAll).toHaveBeenCalledWith('.canvas circle');
 			expect(d3.selectAll).toHaveBeenCalledWith('.canvas line');
-			//expect(d3.select).toHaveBeenCalledWith('.canvas svg');
-			//expect(parseInt).toHaveBeenCalled();
+			expect(d3.select).toHaveBeenCalledWith('.canvas svg');
+			expect(parseInt).toHaveBeenCalled();
+		});
+	});
+	
+	describe('the createArrow function', function(){
+		it('for proper method call logic', function(){
+		
+			var l = d3.select('.canvas svg').append('line')
+				.attr('x1', 0).attr('y1', 1)
+				.attr('x2', 2).attr('y2', 3);
+				
+			spyOn(d3, 'select').andCallThrough();
+			spyOn(window, 'parseInt').andCallThrough();
+			
+			test_draw.createArrow(l);
+			
+			expect(d3.select).toHaveBeenCalled();
+			expect(parseInt).toHaveBeenCalled();
+		});
+		
+		it('for proper resulting values', function(){
+			var l = d3.select('.canvas svg').append('g')
+				.append('line')
+				.attr('x1', 0).attr('y1', 1)
+				.attr('x2', 2).attr('y2', 3);
+		
+			var p = test_draw.createArrow(l);
+			
+			expect(p.attr('class')).toEqual('arrow');
+			expect(p[0][0].parentNode.localName).toEqual('g');
+			expect(p.attr('marker-mid')).toEqual('url(#Triangle)');
+			expect(p.attr('d')).toEqual('M0 1 L1 2 L2 3');
+		});
+	});
+	
+	describe('the separateGroups function', function(){
+		it('for proper method call logic', function(){
+			
 		});
 	});
 });
