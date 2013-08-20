@@ -1,14 +1,44 @@
 //with help from threedubmedia.com/code/event/drop/demo/selection
+
+var getHexString = function(color){
+	if (d3.select(color)){
+		var array = d3.select(color).style('background-color')
+			.split('(')[1].split(')')[0].split(',');
+			
+		var str = '#';
+		for (var i = 0; i < array.length; i++){
+			var temp =  parseInt(array[i], 10).toString(16);
+			str += temp;
+		}
+		return str;
+	} else {
+		return '#ffffff';
+	}	
+};
+
+Array.prototype.indexOfObj = function(d3obj, attribute){
+	if (!attribute){
+		attribute = 'class';
+	}
+	
+	for (var i = 0; i < this.length; i++){
+		if (d3obj.attr(attribute) === this[i][attribute]){
+			return i;
+		}
+	}
+	
+	return -1;
+};
+
 var draw = function(){
 	var me =  this;
 	var url = 'http://localhost:8081/target_assertion/';
-	var tool = new toolbar(me.addAllLabels);
+	var tool = new toolbar();
 	tool.createToolbar();
 	
-	//		
-	var entity1Color = '#333399';
-	var entity2Color = '#339966';
-	var bothColor = '#9900cc';
+	var entity1Color = getHexString('.entity1Color');
+	var entity2Color = getHexString('.entity2Color');
+	var bothColor = getHexString('.bothColor');
 	var selectColor = 'ff0000';
 	var white = '#ffffff';
 	me.radius = 8;
@@ -29,19 +59,8 @@ var draw = function(){
 	me.lastNodeClicked = null;
 	me.count = 0;
 	
-	Array.prototype.indexOfObj = function(d3obj, attribute){
-		if (!attribute){
-			attribute = 'class';
-		}
-		
-		for (var i = 0; i < this.length; i++){
-			if (d3obj.attr(attribute) === this[i][attribute]){
-				return i;
-			}
-		}
-		
-		return -1;
-	};
+	
+
 	
 	/**
 		@param			item: a d3.select()'ed circle
@@ -825,36 +844,7 @@ var draw = function(){
 		var cIndicies = me.extractCircles(group);
 		me.separateGroups(cIndicies);
 	};
-	
-	/**
-		called from me.toggleSelection when mode is label_hold
-		@param - none
-		@return - none
-		@functionality - shows all labels for any element in the canvas
-		@internal functions - none
-	*/
-	me.addAllLabels = function(){
-		var x = 0, y = 0;
-		d3.selectAll('.canvas circle').each(function(){
-			var circle = d3.select(this);
-			x = parseInt(circle.attr('cx'), 10) + 15;
-			y = parseInt(circle.attr('cy'), 10) - 15;
-			d3.select('.canvas svg').append('text')
-				.attr('x', x).attr('y', y)
-				.text(circle.attr('d'));
-		});
 		
-		d3.selectAll('.canvas line').each(function(){
-			var line = d3.select(this);
-			x = ((parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2) + 15;
-			y = ((parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2) - 15;
-			d3.select('.canvas svg').append('text')
-				.attr('x', x).attr('y', y)
-				.text(line.attr('d'));
-		});
-		
-	};
-	
 	me.createArrow = function(line){
 		var path = d3.select(line[0][0].parentNode).append('path')
 			.attr('class', 'arrow')

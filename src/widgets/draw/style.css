@@ -6,11 +6,18 @@
 	border-color:#004785;
 }
 
+.tsvg{
+	width: 50px;
+	height: 500px;
+}
+
 .canvas{
 	float:top;
 	border-style:ridge;
 	display:inline-block;
 	border-color:#004785;
+	width: 500px;
+	height: 500px;
 }
 
 .forms{
@@ -83,4 +90,35 @@ label{
 	background: #BCE;
 	background-color: #BEC;
 	border-color: #8B0;
+}
+
+.entity1Color{
+	display:none;
+	background-color: #333399;
+}
+
+.entity2Color{
+	display:none;
+	background-color: #339966;
+}
+
+.bothColor{
+	display:none;
+	background-color: #9900cc;
+}
+
+.mover_hold{
+	background-image:url('img/move.gif');
+	background-repeat: no-repeat;
+	height:30px;
+	width:30px;
+	position:relative;
+}
+
+.delete_hold{
+	background-image:url('img/delete.gif');
+	background-repeat: no-repeat;
+	height:30px;
+	width:30px;
+	position:relative;
 }

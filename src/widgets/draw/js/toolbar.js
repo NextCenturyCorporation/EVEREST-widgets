@@ -1,15 +1,9 @@
-var toolbar = function(label_callback){
+var toolbar = function(){
 	var me = this;
-	me.addLabels = label_callback;
 	
 	me.shift = 25;
 	me.radius = 8;
-	me.width = 150;
-	me.height = 500;
-	me.center = { 
-		x: (me.width / 2), 
-		y: (me.height / 2) 
-	};
+	me.center = {};
 	
 	me.num_tools = 0;
 	me.mode = "";
@@ -56,16 +50,21 @@ var toolbar = function(label_callback){
 			me.mode = '';
 		}	
 		
-		if ( me.mode === 'label_hold'){
-			me.addLabels();
+		if (me.mode === 'label_hold'){
+			me.addAllLabels();
 		}
 	};
 
 	me.createToolbar = function(){
 		var toolBar = d3.select('.toolbar');
 		var svg = toolBar.append('svg')
-			.attr('width', me.width)
-			.attr('height', me.height);
+			.attr('class', 'tsvg');
+		
+		var w = svg.style('width').split('p')[0];
+		var h = svg.style('height').split('p')[0];
+		console.log(w,h);
+		me.center.x = w / 2;
+		me.center.y = h / 2;
 		
 		var label_hold = me.createSelection(svg, 'label_hold');
 		label_hold.append('text')
@@ -142,9 +141,37 @@ var toolbar = function(label_callback){
 	
 	me.getMode = function(){
 		return me.mode;
-	}
+	};
 	
 	me.setMode = function(m){
 		me.mode = m;
-	}
+	};
+	
+	/**
+		called from me.toggleSelection when mode is label_hold
+		@param - none
+		@return - none
+		@functionality - shows all labels for any element in the canvas
+		@internal functions - none
+	*/
+	me.addAllLabels = function(){
+		var x = 0, y = 0;
+		d3.selectAll('.canvas circle').each(function(){
+			var circle = d3.select(this);
+			x = parseInt(circle.attr('cx'), 10) + 15;
+			y = parseInt(circle.attr('cy'), 10) - 15;
+			d3.select('.canvas svg').append('text')
+				.attr('x', x).attr('y', y)
+				.text(circle.attr('d'));
+		});
+		
+		d3.selectAll('.canvas line').each(function(){
+			var line = d3.select(this);
+			x = ((parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2) + 15;
+			y = ((parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2) - 15;
+			d3.select('.canvas svg').append('text')
+				.attr('x', x).attr('y', y)
+				.text(line.attr('d'));
+		});
+	};
 };

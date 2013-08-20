@@ -1,9 +1,17 @@
 describe('To test the target event definition widget', function(){
-	var test_draw = new draw();
-	d3.select('body').append('div').attr('class', 'canvas');
-	d3.select('body').append('div').attr('class', 'toolbar');
-	d3.select('body').append('div').attr('class', 'rel');
 	
+	d3.select('body').append('div').attr('class', 'canvas');
+	d3.select('body').append('div').attr('class', 'toolbar')
+		.append('svg').attr('width', 500).attr('height', 500);
+	d3.select('body').append('div').attr('class', 'rel');
+	d3.select('body').append('div').attr('class', 'entity1Color')
+		.style('background-color', '#333399');
+	d3.select('body').append('div').attr('class', 'entity2Color')
+		.style('background-color', '#339966');
+	d3.select('body').append('div').attr('class', 'bothColor')
+		.style('background-color', '#9900cc');
+	
+	var test_draw = new draw();
 	describe('to see if test_draw attributes actually exist', function(){	
 		expect(test_draw.canvasW).toEqual(500);
 		expect(test_draw.circles).toEqual([]);
@@ -320,21 +328,6 @@ describe('To test the target event definition widget', function(){
 			var cT2 = test_draw.circles[1];
 			expect(cT2.color).toEqual('#ffffff');
 			expect(d3.select(cT2.html).style('fill')).toEqual('#ffffff');
-		});
-	});
-	
-	describe('the addAllLabels function', function(){
-		it('for proper method call logic', function(){
-			spyOn(d3, 'selectAll').andCallThrough();
-			spyOn(d3, 'select').andCallThrough();
-			spyOn(window, 'parseInt').andCallThrough();
-			
-			test_draw.addAllLabels();
-			
-			expect(d3.selectAll).toHaveBeenCalledWith('.canvas circle');
-			expect(d3.selectAll).toHaveBeenCalledWith('.canvas line');
-			expect(d3.select).toHaveBeenCalledWith('.canvas svg');
-			expect(parseInt).toHaveBeenCalled();
 		});
 	});
 	
