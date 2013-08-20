@@ -920,13 +920,14 @@ var draw = function(){
 		d3.selectAll('.canvas line').each(function(){
 			var line_index = me.lines.indexOfObj(d3.select(this));
 			var l = me.lines[line_index];
+			
 			if (l.source === me.circles[index].html || 
 					l.target === me.circles[index].html){
-				d3.select(l.html.parentNode).select('path').remove();
 				me.lines.splice(line_index,1);
-				d3.select(this).remove();
+				d3.select(this.parentNode).remove();
 			}
 		});
+		
 		me.circles.splice(index, 1);
 		d3.select(t).remove();
 
@@ -997,7 +998,7 @@ var draw = function(){
 				.text(circle.attr('d'));
 		});
 		
-		d3.selectAll('line').each(function(){
+		d3.selectAll('.canvas line').each(function(){
 			var line = d3.select(this);
 			x = ((parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2) + 15;
 			y = ((parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2) - 15;
@@ -1166,5 +1167,6 @@ var draw = function(){
 				});
 			}
 		}
+		console.log(me.circles);
 	};
 };
