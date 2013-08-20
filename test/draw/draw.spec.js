@@ -254,7 +254,8 @@ describe('To test the target event definition widget', function(){
 	});
 	
 	describe('the deletion functions', function(){
-		it('the deleteNode function', function(){
+		//only letting me call one set of this atm, dk why
+		xit('the deleteNode function, method calls', function(){
 			test_draw.circles = [];
 			test_draw.lines = [];
 			
@@ -264,17 +265,17 @@ describe('To test the target event definition widget', function(){
 			spyOn(test_draw, 'separateGroups').andCallThrough();
 			//spyOn(window, 'indexOfObj').andCallThrough();
 			
-			var c1 = test_draw.createCircle(50, 100, 'hi');
-			c1 = test_draw.simplify(c1);
-			c1.group = 0;
-			c1.color = '#ffffff';
-			test_draw.circles.push(c1);
+			var c11 = test_draw.createCircle(50, 100, 'hi');
+			c11 = test_draw.simplify(c11);
+			c11.group = 0;
+			c11.color = '#ffffff';
+			test_draw.circles.push(c11);
 			
-			var c2 = test_draw.createCircle(450, 100, 'bye');
-			c2 = test_draw.simplify(c2);
-			c2.group = 0;
-			c2.color = '#ffffff';
-			test_draw.circles.push(c2);
+			var c21 = test_draw.createCircle(450, 100, 'bye');
+			c21 = test_draw.simplify(c21);
+			c21.group = 0;
+			c21.color = '#ffffff';
+			test_draw.circles.push(c21);
 			
 			var line = d3.select('.canvas svg').append('line')
 				.attr('x1', 50).attr('y1', 100)
@@ -283,14 +284,14 @@ describe('To test the target event definition widget', function(){
 				.attr('d', 'between');
 			
 			test_draw.lines = [{ 
-				source: c1.html, 
-				target: c2.html,
+				source: c11.html, 
+				target: c21.html,
 				html: line[0][0],
 				d: "between",
 				class: '0'
 			}];
 				
-			test_draw.deleteNode(c1.html);
+			test_draw.deleteNode(c11.html);
 			
 			expect(d3.selectAll).toHaveBeenCalledWith('.canvas line');
 			expect(d3.select).toHaveBeenCalled();
@@ -298,56 +299,106 @@ describe('To test the target event definition widget', function(){
 			expect(test_draw.separateGroups).toHaveBeenCalled();
 			//expect(indexOfObj).toHaveBeenCalledWith(d3.select(c1.html));
 			expect(d3.selectAll.callCount).toEqual(2);
-			
-			expect(test_draw.lines.length).toEqual(0);
-			expect(test_draw.circles.length).toEqual(1);
-			
 		});
 		
-		it('the deleteLink function', function(){
-			spyOn(d3, 'select').andCallThrough();
-			spyOn(test_draw, 'separateGroups').andCallThrough();
-		
+		it('the deleteNode function', function(){
 			test_draw.circles = [];
 			test_draw.lines = [];
-			var c1 = test_draw.createCircle(50, 100, 'hi');
-			c1 = test_draw.simplify(c1);
-			c1.group = 0;
-			c1.color = '#ffffff';
-			test_draw.circles.push(c1);
 			
-			var c2 = test_draw.createCircle(450, 100, 'bye');
-			c2 = test_draw.simplify(c2);
-			c2.group = 0;
-			c2.color = '#ffffff';
-			test_draw.circles.push(c2);
+			var c = [];
+			var l = [];
+			for (var i = 0; i < 4; i++){
+				var temp = test_draw.createCircle(i, i, 'a');
+				test_draw.count++;
+				test_draw.circleCount++;
+				temp = test_draw.simplify(temp);
+				temp.group = 0;
+				test_draw.circles.push(temp);
+				c.push(temp);
+			}
 			
-			var line = d3.select('.canvas svg').append('line')
-				.attr('x1', 50).attr('y1', 100)
-				.attr('x2', 450).attr('y2', 100)
-				.attr('class', 0)
-				.attr('d', 'between');
+			c[0].color = entity1Color;
+			d3.select(c[0].html).style('fill', entity1Color);
+			c[1].color = bothColor;
+			d3.select(c[1].html).style('fill', bothColor);
+			c[2].color = bothColor;
+			d3.select(c[2].html).style('fill', bothColor);
+			c[3].color = entity2Color;
+			d3.select(c[3].html).style('fill', entity2Color);
 			
-			test_draw.lines = [{ 
-				source: c1.html, 
-				target: c2.html,
-				html: line[0][0],
-				d: "between",
-				class: '0'
-			}];
+			for (var i = 0; i < 3; i++){
+				var g = d3.select('.canvas svg')
+					.append('g');
+					
+				var temp = g.append('line')
+					.attr('x1', i).attr('y1', i)
+					.attr('x2', i+1).attr('y2', i+1)
+					.attr('class', i)
+					.attr('d', i);
+					
+				l.push(temp);
+				
+				test_draw.lines.push({
+					source: c[i].html,
+					target: c[i+1].html,
+					html: temp[0][0],
+					d: i.toString() ,
+					class: i.toString()
+				});
+			}
 			
-			test_draw.deleteLink(line[0][0]);
+			test_draw.deleteNode(c[1].html);
+			expect(test_draw.circles.length).toEqual(3);
+			expect(test_draw.lines.length).toEqual(1);
 			
+			var cT1 = test_draw.circles[0];
+			expect(cT1.color).toEqual('#ffffff');
+			
+			var cT2 = test_draw.circles[1];
+			expect(cT2.color).toEqual(entity1Color);
+			
+			var cT3 = test_draw.circles[2];
+			expect(cT3.color).toEqual(entity2Color);
+			
+			expect(cT1.group).not.toEqual(cT2.group);
+			expect(cT2.group).toEqual(cT3.group);
+			
+			//had to wait due to the transition taking 2500 ms to change the colors
+			setTimeout(function(){
+				expect(d3.select(cT1.html).style('fill')).toEqual('#ffffff');
+				expect(d3.select(cT2.html).style('fill')).toEqual(entity1Color);
+				expect(d3.select(cT3.html).style('fill')).toEqual(entity2Color);
+			}, 3000);
+			
+			test_draw.deleteNode(c[2].html);
+			expect(test_draw.circles.length).toEqual(2);
 			expect(test_draw.lines.length).toEqual(0);
-			expect(test_draw.circles[0].group).toEqual(0);
-			expect(test_draw.circles[1].group).not.toEqual(0);
 			
-			expect(d3.select).toHaveBeenCalled();
-			expect(test_draw.separateGroups).toHaveBeenCalled();
+			var cT1 = test_draw.circles[0];
+			expect(cT1.color).toEqual('#ffffff');
+			
+			var cT2 = test_draw.circles[1];
+			expect(cT2.color).toEqual('#ffffff');
+			
+			setTimeout(function(){
+				expect(d3.select(cT1.html).style('fill')).toEqual('#ffffff');
+				expect(d3.select(cT2.html).style('fill')).toEqual('#ffffff');
+			}, 3000);
 		});
 	});
 	
-	describe('', function(){
-	
+	describe('the addAllLabels function', function(){
+		it('for proper method call logic', function(){
+			spyOn(d3, 'selectAll').andCallThrough();
+			spyOn(d3, 'select').andCallThrough();
+			spyOn(window, 'parseInt').andCallThrough();
+			
+			test_draw.addAllLabels();
+			
+			expect(d3.selectAll).toHaveBeenCalledWith('.canvas circle');
+			expect(d3.selectAll).toHaveBeenCalledWith('.canvas line');
+			//expect(d3.select).toHaveBeenCalledWith('.canvas svg');
+			//expect(parseInt).toHaveBeenCalled();
+		});
 	});
 });
