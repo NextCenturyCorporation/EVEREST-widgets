@@ -1,5 +1,7 @@
-var toolbar = function(){
+var toolbar = function(label_callback){
 	var me = this;
+	me.addLabels = label_callback;
+	
 	me.shift = 25;
 	me.radius = 8;
 	me.width = 150;
@@ -53,6 +55,10 @@ var toolbar = function(){
 			//clear mode and remove any labels
 			me.mode = '';
 		}	
+		
+		if ( me.mode === 'label_hold'){
+			me.addLabels();
+		}
 	};
 
 	me.createToolbar = function(){

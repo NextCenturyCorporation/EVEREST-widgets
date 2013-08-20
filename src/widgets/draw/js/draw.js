@@ -2,13 +2,10 @@
 var draw = function(){
 	var me =  this;
 	var url = 'http://localhost:8081/target_assertion/';
-	var tool = new toolbar();
+	var tool = new toolbar(me.addAllLabels);
 	tool.createToolbar();
 	
-	//	
-	var color = d3.scale.category20();
-	var shift = 25;
-	
+	//		
 	var entity1Color = '#333399';
 	var entity2Color = '#339966';
 	var bothColor = '#9900cc';
@@ -18,9 +15,6 @@ var draw = function(){
 	
 	me.canvasW = 500;
 	me.canvasH = 500;
-	me.toolW = 150;
-	me.toolH = 500;
-	me.toolC = { x: (me.toolW / 2), y: (me.toolH / 2) };
 	me.canvasC = { x: (me.canvasW / 2), y: (me.canvasH / 2) };
 	//
 	
@@ -32,9 +26,7 @@ var draw = function(){
 	me.circleCount = 0;
 	me.lineCount = 0;
 	
-	me.mode = "";
 	me.lastNodeClicked = null;
-	me.num_tools = 0;
 	me.count = 0;
 	
 	Array.prototype.indexOfObj = function(d3obj, attribute){
@@ -228,7 +220,23 @@ var draw = function(){
 				}
 			}
 		});
+		
+			//add reset and submit buttons at the bottom of the toolbar	
+		var div = d3.select('body').append('div');
+		div.append('button').text('Reset')
+			.on('click', function(){
+				d3.select('.node-link-container').remove();
+				d3.select('.canvas svg').append('g')
+					.attr('class', 'node-link-container');
+				
+				me.circles = [];
+				me.lines = [];
+			});
+		
+		div.append('button').text('Submit')
+			.on('click', me.saveTargetAssertions);
 	};
+	
 	
 	me.createCircle = function(x, y, d){
 		var circle = d3.select('.node-link-container').append('circle')
