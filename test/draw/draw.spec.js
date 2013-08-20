@@ -7,7 +7,6 @@ describe('To test the target event definition widget', function(){
 	describe('to see if test_draw attributes actually exist', function(){	
 		expect(test_draw.canvasW).toEqual(500);
 		expect(test_draw.circles).toEqual([]);
-		expect(test_draw.num_tools).toEqual(0);
 	});
 	
 	describe('to test the utility functions', function(){
