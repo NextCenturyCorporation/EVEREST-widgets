@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<script src="http://d3js.org/d3.v3.min.js"></script>
+		<script src="js/scatterplot.js"></script>
+		<script src="http://code.jquery.com/jquery-latest.js"></script>
+
+		<link rel="stylesheet" href="css/svg.css">
+
+		<script type="text/javascript">
+			$(document).ready(function() {
+				
+				$('#cellInfo').show(0);
+				scatterplot_base.execute();
+				
+				$('#updateButton').click(function() {
+					scatterplot_base.update();
+				});
+
+			});
+		</script>
+	</head>
+	<body>
+		<button id="updateButton" type="button">Update</button>
+	
+		<div id="plots">
+    
+		    <div id="heatchartContainer">
+        		<div id="heatchart"></div>
+        		<div id="cellInfo"></div>
+    		</div>            
+    	</div>
+	</body>
+</html>

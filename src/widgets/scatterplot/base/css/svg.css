@@ -1,0 +1,27 @@
+div#plots {
+    margin-bottom: 15px;
+}
+
+div#scatterplot, div#heatchart {
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+div#scatterContainer, div#heatchartContainer {
+    float: left;
+    margin-left: 15px;
+    margin-bottom: 20px;
+}
+
+button {
+    margin-left: 15px;
+    margin-bottom: 15px;
+}
+
+circle {
+    fill: #09c;
+}
+
+select {
+    margin-left: 15px;
+}
