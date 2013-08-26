@@ -56,7 +56,7 @@ var draw = function(){
 	me.canvasW = 0;
 	me.canvasH = 0;
 	me.canvasC = { };
-	//
+	me.pastStates = [];
 	
 	me.startClick;
 	
@@ -251,6 +251,12 @@ var draw = function(){
 			}
 		});
 		
+		$('.csvg').mousedown(function(){
+			console.log("hi");
+			me.saveTargetAssertions();
+		});
+		
+		
 			//add reset and submit buttons at the bottom of the toolbar	
 		var div = d3.select('body').append('div');
 		div.append('button').text('Reset')
@@ -265,6 +271,9 @@ var draw = function(){
 		
 		div.append('button').text('Submit')
 			.on('click', me.saveTargetAssertions);
+			
+		div.append('button').text('Undo')
+			.on('click', me.undo);
 	};
 	
 	
@@ -939,6 +948,13 @@ var draw = function(){
 		d3.selectAll('.canvas path').style('stroke', '#004785');
 	};
 	
+	me.saveState = function(state){
+		me.pastStates.push(state);
+		if(me.pastStates.length > 10){
+			me.pastStates.shift();
+		}
+	}
+	
 	me.saveTargetAssertions = function(){
 		var currentState = '{ "assertions" : [';
 		for (var i = 0; i < me.lines.length; i++){
@@ -987,17 +1003,16 @@ var draw = function(){
 				entity2: [entity2]
 			};
 			
-			console.log(JSON.stringify(postData));
+			//console.log(JSON.stringify(postData));
 			currentState += JSON.stringify(postData) + ',';
 			
-			$.ajax({
+			/*$.ajax({
 				type: "POST",
 				url: url,
 				data: postData
-			});
+			});*/
 		}
 		
-		console.log("last char is " +currentState[-1]);
 		if (currentState.slice(-1) === ','){
 			currentState = currentState.slice(0, -1);
 		}
@@ -1023,25 +1038,25 @@ var draw = function(){
 					entity1: [entity1]
 				};
 				currentState += JSON.stringify(postData);
-				console.log(JSON.stringify(postData));
-				$.ajax({
+				//console.log(JSON.stringify(postData));
+				/*$.ajax({
 					type: "POST",
 					url: url,
 					data: postData
-				});
+				});*/
 				
 				if (i !== me.circles.length - 1){
 					currentState += ',';
 				}
 			}
-			
-			
 		}
+		
 		if (currentState.slice(-1) === ','){
 			currentState = currentState.slice(0, -1);
 		}
 		currentState += ']}';
 		console.log(currentState);
+		me.saveState(currentState);
 	};
 	
 	me.redraw = function(json){
@@ -1152,6 +1167,19 @@ var draw = function(){
 				me.count++;
 				me.circleCount++;
 			}
+		}
+	};
+	
+	me.undo = function(){
+		if (me.pastStates.length > 0){
+			d3.select('.node-link-container').remove();
+			d3.select('.canvas svg').append('g')
+				.attr('class', 'node-link-container');
+	
+			me.circles = [];
+			me.lines = [];
+
+			me.redraw(JSON.parse(me.pastStates.pop()));
 		}
 	};
 };

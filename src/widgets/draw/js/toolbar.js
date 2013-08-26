@@ -113,15 +113,6 @@ var toolbar = function(){
 			.attr('y1', me.num_tools * me.shift)
 			.attr('x2', me.center.x + me.radius)
 			.attr('y2', me.num_tools * me.shift);	
-			
-		var undo_hold = me.createSelection(svg, 'undo_hold');
-		undo_hold.append('text')
-			.attr('x', me.center.x)
-			.attr('y', me.num_tools * me.shift)
-			.attr('text-anchor', 'middle')
-			.attr('dy', '0.35em')
-			.attr('font-size', 12)
-			.text('undo');
 		
 		var delete_hold = me.createSelection(svg, 'delete_hold');
 		delete_hold.append('circle')

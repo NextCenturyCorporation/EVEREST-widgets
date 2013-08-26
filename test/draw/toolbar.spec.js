@@ -34,10 +34,10 @@ describe('the toolbar set up functions', function(){
 		
 		expect(d3.select).toHaveBeenCalledWith('.toolbar');
 		expect(test_tool.createSelection).toHaveBeenCalled();
-		expect(test_tool.createSelection.callCount).toEqual(7);
+		expect(test_tool.createSelection.callCount).toEqual(6);
 		
 		var gs = d3.selectAll('g')[0];
-		expect(gs.length).toEqual(7);
+		expect(gs.length).toEqual(6);
 	});
 	
 	it('the addAllLabels function', function(){
