@@ -1076,6 +1076,8 @@ var draw = function(){
 				me.circles.push(c);
 				
 				cInd1 = me.circles.length - 1;
+				
+				me.count++;
 				me.circleCount++;
 			}
 			
@@ -1097,6 +1099,8 @@ var draw = function(){
 				c.color = c2.color;
 				me.circles.push(c);
 				cInd2 = me.circles.length - 1;
+				
+				me.count++;
 				me.circleCount++;
 			}
 			
@@ -1144,6 +1148,8 @@ var draw = function(){
 				cc.group = c.group;
 				cc.color = c.color;
 				me.circles.push(cc);
+				
+				me.count++;
 				me.circleCount++;
 			}
 		}
