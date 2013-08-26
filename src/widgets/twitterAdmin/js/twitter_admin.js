@@ -157,11 +157,12 @@ var twitter_admin = function() {
 		apiFields.access_token_key = $("input.access_token_key_field").val();
 		apiFields.access_token_secret = $("input.access_token_secret_field").val();
 
-		var url = 'http://localhost:8081/twitter_feed/?callback=?';
+		var url = 'http://localhost:8081/twitter-ingest/';
+		console.log({url: url, data: apiFields});
 		$.ajax({
 			type: "POST",
-			url: url,
-			data: apiFields,
+			url: "./post_relay.php",
+			data: JSON.stringify({url: url, data: apiFields}),
 			success: $.proxy(me.onKeySaveSuccess, me),
 			error: $.proxy(me.onKeySaveError, me)
 		});
