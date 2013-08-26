@@ -8,7 +8,7 @@ var toolbar = function(){
 	me.num_tools = 0;
 	me.mode = "";
 	
-	var selectColor = 'ff0000';
+	var selectColor = '#ff0000';
 
 	me.createSelection = function(svg, class_name){
 		me.num_tools++;
@@ -17,7 +17,7 @@ var toolbar = function(){
 		var selection = svg.append('g')
 			.attr('class', class_name)
 			.on('click', me.toggleSelection);
-		
+			
 		//add the background svg element to show tool usage
 		selection.append('rect')
 			.attr('class', 'unselect')
@@ -52,6 +52,8 @@ var toolbar = function(){
 		
 		if (me.mode === 'label_hold'){
 			me.addAllLabels();
+		} else {
+			d3.selectAll('.canvas text').remove();
 		}
 	};
 

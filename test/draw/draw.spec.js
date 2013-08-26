@@ -13,8 +13,10 @@ describe('To test the target event definition widget', function(){
 	
 	var test_draw = new draw();
 	describe('to see if test_draw attributes actually exist', function(){	
-		expect(test_draw.canvasW).toEqual(500);
-		expect(test_draw.circles).toEqual([]);
+		it('', function(){
+			expect(test_draw.canvasW).toEqual(0);
+			expect(test_draw.circles).toEqual([]);
+		});
 	});
 	
 	describe('to test the utility functions', function(){
@@ -39,8 +41,8 @@ describe('To test the target event definition widget', function(){
 				
 			var array = [{class:'zero'}];
 			
-			expect(array.indexOfObj(a)).toEqual(0);
-			expect(array.indexOfObj(b)).toEqual(-1);
+			expect(array.indexOfObj('zero')).toEqual(0);
+			expect(array.indexOfObj('one')).toEqual(-1);
 		});
 		
 		it('the isAlone function', function(){
@@ -71,6 +73,8 @@ describe('To test the target event definition widget', function(){
 		it('the computeCoord function', function(){
 			spyOn(Math, 'floor').andCallThrough();
 			
+			test_draw.createCanvas();
+			
 			expect(test_draw.computeCoord(30, 'x')).toEqual(30);
 			expect(test_draw.computeCoord(40, 'y')).toEqual(40);
 			expect(test_draw.computeCoord(1.929843975, 'x')).toEqual(1);
@@ -97,15 +101,15 @@ describe('To test the target event definition widget', function(){
 			d3.selectAll('svg').remove();
 			test_draw.createCanvas();
 			
-			var w = d3.select('.canvas svg').attr('width');
-			expect(parseInt(w)).toEqual(500); 
+			var w = d3.select('.csvg').style('width');
+			var h = d3.select('.csvg').style('height');
 			
 			var r = d3.select('.canvas svg rect');
 			expect(r.attr('class')).toEqual('background');
 			expect(parseInt(r.attr('x'))).toEqual(0);
 			expect(parseInt(r.attr('y'))).toEqual(0);
-			expect(parseInt(r.attr('width'))).toEqual(500);
-			expect(parseInt(r.attr('height'))).toEqual(500);
+			expect(parseInt(r.attr('width'))).toEqual(parseInt(w));
+			expect(parseInt(r.attr('height'))).toEqual(parseInt(h));
 			expect(parseInt(r.style('opacity'))).toEqual(0);
 			
 			var g = d3.select('.canvas svg g');

@@ -1,5 +1,4 @@
 .toolbar{
-	float:top;
 	top:0px;
 	border-style:ridge;
 	display:inline-block;
@@ -12,10 +11,12 @@
 }
 
 .canvas{
-	float:top;
 	border-style:ridge;
 	display:inline-block;
 	border-color:#004785;
+}
+
+.csvg{ 
 	width: 500px;
 	height: 500px;
 }
@@ -26,7 +27,7 @@
 }
 
 .ent1-form{
-	top:-100;
+	top:-100px;
 	background:white;
 	position: absolute;
 	border-style:ridge;
@@ -35,7 +36,7 @@
 }
 
 .rel-form{
-	top:-100;
+	top:-100px;
 	background:white;
 	position: absolute;
 	border-style:ridge;
@@ -44,7 +45,7 @@
 }
 
 .rel-ent2-form{
-	top:-200;
+	top:-200px;
 	background:white;
 	position: absolute;
 	border-style:ridge;

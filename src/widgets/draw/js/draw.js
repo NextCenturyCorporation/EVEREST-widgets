@@ -2,17 +2,22 @@
 
 var getHexString = function(color){
 	if (d3.select(color)){
-		var array = d3.select(color).style('background-color')
-			.split('(')[1].split(')')[0].split(',');
+		var colorString = d3.select(color).style('background-color');
+		if (colorString.substr(0, 1) === '#'){
+			return colorString;
+		}
+		
+		var array = colorString.split('(')[1].split(')')[0].split(',');
 			
 		var str = '#';
 		for (var i = 0; i < array.length; i++){
-			if (parseInt(array[i], 10)){
+			
+			if (parseInt(array[i], 10) > 9){
 				var temp = parseInt(array[i], 10).toString(16);
 				str += temp;
-			} else {
-				var temp = array[i].toString(16);
-				str += temp;
+			} else if ( parseInt(array[i], 10) > -1 ){
+				var temp = parseInt(array[i], 10).toString(16);
+				str += '0' + temp;
 			}
 		}
 		return str;
@@ -21,13 +26,13 @@ var getHexString = function(color){
 	}	
 };
 
-Array.prototype.indexOfObj = function(d3obj, attribute){
+Array.prototype.indexOfObj = function(value, attribute){
 	if (!attribute){
 		attribute = 'class';
 	}
 	
 	for (var i = 0; i < this.length; i++){
-		if (d3obj.attr(attribute) === this[i][attribute]){
+		if (value === this[i][attribute]){
 			return i;
 		}
 	}
@@ -43,14 +48,14 @@ var draw = function(){
 	
 	var entity1Color = getHexString('.entity1Color');
 	var entity2Color = getHexString('.entity2Color');
-	var bothColor = '#9900cc';
-	var selectColor = 'ff0000';
+	var bothColor = getHexString('.bothColor');
+	var selectColor = '#ff0000';
 	var white = '#ffffff';
 	me.radius = 8;
 	
-	me.canvasW = 500;
-	me.canvasH = 500;
-	me.canvasC = { x: (me.canvasW / 2), y: (me.canvasH / 2) };
+	me.canvasW = 0;
+	me.canvasH = 0;
+	me.canvasC = { };
 	//
 	
 	me.startClick;
@@ -63,10 +68,7 @@ var draw = function(){
 	
 	me.lastNodeClicked = null;
 	me.count = 0;
-	
-	
-
-	
+		
 	/**
 		@param			item: a d3.select()'ed circle
 		@return			an object containing the desired attributes of item
@@ -184,8 +186,7 @@ var draw = function(){
 	me.createCanvas = function(){
 		var canvas = d3.select('.canvas');
 		var svg = canvas.append('svg')
-			.attr('width', me.canvasW)
-			.attr('height', me.canvasH)
+			.attr('class', 'csvg')
 			.on('click', function(){
 				if (tool.getMode() === 'node_hold'){
 					var ev = d3.mouse(this);
@@ -194,7 +195,12 @@ var draw = function(){
 					me.resetColors();
 				}
 			});
-			
+		
+		me.canvasW = svg.style('width').split('p')[0];
+		me.canvasH = svg.style('height').split('p')[0];
+		me.canvasC.x = me.canvasW / 2;
+		me.canvasC.y = me.canvasH / 2;	
+		
 		//css
 		svg.append('rect')
 			.attr('class', 'background')
@@ -299,7 +305,7 @@ var draw = function(){
 			var circle = me.createCircle(mouse_event[0], 
 								mouse_event[1], $('.ent1').val());
 								
-			if (me.circles.indexOfObj(circle) === -1){
+			if (me.circles.indexOfObj(circle.attr('class')) === -1){
 				var c = me.simplify(circle);
 				c.group = me.count;
 				c.color = '#ffffff';
@@ -329,7 +335,7 @@ var draw = function(){
 	me.move = function(){
 		if(tool.getMode() === 'mover_hold'){
 			var circles = [];
-			var group = me.circles.indexOfObj(d3.select(this));
+			var group = me.circles.indexOfObj(d3.select(this).attr('class'));
 			var x = me.extractCircles(me.circles[group].group);
 			
 			for (var i = 0; i < x.length; i++){
@@ -382,7 +388,7 @@ var draw = function(){
 			return me.computeCoord(newC, 'y'); 
 		});
 		
-		var c = me.circles[me.circles.indexOfObj(circle)];
+		var c = me.circles[me.circles.indexOfObj(circle.attr('class'))];
 		c.x = circle.attr('cx');
 		c.y = circle.attr('cy');
 		
@@ -450,11 +456,11 @@ var draw = function(){
 					if (c.attr('cy') < bottom && c.attr('cy') > top){
 						c.style('fill', selectColor);
 					} else {
-						var i = me.circles.indexOfObj(c);
+						var i = me.circles.indexOfObj(c.attr('class'));
 						c.style('fill', me.circles[i].color);
 					}
 				} else {
-					var i = me.circles.indexOfObj(c);
+					var i = me.circles.indexOfObj(c.attr('class'));
 					c.style('fill', me.circles[i].color);
 				}
 			});
@@ -543,8 +549,8 @@ var draw = function(){
 					var c1 = d3.select(me.lastNodeClicked);
 					var c2 = d3.select(that);
 					
-					var ind1 = me.circles.indexOfObj(c1);
-					var ind2 = me.circles.indexOfObj(c2);
+					var ind1 = me.circles.indexOfObj(c1.attr('class'));
+					var ind2 = me.circles.indexOfObj(c2.attr('class'));
 					
 					var node1 = me.circles[ind1];
 					if (node1.color === white){
@@ -612,7 +618,7 @@ var draw = function(){
 						target: c2[0][0]
 					};
 					
-					if(me.lines.indexOfObj(line) === -1){
+					if(me.lines.indexOfObj(line.attr('class')) === -1){
 						me.lines.push(l);
 					}
 					
@@ -658,7 +664,7 @@ var draw = function(){
 				var circle = d3.select(that);
 				var r = circle.attr('r');
 				
-				var ind1 = me.circles.indexOfObj(circle)
+				var ind1 = me.circles.indexOfObj(circle.attr('class'))
 				var node1 = me.circles[ind1];
 				if (node1.color === white){
 					node1.color = entity1Color;
@@ -704,7 +710,7 @@ var draw = function(){
 				me.lineCount++;
 				
 				var path = me.createArrow(line);
-				var cGroup = me.circles[me.circles.indexOfObj(circle)].group;
+				var cGroup = me.circles[me.circles.indexOfObj(circle.attr('class'))].group;
 	
 				//create the entity 2
 				var circle2 = me.createCircle(me.computeCoord(p2.x, 'x'),
@@ -712,14 +718,14 @@ var draw = function(){
 				circle2.style('fill', entity2Color);
 				
 				me.circleCount++;
-				if(me.circles.indexOfObj(circle2) === -1){
+				if(me.circles.indexOfObj(circle2.attr('class')) === -1){
 					var c = me.simplify(circle2);
 					c.color = entity2Color;
 					c.group = cGroup;
 					me.circles.push(c);
 				}
 				
-				if(me.lines.indexOfObj(line) === -1){
+				if(me.lines.indexOfObj(line.attr('class')) === -1){
 					var l = {
 						class: line.attr('class'),
 						html: line[0][0],
@@ -787,10 +793,10 @@ var draw = function(){
 	};
 	
 	me.deleteNode = function(t){
-		var index = me.circles.indexOfObj(d3.select(t));
+		var index = me.circles.indexOfObj(d3.select(t).attr('class'));
 		var group = me.circles[index].group;
 		d3.selectAll('.canvas line').each(function(){
-			var line_index = me.lines.indexOfObj(d3.select(this));
+			var line_index = me.lines.indexOfObj(d3.select(this).attr('class'));
 			var l = me.lines[line_index];
 			
 			if (l.source === me.circles[index].html || 
@@ -807,14 +813,14 @@ var draw = function(){
 		me.separateGroups(cIndicies);
 		
 		d3.selectAll('.canvas line').each(function(){
-			var line_index = me.lines.indexOfObj(d3.select(this));
+			var line_index = me.lines.indexOfObj(d3.select(this).attr('class'));
 			var l = me.lines[line_index];
 			
 			var cSvg1 = d3.select(l.source);
 			var cSvg2 = d3.select(l.target);
 			
-			var cObj1 = me.circles[me.circles.indexOfObj(cSvg1)];
-			var cObj2 = me.circles[me.circles.indexOfObj(cSvg2)];
+			var cObj1 = me.circles[me.circles.indexOfObj(cSvg1.attr('class'))];
+			var cObj2 = me.circles[me.circles.indexOfObj(cSvg2.attr('class'))];
 			
 			if (cObj1.color === white){
 				cObj1.color = entity1Color;
@@ -835,7 +841,7 @@ var draw = function(){
 	
 	me.deleteLink = function(t){
 		var group;
-		var index = me.lines.indexOfObj(d3.select(t));
+		var index = me.lines.indexOfObj(d3.select(t).attr('class'));
 		var cHtml = me.lines[index].source;
 		for (var i = 0; i < me.circles.length; i++){
 			if (me.circles[i].html === cHtml){
@@ -887,7 +893,7 @@ var draw = function(){
 				for (var j = 0; j < i; j++){
 					var cObj2 = me.circles[circleGroup[j]];
 					d3.selectAll('.canvas line').each(function(){
-						var l = me.lines[me.lines.indexOfObj(d3.select(this))];
+						var l = me.lines[me.lines.indexOfObj(d3.select(this).attr('class'))];
 						if (l.source === cObj.html && l.target === cObj2.html){
 							thisGroup.push(me.circles[circleGroup[j]]);	
 						} else if (l.source === cObj2.html && l.target === cObj.html){
@@ -925,7 +931,7 @@ var draw = function(){
 	me.resetColors = function(){
 		d3.selectAll('.canvas circle').each(function(){
 			var c = d3.select(this);
-			var i = me.circles.indexOfObj(c);
+			var i = me.circles.indexOfObj(c.attr('class'));
 			c.style('fill', me.circles[i].color);
 		});
 		
@@ -934,6 +940,7 @@ var draw = function(){
 	};
 	
 	me.saveTargetAssertions = function(){
+		var currentState = '{ "assertions" : [';
 		for (var i = 0; i < me.lines.length; i++){
 			var line = me.lines[i];
 			var c1, c2;
@@ -952,19 +959,24 @@ var draw = function(){
 				value: c1.d,
 				x: parseInt(c1.x, 10),
 				y: parseInt(c1.y, 10),
-				color: c1.color
+				color: c1.color,
+				class: c1.class,
+				group: c1.group
 			};
 			var relationship = {
 				name: "relationship",
 				value: line.d,
-				color: 0
+				color: 0,
+				class: line.class
 			};
 			var entity2 = {
 				name: "entity2",
 				value: c2.d,
 				x: parseInt(c2.x, 10),
 				y: parseInt(c2.y, 10),
-				color: c2.color
+				color: c2.color,
+				class: c2.class,
+				group: c2.group
 			};
 						
 			var postData = {
@@ -976,6 +988,8 @@ var draw = function(){
 			};
 			
 			console.log(JSON.stringify(postData));
+			currentState += JSON.stringify(postData) + ',';
+			
 			$.ajax({
 				type: "POST",
 				url: url,
@@ -983,15 +997,24 @@ var draw = function(){
 			});
 		}
 		
+		console.log("last char is " +currentState[-1]);
+		if (currentState.slice(-1) === ','){
+			currentState = currentState.slice(0, -1);
+		}
+		
+		currentState += '], "singletons" : [';
+		
 		for (i = 0; i < me.circles.length; i++){
 			var c = me.circles[i];
 			if(me.isAlone(c)){
 				var entity1 = {
-					name: "entity1",
+					name: 'entity1',
 					value: c.d,
 					x: parseInt(c.x, 10),
 					y: parseInt(c.y, 10),
-					color: c.color				
+					color: c.color,
+					class: c.class,
+					group: c.group		
 				};
 				
 				var postData = {
@@ -999,15 +1022,130 @@ var draw = function(){
 					description:"",
 					entity1: [entity1]
 				};
-				
+				currentState += JSON.stringify(postData);
 				console.log(JSON.stringify(postData));
 				$.ajax({
 					type: "POST",
 					url: url,
 					data: postData
 				});
+				
+				if (i !== me.circles.length - 1){
+					currentState += ',';
+				}
+			}
+			
+			
+		}
+		if (currentState.slice(-1) === ','){
+			currentState = currentState.slice(0, -1);
+		}
+		currentState += ']}';
+		console.log(currentState);
+	};
+	
+	me.redraw = function(json){
+		var assertions = json.assertions;
+		var singletons = json.singletons;
+				
+		for (var i = 0; i < assertions.length; i++){
+			var c1 = assertions[i].entity1[0];
+			var c2 = assertions[i].entity2[0];
+			var l = assertions[i].relationship[0];
+			
+			var cInd1 = me.circles.indexOfObj(c1.class);
+			var cInd2 = me.circles.indexOfObj(c2.class)
+			
+			if (cInd1 === -1){
+			
+				var cSvg1 = d3.select('.node-link-container').append('circle')
+					.attr('d', c1.value)
+					.attr('class', c1.class)
+					.attr('cx', c1.x).attr('cy', c1.y)
+					.attr('r', me.radius)
+					.style('fill', c1.color)
+					.call(d3.behavior.drag().on('drag', me.move))
+					.on('dblclick', me.doubleClickNode)
+					.on('mouseover', me.mouseover)
+					.on('mouseout', me.mouseout)
+					.on('click', me.nodeclick);
+			
+				var c = me.simplify(cSvg1);
+				c.group = c1.group;
+				c.color = c1.color;
+				me.circles.push(c);
+				
+				cInd1 = me.circles.length - 1;
+				me.circleCount++;
+			}
+			
+			if (me.circles.indexOfObj(c2.class) === -1){
+				var cSvg2 = d3.select('.node-link-container').append('circle')
+					.attr('d', c2.value)
+					.attr('class', c2.class)
+					.attr('cx', c2.x).attr('cy', c2.y)
+					.attr('r', me.radius)
+					.style('fill', c2.color)
+					.call(d3.behavior.drag().on('drag', me.move))
+					.on('dblclick', me.doubleClickNode)
+					.on('mouseover', me.mouseover)
+					.on('mouseout', me.mouseout)
+					.on('click', me.nodeclick);
+				
+				var c = me.simplify(cSvg2);
+				c.group = c2.group;
+				c.color = c2.color;
+				me.circles.push(c);
+				cInd2 = me.circles.length - 1;
+				me.circleCount++;
+			}
+			
+			if(me.lines.indexOfObj(l.class) === -1){
+				var line = d3.select('.node-link-container').insert('g', ':first-child')
+					.append('line')
+					.attr('d', l.value)
+					.attr('class', l.class)
+					.attr('x1', c1.x).attr('y1', c1.y)
+					.attr('x2', c2.x).attr('y2', c2.y);
+				
+				me.lineCount++;
+					
+				var path = me.createArrow(line);
+				
+				var l = {
+					class: line.attr('class'),
+					html: line[0][0],
+					d: line.attr('d'),
+					source:	me.circles[cInd1].html,
+					target: me.circles[cInd2].html
+				};
+				
+				me.lines.push(l);
 			}
 		}
-		console.log(me.circles);
+		
+		for (var i = 0; i < singletons.length; i++){
+			var c = singletons[i].entity1[0];
+			
+			if (me.circles.indexOfObj(c.class) === -1){
+				var cSvg = d3.select('.node-link-container').append('circle')
+					.attr('d', c.value)
+					.attr('class', c.class)
+					.attr('cx', c.x).attr('cy', c.y)
+					.attr('r', me.radius)
+					.style('fill', c.color)
+					.call(d3.behavior.drag().on('drag', me.move))
+					.on('dblclick', me.doubleClickNode)
+					.on('mouseover', me.mouseover)
+					.on('mouseout', me.mouseout)
+					.on('click', me.nodeclick);
+				
+				var cc = me.simplify(cSvg);
+				cc.group = c.group;
+				cc.color = c.color;
+				me.circles.push(cc);
+				me.circleCount++;
+			}
+		}
 	};
 };
