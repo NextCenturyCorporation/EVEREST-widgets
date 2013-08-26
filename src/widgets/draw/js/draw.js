@@ -251,13 +251,9 @@ var draw = function(){
 			}
 		});
 		
-		$('.csvg').mousedown(function(){
-			console.log("hi");
-			me.saveTargetAssertions();
-		});
+		$('.csvg').mousedown(me.saveTargetAssertions);
 		
-		
-			//add reset and submit buttons at the bottom of the toolbar	
+		//add reset, submit and undo buttons at the bottom of the toolbar	
 		var div = d3.select('body').append('div');
 		div.append('button').text('Reset')
 			.on('click', function(){
@@ -948,13 +944,6 @@ var draw = function(){
 		d3.selectAll('.canvas path').style('stroke', '#004785');
 	};
 	
-	me.saveState = function(state){
-		me.pastStates.push(state);
-		if(me.pastStates.length > 10){
-			me.pastStates.shift();
-		}
-	}
-	
 	me.saveTargetAssertions = function(){
 		var currentState = '{ "assertions" : [';
 		for (var i = 0; i < me.lines.length; i++){
@@ -1003,14 +992,13 @@ var draw = function(){
 				entity2: [entity2]
 			};
 			
-			//console.log(JSON.stringify(postData));
 			currentState += JSON.stringify(postData) + ',';
 			
-			/*$.ajax({
+			$.ajax({
 				type: "POST",
 				url: url,
 				data: postData
-			});*/
+			});
 		}
 		
 		if (currentState.slice(-1) === ','){
@@ -1038,12 +1026,11 @@ var draw = function(){
 					entity1: [entity1]
 				};
 				currentState += JSON.stringify(postData);
-				//console.log(JSON.stringify(postData));
-				/*$.ajax({
+				$.ajax({
 					type: "POST",
 					url: url,
 					data: postData
-				});*/
+				});
 				
 				if (i !== me.circles.length - 1){
 					currentState += ',';
@@ -1055,7 +1042,7 @@ var draw = function(){
 			currentState = currentState.slice(0, -1);
 		}
 		currentState += ']}';
-		console.log(currentState);
+		//console.log(currentState);
 		me.saveState(currentState);
 	};
 	
@@ -1167,6 +1154,16 @@ var draw = function(){
 				me.count++;
 				me.circleCount++;
 			}
+		}
+	};
+	
+	me.saveState = function(state){
+		if (me.pastStates.indexOf(state) === -1){
+			me.pastStates.push(state);
+		}
+		
+		if(me.pastStates.length > 10){
+			me.pastStates.shift();
 		}
 	};
 	
