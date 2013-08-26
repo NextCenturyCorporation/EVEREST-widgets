@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<script src="http://d3js.org/d3.v3.min.js"></script>
+		<script src="js/animatedPie.js"></script>
+		<script src="http://code.jquery.com/jquery-latest.js"></script>
+
+		<link rel="stylesheet" href="css/svg.css">
+
+		<script type="text/javascript">
+			$(document).ready(function() {
+				
+				$('#easy-as-pie-chart').show(0);
+				animatedPie_base.execute();
+				
+				$('#updateButton').click(function() {
+					animatedPie_base.update();
+				});
+
+			});
+		</script>
+	</head>
+	<body>
+		<button id="updateButton" type="button">Update</button>
+   		<div id="easy-as-pie-chart"></div>
+	</body>
+</html>

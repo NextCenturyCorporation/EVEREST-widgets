@@ -1,18 +1,30 @@
 /* Additional css for testing purposes */
-#dayChart svg, #weekChart svg, #monthChart svg {
+#dayChart svg,
+#weekChart svg,
+#monthChart svg,
+#hourChart svg
+{
 	width: 650px;
 	height: 650px;
 }
 
-#dayChart .labels, #weekChart .labels, #monthChart .labels {
+#dayChart .labels,
+#weekChart .labels,
+#monthChart .labels,
+#hourChart .labels
+{
 	fill: #000;
 	letter-spacing: 0px;
 }
 
-#dayChart .labels.segment, #weekChart .labels.segment, #monthChart .labels.segment {
+#dayChart .labels.segment,
+#weekChart .labels.segment,
+#monthChart .labels.segment,
+#hourChart .labels.segment
+{
 	font-size: 12px;
 }
 
-#dayChart path, #weekChart path, #monthChart path {
+#dayChart path, #weekChart path, #monthChart path, #hourChart path {
 	stroke-width: 0.5px;
 }

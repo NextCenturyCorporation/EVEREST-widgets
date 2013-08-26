@@ -2,12 +2,12 @@ var scatterplot_base = {};
 
 scatterplot_base.execute = function() {
 	init();
-}
+};
 
 scatterplot_base.update = function() {
   modifyData();
   updateHeatchart();
-}
+};
 
 var numPoints = 1440,
     numRows = 24,
@@ -42,7 +42,7 @@ var getEmptyCells = function() {
 var clearCell = function(row, col) {
 	cells[row][col].density = 0;
 	cells[row][col].points = [];
-}
+};
 
 var clearCells = function() {
     for (var rowNum = 0; rowNum < numRows; rowNum++) {
