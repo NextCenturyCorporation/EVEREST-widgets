@@ -65,7 +65,7 @@ var twitter_admin = function() {
 	me.handleInitialKeyLoadSuccess = function(data, response) {
 		if(data.length !== 0) {
 			for(i in data) {
-				var keyContainer = $(".twitter_admin_form");
+				var keyContainer = $(".twitter_filter_form");
 				keyContainer.append(me.createApiIdDiv($(".api_key_div").length, data[i]._id));
 				$('.toggle').toggles({type:'select'});
 			}
@@ -95,6 +95,7 @@ var twitter_admin = function() {
 		console.log("hit");
 
 		$(".add_more_filters_button").remove();
+		$(".filter_field_with_more_button").removeClass("filter_field_with_more_button").addClass("filter_field_with_no_button");
 		var filter_label = $(".base_filter_label");
 		console.log(filter_label);
 		filter_label.text("Filters :");
@@ -115,23 +116,24 @@ var twitter_admin = function() {
 
 	me.createApiKeyDiv = function(i) {
 		var divHtml = '<div class="api_key_div api_key_entry_form api_key_div_' + i + '"> \
-						<div class="field_input_line"> \
-							<label for="consumer_key_' + i + '">Consumer Key</label> \
-							<input name="consumer_key_' + i + '" class="twitter_admin_api_field consumer_key_field"></input> \
-						</div> \
-						<div class="field_input_line"> \
-							<label for="conusmer_secret_' + i + '">Consumer Secret</label> \
-							<input name="conusmer_secret_' + i + '" class="twitter_admin_api_field consumer_secret_field"></input> \
-						</div> \
-						<div class="field_input_line"> \
-							<label for="access_token_key_' + i + '">Access Token Key</label> \
-							<input name="access_token_key_' + i + '" class="twitter_admin_api_field access_token_key_field"></input> \
-						</div> \
-						<div class="field_input_line"> \
-							<label for="access_token_secret_' + i + '">Access Token Secret</label> \
-							<input name="acesss_token_secret_' + i + '" class="twitter_admin_api_field access_token_secret_field"></input> \
-						</div> \
-					   </div>';
+							<hr /> \
+							<div class="field_input_line"> \
+								<label for="consumer_key_' + i + '">Consumer Key</label> \
+								<input name="consumer_key_' + i + '" class="twitter_admin_api_field consumer_key_field"></input> \
+							</div> \
+							<div class="field_input_line"> \
+								<label for="conusmer_secret_' + i + '">Consumer Secret</label> \
+								<input name="conusmer_secret_' + i + '" class="twitter_admin_api_field consumer_secret_field"></input> \
+							</div> \
+							<div class="field_input_line"> \
+								<label for="access_token_key_' + i + '">Access Token Key</label> \
+								<input name="access_token_key_' + i + '" class="twitter_admin_api_field access_token_key_field"></input> \
+							</div> \
+							<div class="field_input_line"> \
+								<label for="access_token_secret_' + i + '">Access Token Secret</label> \
+								<input name="acesss_token_secret_' + i + '" class="twitter_admin_api_field access_token_secret_field"></input> \
+							</div> \
+						</div>';
 		return divHtml;
 	};
 
@@ -215,9 +217,11 @@ var twitter_admin = function() {
 	me.createFilter = function(i) {
 
 		var filter_html ='<div class="filter_line"> \
-			<label for="filter_' + i + '" ' + (i === 0 ? 'class="base_filter_label">Filter' : '>') + '</label> \
-			<input name="filter_' + i + '" class="twitter_admin_filter filter_field_with_more_button multi_filter" /> \
-			<button type="button" class="add_more_filters_button">+</button> \
+				<label for="filter_' + i + '" ' + (i === 0 ? 'class="base_filter_label">Filter' : '>') + '</label> \
+				<div class="filter_item_div"> \
+					<input name="filter_' + i + '" class="twitter_admin_filter filter_field_with_more_button multi_filter" /> \
+					<button type="button" class="add_more_filters_button">+</button> \
+				</div> \
 			</div>';
 
 		return filter_html

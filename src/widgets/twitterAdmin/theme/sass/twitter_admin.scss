@@ -19,10 +19,17 @@
 		padding: 1px 4px;
 	}
 
-	.twitter_admin_form {
+	.twitter_admin_form, .twitter_filter_form {
+		display: inline-block;
 		border: none;
-		padding: 0;
-		margin: 0;
+		padding: 0px;
+		margin: 0px;
+		width: 100%;
+
+		.filter_item_div {
+			display: inline-block;
+			float: right;
+		}
 
 		.filter_line, .timeout_line, .field_input_line {
 			display: block;
@@ -37,13 +44,12 @@
 			}
 
 			input {
-				width: 250px;
-				float:left;
+				width: 400px;
 			}
+		}
 
-			input.multi_filter {
-				margin-left: 115px;
-			}
+		.filter_field_with_no_button {
+			margin-right: 24px;
 		}
 
 		.api_key_display_line {
@@ -71,6 +77,11 @@
 				}
 			}
 		}
+
+		.twitter_admin_api_field {
+			float:right;
+			margin-right:24px;
+		}
 	}
 
 	.twitter_admin_buttons_div {
@@ -92,5 +103,6 @@
 
 	hr {
 		width: 100%;
+		margin: 10px 0px 5px 0px;
 	}
 }
