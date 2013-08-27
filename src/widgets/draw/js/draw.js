@@ -28,7 +28,7 @@ var getHexString = function(color){
 
 Array.prototype.indexOfObj = function(value, attribute){
 	for (var i = 0; i < this.length; i++){
-		if (value === this[i][attribute]){
+		if (value.toLowerCase() === this[i][attribute].toLowerCase()){
 			return i;
 		}
 	}
@@ -283,7 +283,7 @@ var draw = function(){
 				 a circle/node based on the description the user entered.
 		@internal functions - none
 	*/
-	me.appendCircle = function(mouse_event){
+	me.appendCircle = function(mouse_event, ci){
 		$('.ent1-form').animate({
 			top:( $('.canvas').height() / 2 ) - ( $('.ent1-form').height() / 2 )
 		}, 750);
@@ -310,6 +310,58 @@ var draw = function(){
 				top: '-'+ 2*$('.ent1-form').height()
 			}, 750);
 		});
+	};
+	
+	me.appendLine = function(c1, c2, d, l){
+		var lineClass;
+		if (typeof(l) !== 'undefined'){
+			lineClass = l.class;
+		} else {
+			lineClass = me.lineCount;
+		}
+	
+		//center of entity 1
+		var p1 = {
+			x:parseInt(c1.attr('cx'), 10),
+			y:parseInt(c1.attr('cy'), 10)
+		};
+		
+		//center of entity 2
+		var p2 = {
+			x:parseInt(c2.attr('cx'), 10),
+			y:parseInt(c2.attr('cy'), 10)
+		};
+	
+		//create the line for the new entity 1 entity 2 relationship
+		var lineGroup = d3.select('.node-link-container')
+				.insert('g', ':first-child');
+		
+		var line = lineGroup.append('line', ':first-child')
+			.attr('class', lineClass)
+			.attr('d', d)
+			.attr('x1', me.computeCoord(p1.x, 'x'))
+			.attr('y1', me.computeCoord(p1.y, 'y'))
+			.attr('x2', me.computeCoord(p2.x, 'x'))
+			.attr('y2', me.computeCoord(p2.y, 'y'))
+			.call(d3.behavior.drag().on('drag', me.move))
+			.on('click', me.lineclick)
+			.on('mouseover', me.mouseover)
+			.on('mouseout', me.mouseout); 
+
+		var path = me.createArrow(line);
+		me.lineCount++;
+		
+		if(me.lines.indexOfObj(line.attr('class'), 'class') === -1){
+			var lObj = {
+				class: line.attr('class'),
+				html: line[0][0],
+				d: line.attr('d'),
+				source: c1[0][0],
+				target: c2[0][0]
+			};
+			
+			me.lines.push(lObj);
+		}
 	};
 	
 	/** 
@@ -365,36 +417,37 @@ var draw = function(){
 							  me.createArrow
 	*/
 	me.dragGroup = function(that){
-		var circle = d3.select(that);
+		var cSvg = d3.select(that);
 		var dx = d3.event.dx, dy = d3.event.dy;
 		
-		var	cx = circle.attr('cx');
-		var	cy = circle.attr('cy');
-		
-		//move the circle based on the d3 event that occured
-		circle.attr('cx', function() { 
-			var newC = dx + parseInt(cx,10);
-			return me.computeCoord(newC, 'x'); 
-		}).attr('cy', function() { 
-			var newC =  dy + parseInt(cy,10);
-			return me.computeCoord(newC, 'y'); 
-		});
-		
-		var c = me.circles[me.circles.indexOfObj(circle.attr('class'),
+		var	cx = cSvg.attr('cx');
+		var	cy = cSvg.attr('cy');
+		var cObj = me.circles[me.circles.indexOfObj(cSvg.attr('class'),
 					'class')];
-		c.x = circle.attr('cx');
-		c.y = circle.attr('cy');
-		
+					
+		//move the circle based on the d3 event that occured
+		cSvg.attr('cx', function() { 
+			var newC = dx + parseInt(cx,10);
+			var newX = me.computeCoord(newC, 'x'); 
+			cObj.x = newX;
+			return newX;
+		}).attr('cy', function() { 
+			var newC = dy + parseInt(cy,10);
+			var newY = me.computeCoord(newC, 'y'); 
+			cObj.y = newY;
+			return newY;
+		});
+
 		d3.selectAll('.arrow').remove();
 		d3.selectAll('.canvas line').each(function(){
 			var line = d3.select(this);
 			var lineObj = me.lines[me.lines.indexOfObj(line.attr('class'),
 					'class')];
 					
-			if (lineObj.source === c.html) {
+			if (lineObj.source === cObj.html) {
 				x = 'x1';
 				y = 'y1';
-			} else if (lineObj.target === c.html) {
+			} else if (lineObj.target === cObj.html) {
 				x = 'x2';
 				y = 'y2';
 			} else {
@@ -444,40 +497,42 @@ var draw = function(){
 			var bottom = top + parseInt(rect.attr('height'),10);
 				
 			d3.selectAll('.canvas circle').each(function(){
-				var c = d3.select(this);
+				var cSvg = d3.select(this);
 				
-				if (c.attr('cx') < right && c.attr('cx') > left){
-					if (c.attr('cy') < bottom && c.attr('cy') > top){
-						c.style('fill', selectColor);
+				if (cSvg.attr('cx') < right && cSvg.attr('cx') > left){
+					if (cSvg.attr('cy') < bottom && cSvg.attr('cy') > top){
+						cSvg.style('fill', selectColor);
 					} else {
-						var i = me.circles.indexOfObj(c.attr('class'), 
+						var i = me.circles.indexOfObj(cSvg.attr('class'), 
 							'class');
-						c.style('fill', me.circles[i].color);
+						cSvg.style('fill', me.circles[i].color);
 					}
 				} else {
-					var i = me.circles.indexOfObj(c.attr('class'), 
+					var i = me.circles.indexOfObj(cSvg.attr('class'), 
 							'class');
-					c.style('fill', me.circles[i].color);
+					cSvg.style('fill', me.circles[i].color);
 				}
 			});
 			
 			d3.selectAll('.canvas line').each(function(){
-				var l = d3.select(this);
+				var lSvg = d3.select(this);
 				var path = d3.select(this.parentNode).select('path');
 				
-				var midX = (parseInt(l.attr('x1'), 10) + parseInt(l.attr('x2'), 10)) / 2;
-				var midY = (parseInt(l.attr('y1'), 10) + parseInt(l.attr('y2'), 10)) / 2;
+				var midX = (parseInt(lSvg.attr('x1'), 10) + 
+								parseInt(lSvg.attr('x2'), 10)) / 2;
+				var midY = (parseInt(lSvg.attr('y1'), 10) + 
+								parseInt(lSvg.attr('y2'), 10)) / 2;
 				
 				if (midX < right && midX > left){
 					if (midY < bottom && midY > top){
-						l.style('stroke', selectColor);
+						lSvg.style('stroke', selectColor);
 						path.style('stroke', selectColor);
 					} else {
-						l.style('stroke', '#004785');
+						lSvg.style('stroke', '#004785');
 						path.style('stroke', '#004785');
 					}
 				} else {
-					l.style('stroke', '#004785');
+					lSvg.style('stroke', '#004785');
 					path.style('stroke', '#004785');
 				}
 			});
@@ -542,12 +597,12 @@ var draw = function(){
 				
 				//creates on click event for relationship form submit button 
 				d3.select('.rel-submit').on('click', function(){	
-					var c1 = d3.select(me.lastNodeClicked);
-					var c2 = d3.select(that);
+					var cSvg1 = d3.select(me.lastNodeClicked);
+					var cSvg2 = d3.select(that);
 					
-					var ind1 = me.circles.indexOfObj(c1.attr('class'), 
+					var ind1 = me.circles.indexOfObj(cSvg1.attr('class'), 
 							'class');
-					var ind2 = me.circles.indexOfObj(c2.attr('class'), 
+					var ind2 = me.circles.indexOfObj(cSvg2.attr('class'), 
 							'class');
 					
 					var node1 = me.circles[ind1];
@@ -556,7 +611,7 @@ var draw = function(){
 					} else if ( node1.color !== entity1Color ){
 						node1.color = bothColor;
 					}
-					c1.transition(2500)
+					cSvg1.transition(2500)
 						.style('fill', me.circles[ind1].color);
 						
 					var node2 = me.circles[ind2];
@@ -565,7 +620,7 @@ var draw = function(){
 					} else if ( node2.color !== entity2Color ){
 						node2.color = bothColor;
 					}
-					c2.transition(2500)
+					cSvg2.transition(2500)
 						.style('fill', me.circles[ind2].color);
 					
 					var circ = me.circles[ind2];
@@ -576,50 +631,7 @@ var draw = function(){
 						delta.group = me.circles[ind1].group;
 					}
 					
-					//center of entity 1
-					var p1 = {
-						x:parseInt(c1.attr('cx'), 10),
-						y:parseInt(c1.attr('cy'), 10)
-					};
-					
-					//center of entity 2
-					var p2 = {
-						x:parseInt(c2.attr('cx'), 10),
-						y:parseInt(c2.attr('cy'), 10)
-					};
-					
-					//draw the line before the entities so that it appears behind
-					var lineGroup = d3.select('.node-link-container')
-						.insert('g', ':first-child');
-					
-					var line = lineGroup.append('line', ':first-child')
-						.attr('class', me.lineCount)
-						.attr('d', $('.rel-only').val())
-						.attr('x1', me.computeCoord(p1.x, 'x'))
-						.attr('y1', me.computeCoord(p1.y, 'y'))
-						.attr('x2', me.computeCoord(p2.x, 'x'))
-						.attr('y2', me.computeCoord(p2.y, 'y'))
-						.call(d3.behavior.drag().on('drag', me.move))
-						.on('click', me.lineclick)
-						.on('mouseover', me.mouseover)
-						.on('mouseout', me.mouseout); 
-					
-					me.lineCount++;
-					
-					var path = me.createArrow(line);
-					
-					var l = {
-						class: line.attr('class'),
-						html: line[0][0],
-						d: line.attr('d'),
-						source: c1[0][0],
-						target: c2[0][0]
-					};
-					
-					if(me.lines.indexOfObj(line.attr('class'), 
-							'class') === -1){
-						me.lines.push(l);
-					}
+					me.appendLine(cSvg1, cSvg2, $('.rel-only'));
 					
 					//clear to allow addition of other relationships
 					me.lastNodeClicked = null;
@@ -660,19 +672,18 @@ var draw = function(){
 	
 			//creates on click event for rel - entity 2 form submit button 
 			d3.select('.rel-ent-submit').on('click', function(){
-				var circle = d3.select(that);
-				var r = circle.attr('r');
+				var cSvg1 = d3.select(that);
+				var r = cSvg1.attr('r');
+				var cObj1 = me.circles[me.circles.indexOfObj(cSvg1.attr('class'), 
+							'class')];
 				
-				var ind1 = me.circles.indexOfObj(circle.attr('class'), 
-						'class');
-				var node1 = me.circles[ind1];
-				if (node1.color === white){
-					node1.color = entity1Color;
-				} else if ( node1.color !== entity1Color ){
-					node1.color = bothColor;
+				if (cObj1.color === white){
+					cObj1.color = entity1Color;
+				} else if ( cObj1.color !== entity1Color ){
+					cObj1.color = bothColor;
 				}
-				circle.transition(2500)
-					.style('fill', me.circles[ind1].color);
+				cSvg1.transition(2500)
+					.style('fill', cObj1.color);
 				
 				//grab a random direction for new entity
 				var deg = 360 * Math.random();
@@ -681,8 +692,8 @@ var draw = function(){
 								
 				//center of double-clicked entity, point 1 for new line
 				var p1 = {
-					x:parseInt(circle.attr('cx'), 10),
-					y:parseInt(circle.attr('cy'), 10)
+					x:parseInt(cSvg1.attr('cx'), 10),
+					y:parseInt(cSvg1.attr('cy'), 10)
 				};
 				
 				//center of new entity to be, point 2 for new line
@@ -691,68 +702,37 @@ var draw = function(){
 					y:p1.y + dy
 				};
 								
-				
 				var c2ind = me.circles.indexOfObj($('.ent2').val(), 'd');
-				var circle2;
+				var cSvg2;
 				if (c2ind === -1){
-					var cGroup = me.circles[me.circles.indexOfObj(circle.attr('class'), 
-							'class')].group;
-		
 					//create the entity 2
-					circle2 = me.createCircle(me.computeCoord(p2.x, 'x'),
+					cSvg2 = me.createCircle(me.computeCoord(p2.x, 'x'),
 								me.computeCoord(p2.y, 'y'), $('.ent2').val());
-					circle2.style('fill', entity2Color);
+					cSvg2.style('fill', entity2Color);
 					
 					me.circleCount++;
 					
-					var c = me.simplify(circle2);
+					var c = me.simplify(cSvg2);
 					c.color = entity2Color;
-					c.group = cGroup;
+					c.group = cObj1.group;
 					me.circles.push(c);
 					
-				} else if ( me.circles[c2ind].color === entity1Color ){
-					circle2 = d3.select(me.circles[c2ind].html);
-					me.circles[c2ind].color = bothColor;
-					circle2.style('fill', bothColor);
+					me.appendLine(cSvg1, cSvg2, $('.relate').val());
+				} else if (c2ind === 9302849302) {
+				} else {
+					cSvg2 = d3.select(me.circles[c2ind].html);
+					me.appendLine(cSvg1, cSvg2, $('.relate').val());
 					
-					p2.x = me.circles[c2ind].x;
-					p2.y = me.circles[c2ind].y;
-				}
-				
-				if (me.lines.indexOfObj($('.relate').val(), 'd') === -1){
-					//create the line for the new entity 1 entity 2 relationship
-					var lineGroup = d3.select('.node-link-container')
-							.insert('g', ':first-child');
-					
-					var line = lineGroup.append('line', ':first-child')
-						.attr('class', me.lineCount)
-						.attr('d', $('.relate').val())
-						.attr('x1', me.computeCoord(p1.x, 'x'))
-						.attr('y1', me.computeCoord(p1.y, 'y'))
-						.attr('x2', me.computeCoord(p2.x, 'x'))
-						.attr('y2', me.computeCoord(p2.y, 'y'))
-						.call(d3.behavior.drag().on('drag', me.move))
-						.on('click', me.lineclick)
-						.on('mouseover', me.mouseover)
-						.on('mouseout', me.mouseout); 
-	
-					me.lineCount++;
-					var path = me.createArrow(line);
-					
-					if(me.lines.indexOfObj(line.attr('class'), 
-							'class') === -1){
-						var l = {
-							class: line.attr('class'),
-							html: line[0][0],
-							d: line.attr('d'),
-							source: circle[0][0],
-							target: circle2[0][0]
-						};
-						me.lines.push(l);
-					}
-				} else if (me.lineCount) {
-					//the value is in there, is there a line going from ent1 to ent2 though
-				}
+					if ( me.circles[c2ind].color === white ){
+						me.circles[c2ind].color = entity2Color;
+						cSvg2.style('fill', entity2Color);
+					} else if ( me.circles[c2ind].color === entity1Color ){
+						me.circles[c2ind].color = bothColor;
+						cSvg2.style('fill', bothColor);
+					} 
+				}	
+				console.log(me.lines);
+				console.log(me.circles);		
 				
 				$('.relate').val('');
 				$('.ent2').val('');
@@ -1049,11 +1029,11 @@ var draw = function(){
 			
 			currentState += JSON.stringify(postData) + ',';
 			
-			$.ajax({
+			/*$.ajax({
 				type: "POST",
 				url: url,
 				data: postData
-			});
+			});*/
 		}
 		
 		if (currentState.slice(-1) === ','){
@@ -1081,11 +1061,11 @@ var draw = function(){
 					entity1: [entity1]
 				};
 				currentState += JSON.stringify(postData);
-				$.ajax({
+				/*$.ajax({
 					type: "POST",
 					url: url,
 					data: postData
-				});
+				});*/
 				
 				if (i !== me.circles.length - 1){
 					currentState += ',';
@@ -1164,28 +1144,10 @@ var draw = function(){
 				me.circleCount++;
 			}
 			
-			if(me.lines.indexOfObj(l.class,
-					'class') === -1){
-				var line = d3.select('.node-link-container').insert('g', ':first-child')
-					.append('line')
-					.attr('d', l.value)
-					.attr('class', l.class)
-					.attr('x1', c1.x).attr('y1', c1.y)
-					.attr('x2', c2.x).attr('y2', c2.y);
-				
-				me.lineCount++;
-					
-				var path = me.createArrow(line);
-				
-				var l = {
-					class: line.attr('class'),
-					html: line[0][0],
-					d: line.attr('d'),
-					source:	me.circles[cInd1].html,
-					target: me.circles[cInd2].html
-				};
-				
-				me.lines.push(l);
+			if(me.lines.indexOfObj(l.class, 'class') === -1){
+				var cSvg1 = d3.select(me.circles[cInd1].html);
+				var cSvg2 = d3.select(me.circles[cInd2].html);
+				me.appendLine(cSvg1, cSvg2, l.value, l);
 			}
 		}
 		
@@ -1218,6 +1180,7 @@ var draw = function(){
 	};
 	
 	me.saveState = function(state){
+		
 		if (me.pastStates.indexOf(state,
 					'class') === -1){
 			me.pastStates.push(state);
@@ -1226,6 +1189,8 @@ var draw = function(){
 		if(me.pastStates.length > 10){
 			me.pastStates.shift();
 		}
+		console.log(JSON.parse(state));
+		console.log(me.pastStates);
 	};
 	
 	me.undo = function(){
