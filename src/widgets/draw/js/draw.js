@@ -604,6 +604,7 @@ var draw = function(){
 				}, 750);
 				$('.rel-only').focus();		//apparently errors in IE if focus before visible
 				
+				
 				var that = this;
 				
 				//creates on click event for relationship form submit button 

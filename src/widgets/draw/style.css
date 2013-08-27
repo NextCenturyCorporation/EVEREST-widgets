@@ -6,7 +6,7 @@
 }
 
 .tsvg{
-	width: 50px;
+	width: 40px;
 	height: 500px;
 }
 
@@ -78,12 +78,12 @@ label{
 }
 
 .unselect{
-	fill:white;
-	border-color:#004785;
+	fill: none;
 }
 .select{
-	fill:#C0C0C0;
-	border-color:#004785;	
+	fill: #333399;
+	opacity: 0.2;
+	stroke: #333399;
 }
 
 .selection{
@@ -126,4 +126,9 @@ label{
 
 button{
 	width: 5em;
+}
+
+.border{
+	fill: none;
+	stroke: black;
 }
