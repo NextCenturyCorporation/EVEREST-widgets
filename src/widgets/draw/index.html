@@ -10,9 +10,9 @@
 	<script src='./js/toolbar.js'></script>
 </head>
 <body>
-	<div class="toolbar">
-	</div>
+	<div class="toolbar_modes"></div>
 	<div class="canvas"></div>
+	<div class="toolbar_buttons"></div>
 	<div class="forms">
 		<div class="ent1-form">
 			<label>Entity</label><input type='text' class='ent1'>
@@ -38,6 +38,7 @@
 	<div class='bothColor'></div>
 	<script type="text/javascript">
 		var d = new draw();
+		d.setUpToolbars();
 		d.createCanvas();
 		d.createCancelClickers();
 		$('.ent1-form').animate({

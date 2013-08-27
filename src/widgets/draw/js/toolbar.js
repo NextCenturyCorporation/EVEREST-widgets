@@ -1,4 +1,4 @@
-var toolbar = function(){
+var toolbar = function(div_class){
 	var me = this;
 	
 	me.shift = 25;
@@ -7,14 +7,16 @@ var toolbar = function(){
 	
 	me.num_tools = 0;
 	me.mode = "";
+	me.svg = d3.select(div_class).append('svg')
+		.attr('class', 'tsvg');
 	
 	var selectColor = '#ff0000';
 
-	me.createSelection = function(svg, class_name, image){
+	me.createSelection = function(class_name, image){
 		me.num_tools++;
 		
 		//add a new space for the new tool, with an onclick event
-		var selection = svg.append('g')
+		var selection = me.svg.append('g')
 			.attr('class', class_name)
 			.on('click', me.toggleSelection);
 			
@@ -44,8 +46,8 @@ var toolbar = function(){
 		
 		//if the item being toggled is already off, turn it on
 		if(item.select('rect').classed('unselect')){
-			d3.selectAll('.toolbar rect').classed('select', false);
-			d3.selectAll('.toolbar rect').classed('unselect', true);
+			me.svg.selectAll('rect').classed('select', false);
+			me.svg.selectAll('rect').classed('unselect', true);
 			item.select('rect').classed('unselect', false)
 				.classed('select', true);
 			
@@ -65,21 +67,6 @@ var toolbar = function(){
 		} else {
 			d3.selectAll('.canvas text').remove();
 		}
-	};
-
-	me.createToolbar = function(){
-		var toolBar = d3.select('.toolbar');
-		var svg = toolBar.append('svg')
-			.attr('class', 'tsvg');
-		
-		me.center.x = svg.style('width').split('p')[0] / 2;
-		me.center.y = svg.style('height').split('p')[0] / 2;
-		
-		var node_hold = me.createSelection(svg, 'node_hold', 'img/node.png');
-		var rel_hold = me.createSelection(svg, 'rel_hold', 'img/link.png');
-		var mover_hold = me.createSelection(svg, 'mover_hold', 'img/mover.png');
-		var delete_hold = me.createSelection(svg, 'delete_hold', 'img/delete.png');	
-		var select_hold = me.createSelection(svg, 'select_hold', 'img/select.png');
 	};
 	
 	me.getMode = function(){

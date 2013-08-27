@@ -1,4 +1,4 @@
-.toolbar{
+.toolbar_modes, .toolbar_buttons{
 	top:0px;
 	border-style:ridge;
 	display:inline-block;
@@ -17,7 +17,7 @@
 }
 
 .csvg{ 
-	width: 500px;
+	width: 750px;
 	height: 500px;
 }
 
