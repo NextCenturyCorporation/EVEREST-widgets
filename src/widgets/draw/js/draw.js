@@ -36,6 +36,17 @@ Array.prototype.indexOfObj = function(value, attribute){
 	return -1;
 };
 
+Array.prototype.getAllIndicies = function(value, attribute){
+	var indicies = [];
+	for (var i = 0; i < this.length; i++){
+		if (value.toLowerCase() === this[i][attribute].toLowerCase()){
+			indicies.push(i);
+		}
+	}
+	
+	return indicies;
+}
+
 var draw = function(){
 	var me =  this;
 	var url = 'http://localhost:8081/target_assertion/';
@@ -596,7 +607,12 @@ var draw = function(){
 				var that = this;
 				
 				//creates on click event for relationship form submit button 
-				d3.select('.rel-submit').on('click', function(){	
+				d3.select('.rel-submit').on('click', function(){
+					if ( $('.rel-only').val() === '') {
+						alert('Please enter values for all form locations');
+						return;
+					}	
+					
 					var cSvg1 = d3.select(me.lastNodeClicked);
 					var cSvg2 = d3.select(that);
 					
@@ -631,8 +647,24 @@ var draw = function(){
 						delta.group = me.circles[ind1].group;
 					}
 					
-					me.appendLine(cSvg1, cSvg2, $('.rel-only'));
+					var lInds = me.lines.getAllIndicies($('.rel-only').val(), 'd');
+					if (lInds.length !== 0) {
+						var found = false;
+						for ( var i = 0; i < lInds.length; i++){
+							var lObj = me.lines[lInds[i]];
+							if (lObj.source === me.circles[ind1].html && 
+									lObj.target === me.circles[ind2].html){
+								found = true;
+							}
+						}
+						
+						if (!found) {
+							me.appendLine(cSvg1, cSvg2, $('.rel-only').val());
+						}
 					
+					} else {
+						me.appendLine(cSvg1, cSvg2, $('.rel-only').val());
+					}
 					//clear to allow addition of other relationships
 					me.lastNodeClicked = null;
 					
@@ -672,6 +704,12 @@ var draw = function(){
 	
 			//creates on click event for rel - entity 2 form submit button 
 			d3.select('.rel-ent-submit').on('click', function(){
+				if ( $('.ent2').val() === ''  ||  $('.relate').val() === '' ) {
+					alert('Please enter values for all form locations');
+					return;
+				}
+			
+			
 				var cSvg1 = d3.select(that);
 				var r = cSvg1.attr('r');
 				var cObj1 = me.circles[me.circles.indexOfObj(cSvg1.attr('class'), 
@@ -703,6 +741,7 @@ var draw = function(){
 				};
 								
 				var c2ind = me.circles.indexOfObj($('.ent2').val(), 'd');
+				var lInds = me.lines.getAllIndicies($('.relate').val(), 'd');
 				var cSvg2;
 				if (c2ind === -1){
 					//create the entity 2
@@ -718,7 +757,28 @@ var draw = function(){
 					me.circles.push(c);
 					
 					me.appendLine(cSvg1, cSvg2, $('.relate').val());
-				} else if (c2ind === 9302849302) {
+				} else if (lInds.length !== 0) {
+					var found = false;
+					var cObj2 = me.circles[c2ind];
+					for ( var i = 0; i < lInds.length; i++){
+						var lObj = me.lines[lInds[i]];
+						if (lObj.source === cObj1.html && lObj.target === cObj2.html){
+							found = true;
+						}
+					}
+					
+					if (!found) {
+						cSvg2 = d3.select(cObj2.html);
+						me.appendLine(cSvg1, cSvg2, $('.relate').val());
+						
+						if ( cObj2.color === white ){
+							cObj2.color = entity2Color;
+							cSvg2.style('fill', entity2Color);
+						} else if ( cObj2.color === entity1Color ){
+							cObj2.color = bothColor;
+							cSvg2.style('fill', bothColor);
+						} 
+					}
 				} else {
 					cSvg2 = d3.select(me.circles[c2ind].html);
 					me.appendLine(cSvg1, cSvg2, $('.relate').val());
