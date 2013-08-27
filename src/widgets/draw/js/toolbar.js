@@ -68,14 +68,6 @@ var toolbar = function(){
 		me.center.x = w / 2;
 		me.center.y = h / 2;
 		
-		var label_hold = me.createSelection(svg, 'label_hold');
-		label_hold.append('text')
-			.attr('x', me.center.x)
-			.attr('y', me.num_tools * me.shift)
-			.attr('text-anchor', 'middle')
-			.attr('dy', '0.35em')
-			.text('abc');
-		
 		var node_hold = me.createSelection(svg, 'node_hold');
 		node_hold.append('circle')
 			.attr('class', 'entity')
@@ -138,33 +130,5 @@ var toolbar = function(){
 	
 	me.setMode = function(m){
 		me.mode = m;
-	};
-	
-	/**
-		called from me.toggleSelection when mode is label_hold
-		@param - none
-		@return - none
-		@functionality - shows all labels for any element in the canvas
-		@internal functions - none
-	*/
-	me.addAllLabels = function(){
-		var x = 0, y = 0;
-		d3.selectAll('.canvas circle').each(function(){
-			var circle = d3.select(this);
-			x = parseInt(circle.attr('cx'), 10) + 15;
-			y = parseInt(circle.attr('cy'), 10) - 15;
-			d3.select('.canvas svg').append('text')
-				.attr('x', x).attr('y', y)
-				.text(circle.attr('d'));
-		});
-		
-		d3.selectAll('.canvas line').each(function(){
-			var line = d3.select(this);
-			x = ((parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2) + 15;
-			y = ((parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2) - 15;
-			d3.select('.canvas svg').append('text')
-				.attr('x', x).attr('y', y)
-				.text(line.attr('d'));
-		});
 	};
 };

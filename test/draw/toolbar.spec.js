@@ -34,34 +34,9 @@ describe('the toolbar set up functions', function(){
 		
 		expect(d3.select).toHaveBeenCalledWith('.toolbar');
 		expect(test_tool.createSelection).toHaveBeenCalled();
-		expect(test_tool.createSelection.callCount).toEqual(6);
+		expect(test_tool.createSelection.callCount).toEqual(5);
 		
 		var gs = d3.selectAll('g')[0];
-		expect(gs.length).toEqual(6);
-	});
-	
-	it('the addAllLabels function', function(){
-		spyOn(d3, 'selectAll').andCallThrough();
-		spyOn(d3, 'select').andCallThrough();
-		
-		test_tool.addAllLabels();
-		
-		expect(d3.selectAll).toHaveBeenCalledWith('.canvas circle');
-		expect(d3.selectAll).toHaveBeenCalledWith('.canvas line');
-		expect(d3.select).not.toHaveBeenCalledWith('.canvas svg');
-		
-		d3.select('.canvas svg').append('g')
-			.append('line')
-				.attr('x1', 0).attr('y1', 1)
-				.attr('x2', 0).attr('y2', 3)
-				.attr('d', 'hello');
-				
-		d3.select('.canvas svg').append('circle')
-			.attr('cx', 0).attr('cy', 0)
-			.attr('d', 'goodbye');
-			
-		test_tool.addAllLabels();
-		expect(d3.select).toHaveBeenCalledWith('.canvas svg');
-			
+		expect(gs.length).toEqual(5);
 	});
 });

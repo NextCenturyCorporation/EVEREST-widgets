@@ -53,6 +53,7 @@ var draw = function(){
 	me.canvasH = 0;
 	me.canvasC = { };
 	me.pastStates = [];
+	me.labelsShown = false;
 	
 	me.startClick;
 	
@@ -250,6 +251,9 @@ var draw = function(){
 			
 		div.append('button').text('Delete')
 			.on('click', me.deleteSelection);
+			
+		div.append('button').text('Text')
+			.on('click', me.toggleLabels); 
 	};
 	
 	
@@ -366,7 +370,7 @@ var draw = function(){
 		
 		var	cx = circle.attr('cx');
 		var	cy = circle.attr('cy');
-
+		
 		//move the circle based on the d3 event that occured
 		circle.attr('cx', function() { 
 			var newC = dx + parseInt(cx,10);
@@ -384,17 +388,18 @@ var draw = function(){
 		d3.selectAll('.arrow').remove();
 		d3.selectAll('.canvas line').each(function(){
 			var line = d3.select(this);
-			//if entity1 was grabbed, p1 from line matches grabbed circle		
-			if (line.attr('x1') === cx && line.attr('y1') === cy){
+			var lineObj = me.lines[me.lines.indexOfObj(line.attr('class'),
+					'class')];
+					
+			if (lineObj.source === c.html) {
 				x = 'x1';
 				y = 'y1';
-			//if entity2 was grabbed, p2 from line matches grabbed circle
-			} else if ( line.attr('x2') === cx && line.attr('y2') === cy){
+			} else if (lineObj.target === c.html) {
 				x = 'x2';
 				y = 'y2';
-			//if entity has no relationship attached to it
 			} else {
-				x = null, y = null;
+				x = null;
+				y = null;
 			}
 			
 			//if the entity is attached to a relationship and other entity 
@@ -768,7 +773,7 @@ var draw = function(){
 		@internal funcitons - none
 	*/
 	me.mouseover = function(){
-		if(tool.getMode() !== 'label_hold'){
+		if(!me.labelsShown){
 			var x = 0, y = 0;
 			var item = d3.select(this);
 			
@@ -800,7 +805,7 @@ var draw = function(){
 		@internal functions - none
 	*/
 	me.mouseout = function(){
-		if(tool.getMode() !== 'label_hold'){
+		if(!me.labelsShown){
 			d3.selectAll('.canvas text').remove();
 		}
 	};
@@ -873,6 +878,40 @@ var draw = function(){
 		
 		var cIndicies = me.extractCircles(group);
 		me.separateGroups(cIndicies);
+	};
+		
+	/**
+		called from me.toggleSelection when mode is label_hold
+		@param - none
+		@return - none
+		@functionality - shows all labels for any element in the canvas
+		@internal functions - none
+	*/
+	me.toggleLabels = function(){
+		if (!me.labelsShown){
+			me.labelsShown = true;
+			var x = 0, y = 0;
+			d3.selectAll('.canvas circle').each(function(){
+				var circle = d3.select(this);
+				x = parseInt(circle.attr('cx'), 10) + 15;
+				y = parseInt(circle.attr('cy'), 10) - 15;
+				d3.select('.canvas svg').append('text')
+					.attr('x', x).attr('y', y)
+					.text(circle.attr('d'));
+			});
+			
+			d3.selectAll('.canvas line').each(function(){
+				var line = d3.select(this);
+				x = ((parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2) + 15;
+				y = ((parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2) - 15;
+				d3.select('.canvas svg').append('text')
+					.attr('x', x).attr('y', y)
+					.text(line.attr('d'));
+			});
+		} else {
+			d3.selectAll('.canvas text').remove();
+			me.labelsShown = false;
+		}
 	};
 		
 	me.createArrow = function(line){

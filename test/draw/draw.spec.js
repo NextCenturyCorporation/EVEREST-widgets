@@ -41,8 +41,8 @@ describe('To test the target event definition widget', function(){
 				
 			var array = [{class:'zero'}];
 			
-			expect(array.indexOfObj('zero')).toEqual(0);
-			expect(array.indexOfObj('one')).toEqual(-1);
+			expect(array.indexOfObj('zero', 'class')).toEqual(0);
+			expect(array.indexOfObj('one', 'class')).toEqual(-1);
 		});
 		
 		it('the isAlone function', function(){
@@ -85,6 +85,32 @@ describe('To test the target event definition widget', function(){
 			expect(test_draw.computeCoord(-9834, 'y')).toEqual(0);
 			
 			expect(Math.floor).toHaveBeenCalled();
+		});
+		
+		it('the toggleLabels function', function(){
+			spyOn(d3, 'selectAll').andCallThrough();
+			spyOn(d3, 'select').andCallThrough();
+			d3.selectAll('.canvas circle').remove();
+			d3.selectAll('.canvas line').remove();
+			test_draw.toggleLabels();
+			
+			expect(d3.selectAll).toHaveBeenCalledWith('.canvas circle');
+			expect(d3.selectAll).toHaveBeenCalledWith('.canvas line');
+			expect(d3.select).not.toHaveBeenCalledWith('.canvas svg');
+			
+			d3.select('.canvas svg').append('g')
+				.append('line')
+					.attr('x1', 0).attr('y1', 1)
+					.attr('x2', 0).attr('y2', 3)
+					.attr('d', 'hello');
+					
+			d3.select('.canvas svg').append('circle')
+				.attr('cx', 0).attr('cy', 0)
+				.attr('d', 'goodbye');
+				
+			test_draw.toggleLabels();
+			expect(d3.select).toHaveBeenCalledWith('.canvas svg');
+			
 		});
 	});
 	
@@ -371,4 +397,6 @@ describe('To test the target event definition widget', function(){
 			
 		});
 	});
+	
+	
 });
