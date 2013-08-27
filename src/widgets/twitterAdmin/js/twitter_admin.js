@@ -67,7 +67,8 @@ var twitter_admin = function() {
 			for(i in data) {
 				var keyContainer = $(".twitter_filter_form");
 				keyContainer.append(me.createApiIdDiv($(".api_key_div").length, data[i]._id));
-				$('.toggle').toggles({type:'select'});
+				console.log(data[i].active);
+				$('.toggle').toggles({type:'select', on: data[i].active});
 			}
 
 			$(".api_key_container_" + data[i]._id).append(me.createFilter(0));
@@ -181,7 +182,7 @@ var twitter_admin = function() {
 		var currentKeyCount = $(".api_key_div").length;
 		var keyContainer = $(".twitter_admin_form");
 		keyContainer.append(me.createApiIdDiv(currentKeyCount, newId));
-		$('.toggle').toggles({type:'select'});
+		$('.toggle').toggles({type:'select', on: json.active});
 		//add form
 	};
 
