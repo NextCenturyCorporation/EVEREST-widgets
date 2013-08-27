@@ -67,6 +67,7 @@ var twitter_admin = function() {
 			for(i in data) {
 				var keyContainer = $(".twitter_admin_form");
 				keyContainer.append(me.createApiIdDiv($(".api_key_div").length, data[i]._id));
+				$('.toggle').toggles({type:'select'});
 			}
 
 			$(".api_key_container_" + data[i]._id).append(me.createFilter(0));
@@ -177,7 +178,8 @@ var twitter_admin = function() {
 		//add id line with down arrow and x icon
 		var currentKeyCount = $(".api_key_div").length;
 		var keyContainer = $(".twitter_admin_form");
-		keyContainer.append(me.createApiIdDiv(currentKeyCount, id));
+		keyContainer.append(me.createApiIdDiv(currentKeyCount, newId));
+		$('.toggle').toggles({type:'select'});
 		//add form
 	};
 
@@ -185,12 +187,13 @@ var twitter_admin = function() {
 		var divHtml = '<div class="api_key_container_block api_key_container_' + id + '"> \
 						<div class="api_key_div api_key_display_line api_key_div_' + id + '"> \
 							<div class="api_id_display">' + id + '</div> \
-							<div class="api_down_arrow api_down_arrow_' + id + '"> \
-								'/*<span class="twitter_admin_image_down_arrow"> </span> \*/+ '\
-								<button type="button" class="twitter_admin_image_down_arrow">V</button> \
-							</div> \
-							<div class="stream_toggle_button stream_toggle_button_' + id + '"> \
-								<button type="button">toggle</button> \
+							<div class="buttons_container_div buttons_container_div_' + id + '"> \
+								<div class="toggle-dark toggle-dark-' + id + '"> \
+	      							<div class="toggle toggle-select toggle-select-' + id + '" data-type="select"> \
+	    							</div> \
+	    						</div> \
+	    						<div class="api_down_arrow api_down_arrow_' + id + '"> \
+								</div> \
 							</div> \
 						</div> \
 					   </div>';

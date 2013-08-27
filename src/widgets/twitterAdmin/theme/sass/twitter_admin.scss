@@ -38,6 +38,7 @@
 
 			input {
 				width: 250px;
+				float:left;
 			}
 
 			input.multi_filter {
@@ -51,13 +52,23 @@
 				width: 300px;
 			}
 
-			.api_down_arrow {
-				display: inline-block;
-			}
-
-			.stream_toggle_button {
+			.buttons_container_div {
 				display:inline-block;
-				float: right;
+				float:right;
+
+				.toggle-dark {
+					padding-right: 10px;
+					display: inline-block;
+				}
+
+				.api_down_arrow {
+					display: inline-block;
+					height:20px;
+					width:20px;
+
+					background-image:url('../../lib/arrowLeft.gif');
+					background-size:100%;
+				}
 			}
 		}
 	}
@@ -77,5 +88,9 @@
 				margin: 0px 0px 0px 0px;
 			}
 		}
+	}
+
+	hr {
+		width: 100%;
 	}
 }

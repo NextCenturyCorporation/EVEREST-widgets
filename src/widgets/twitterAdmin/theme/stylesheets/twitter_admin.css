@@ -42,39 +42,53 @@
 /* line 39, ../sass/twitter_admin.scss */
 .twitter_admin_container .twitter_admin_form .filter_line input, .twitter_admin_container .twitter_admin_form .timeout_line input, .twitter_admin_container .twitter_admin_form .field_input_line input {
   width: 250px;
+  float: left;
 }
-/* line 43, ../sass/twitter_admin.scss */
+/* line 44, ../sass/twitter_admin.scss */
 .twitter_admin_container .twitter_admin_form .filter_line input.multi_filter, .twitter_admin_container .twitter_admin_form .timeout_line input.multi_filter, .twitter_admin_container .twitter_admin_form .field_input_line input.multi_filter {
   margin-left: 115px;
 }
-/* line 49, ../sass/twitter_admin.scss */
+/* line 50, ../sass/twitter_admin.scss */
 .twitter_admin_container .twitter_admin_form .api_key_display_line .api_id_display {
   display: inline-block;
   width: 300px;
 }
-/* line 54, ../sass/twitter_admin.scss */
-.twitter_admin_container .twitter_admin_form .api_key_display_line .api_down_arrow {
-  display: inline-block;
-}
-/* line 58, ../sass/twitter_admin.scss */
-.twitter_admin_container .twitter_admin_form .api_key_display_line .stream_toggle_button {
+/* line 55, ../sass/twitter_admin.scss */
+.twitter_admin_container .twitter_admin_form .api_key_display_line .buttons_container_div {
   display: inline-block;
   float: right;
 }
-/* line 65, ../sass/twitter_admin.scss */
+/* line 59, ../sass/twitter_admin.scss */
+.twitter_admin_container .twitter_admin_form .api_key_display_line .buttons_container_div .toggle-dark {
+  padding-right: 10px;
+  display: inline-block;
+}
+/* line 64, ../sass/twitter_admin.scss */
+.twitter_admin_container .twitter_admin_form .api_key_display_line .buttons_container_div .api_down_arrow {
+  display: inline-block;
+  height: 20px;
+  width: 20px;
+  background-image: url("../../lib/arrowLeft.gif");
+  background-size: 100%;
+}
+/* line 76, ../sass/twitter_admin.scss */
 .twitter_admin_container .twitter_admin_buttons_div {
   width: 365px;
   margin: 10px 0px 0px 0px;
 }
-/* line 69, ../sass/twitter_admin.scss */
+/* line 80, ../sass/twitter_admin.scss */
 .twitter_admin_container .twitter_admin_buttons_div .button_inner_div {
   float: left;
 }
-/* line 72, ../sass/twitter_admin.scss */
+/* line 83, ../sass/twitter_admin.scss */
 .twitter_admin_container .twitter_admin_buttons_div .button_inner_div .twitter_admin_start {
   margin: 0px 10px 0px 0px;
 }
-/* line 76, ../sass/twitter_admin.scss */
+/* line 87, ../sass/twitter_admin.scss */
 .twitter_admin_container .twitter_admin_buttons_div .button_inner_div .twitter_admin_stop {
   margin: 0px 0px 0px 0px;
+}
+/* line 93, ../sass/twitter_admin.scss */
+.twitter_admin_container hr {
+  width: 100%;
 }
