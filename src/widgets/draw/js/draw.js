@@ -627,7 +627,6 @@ var draw = function(){
 				}, 750);
 				$('.rel-only').focus();		//apparently errors in IE if focus before visible
 				
-				
 				var that = this;
 				
 				//creates on click event for relationship form submit button 
@@ -645,30 +644,29 @@ var draw = function(){
 					var ind2 = me.circles.indexOfObj(cSvg2.attr('class'), 
 							'class');
 					
-					var node1 = me.circles[ind1];
-					if (node1.color === white){
-						node1.color = me.entity1Color;
-					} else if ( node1.color !== me.entity1Color){
-						node1.color = me.bothColor;
+					var cObj1 = me.circles[ind1];
+					if (cObj1.color === white){
+						cObj1.color = me.entity1Color;
+					} else if ( cObj1.color !== me.entity1Color){
+						cObj1.color = me.bothColor;
 					}
 					cSvg1.transition(2500)
 						.style('fill', me.circles[ind1].color);
 						
-					var node2 = me.circles[ind2];
-					if (node2.color === white){
-						node2.color = me.entity2Color;
-					} else if ( node2.color !== me.entity2Color ){
-						node2.color = me.bothColor;
+					var cObj2 = me.circles[ind2];
+					if (cObj2.color === white){
+						cObj2.color = me.entity2Color;
+					} else if ( cObj2.color !== me.entity2Color ){
+						cObj2.color = me.bothColor;
 					}
 					cSvg2.transition(2500)
 						.style('fill', me.circles[ind2].color);
 					
-					var circ = me.circles[ind2];
-					var toAttach = me.extractCircles(circ.group);
+					var toAttach = me.extractCircles(cObj2.group);
 					
 					for (var j = 0; j < toAttach.length; j++){
 						var delta = me.circles[toAttach[j]];
-						delta.group = me.circles[ind1].group;
+						delta.group = cObj1.group;
 					}
 					
 					var lInds = me.lines.getAllIndicies($('.rel-only').val(), 'd');
@@ -676,8 +674,8 @@ var draw = function(){
 						var found = false;
 						for ( var i = 0; i < lInds.length; i++){
 							var lObj = me.lines[lInds[i]];
-							if (lObj.source === me.circles[ind1].html && 
-									lObj.target === me.circles[ind2].html){
+							if (lObj.source === cObj1.html && 
+									lObj.target === cObj2.html){
 								found = true;
 							}
 						}
@@ -733,7 +731,6 @@ var draw = function(){
 					return;
 				}
 			
-			
 				var cSvg1 = d3.select(that);
 				var r = cSvg1.attr('r');
 				var cObj1 = me.circles[me.circles.indexOfObj(cSvg1.attr('class'), 
@@ -775,15 +772,22 @@ var draw = function(){
 					
 					me.circleCount++;
 					
-					var c = me.simplify(cSvg2);
-					c.color = me.entity2Color;
-					c.group = cObj1.group;
-					me.circles.push(c);
+					var cObj2 = me.simplify(cSvg2);
+					cObj2.color = me.entity2Color;
+					cObj2.group = cObj1.group;
+					me.circles.push(cObj2);
 					
 					me.addLine(cSvg1, cSvg2, $('.relate').val());
 				} else if (lInds.length !== 0) {
 					var found = false;
 					var cObj2 = me.circles[c2ind];
+					var toAttach = me.extractCircles(cObj2.group);
+					
+					for (var j = 0; j < toAttach.length; j++){
+						var delta = me.circles[toAttach[j]];
+						delta.group = cObj1.group;
+					}
+					
 					for ( var i = 0; i < lInds.length; i++){
 						var lObj = me.lines[lInds[i]];
 						if (lObj.source === cObj1.html && lObj.target === cObj2.html){
@@ -804,14 +808,21 @@ var draw = function(){
 						} 
 					}
 				} else {
-					cSvg2 = d3.select(me.circles[c2ind].html);
+					var cObj2 = me.circles[c2ind];
+					var toAttach = me.extractCircles(cObj2.group);
+					
+					for (var j = 0; j < toAttach.length; j++){
+						var delta = me.circles[toAttach[j]];
+						delta.group = cObj1.group;
+					}
+					cSvg2 = d3.select(cObj2.html);
 					me.addLine(cSvg1, cSvg2, $('.relate').val());
 					
-					if ( me.circles[c2ind].color === white ){
-						me.circles[c2ind].color = me.entity2Color;
+					if ( cObj2.color === white ){
+						cObj2.color = me.entity2Color;
 						cSvg2.style('fill', me.entity2Color);
-					} else if ( me.circles[c2ind].color === me.entity1Color ){
-						me.circles[c2ind].color = me.bothColor;
+					} else if ( cObj2.color === me.entity1Color ){
+						cObj2.color = me.bothColor;
 						cSvg2.style('fill', me.bothColor);
 					} 
 				}	
