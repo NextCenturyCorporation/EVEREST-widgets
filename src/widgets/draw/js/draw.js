@@ -278,7 +278,6 @@ var draw = function(){
 		});
 		
 		$('.csvg').mousedown(me.saveTargetAssertions);
-		
 	};
 	
 	
@@ -620,8 +619,7 @@ var draw = function(){
 			//if this entity was the last node clicked, do nothing
 			} else if(this === me.lastNodeClicked){
 				return;
-			//if this is the second unique entity chosen, draw a line 
-			} else {
+			} else {  //if this is the second unique entity chosen, draw a line
 				$('.rel-form').animate({
 					top: ( $('.canvas').height() / 2 ) - ( $('.rel-form').height() / 2 )
 				}, 750);
@@ -645,37 +643,26 @@ var draw = function(){
 							'class');
 					
 					var cObj1 = me.circles[ind1];
-					if (cObj1.color === white){
-						cObj1.color = me.entity1Color;
-					} else if ( cObj1.color !== me.entity1Color){
-						cObj1.color = me.bothColor;
-					}
-					cSvg1.transition(2500)
-						.style('fill', me.circles[ind1].color);
-						
+					me.alterNodeColor('entity1', cObj1);
+					cSvg1.transition(2500).style('fill', cObj1.color);
+					
 					var cObj2 = me.circles[ind2];
-					if (cObj2.color === white){
-						cObj2.color = me.entity2Color;
-					} else if ( cObj2.color !== me.entity2Color ){
-						cObj2.color = me.bothColor;
-					}
-					cSvg2.transition(2500)
-						.style('fill', me.circles[ind2].color);
+					me.alterNodeColor('entity2', cObj2);
+					cSvg2.transition(2500).style('fill', cObj2.color);
 					
 					var toAttach = me.extractCircles(cObj2.group);
-					
-					for (var j = 0; j < toAttach.length; j++){
+					for ( var j = 0; j < toAttach.length; j++ ) {
 						var delta = me.circles[toAttach[j]];
 						delta.group = cObj1.group;
 					}
 					
 					var lInds = me.lines.getAllIndicies($('.rel-only').val(), 'd');
-					if (lInds.length !== 0) {
+					if ( lInds.length !== 0 ) {
 						var found = false;
-						for ( var i = 0; i < lInds.length; i++){
+						for ( var i = 0; i < lInds.length; i++ ) {
 							var lObj = me.lines[lInds[i]];
-							if (lObj.source === cObj1.html && 
-									lObj.target === cObj2.html){
+							if ( lObj.source === cObj1.html && 
+									lObj.target === cObj2.html ) {
 								found = true;
 							}
 						}
@@ -683,7 +670,6 @@ var draw = function(){
 						if (!found) {
 							me.addLine(cSvg1, cSvg2, $('.rel-only').val());
 						}
-					
 					} else {
 						me.addLine(cSvg1, cSvg2, $('.rel-only').val());
 					}
@@ -735,15 +721,10 @@ var draw = function(){
 				var r = cSvg1.attr('r');
 				var cObj1 = me.circles[me.circles.indexOfObj(cSvg1.attr('class'), 
 							'class')];
-				
-				if (cObj1.color === white){
-					cObj1.color = me.entity1Color;
-				} else if ( cObj1.color !== me.entity1Color ){
-					cObj1.color = me.bothColor;
-				}
-				cSvg1.transition(2500)
-					.style('fill', cObj1.color);
-				
+							
+				me.alterNodeColor('entity1', cObj1);
+				cSvg1.transition(2500).style('fill', cObj1.color);
+								
 				//grab a random direction for new entity
 				var deg = 360 * Math.random();
 				var dx = r * r * Math.cos(deg);
@@ -798,14 +779,8 @@ var draw = function(){
 					if (!found) {
 						cSvg2 = d3.select(cObj2.html);
 						me.addLine(cSvg1, cSvg2, $('.relate').val());
-						
-						if ( cObj2.color === white ){
-							cObj2.color = me.entity2Color;
-							cSvg2.style('fill', me.entity2Color);
-						} else if ( cObj2.color === me.entity1Color ){
-							cObj2.color = me.bothColor;
-							cSvg2.style('fill', me.bothColor);
-						} 
+						me.alterNodeColor('entity2', cObj2);
+						cSvg2.transition(2500).style('fill', cObj2.color);
 					}
 				} else {
 					var cObj2 = me.circles[c2ind];
@@ -815,16 +790,11 @@ var draw = function(){
 						var delta = me.circles[toAttach[j]];
 						delta.group = cObj1.group;
 					}
+					
 					cSvg2 = d3.select(cObj2.html);
 					me.addLine(cSvg1, cSvg2, $('.relate').val());
-					
-					if ( cObj2.color === white ){
-						cObj2.color = me.entity2Color;
-						cSvg2.style('fill', me.entity2Color);
-					} else if ( cObj2.color === me.entity1Color ){
-						cObj2.color = me.bothColor;
-						cSvg2.style('fill', me.bothColor);
-					} 
+					me.alterNodeColor('entity2', cObj2);
+					cSvg2.transition(2500).style('fill', cObj2.color);
 				}	
 				console.log(me.lines);
 				console.log(me.circles);		
@@ -919,20 +889,11 @@ var draw = function(){
 					'class')];
 			var cObj2 = me.circles[me.circles.indexOfObj(cSvg2.attr('class'),
 					'class')];
-					
-			if (cObj1.color === white){
-				cObj1.color = me.entity1Color;
-			} else if ( cObj1.color !== me.entity1Color ){
-				cObj1.color = me.bothColor;
-			}
+			
+			me.alterNodeColor('entity1', cObj1);
 			cSvg1.style('fill', cObj1.color);
 			
-			if (cObj2.color === white){
-				cObj2.color = me.entity2Color;
-			} else if ( cObj2.color !== me.entity2Color ){
-				cObj2.color = me.bothColor;
-			}
-			
+			me.alterNodeColor('entity2', cObj2);
 			cSvg2.style('fill', cObj2.color);
 		});
 	};
@@ -953,6 +914,26 @@ var draw = function(){
 		
 		var cIndicies = me.extractCircles(group);
 		me.separateGroups(cIndicies);
+		
+		d3.selectAll('.canvas line').each(function(){
+			var line_index = me.lines.indexOfObj(d3.select(this).attr('class'),
+					'class');
+			var l = me.lines[line_index];
+			
+			var cSvg1 = d3.select(l.source);
+			var cSvg2 = d3.select(l.target);
+			
+			var cObj1 = me.circles[me.circles.indexOfObj(cSvg1.attr('class'),
+					'class')];
+			var cObj2 = me.circles[me.circles.indexOfObj(cSvg2.attr('class'),
+					'class')];
+			
+			me.alterNodeColor('entity1', cObj1);
+			cSvg1.style('fill', cObj1.color);
+			
+			me.alterNodeColor('entity2', cObj2);
+			cSvg2.style('fill', cObj2.color);
+		});
 	};
 		
 	/**
@@ -1234,6 +1215,9 @@ var draw = function(){
 	
 			me.circles = [];
 			me.lines = [];
+			me.count = 0;
+			me.circleCount = 0;
+			me.lineCount = 0;
 
 			me.redraw(JSON.parse(me.pastStates.pop()));
 		}
@@ -1262,6 +1246,22 @@ var draw = function(){
 		
 		for (var i = 0; i < linksToRemove.length; i++){
 			me.deleteLink(linksToRemove[i]);
+		}
+	};
+	
+	me.alterNodeColor = function(type, obj){
+		if (type === 'entity1'){
+			if ( obj.color === white ) {
+				obj.color = me.entity1Color;
+			} else if ( obj.color !== me.entity1Color ) {
+				obj.color = me.bothColor;
+			}
+		} else if ( type === 'entity2' ) {
+			if ( obj.color === white ) {
+				obj.color = me.entity2Color;
+			} else if ( obj.color !== me.entity2Color ) {
+				obj.color = me.bothColor;
+			}
 		}
 	};
 };
