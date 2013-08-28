@@ -12,6 +12,8 @@ describe('To test the target event definition widget', function(){
 		.style('background-color', '#9900cc');
 	
 	var test_draw = new draw();
+	var tool1 = new toolbar('.tool1');
+	var tool2 = new toolbar('.tool2');
 	describe('to see if test_draw attributes actually exist', function(){	
 		it('', function(){
 			expect(test_draw.canvasW).toEqual(0);
@@ -127,15 +129,10 @@ describe('To test the target event definition widget', function(){
 			d3.selectAll('svg').remove();
 			test_draw.createCanvas();
 			
-			var w = d3.select('.csvg').style('width');
-			var h = d3.select('.csvg').style('height');
-			
 			var r = d3.select('.canvas svg rect');
 			expect(r.attr('class')).toEqual('background');
 			expect(parseInt(r.attr('x'))).toEqual(0);
 			expect(parseInt(r.attr('y'))).toEqual(0);
-			expect(parseInt(r.attr('width'))).toEqual(parseInt(w));
-			expect(parseInt(r.attr('height'))).toEqual(parseInt(h));
 			expect(parseInt(r.style('opacity'))).toEqual(0);
 			
 			var g = d3.select('.canvas svg g');
@@ -279,17 +276,21 @@ describe('To test the target event definition widget', function(){
 			test_draw.lines = [];
 			
 			for (var i = 0; i < 4; i++){
-				var temp = test_draw.createCircle(i, i, 'a');
+				var temp = test_draw.createCircle(i, i, 'a'+i);
 			}
 			
-			test_draw.circles[0].color = entity1Color;
-			d3.select(test_draw.circles[0].html).style('fill', entity1Color);
-			test_draw.circles[1].color = bothColor;
-			d3.select(test_draw.circles[1].html).style('fill', bothColor);
-			test_draw.circles[2].color = bothColor;
-			d3.select(test_draw.circles[2].html).style('fill', bothColor);
-			test_draw.circles[3].color = entity2Color;
-			d3.select(test_draw.circles[3].html).style('fill', entity2Color);
+			test_draw.circles[0].color = test_draw.entity1Color;
+			test_draw.circles[0].group = 0;
+			d3.select(test_draw.circles[0].html).style('fill', test_draw.entity1Color);
+			test_draw.circles[1].color = test_draw.bothColor;
+			test_draw.circles[1].group = 0;
+			d3.select(test_draw.circles[1].html).style('fill', test_draw.bothColor);
+			test_draw.circles[2].color = test_draw.bothColor;
+			test_draw.circles[2].group = 0;
+			d3.select(test_draw.circles[2].html).style('fill', test_draw.bothColor);
+			test_draw.circles[3].color = test_draw.entity2Color;
+			test_draw.circles[3].group = 0;
+			d3.select(test_draw.circles[3].html).style('fill', test_draw.entity2Color);
 			
 			for (var i = 0; i < 3; i++){
 				var g = d3.select('.canvas svg')
@@ -309,13 +310,15 @@ describe('To test the target event definition widget', function(){
 					class: i.toString()
 				});
 			}
-			for(var i = 0; i < test_draw.circles.length; i++){
-				console.log(test_draw.circles[i].d);
-			}
+			expect(test_draw.isAlone(test_draw.circles[0])).toBe(false);
+			expect(test_draw.isAlone(test_draw.circles[1])).toBe(false);
+			expect(test_draw.isAlone(test_draw.circles[2])).toBe(false);
+			expect(test_draw.isAlone(test_draw.circles[3])).toBe(false);
+						
 			test_draw.deleteNode(test_draw.circles[1].html);
 			expect(test_draw.circles.length).toEqual(3);
 			expect(test_draw.lines.length).toEqual(1);
-			
+						
 			var cT1 = test_draw.circles[0];
 			expect(cT1.color).toEqual('#ffffff');
 			expect(d3.select(cT1.html).style('fill')).toEqual('#ffffff');

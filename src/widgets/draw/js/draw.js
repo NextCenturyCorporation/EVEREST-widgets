@@ -51,12 +51,13 @@ var draw = function(){
 	var me =  this;
 	var url = 'http://localhost:8081/target_assertion/';
 	me.tool_mode, me.tool_button; 
-	
-	var entity1Color = getHexString('.entity1Color');
-	var entity2Color = getHexString('.entity2Color');
-	var bothColor = getHexString('.bothColor');
-	var selectColor = '#ff0000';
 	var white = '#ffffff';
+	
+	me.entity1Color = getHexString('.entity1Color');
+	me.entity2Color = getHexString('.entity2Color');
+	me.bothColor = getHexString('.bothColor');
+	me.selectColor = '#ff0000';
+	
 	me.radius = 8;
 	
 	me.canvasW = 0;
@@ -534,7 +535,7 @@ var draw = function(){
 				
 				if (cSvg.attr('cx') < right && cSvg.attr('cx') > left){
 					if (cSvg.attr('cy') < bottom && cSvg.attr('cy') > top){
-						cSvg.style('fill', selectColor);
+						cSvg.style('fill', me.selectColor);
 					} else {
 						var i = me.circles.indexOfObj(cSvg.attr('class'), 
 							'class');
@@ -558,8 +559,8 @@ var draw = function(){
 				
 				if (midX < right && midX > left){
 					if (midY < bottom && midY > top){
-						lSvg.style('stroke', selectColor);
-						path.style('stroke', selectColor);
+						lSvg.style('stroke', me.selectColor);
+						path.style('stroke', me.selectColor);
 					} else {
 						lSvg.style('stroke', '#004785');
 						path.style('stroke', '#004785');
@@ -646,18 +647,18 @@ var draw = function(){
 					
 					var node1 = me.circles[ind1];
 					if (node1.color === white){
-						node1.color = entity1Color;
-					} else if ( node1.color !== entity1Color){
-						node1.color = bothColor;
+						node1.color = me.entity1Color;
+					} else if ( node1.color !== me.entity1Color){
+						node1.color = me.bothColor;
 					}
 					cSvg1.transition(2500)
 						.style('fill', me.circles[ind1].color);
 						
 					var node2 = me.circles[ind2];
 					if (node2.color === white){
-						node2.color = entity2Color;
-					} else if ( node2.color !== entity2Color ){
-						node2.color = bothColor;
+						node2.color = me.entity2Color;
+					} else if ( node2.color !== me.entity2Color ){
+						node2.color = me.bothColor;
 					}
 					cSvg2.transition(2500)
 						.style('fill', me.circles[ind2].color);
@@ -739,9 +740,9 @@ var draw = function(){
 							'class')];
 				
 				if (cObj1.color === white){
-					cObj1.color = entity1Color[0];
-				} else if ( cObj1.color !== entity1Color[0] ){
-					cObj1.color = bothColor[0];
+					cObj1.color = me.entity1Color;
+				} else if ( cObj1.color !== me.entity1Color ){
+					cObj1.color = me.bothColor;
 				}
 				cSvg1.transition(2500)
 					.style('fill', cObj1.color);
@@ -770,12 +771,12 @@ var draw = function(){
 					//create the entity 2
 					cSvg2 = me.createCircle(me.computeCoord(p2.x, 'x'),
 								me.computeCoord(p2.y, 'y'), $('.ent2').val());
-					cSvg2.style('fill', entity2Color[0]);
+					cSvg2.style('fill', me.entity2Color);
 					
 					me.circleCount++;
 					
 					var c = me.simplify(cSvg2);
-					c.color = entity2Color[0];
+					c.color = me.entity2Color;
 					c.group = cObj1.group;
 					me.circles.push(c);
 					
@@ -795,11 +796,11 @@ var draw = function(){
 						me.addLine(cSvg1, cSvg2, $('.relate').val());
 						
 						if ( cObj2.color === white ){
-							cObj2.color = entity2Color;
-							cSvg2.style('fill', entity2Color);
-						} else if ( cObj2.color === entity1Color ){
-							cObj2.color = bothColor;
-							cSvg2.style('fill', bothColor);
+							cObj2.color = me.entity2Color;
+							cSvg2.style('fill', me.entity2Color);
+						} else if ( cObj2.color === me.entity1Color ){
+							cObj2.color = me.bothColor;
+							cSvg2.style('fill', me.bothColor);
 						} 
 					}
 				} else {
@@ -807,11 +808,11 @@ var draw = function(){
 					me.addLine(cSvg1, cSvg2, $('.relate').val());
 					
 					if ( me.circles[c2ind].color === white ){
-						me.circles[c2ind].color = entity2Color;
-						cSvg2.style('fill', entity2Color);
-					} else if ( me.circles[c2ind].color === entity1Color ){
-						me.circles[c2ind].color = bothColor;
-						cSvg2.style('fill', bothColor);
+						me.circles[c2ind].color = me.entity2Color;
+						cSvg2.style('fill', me.entity2Color);
+					} else if ( me.circles[c2ind].color === me.entity1Color ){
+						me.circles[c2ind].color = me.bothColor;
+						cSvg2.style('fill', me.bothColor);
 					} 
 				}	
 				console.log(me.lines);
@@ -907,18 +908,18 @@ var draw = function(){
 					'class')];
 			var cObj2 = me.circles[me.circles.indexOfObj(cSvg2.attr('class'),
 					'class')];
-			
+					
 			if (cObj1.color === white){
-				cObj1.color = entity1Color[0];
-			} else if ( cObj1.color !== entity1Color[0] ){
-				cObj1.color = bothColor[0];
+				cObj1.color = me.entity1Color;
+			} else if ( cObj1.color !== me.entity1Color ){
+				cObj1.color = me.bothColor;
 			}
 			cSvg1.style('fill', cObj1.color);
 			
 			if (cObj2.color === white){
-				cObj2.color = entity2Color[0];
-			} else if ( cObj2.color !== entity2Color[0] ){
-				cObj2.color = bothColor[0];
+				cObj2.color = me.entity2Color;
+			} else if ( cObj2.color !== me.entity2Color ){
+				cObj2.color = me.bothColor;
 			}
 			
 			cSvg2.style('fill', cObj2.color);
