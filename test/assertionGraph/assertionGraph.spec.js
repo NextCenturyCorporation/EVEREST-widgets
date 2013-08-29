@@ -34,7 +34,7 @@ var f = [{
 	"entity2": "g"
 }];
 
-describe('Test src/widget/assertionGraph/js/network.js', function() {
+xdescribe('Test src/widget/assertionGraph/js/network.js', function() {
 	it('Test the midpoint function', function(){
 		var p1 = { x:10, y:100 };
 		var p2 = { x:20, y:300 };
