@@ -34,7 +34,7 @@ var f = [{
 	"entity2": "g"
 }];
 
-xdescribe('Test src/widget/assertionGraph/js/network.js', function() {
+describe('Test src/widget/assertionGraph/js/network.js', function() {
 	it('Test the midpoint function', function(){
 		var p1 = { x:10, y:100 };
 		var p2 = { x:20, y:300 };
@@ -78,7 +78,7 @@ xdescribe('Test src/widget/assertionGraph/js/network.js', function() {
 			expect(net.nodes.length).toEqual(2);
 			expect(net.links.length).toEqual(1);
 			
-			expect(svg.selectAll).toHaveBeenCalledWith('g.linklabelholder');
+			expect(svg.selectAll).toHaveBeenCalledWith('.linklabel');
 		});
 		
 		xit('test the me.tick function', function(){
