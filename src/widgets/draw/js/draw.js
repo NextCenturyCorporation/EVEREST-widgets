@@ -49,7 +49,8 @@ Array.prototype.getAllIndicies = function(value, attribute){
 
 var draw = function(){
 	var me =  this;
-	var url = 'http://localhost:8081/target_assertion/';
+	var assert_url = 'http://localhost:8081/target_assertion/';
+	var event_url = 'http://localhost:8081/target_event/';
 	me.tool_mode, me.tool_button; 
 	var white = '#ffffff';
 	
@@ -76,6 +77,8 @@ var draw = function(){
 	
 	me.lastNodeClicked = null;
 	me.count = 0;
+	me.currentState = {};
+	me.event = {};
 		
 	me.setUpToolbars = function(){
 		me.tool_mode = new toolbar('.toolbar_modes');
@@ -1056,8 +1059,9 @@ var draw = function(){
 	};
 	
 	me.saveTargetAssertions = function(){
-		var currentState = '{ "assertions" : [';
+		me.currentState = { assertions : [], singletons: [] };
 		for (var i = 0; i < me.lines.length; i++){
+			var tempUrl = assert_url;
 			var line = me.lines[i];
 			var c1, c2;
 			for (var j = 0; j < me.circles.length; j++){
@@ -1103,23 +1107,26 @@ var draw = function(){
 				entity2: [entity2]
 			};
 			
-			currentState += JSON.stringify(postData) + ',';
+			//update if already exists in database
+				if ( line.id !== undefined ){
+					tempUrl += line.id;
+				}
+			
+			me.currentState.assertions.push(postData);
 			
 			/*$.ajax({
 				type: "POST",
-				url: url,
-				data: postData
+				url: tempUrl,
+				data: postData,
+				success: function(r){
+					console.log(r);
+				}
 			});*/
 		}
-		
-		if (currentState.slice(-1) === ','){
-			currentState = currentState.slice(0, -1);
-		}
-		
-		currentState += '], "singletons" : [';
-		
+				
 		for (i = 0; i < me.circles.length; i++){
 			var c = me.circles[i];
+			var tempUrl = assert_url;
 			if(me.isAlone(c)){
 				var entity1 = {
 					name: 'entity1',
@@ -1136,25 +1143,71 @@ var draw = function(){
 					description:"",
 					entity1: [entity1]
 				};
-				currentState += JSON.stringify(postData);
+				
+				//update if already exists in database
+				if ( c.id !== undefined ){
+					tempUrl += c.id;
+				}
+				
+				me.currentState.singletons.push(postData);
 				/*$.ajax({
 					type: "POST",
-					url: url,
-					data: postData
-				});*/
+					url: "../../../lib/post_relay.php",
+					data: JSON.stringify({url: url, data: postData}),
+					success: function(){console.log('success');},
+					error: function(){console.log('error');}
+				});
 				
-				if (i !== me.circles.length - 1){
-					currentState += ',';
-				}
+				$.ajax({
+					type: "POST",
+					url: tempUrl,
+					data: postData,
+					success: function(r){
+						console.log(r);
+					}
+				});*/
+			}
+		}
+		me.saveState(JSON.stringify(me.currentState));
+		//me.saveTargetEvent();
+		console.log(me.currentState);
+	};
+	
+	me.saveTargetEvent = function() {
+		var tempUrl = event_url;
+		if ( me.event.id !== undefined ) {
+			tempURL += me.event.id;
+		}
+		
+		me.event = {
+			name: "one",
+			description: "fish two fish",
+			event_horizon: [],
+			location: [],
+			assertions: []
+		};
+		
+		for ( var i = 0; i < me.circles; i++ ) {
+			var cObj = me.circles[i];
+			if ( me.isAlone(cObj) ) {
+				me.event.assertions.push(cObj.id.toString());
 			}
 		}
 		
-		if (currentState.slice(-1) === ','){
-			currentState = currentState.slice(0, -1);
+		for ( var i = 0; i < me.lines; i++ ) {
+			me.event.assertions.push(me.lines[i].id.toString());
 		}
-		currentState += ']}';
-		//console.log(currentState);
-		me.saveState(currentState);
+		
+		console.log(JSON.stringify(me.event));
+		$.ajax({
+			type: "POST",
+			url: tempUrl,
+			dataType: 'application/json',
+			data: JSON.stringify(me.event),
+			success: function(r){
+				console.log(r);
+			}
+		});
 	};
 	
 	me.redraw = function(json){
