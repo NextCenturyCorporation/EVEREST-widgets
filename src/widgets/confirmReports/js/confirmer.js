@@ -1,4 +1,3 @@
-
 Array.prototype.indexOfObj = function(value, attribute){
 	for (var i = 0; i < this.length; i++){
 		if (value.toLowerCase() === 
@@ -6,7 +5,6 @@ Array.prototype.indexOfObj = function(value, attribute){
 			return i;
 		}
 	}
-	
 	return -1;
 };
 
@@ -26,7 +24,15 @@ var confirmer = function(){
 	me.width = 500;
 	me.height = 500;
 	
-	me.svg_target;
+	me.svg_target = d3.select('.target-pattern')
+		.append('svg')
+		.attr('width', me.width)
+		.attr('height', me.height);
+	
+	me.svg_asserts = d3.select('.asserts')
+		.append('svg')
+		.attr('width', me.width)
+		.attr('height', me.height);
 
 	me.createListeners = function(){
 		d3.select('.confirm').on('click', function(){
@@ -43,15 +49,21 @@ var confirmer = function(){
 		d3.select('.alphas').on('change', function(){
 			var elem = $(this)[0];
 			var elem_id = elem.options[elem.selectedIndex].text;
-			
-			
 			for (var i = 0; i < me.alpha_reports.length; i++){
 				if (me.alpha_reports[i]._id === elem_id){
-					d3.selectAll('.alpha-text').remove();
-					d3.select('.alpha-info').append('div')
-						.attr('class', 'alpha-text')
-							.append('text')
-							.text(JSON.stringify(me.alpha_reports[i]));
+					d3.selectAll('.alpha-info text').remove();
+					d3.selectAll('.alpha-info br').remove();
+					var info = d3.select('.alpha-info');
+					var a = me.alpha_reports[i];
+				
+					info.append('text')
+						.text('Source name: ' + a.source_name);
+					info.append('br');
+					info.append('text').text('Source id: ' + a.source_id);
+					info.append('br');
+					info.append('text').text('Created date: ' + a.message_date);
+					info.append('br');
+					info.append('text').text('Message: ' + a.message_body);
 				}
 			}
 			me.getAssertions(elem_id);
@@ -59,14 +71,6 @@ var confirmer = function(){
 	};
 	
 	me.getAlphaReports = function(){
-		/*$.getJSON(url + 'alpha_report/?callback=?', function(data){
-			me.alpha_reports = data;
-			for (var i = 0; i < data.length; i++){
-				d3.select('.alphas')
-					.append('option')
-					.text(data[i]._id);
-			}
-		});*/
 		$.ajax({
 			url: url + 'alpha_report/?callback=?',
 			async: false,
@@ -78,17 +82,6 @@ var confirmer = function(){
 		return data;
 	};
 	
-	/*me.getAssertions = function(id){
-		$.getJSON(url + 'assertion/?callback=?', function(data){
-			for (var i = 0; i < data.length; i++){
-				console.log(data[i].alpha_report_id);
-				if (data[i].alpha_report_id === id){
-					me.assertions.push(data[i]);
-				}
-			}
-		});
-	};*/
-	
 	me.getAssertions = function(ar_id){
 		$.getJSON(url +'assertion/?callback=?', function(asserts){
 			me.assertions = asserts;
@@ -99,15 +92,12 @@ var confirmer = function(){
 				}
 			}
 			
-			d3.select('.assertion-graph').remove();
-			d3.select('.target-graph').remove();
+			me.svg_asserts.select('.node-link-container').remove();
 			
-			var svg = d3.select('.asserts').append('svg')
-				.attr('class', 'assertion-graph')
-				.attr('width', me.width)
-				.attr('height', me.height);
+			me.svg_asserts.append('g')
+				.attr('class', 'node-link-container');
 				
-			svg.append('defs').append('marker')
+			me.svg_asserts.append('defs').append('marker')
 				.attr('id', 'Triangle')
 				.attr('refX', 0).attr('refY', 3)
 				.attr('markerUnits', 'strokeWidth')
@@ -119,7 +109,7 @@ var confirmer = function(){
 					
 			if (assertions.length !== 0){			
 				//display assertions
-				var net = new network(svg, assertions, false);
+				var net = new network(me.svg_asserts, assertions, false);
 				
 				net.draw();
 				net.draw({}, { entity1: "A", relationship: "E", entity2: "B" });
@@ -127,19 +117,16 @@ var confirmer = function(){
 				net.draw({}, { entity1: "b", relationship: "e", entity2: "f" });
 				net.draw({}, { entity1: "B", relationship: "E", entity2: "C" });
 			} 
-			
-			me.getTargetEvents();
 		});
 	};
 	
 	me.redraw = function(json){		
 		me.circles = [];
 		me.lines = [];
-		d3.select('.target-graph').remove();
-		me.svg_target = d3.select('.target-pattern').append('svg')
-			.attr('class', 'target-graph')
-			.attr('width', me.width)
-			.attr('height', me.height);
+		
+		d3.select('.node-link-container').remove();
+		me.svg_target.append('g')
+			.attr('class', 'node-link-container')
 				
 		for (var i = 0; i < json.length; i++){
 			if ( json[i].entity2[0] === undefined ) {
@@ -196,27 +183,34 @@ var confirmer = function(){
 		}
 		
 		me.target_assertions = [];
+		me.maxX = -1;
+		me.maxY = -1;
 		
 		$.getJSON(url + 'target_assertion/?callback=?', function(asserts){
 			for ( var i = 0; i < asserts.length; i++ ) {
 				var a = asserts[i];
 				
-				me.maxX = Math.max(me.maxX, a.entity1[0].x);
-				me.maxY = Math.max(me.maxY, a.entity1[0].y);
-				
-				if (a.entity2[0] !== undefined){
-					me.maxX = Math.max(me.maxX, a.entity2[0].x);
-					me.maxY = Math.max(me.maxY, a.entity2[0].y);
-				}
-				
 				if ( event.assertions.indexOf(a._id.toString()) !== -1 ) {
 					me.target_assertions.push(a);
+					
+					me.maxX = Math.max(me.maxX, a.entity1[0].x);
+					me.maxY = Math.max(me.maxY, a.entity1[0].y);
+					
+					if (a.entity2[0] !== undefined){
+						me.maxX = Math.max(me.maxX, a.entity2[0].x);
+						me.maxY = Math.max(me.maxY, a.entity2[0].y);
+					}
 				}
 			}
 			
 			console.log(JSON.stringify(me.target_assertions));
-			var str = "Name: " + event.name + "\n";
-			d3.select('.target-info').append('text').text(str);
+			d3.selectAll('.target-info text').remove();
+			d3.selectAll('.target-info br').remove();
+			var info = d3.select('.target-info')
+				.append('text').text("Name: " + event.name);
+			info.append('br');
+			info.append('text').text("Description: " + event.description);
+			
 			me.redraw(me.target_assertions);
 		});
 	};
@@ -237,14 +231,22 @@ var confirmer = function(){
 			var ar = me.alpha_reports[0];
 			
 			//display alpha report
-			d3.selectAll('.alpha-text').remove();
-			d3.select('.alpha-info').append('div')
-				.attr('class', 'alpha-text')
-					.append('text')
-					.text(JSON.stringify(ar));
+			d3.selectAll('.alpha-info text').remove();
+			d3.selectAll('.alpha-info br').remove();
+			var info = d3.select('.alpha-info');
+		
+			info.append('text')
+				.text('Source name: ' + ar.source_name);
+			info.append('br');
+			info.append('text').text('Source id: ' + ar.source_id);
+			info.append('br');
+			info.append('text').text('Created date: ' + ar.message_date);
+			info.append('br');
+			info.append('text').text('Message: ' + ar.message_body);
 			
 			me.getAssertions(ar._id);
-		}, 2000);
+			me.getTargetEvents();
+		}, 1000);
 	};
 	
 	/**
@@ -291,8 +293,8 @@ var confirmer = function(){
 	me.addCircle = function(c){
 		var circle = me.svg_target.append('circle')
 			.attr('d', c.value).attr('class', c.class)
-			.attr('cx', c.x * me.width / (me.maxX + 25))
-			.attr('cy', c.y * me.height / (me.maxY + 25))
+			.attr('cx', c.x * me.width / (me.maxX + 50))
+			.attr('cy', c.y * me.height / (me.maxY + 50))
 			.attr('r', 8)
 			.style('fill', c.color)
 			.on('mouseover', me.mouseover)
@@ -326,7 +328,6 @@ var confirmer = function(){
 		var line = lineGroup.append('line', ':first-child')
 			.attr('class', l.class)
 			.attr('d', l.value)
-			.style('stroke', 'black')
 			.attr('x1', me.computeCoord(p1.x, 'x'))
 			.attr('y1', me.computeCoord(p1.y, 'y'))
 			.attr('x2', me.computeCoord(p2.x, 'x'))
@@ -334,7 +335,7 @@ var confirmer = function(){
 			.on('mouseover', me.mouseover)
 			.on('mouseout', me.mouseout);
 
-		//var path = me.createArrow(line);
+		var path = me.createArrow(line);
 		
 		if(me.lines.indexOfObj(l._id, '_id') === -1){
 			var lObj = {
@@ -372,5 +373,20 @@ var confirmer = function(){
 	
 	me.mouseout = function(){
 		me.svg_target.selectAll('text').remove();
+	};
+	
+	me.createArrow = function(line){
+		var path = d3.select(line[0][0].parentNode).insert('path', ':first-child')
+			.attr('class', 'arrow')
+			.attr('marker-mid', 'url(#Triangle)')
+			.attr('d', function(){
+				var midX = (parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2;
+				var midY = (parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2;
+				return 'M '+ line.attr('x1')+' ' + line.attr('y1') +
+					  ' L '+ midX + ' ' + midY +
+					  ' L '+ line.attr('x2')+' ' + line.attr('y2');
+			});
+		
+		return path;
 	};
 };
