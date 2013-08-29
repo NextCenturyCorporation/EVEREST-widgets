@@ -69,14 +69,56 @@ var twitter_admin = function() {
 				keyContainer.append(me.createApiIdDiv($(".api_key_div").length, data[i]._id));
 				console.log(data[i].active);
 				$('.toggle').toggles({type:'select', on: data[i].active});
+				$('.toggle-select-' + data[i]._id).on('toggle', function(e, active) {
+
+					me.handleToggle(data[i]._id, active);
+				});
+
+				$(".api_delete_img_" + data[i]._id).click(function() {
+					me.handleDeleteClick(data[i]._id);
+					console.log("hit");
+				});
 			}
 
-			$(".api_key_container_" + data[i]._id).append(me.createFilter(0));
-			me.bindMoreFiltersButton();
+			$(".api_key_container_" + data[i]._id).append(me.createFilter(0, data[i]._id));
+			me.bindMoreFiltersButton(data[i]._id);
 		}
 
 		if($(".api_key_div").length === 0) {
 			me.onNewKeyButtonClick();
+		}
+	};
+
+	me.handleToggle = function(id, active) {
+		if(active) {
+
+			var url = 'http://localhost:8081/twitter-ingest/start/' + id;
+
+			//get filters
+			var fields = $(".twitter_admin_filter_"+id).val();
+			
+			$.ajax({
+				type: "POST",
+				url: "./post_relay.php",
+				data: JSON.stringify({url: url, data: {filters: fields}}),
+				success: function() {console.log("success");},
+				error: function() {console.log("error");}
+			});
+
+			//TODO gray filters
+		} else {
+			//stop call
+			var url = 'http://localhost:8081/twitter-ingest/stop/' + id;
+
+			$.ajax({
+				type: "POST",
+				url: "./post_relay.php",
+				data: JSON.stringify({url: url, data: null}),
+				success: function() {console.log("success");},
+				error: function() {console.log("error");}
+			});
+
+			//TODO unlock filters
 		}
 	};
 
@@ -87,12 +129,14 @@ var twitter_admin = function() {
 		$(".twitter_admin_cancel_button").on('click', $.proxy(me.onCancelButtonClick, me));
 	};
 
-	me.bindMoreFiltersButton = function() {
+	me.bindMoreFiltersButton = function(id) {
 		var me = this;
-		$(".add_more_filters_button").on('click', $.proxy(me.onAddFilters, me));
+		$(".add_more_filters_button").on('click', function() {
+			me.onAddFilters(id);
+		});
 	}
 
-	me.onAddFilters = function() {
+	me.onAddFilters = function(id) {
 		console.log("hit");
 
 		$(".add_more_filters_button").remove();
@@ -104,8 +148,8 @@ var twitter_admin = function() {
 		var filters = $(".filter_line");
 		var filter_count = filters.length;
 		var last_filter = $(filters[filter_count -1]);
-		last_filter.after(me.createFilter(filter_count));
-		me.bindMoreFiltersButton();
+		last_filter.after(me.createFilter(filter_count, id));
+		me.bindMoreFiltersButton(id);
 	};
 
 	me.onNewKeyButtonClick = function() {
@@ -183,7 +227,18 @@ var twitter_admin = function() {
 		var keyContainer = $(".twitter_admin_form");
 		keyContainer.append(me.createApiIdDiv(currentKeyCount, newId));
 		$('.toggle').toggles({type:'select', on: json.active});
-		//add form
+		$(".api_delete_img_" + id ).on('click', function() {
+			me.handleDeleteClick(id);
+		});
+		//TODO add form
+	};
+
+	me.handleDeleteClick = function(id) {
+		//TODO
+		//make request
+		//on success delete div
+		$(".api_key_container_" + id).remove();
+		//on failure show error
 	};
 
 	me.createApiIdDiv = function(i, id) {
@@ -194,6 +249,8 @@ var twitter_admin = function() {
 								<div class="toggle-dark toggle-dark-' + id + '"> \
 	      							<div class="toggle toggle-select toggle-select-' + id + '" data-type="select"> \
 	    							</div> \
+	    						</div> \
+	    						<div class="api_delete_img api_delete_img_' + id + '"> \
 	    						</div> \
 	    						<div class="api_down_arrow api_down_arrow_' + id + '"> \
 								</div> \
@@ -208,19 +265,20 @@ var twitter_admin = function() {
 	};
 
 	//TODO edit api key
-	//on down arrow display
+	//TODO on down arrow display
 
 	me.onCancelButtonClick = function() {
 		$(".api_key_entry_form").remove();
 		me.changeToNewButton();
 	};
 
-	me.createFilter = function(i) {
+	me.createFilter = function(i, id) {
 
 		var filter_html ='<div class="filter_line"> \
 				<label for="filter_' + i + '" ' + (i === 0 ? 'class="base_filter_label">Filter' : '>') + '</label> \
 				<div class="filter_item_div"> \
-					<input name="filter_' + i + '" class="twitter_admin_filter filter_field_with_more_button multi_filter" /> \
+					<input name="filter_' + i + '" class="twitter_admin_filter \
+						twitter_admin_filter_' + id + ' filter_field_with_more_button multi_filter" /> \
 					<button type="button" class="add_more_filters_button">+</button> \
 				</div> \
 			</div>';
