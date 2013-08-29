@@ -70,6 +70,14 @@
   display: inline-block;
 }
 /* line 70, ../sass/twitter_admin.scss */
+.twitter_admin_container .twitter_admin_form .api_key_display_line .buttons_container_div .api_delete_img, .twitter_admin_container .twitter_filter_form .api_key_display_line .buttons_container_div .api_delete_img {
+  display: inline-block;
+  height: 20px;
+  width: 20px;
+  background-image: url("../../lib/Black_Remove.png");
+  background-size: 100%;
+}
+/* line 79, ../sass/twitter_admin.scss */
 .twitter_admin_container .twitter_admin_form .api_key_display_line .buttons_container_div .api_down_arrow, .twitter_admin_container .twitter_filter_form .api_key_display_line .buttons_container_div .api_down_arrow {
   display: inline-block;
   height: 20px;
@@ -77,29 +85,29 @@
   background-image: url("../../lib/arrowLeft.gif");
   background-size: 100%;
 }
-/* line 81, ../sass/twitter_admin.scss */
+/* line 90, ../sass/twitter_admin.scss */
 .twitter_admin_container .twitter_admin_form .twitter_admin_api_field, .twitter_admin_container .twitter_filter_form .twitter_admin_api_field {
   float: right;
   margin-right: 24px;
 }
-/* line 87, ../sass/twitter_admin.scss */
+/* line 96, ../sass/twitter_admin.scss */
 .twitter_admin_container .twitter_admin_buttons_div {
   width: 365px;
   margin: 10px 0px 0px 0px;
 }
-/* line 91, ../sass/twitter_admin.scss */
+/* line 100, ../sass/twitter_admin.scss */
 .twitter_admin_container .twitter_admin_buttons_div .button_inner_div {
   float: left;
 }
-/* line 94, ../sass/twitter_admin.scss */
+/* line 103, ../sass/twitter_admin.scss */
 .twitter_admin_container .twitter_admin_buttons_div .button_inner_div .twitter_admin_start {
   margin: 0px 10px 0px 0px;
 }
-/* line 98, ../sass/twitter_admin.scss */
+/* line 107, ../sass/twitter_admin.scss */
 .twitter_admin_container .twitter_admin_buttons_div .button_inner_div .twitter_admin_stop {
   margin: 0px 0px 0px 0px;
 }
-/* line 104, ../sass/twitter_admin.scss */
+/* line 113, ../sass/twitter_admin.scss */
 .twitter_admin_container hr {
   width: 100%;
   margin: 10px 0px 5px 0px;
