@@ -25,7 +25,6 @@ var network = function(svg, data, disjoint){
 	me.color = d3.scale.category10();
 	me.linktext;
 	
-	
 	me.force = d3.layout.force()
 		.size([svg.attr('width'), svg.attr('height')])
 		.linkDistance(100)
@@ -63,8 +62,8 @@ var network = function(svg, data, disjoint){
 			})
 			.call(me.force.drag);
 				
-		me.linktext = me.svg.selectAll("g.linklabelholder").data(me.force.links());
-		me.linktext.enter().append("g").attr("class", "linklabelholder")
+		me.linktext = me.svg.selectAll(".linklabel").data(me.force.links());
+		me.linktext.enter()
 			.append("text")
 			.attr("class", "linklabel")
 			.attr("dx", 1)

@@ -92,7 +92,11 @@ var confirmer = function(){
 				}
 			}
 			
-			me.svg_asserts.select('.node-link-container').remove();
+			me.svg_asserts.remove();
+			me.svg_asserts = d3.select('.asserts')
+				.append('svg')
+				.attr('width', me.width)
+				.attr('height', me.height);
 			
 			me.svg_asserts.append('g')
 				.attr('class', 'node-link-container');
@@ -126,7 +130,7 @@ var confirmer = function(){
 		
 		d3.select('.node-link-container').remove();
 		me.svg_target.append('g')
-			.attr('class', 'node-link-container')
+			.attr('class', 'node-link-container');
 				
 		for (var i = 0; i < json.length; i++){
 			if ( json[i].entity2[0] === undefined ) {
@@ -163,14 +167,16 @@ var confirmer = function(){
 	
 	me.getTargetEvents = function(){
 		$.getJSON(url + 'target_event/?callback=?', function(events){
-			me.target_events = events;
-			for ( var i = 0; i < events.length; i++ ) {
-				d3.select('.patterns')
-					.append('option')
-					.text(events[i]._id);
+			if (events[0] !== undefined){
+				me.target_events = events;
+				for ( var i = 0; i < events.length; i++ ) {
+					d3.select('.patterns')
+						.append('option')
+						.text(events[i]._id);
+				}
+				console.log(events);	
+				me.getTargetAssertions(events[0]._id);
 			}
-			console.log(events);	
-			me.getTargetAssertions(events[0]._id);
 		});
 	};
 	
@@ -366,7 +372,8 @@ var confirmer = function(){
 		} 
 		
 		//add text to the canvas near the element
-		me.svg_target.append('text')
+		me.svg_target.select('.node-link-container')
+			.append('text')
 			.attr('x', x).attr('y', y)
 			.text(item.attr('d'));
 	};
