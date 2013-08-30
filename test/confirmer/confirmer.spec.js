@@ -364,7 +364,6 @@ describe('test network.js function', function(){
 			net4.draw({}, { entity1: "a", relationship: "z", entity2: "b" });
 			net4.draw({}, { entity1: "b", relationship: "y", entity2: "c" });
 			net4.draw({}, { entity1: "c", relationship: "x", entity2: "a" });
-					
 			expect(net4.nodes.length).toEqual(3);
 			expect(net4.links.length).toEqual(3);
 			expect(net4.nodes[0].color).toEqual(bothColor);

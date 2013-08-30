@@ -78,7 +78,7 @@ describe('Test src/widget/assertionGraph/js/network.js', function() {
 			expect(net.nodes.length).toEqual(2);
 			expect(net.links.length).toEqual(1);
 			
-			expect(svg.selectAll).toHaveBeenCalledWith('g.linklabelholder');
+			expect(svg.selectAll).toHaveBeenCalledWith('.linklabel');
 		});
 		
 		xit('test the me.tick function', function(){

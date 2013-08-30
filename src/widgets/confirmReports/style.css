@@ -10,7 +10,7 @@ div {
 	border-color:#004785;
 }
 
-.alpha-info, .confirmer {
+.alpha_report, .confirmer {
 	display:block;
 	width:500px;
 	height:200px;
@@ -28,13 +28,13 @@ div {
 	float:right;
 }
 
-.link {
-	fill: none;
+line, path {
+	fill: #666;
 	stroke: #666;
 	stroke-width: 1.5px;
 }
 
-.alpha-text {
+.alpha-info, .event-info {
 	pointer-events: none;
 	fill: black;
 	word-wrap:break-word;
