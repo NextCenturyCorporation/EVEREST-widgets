@@ -54,23 +54,23 @@
 }
 
 circle{
-	stroke:#004785;
-	stroke-width:2;
-	fill:white;
 	cursor:pointer;
+	stroke: #666;
+	stroke-width:1.5px;
 }
 
 line{
-	stroke:#004785;
-	stroke-width:3;
+	fill: #666;
+	stroke: #666;
+	stroke-width:1.5px;
 	cursor:pointer;
 }
 
 path {
-	stroke:#004785;
-	stroke-width:1.6;
+	fill: #666;
+	stroke: #666;
+	stroke-width:1.5px;
 	cursor:pointer;
-	fill:#004785;
 }
 
 label{
