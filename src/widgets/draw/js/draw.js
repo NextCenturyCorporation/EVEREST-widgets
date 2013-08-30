@@ -61,6 +61,9 @@ var draw = function(){
 	
 	me.radius = 8;
 	
+	me.maxX = -1;
+	me.maxY = -1;
+	
 	me.canvasW = 0;
 	me.canvasH = 0;
 	me.canvasC = { };
