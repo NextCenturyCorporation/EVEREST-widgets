@@ -39,7 +39,7 @@ raw_data_widget.execute = function() {
 				OWF.ready(function(){
 					//to be removed later on, and put back clearing into resetAndSend
 					//UPDATE: set to zero to allow immediate loading of the heatChart widget
-					setInterval(raw_data_table.resetAndSend, 0);
+					setInterval(raw_data_table.resetAndSend, 10000);
 			
 					OWF.Eventing.subscribe("com.nextcentury.everest.timeline_announcing", function(sender, msg){
 						var range = msg.substring(1,msg.length - 1).split(',');
