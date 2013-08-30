@@ -128,9 +128,12 @@ var confirmer = function(){
 		me.circles = [];
 		me.lines = [];
 		
-		d3.select('.node-link-container').remove();
-		me.svg_target.append('g')
-			.attr('class', 'node-link-container');
+		me.svg_target.remove();
+		me.svg_target = d3.select('.target-pattern')
+			.append('svg')
+			.attr('width', me.width)
+			.attr('height', me.height);
+		me.svg_target.append('g').attr('class', 'node-link-container');
 				
 		for (var i = 0; i < json.length; i++){
 			if ( json[i].entity2[0] === undefined ) {
@@ -297,7 +300,8 @@ var confirmer = function(){
 	};
 	
 	me.addCircle = function(c){
-		var circle = me.svg_target.append('circle')
+		var circle = me.svg_target.select('.node-link-container')
+			.append('circle')
 			.attr('d', c.value).attr('class', c.class)
 			.attr('cx', c.x * me.width / (me.maxX + 50))
 			.attr('cy', c.y * me.height / (me.maxY + 50))
@@ -329,7 +333,8 @@ var confirmer = function(){
 		};
 	
 		//create the line for the new entity 1 entity 2 relationship
-		var lineGroup = me.svg_target.insert('g', ':first-child');
+		var lineGroup = me.svg_target.select('.node-link-container')
+			.insert('g', ':first-child');
 		
 		var line = lineGroup.append('line', ':first-child')
 			.attr('class', l.class)
