@@ -111,15 +111,9 @@ var confirmer = function(){
 				.append('svg:path')
 					.attr('d', 'M 0 0 L 6 3 L 0 6 z');
 					
-			if (assertions.length !== 0){			
-				//display assertions
+			if (assertions.length !== 0){		//display assertions	
 				var net = new network(me.svg_asserts, assertions, false);
-				
 				net.draw();
-				net.draw({}, { entity1: "A", relationship: "E", entity2: "B" });
-				net.draw({}, { entity1: "b", relationship: "e", entity2: "c" });
-				net.draw({}, { entity1: "b", relationship: "e", entity2: "f" });
-				net.draw({}, { entity1: "B", relationship: "E", entity2: "C" });
 			} 
 		});
 	};
