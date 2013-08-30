@@ -24,6 +24,7 @@ var network = function(svg, data, disjoint){
 	me.node = svg.selectAll('.node');
 	me.color = d3.scale.category10();
 	me.linktext;
+	me.radius = 8;
 	
 	me.force = d3.layout.force()
 		.size([svg.attr('width'), svg.attr('height')])
@@ -73,7 +74,7 @@ var network = function(svg, data, disjoint){
 		
 		nodeEnter.append("circle")
 			.attr('class', function(d) { return d.value; })
-			.attr("r", 8);
+			.attr("r", me.radius);
 		
 		nodeEnter.append("text")
 			.attr("x", 12)
@@ -112,12 +113,12 @@ var network = function(svg, data, disjoint){
 	me.mouseover = function(){
 		d3.select(this).select("circle").transition()
 			.duration(750)
-			.attr("r", 16);
+			.attr("r", 2 * me.radius);
 	};
 	
 	me.mouseout = function(){
 		d3.select(this).select("circle").transition()
 			.duration(750)
-			.attr("r", 8);
+			.attr("r", me.radius);
 	};
 };
