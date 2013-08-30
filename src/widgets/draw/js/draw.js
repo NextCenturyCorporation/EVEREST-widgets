@@ -715,7 +715,6 @@ var draw = function(){
 			$('.relate').focus();		//apparently errors in IE if focus before visible
 			
 			var that = this;
-	
 			//creates on click event for rel - entity 2 form submit button 
 			d3.select('.rel-ent-submit').on('click', function(){
 				if ( $('.ent2').val() === ''  ||  $('.relate').val() === '' ) {
@@ -756,13 +755,8 @@ var draw = function(){
 					cSvg2 = me.createCircle(me.computeCoord(p2.x, 'x'),
 								me.computeCoord(p2.y, 'y'), $('.ent2').val());
 					cSvg2.style('fill', me.entity2Color);
-					
-					me.circleCount++;
-					
-					var cObj2 = me.simplify(cSvg2);
-					cObj2.color = me.entity2Color;
-					cObj2.group = cObj1.group;
-					me.circles.push(cObj2);
+					me.circles[me.circles.length - 1].color = me.entity2Color;
+					me.circles[me.circles.length - 1].group = cObj1.group;
 					
 					me.addLine(cSvg1, cSvg2, $('.relate').val());
 				} else if (lInds.length !== 0) {
