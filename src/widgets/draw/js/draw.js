@@ -686,12 +686,12 @@ var draw = function(){
 					
 					var cObj1 = me.circles[ind1];
 					me.alterNodeColor('entity1', cObj1);
-					cSvg1.transition(2500).style('fill', cObj1.color);
+					cSvg1.style('fill', cObj1.color);
 					cSvg1.style('fill', cObj1.color);
 					
 					var cObj2 = me.circles[ind2];
 					me.alterNodeColor('entity2', cObj2);
-					cSvg2.transition(2500).style('fill', cObj2.color);
+					cSvg2.style('fill', cObj2.color);
 					
 					var toAttach = me.extractCircles(cObj2.group);
 					for ( var j = 0; j < toAttach.length; j++ ) {
@@ -765,7 +765,7 @@ var draw = function(){
 							'class')];
 							
 				me.alterNodeColor('entity1', cObj1);
-				cSvg1.transition(2500).style('fill', cObj1.color);
+				cSvg1.style('fill', cObj1.color);
 								
 				//grab a random direction for new entity
 				var deg = 360 * Math.random();
@@ -817,7 +817,7 @@ var draw = function(){
 						cSvg2 = d3.select(cObj2.html);
 						me.addLine(cSvg1, cSvg2, $('.relate').val());
 						me.alterNodeColor('entity2', cObj2);
-						cSvg2.transition(2500).style('fill', cObj2.color);
+						cSvg2.style('fill', cObj2.color);
 					}
 				} else {
 					var cObj2 = me.circles[c2ind];
@@ -831,7 +831,7 @@ var draw = function(){
 					cSvg2 = d3.select(cObj2.html);
 					me.addLine(cSvg1, cSvg2, $('.relate').val());
 					me.alterNodeColor('entity2', cObj2);
-					cSvg2.transition(2500).style('fill', cObj2.color);
+					cSvg2.style('fill', cObj2.color);
 				}			
 				
 				$('.relate').val('');

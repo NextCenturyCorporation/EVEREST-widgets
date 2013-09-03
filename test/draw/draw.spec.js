@@ -260,15 +260,17 @@ describe('To test the target event definition widget', function(){
 	//these are all used as callback in draw.js... (with this keyword)
 	describe('the movement functions', function(){
 		it('the move function in mover_hold mode', function(){
-			test_draw.mode = 'mover_hold';
+			test_draw.tool_mode.setMode('mover_hold');
 			
 			spyOn(test_draw.circles, 'indexOfObj').andCallThrough();
 			spyOn(test_draw, 'extractCircles').andCallThrough();
 			spyOn(test_draw, 'dragGroup').andCallThrough();
+			
+			
 		});
 		
 		it('the move function in select_hold mode', function(){
-			test_draw.mode = 'mover_hold';
+			test_draw.tool_mode.setMode('select_hold');
 			
 			spyOn(test_draw.circles, 'indexOfObj').andCallThrough();
 			spyOn(test_draw, 'extractCircles').andCallThrough();
@@ -293,17 +295,152 @@ describe('To test the target event definition widget', function(){
 	});	
 	
 	describe('the clicking functions', function(){
-		it('the nodeClick function in rel_hold mode', function(){
-		
-		});
-		
-		it('the nodeClick function in delete_hold mode', function(){
-		
+		describe('the nodeClick function', function(){
+			beforeEach(function(){
+				test_draw.tool_mode.setMode('rel_hold');
+				test_draw.circles = [];
+				test_draw.lines = [];
+				test_draw.lastNodeClicked = null;
+				
+				spyOn(window, '$').andCallThrough();
+				spyOn(window, 'alert').andCallThrough();
+				
+				spyOn(d3, 'select').andCallThrough();
+				
+				spyOn(test_draw, 'alterNodeColor').andCallThrough();
+				spyOn(test_draw, 'extractCircles').andCallThrough();
+				spyOn(test_draw, 'addLine').andCallThrough();
+				spyOn(test_draw, 'deleteNode').andCallThrough();
+				spyOn(test_draw.circles, 'indexOfObj').andCallThrough();
+				spyOn(test_draw.lines, 'getAllIndicies').andCallThrough();
+				
+			});
+			
+			describe('in rel_hold mode', function(){
+				it ('for proper method calling', function(){
+					var aSvg = test_draw.addCircle(50, 50, 'rel_circle');
+					var bSvg = test_draw.addCircle(100, 100, 'other');
+					
+					var aObj = test_draw.circles[0];
+					var bObj = test_draw.circles[1];
+					document.getElementsByClassName(aObj.class)[0]
+						.dispatchEvent(clickEvt);
+						
+					expect(test_draw.lastNodeClicked).toEqual(aObj.html);
+					
+					document.getElementsByClassName(bObj.class)[0]
+						.dispatchEvent(clickEvt);
+				});
+				
+				it('for proper return values, with proper input', function(){
+					var aSvg = test_draw.addCircle(50, 50, 'rs');
+					var bSvg = test_draw.addCircle(100, 100, 'other');
+					
+					var aObj = test_draw.circles[0];
+					var bObj = test_draw.circles[1];
+					var origGroup = bObj.group;
+					document.getElementsByClassName(aObj.class)[0]
+						.dispatchEvent(clickEvt);
+						
+					expect(test_draw.lastNodeClicked).toEqual(aObj.html);
+					
+					document.getElementsByClassName(bObj.class)[0]
+						.dispatchEvent(clickEvt);
+						
+					expect($).toHaveBeenCalledWith('.rel-form');
+					expect($).toHaveBeenCalledWith('.canvas');
+					expect($).toHaveBeenCalledWith('.rel-only');
+					expect(d3.select).toHaveBeenCalledWith('.rel-submit');
+					
+					$('.rel-only').val('bacon');
+					document.getElementsByClassName('rel-submit')[0]
+						.dispatchEvent(clickEvt);
+						
+					expect(alert).not.toHaveBeenCalled();
+					expect(d3.select).toHaveBeenCalledWith(aObj.html);
+					expect(d3.select).toHaveBeenCalledWith(bObj.html);
+					
+					expect(test_draw.alterNodeColor).toHaveBeenCalledWith('entity1', aObj);
+					expect(test_draw.alterNodeColor).toHaveBeenCalledWith('entity2', bObj);
+					expect(aSvg.style('fill')).toEqual(entity1Color);
+					expect(bSvg.style('fill')).toEqual(entity2Color);
+					
+					expect(test_draw.extractCircles).toHaveBeenCalledWith(origGroup);
+					expect(test_draw.lines.getAllIndicies).toHaveBeenCalledWith('bacon', 'd');
+					
+					expect(test_draw.addLine).toHaveBeenCalledWith(aSvg, bSvg, 'bacon');
+					expect(test_draw.lastNodeClicked).toEqual(null);
+				});
+				
+				it('for proper resulting values, clicking same twice', function(){
+					var aSvg = test_draw.addCircle(50, 50, 'r');
+					
+					var aObj = test_draw.circles[0];
+					document.getElementsByClassName(aObj.class)[0]
+						.dispatchEvent(clickEvt);
+						
+					expect(test_draw.lastNodeClicked).toEqual(aObj.html);
+					
+					document.getElementsByClassName(aObj.class)[0]
+						.dispatchEvent(clickEvt);
+						
+					expect($).not.toHaveBeenCalled();
+				});
+				
+				it('trying to make the same line twice', function(){
+					var aSvg = test_draw.addCircle(50, 50, 'rs');
+					var bSvg = test_draw.addCircle(100, 100, 'other');
+					
+					var aObj = test_draw.circles[0];
+					var bObj = test_draw.circles[1];
+					var origGroup = bObj.group;
+					document.getElementsByClassName(aObj.class)[0]
+						.dispatchEvent(clickEvt);
+					
+					document.getElementsByClassName(bObj.class)[0]
+						.dispatchEvent(clickEvt);
+					
+					$('.rel-only').val('bacon');
+					
+					document.getElementsByClassName('rel-submit')[0]
+						.dispatchEvent(clickEvt);
+						
+					expect(test_draw.lines.length).toEqual(1);
+					
+					document.getElementsByClassName(aObj.class)[0]
+						.dispatchEvent(clickEvt);
+					
+					document.getElementsByClassName(bObj.class)[0]
+						.dispatchEvent(clickEvt);
+					
+					$('.rel-only').val('bacon');
+					
+					document.getElementsByClassName('rel-submit')[0]
+						.dispatchEvent(clickEvt);
+						
+					expect(test_draw.lines.length).toEqual(1);
+					expect(test_draw.addLine.callCount).toEqual(1);
+				});
+			});
+			
+			xit('in delete_hold mode', function(){
+				var aSvg = d3.select('.csvg').append('circle');
+				var cl = aSvg.attr('class');
+								
+				test_draw.tool_mode.setMode('delete_hold');
+				
+				document.getElementsByClassName(aSvg.attr('class'))[0]
+					.dispatchEvent(clickEvt);
+									
+				expect(test_draw.circles.length).toEqual(1);
+				expect(test_draw.lines.length).toEqual(0);
+				expect(test_draw.circles[0].color).toEqual('#ffffff');
+			});
 		});
 		
 		describe('the doubleClick function in empty mode', function(){
 			beforeEach(function(){
-				test_draw.mode = '';
+				test_draw.tool_mode.setMode('');
 				test_draw.circles = [];
 				test_draw.lines = [];
 				
@@ -620,6 +757,10 @@ describe('To test the target event definition widget', function(){
 			expect(nodeE.color).toEqual(entity2Color);
 			expect(nodeC.group).toEqual(nodeA.group);
 			expect(nodeE.group).toEqual(nodeA.group);
+			
+			expect(d3.select(nodeA.html).style('fill')).toEqual(entity1Color);
+			expect(d3.select(nodeC.html).style('fill')).toEqual(bothColor);
+			expect(d3.select(nodeE.html).style('fill')).toEqual(entity2Color);
 		});
 
 	});
