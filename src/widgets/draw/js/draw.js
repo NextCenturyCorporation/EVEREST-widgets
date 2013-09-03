@@ -231,8 +231,8 @@ var draw = function(){
 		@functionality - grabs the .canvas div and adds an svg element to it 
 		which will be where any target event definition elements are added to.
 		an on click event is added to the svg element which executes 
-		me.appendCircle if the mode is currently node_hold
-		@internal functions - me.appendCircle
+		me.createCircle if the mode is currently node_hold
+		@internal functions - me.createCircle
 	*/
 	me.createCanvas = function(){
 		var canvas = d3.select('.canvas');
@@ -241,7 +241,7 @@ var draw = function(){
 			.on('click', function(){
 				if (me.tool_mode.getMode() === 'node_hold'){
 					var ev = d3.mouse(this);
-					me.appendCircle(ev);
+					me.createCircle(ev);
 				} else if (me.tool_mode.getMode() === 'select_hold'){
 					me.resetColors();
 				}
@@ -280,16 +280,15 @@ var draw = function(){
 			} else if (e.keyCode === 90 && e.ctrlKey){
 				me.undo();
 			}
-			
 		});
 		
 		$('.csvg').mousedown(me.saveTargetAssertions);
 	};
 	
 	
-	me.createCircle = function(x, y, d, c){
+	me.addCircle = function(x, y, d, c){
 		var fill, cclass, group;
-		if(typeof(c) !== 'undefined'){
+		if ( c !== undefined ) {
 			fill = c.color;
 			cclass = c.class;
 			group = c.group;
@@ -332,7 +331,7 @@ var draw = function(){
 				 a circle/node based on the description the user entered.
 		@internal functions - none
 	*/
-	me.appendCircle = function(e){
+	me.createCircle = function(e){
 		$('.ent1-form').animate({
 			top:( $('.canvas').height() / 2 ) - ( $('.ent1-form').height() / 2 )
 		}, 750);
@@ -341,7 +340,7 @@ var draw = function(){
 		//click event gets defined every time a new node is created...?
 		d3.select('.ent-submit').on('click', function(){
 			if (me.circles.indexOfObj($('.ent1').val(), 'd') === -1){
-				var circle = me.createCircle(e[0], e[1], $('.ent1').val());
+				var circle = me.addCircle(e[0], e[1], $('.ent1').val());
 			}
 			
 			$('.ent1').val('');
@@ -353,7 +352,7 @@ var draw = function(){
 	
 	me.addLine = function(c1, c2, d, l){
 		var lineClass;
-		if (typeof(l) !== 'undefined'){
+		if ( l !== undefined ) {
 			lineClass = l.class;
 		} else {
 			lineClass = me.lineCount;
@@ -373,7 +372,7 @@ var draw = function(){
 	
 		//create the line for the new entity 1 entity 2 relationship
 		var lineGroup = d3.select('.node-link-container')
-				.insert('g', ':first-child');
+			.insert('g', ':first-child');
 		
 		var line = lineGroup.append('line', ':first-child')
 			.attr('class', lineClass)
@@ -382,7 +381,7 @@ var draw = function(){
 			.attr('y1', me.computeCoord(p1.y, 'y'))
 			.attr('x2', me.computeCoord(p2.x, 'x'))
 			.attr('y2', me.computeCoord(p2.y, 'y'))
-			//.call(d3.behavior.drag().on('drag', me.move))
+			.call(d3.behavior.drag().on('drag', me.move))
 			.on('click', me.lineclick)
 			.on('mouseover', me.mouseover)
 			.on('mouseout', me.mouseout); 
@@ -414,10 +413,21 @@ var draw = function(){
 		@internal functions - me.dragGroup
 	*/
 	me.move = function(){
-		if(me.tool_mode.getMode() === 'mover_hold'){
+		var item;
+		if ( this.localName === 'line' ) {
+			var lSvg = d3.select(this);
+			var lObj = me.lines[me.lines.indexOfObj(lSvg.attr('class'),
+				'class' )];
+			item = lObj.source;
+		} else if ( this.localName === 'circle' ) {
+			item = this;
+		}
+	
+		if ( me.tool_mode.getMode() === 'mover_hold' ||
+				this.localName === 'line') {
 			var circles = [];
 			
-			var group = me.circles.indexOfObj(d3.select(this).attr('class'),
+			var group = me.circles.indexOfObj(d3.select(item).attr('class'),
 					 'class');
 			var x = me.extractCircles(me.circles[group].group);
 			
@@ -425,9 +435,8 @@ var draw = function(){
 				var circle = me.circles[x[i]].html;
 				me.dragGroup(circle);
 			}
-		} else if (me.tool_mode.getMode() === 'select_hold'){
-			if (d3.select(this).style('fill') === '#ff0000'){
-				var nodesToDrag = [];
+		} else if ( me.tool_mode.getMode() === 'select_hold' ) {
+			if ( d3.select(item).style('fill') === '#ff0000' ) {
 				d3.selectAll('.canvas line').each(function(){
 					if (d3.select(this).style('stroke') === '#ff0000'){
 						d3.select(this.parentNode).select('path').remove();
@@ -442,7 +451,7 @@ var draw = function(){
 				});
 			}
 		} else if (me.tool_mode.getMode() === ''){
-			me.dragGroup(this);
+			me.dragGroup(item);
 		}
 	};
 	
@@ -752,7 +761,7 @@ var draw = function(){
 				var cSvg2;
 				if (c2ind === -1){
 					//create the entity 2
-					cSvg2 = me.createCircle(me.computeCoord(p2.x, 'x'),
+					cSvg2 = me.addCircle(me.computeCoord(p2.x, 'x'),
 								me.computeCoord(p2.y, 'y'), $('.ent2').val());
 					cSvg2.style('fill', me.entity2Color);
 					me.circles[me.circles.length - 1].color = me.entity2Color;
@@ -826,6 +835,10 @@ var draw = function(){
 			if(this.localName === 'circle'){
 				x = parseInt(item.attr('cx'), 10) + 15;
 				y = parseInt(item.attr('cy'), 10) - 15;
+				d3.select(this).transition()
+					.duration(750)
+					.attr("r", 2 * me.radius);
+				
 			//if instead it is a relationship
 			} else if (this.localName === 'line'){
 				x = ((parseInt(item.attr('x1'), 10) + parseInt(item.attr('x2'), 10)) / 2) + 15;
@@ -852,6 +865,11 @@ var draw = function(){
 	me.mouseout = function(){
 		if(!me.labelsShown){
 			d3.selectAll('.canvas text').remove();
+			if (this.localName === 'circle'){
+				d3.select(this).transition()
+					.duration(750)
+					.attr("r", me.radius);
+			}
 		}
 	};
 	
@@ -971,7 +989,7 @@ var draw = function(){
 	};
 		
 	me.createArrow = function(line){
-		var path = d3.select(line[0][0].parentNode).append('path')
+		var path = d3.select(line[0][0].parentNode).insert('path', ':first-child')
 			.attr('class', 'arrow')
 			.attr('marker-mid', 'url(#Triangle)')
 			.attr('d', function(){
@@ -1220,12 +1238,12 @@ var draw = function(){
 			var cInd2 = me.circles.indexOfObj(c2.class, 'class');
 			
 			if (cInd1 === -1){
-				me.createCircle(c1.x, c1.y, c1.value, c1);
+				me.addCircle(c1.x, c1.y, c1.value, c1);
 				cInd1 = me.circles.length - 1;
 			}
 			
 			if (cInd2 === -1){
-				me.createCircle(c2.x, c2.y, c2.value, c2);
+				me.addCircle(c2.x, c2.y, c2.value, c2);
 				cInd2 = me.circles.length - 1;
 			}
 			
@@ -1239,7 +1257,7 @@ var draw = function(){
 		for (var i = 0; i < singletons.length; i++){
 			var c = singletons[i].entity1[0];
 			if (me.circles.indexOfObj(c.class,'class') === -1){
-				me.createCircle(c.x, c.y, c.value, c);
+				me.addCircle(c.x, c.y, c.value, c);
 			}
 		}
 	};
