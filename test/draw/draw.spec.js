@@ -35,6 +35,9 @@ describe('To test the target event definition widget', function(){
 	var tool1 = d3.select('.toolbar_modes');
 	var tool2 = d3.select('.toolbar_buttons');
 	
+	var evt = document.createEvent('Event');
+	evt.initEvent('click', true, false);
+	
 	describe('to see if test_draw attributes actually exist', function(){	
 		it('', function(){
 			expect(test_draw.canvasW).toEqual(0);
@@ -241,10 +244,7 @@ describe('To test the target event definition widget', function(){
 			expect($).toHaveBeenCalledWith('.canvas');
 			$('.ent1').val('lady');
 			
-			var evt = document.createEvent('Event');
-			evt.initEvent('click', true, false);
 			document.getElementsByClassName('ent-submit')[0].dispatchEvent(evt);
-			
 			expect(test_draw.addCircle).toHaveBeenCalledWith(49, 20, 'lady');
 			
 			$('.ent1').val('lady');
