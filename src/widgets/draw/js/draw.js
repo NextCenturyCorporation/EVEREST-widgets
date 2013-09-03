@@ -341,6 +341,9 @@ var draw = function(){
 		@internal functions - none
 	*/
 	me.createCircle = function(e){
+		if ( !e[0] ){ e[0] = 0; }
+		if ( !e[1] ){ e[1] = 0; }
+		
 		$('.ent1-form').animate({
 			top:( $('.canvas').height() / 2 ) - ( $('.ent1-form').height() / 2 )
 		}, 750);
@@ -684,6 +687,7 @@ var draw = function(){
 					var cObj1 = me.circles[ind1];
 					me.alterNodeColor('entity1', cObj1);
 					cSvg1.transition(2500).style('fill', cObj1.color);
+					cSvg1.style('fill', cObj1.color);
 					
 					var cObj2 = me.circles[ind2];
 					me.alterNodeColor('entity2', cObj2);
@@ -828,9 +832,7 @@ var draw = function(){
 					me.addLine(cSvg1, cSvg2, $('.relate').val());
 					me.alterNodeColor('entity2', cObj2);
 					cSvg2.transition(2500).style('fill', cObj2.color);
-				}	
-				console.log(me.lines);
-				console.log(me.circles);		
+				}			
 				
 				$('.relate').val('');
 				$('.ent2').val('');

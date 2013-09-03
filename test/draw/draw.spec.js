@@ -13,15 +13,15 @@ describe('To test the target event definition widget', function(){
 	ent1.append('button').attr('class', 'ent-cancel');
 	
 	var rel = forms.append('div').attr('class', 'rel-form');
-	ent1.append('input').attr('class', 'rel-only');
+	rel.append('input').attr('class', 'rel-only');
 	rel.append('button').attr('class', 'rel-submit');
 	rel.append('button').attr('class', 'rel-cancel');
 	
 	var ent2 = forms.append('div').attr('class', 'rel-ent2-form');
-	ent1.append('input').attr('class', 'relate');
-	ent1.append('input').attr('class', 'ent2');
-	ent1.append('button').attr('class', 'rel-ent-submit');
-	ent1.append('button').attr('class', 'rel-ent-cancel');
+	ent2.append('input').attr('class', 'relate');
+	ent2.append('input').attr('class', 'ent2');
+	ent2.append('button').attr('class', 'rel-ent-submit');
+	ent2.append('button').attr('class', 'rel-ent-cancel');
 		
 	d3.select('body').append('div').attr('class', 'entity1Color')
 		.style('background-color', '#333399');
@@ -35,8 +35,11 @@ describe('To test the target event definition widget', function(){
 	var tool1 = d3.select('.toolbar_modes');
 	var tool2 = d3.select('.toolbar_buttons');
 	
-	var evt = document.createEvent('Event');
-	evt.initEvent('click', true, false);
+	var clickEvt = document.createEvent('Event');
+	clickEvt.initEvent('click', true, false);
+	
+	var dblClickEvt = document.createEvent('Event');
+	dblClickEvt.initEvent('dblclick', true, false);
 	
 	describe('to see if test_draw attributes actually exist', function(){	
 		it('', function(){
@@ -158,8 +161,8 @@ describe('To test the target event definition widget', function(){
 		it('the toggleLabels function', function(){
 			spyOn(d3, 'selectAll').andCallThrough();
 			spyOn(d3, 'select').andCallThrough();
-			d3.selectAll('.canvas circle').remove();
-			d3.selectAll('.canvas line').remove();
+			d3.selectAll('circle').remove();
+			d3.selectAll('line').remove();
 			test_draw.toggleLabels();
 			
 			expect(d3.selectAll).toHaveBeenCalledWith('.canvas circle');
@@ -244,12 +247,12 @@ describe('To test the target event definition widget', function(){
 			expect($).toHaveBeenCalledWith('.canvas');
 			$('.ent1').val('lady');
 			
-			document.getElementsByClassName('ent-submit')[0].dispatchEvent(evt);
+			document.getElementsByClassName('ent-submit')[0].dispatchEvent(clickEvt);
 			expect(test_draw.addCircle).toHaveBeenCalledWith(49, 20, 'lady');
 			
 			$('.ent1').val('lady');
 			test_draw.createCircle([100, 200]);
-			document.getElementsByClassName('ent-submit')[0].dispatchEvent(evt);
+			document.getElementsByClassName('ent-submit')[0].dispatchEvent(clickEvt);
 			expect(test_draw.addCircle).not.toHaveBeenCalledWith(100, 200, 'lady');
 		});
 	});
@@ -298,25 +301,85 @@ describe('To test the target event definition widget', function(){
 		
 		});
 		
-		it('the doubleClick function in null mode', function(){
-			test_draw.mode = '';
-			test_draw.circles = [];
-			test_draw.lines = [];
+		describe('the doubleClick function in empty mode', function(){
+			beforeEach(function(){
+				test_draw.mode = '';
+				test_draw.circles = [];
+				test_draw.lines = [];
+				
+				spyOn(window, '$').andCallThrough();
+				spyOn(window, 'parseInt').andCallThrough();
+				spyOn(window, 'alert').andCallThrough();
+				
+				spyOn(d3, 'select').andCallThrough();
+				
+				spyOn(test_draw, 'alterNodeColor').andCallThrough();
+				
+				spyOn(test_draw.circles, 'indexOfObj').andCallThrough();
+				spyOn(test_draw.lines, 'getAllIndicies').andCallThrough();
+				spyOn(Math, 'random').andCallThrough();
+				spyOn(Math, 'cos').andCallThrough();
+				spyOn(Math, 'sin').andCallThrough();
+				
+			});
 			
-			spyOn(window, '$').andCallThrough();
-			spyOn(d3, 'select').andCallThrough();
+			it('for proper method call logic before submitting forms', function(){
+				var svg1 = test_draw.addCircle(100, 100, 'apple');
+				svg1.call(test_draw.doubleClickNode);
+				
+				expect($).toHaveBeenCalledWith('.rel-ent2-form');
+				expect($).toHaveBeenCalledWith('.relate');
+				expect(d3.select).toHaveBeenCalledWith('.rel-ent-submit');
+				expect($).not.toHaveBeenCalledWith('.ent2');
+			});
 			
-			var svg1 = test_draw.addCircle(100, 100, 'apple');
-			svg1.call(test_draw.doubleClickNode);
+			it('for proper method call logic during empty submission', function(){
+				var c = test_draw.addCircle(100, 100, 'banana');
+				var cl = c.attr('class');
+				document.getElementsByClassName(cl)[0]
+					.dispatchEvent(dblClickEvt);
+					
+				document.getElementsByClassName('rel-ent-submit')[0]
+					.dispatchEvent(clickEvt);
+					
+				expect($).toHaveBeenCalledWith('.ent2');
+				expect(alert).toHaveBeenCalled();
+			});
 			
-			expect($).toHaveBeenCalledWith('.rel-ent2-form');
-			expect($).toHaveBeenCalledWith('.relate');
-			expect(d3.select).toHaveBeenCalledWith('.rel-ent-submit');
+			it('for proper method call logic during valid submission', function(){
+				var c = test_draw.addCircle(100, 100, 'crab');
+				var cl = c.attr('class');
+				document.getElementsByClassName(cl)[0]
+					.dispatchEvent(dblClickEvt);
+				$('.ent2').val('cheese');
+				$('.relate').val('cow');
+				
+				var elem = document.getElementsByClassName('rel-ent-submit')[0];
+				elem.dispatchEvent(clickEvt);
+					
+				expect(alert).not.toHaveBeenCalled();
+				expect(test_draw.alterNodeColor).toHaveBeenCalled();
+				expect(test_draw.circles.indexOfObj).toHaveBeenCalledWith('cheese', 'd');
+				expect(test_draw.lines.getAllIndicies).toHaveBeenCalledWith('cow', 'd');
+				expect(Math.random).toHaveBeenCalled();
+				expect(Math.sin).toHaveBeenCalled();
+				expect(Math.cos).toHaveBeenCalled();
+			});
 			
-			//$('.rel-ent-submit').call(test_draw.doubleClick);
-			
-			//expect($).toHaveBeenCalledWith('.ent2');
-			//expect($).toHaveBeenCalledWith('.relate');
+			it('for proper resulting values', function(){
+				var c = test_draw.addCircle(100, 100, 'danish');
+				var cl = c.attr('class');
+				document.getElementsByClassName(cl)[0]
+					.dispatchEvent(dblClickEvt);
+				$('.ent2').val('dog');
+				$('.relate').val('drive');
+				
+				var elem = document.getElementsByClassName('rel-ent-submit')[0];
+				elem.dispatchEvent(clickEvt);
+				
+				expect(test_draw.circles.length).toEqual(2);
+				expect(test_draw.lines.length).toEqual(1);
+			});
 		});
 	});	
 	
@@ -373,6 +436,8 @@ describe('To test the target event definition widget', function(){
 		it('the deleteNode function', function(){
 			test_draw.circles = [];
 			test_draw.lines = [];
+			d3.selectAll('circle').remove();
+			d3.selectAll('line').remove();
 			
 			for (var i = 0; i < 4; i++){
 				var temp = test_draw.addCircle(i, i, 'a'+i);
@@ -484,5 +549,78 @@ describe('To test the target event definition widget', function(){
 		});
 	});
 	
-	
+	describe('mimic interactions', function(){
+		beforeEach(function(){
+			test_draw.tool_mode.setMode('');
+			test_draw.circles = [];
+			test_draw.lines = [];
+			d3.selectAll('circle').remove();
+			d3.selectAll('line').remove();
+			test_draw.createCanvas();
+			
+			spyOn(test_draw, 'createCircle').andCallThrough();
+			spyOn(test_draw, 'addCircle').andCallThrough();
+			spyOn(test_draw, 'doubleClickNode').andCallThrough();
+		});
+		
+		it('click, dblclick, dblclick', function(){
+			test_draw.tool_mode.setMode('node_hold');
+						
+			document.getElementsByClassName('csvg')[0]
+				.dispatchEvent(clickEvt);
+				
+			expect(test_draw.createCircle).toHaveBeenCalled();
+			$('.ent1').val('a');
+			
+			document.getElementsByClassName('ent-submit')[0]
+				.dispatchEvent(clickEvt);
+				
+			expect(test_draw.addCircle).toHaveBeenCalled();
+			expect(test_draw.circles.length).toEqual(1);
+			expect(test_draw.lines.length).toEqual(0);
+			
+			var nodeA = test_draw.circles[0];
+			expect(nodeA.color).toEqual('#ffffff');
+			expect(d3.select(nodeA.html).style('fill')).toEqual('#ffffff');
+			
+			test_draw.tool_mode.setMode('');
+
+			document.getElementsByClassName(nodeA.class)[0]
+				.dispatchEvent(dblClickEvt);
+				
+			expect(test_draw.doubleClickNode).toHaveBeenCalled();
+			
+			$('.ent2').val('c');
+			$('.relate').val('b');
+			
+			document.getElementsByClassName('rel-ent-submit')[0]
+				.dispatchEvent(clickEvt);
+			
+			var nodeC = test_draw.circles[1];
+			expect(test_draw.circles.length).toEqual(2);
+			expect(test_draw.lines.length).toEqual(1);
+			expect(nodeA.color).toEqual(entity1Color);
+			expect(nodeC.color).toEqual(entity2Color);
+			expect(nodeC.group).toEqual(nodeA.group);
+			
+			document.getElementsByClassName(nodeC.class)[0]
+				.dispatchEvent(dblClickEvt);
+				
+			$('.ent2').val('e');
+			$('.relate').val('d');
+			
+			document.getElementsByClassName('rel-ent-submit')[0]
+				.dispatchEvent(clickEvt);
+			
+			var nodeE = test_draw.circles[2];
+			expect(test_draw.circles.length).toEqual(3);
+			expect(test_draw.lines.length).toEqual(2);
+			expect(nodeA.color).toEqual(entity1Color);
+			expect(nodeC.color).toEqual(bothColor);
+			expect(nodeE.color).toEqual(entity2Color);
+			expect(nodeC.group).toEqual(nodeA.group);
+			expect(nodeE.group).toEqual(nodeA.group);
+		});
+
+	});
 });
