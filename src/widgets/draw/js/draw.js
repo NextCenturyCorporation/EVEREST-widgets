@@ -1,17 +1,25 @@
 //with help from threedubmedia.com/code/event/drop/demo/selection
-
-var getHexString = function(color){
-	if (d3.select(color)){
-		var colorString = d3.select(color).style('background-color');
+/**
+@params   - div_class: a string pointing to the class of the hidden
+			div element containing a background color, most likely to
+			be in the form of rgb(0,0,0)
+@return   - a hex color string representing the background-color of the
+			specified div element. If no div element exists, return white
+@function - d3.selects the div param and grabs its background color.
+			if already in the form of a hex string, the color is returned
+			if in rgb(0,0,0) form, converts it to a hex string
+			if no div element with class div_class exists, return white
+*/
+var getHexString = function(div_class){
+	if ( d3.select(div_class)[0][0] ) {
+		var colorString = d3.select(div_class).style('background-color');
 		if (colorString.substr(0, 1) === '#'){
 			return colorString;
 		}
 		
-		var array = colorString.split('(')[1].split(')')[0].split(',');
-			
+		var array = colorString.split('(')[1].split(')')[0].split(',');	
 		var str = '#';
 		for (var i = 0; i < array.length; i++){
-			
 			if (parseInt(array[i], 10) > 9){
 				var temp = parseInt(array[i], 10).toString(16);
 				str += temp;
@@ -20,6 +28,7 @@ var getHexString = function(color){
 				str += '0' + temp;
 			}
 		}
+		
 		return str;
 	} else {
 		return '#ffffff';
@@ -386,7 +395,7 @@ var draw = function(){
 			.on('mouseover', me.mouseover)
 			.on('mouseout', me.mouseout); 
 
-		var path = me.createArrow(line);
+		var path = me.addArrow(line);
 		me.lineCount++;
 		
 		if(me.lines.indexOfObj(line.attr('class'), 'class') === -1){
@@ -400,6 +409,21 @@ var draw = function(){
 			
 			me.lines.push(lObj);
 		}
+	};
+	
+	me.addArrow = function(line){
+		var path = d3.select(line[0][0].parentNode).insert('path', ':first-child')
+			.attr('class', 'arrow')
+			.attr('marker-mid', 'url(#Triangle)')
+			.attr('d', function(){
+				var midX = (parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2;
+				var midY = (parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2;
+				return 'M '+ line.attr('x1')+' ' + line.attr('y1') +
+					  ' L '+ midX + ' ' + midY +
+					  ' L '+ line.attr('x2')+' ' + line.attr('y2');
+			});
+		
+		return path;
 	};
 	
 	/** 
@@ -462,7 +486,7 @@ var draw = function(){
 		@functionality - selects the clicked on entity and any lines 
 		attached to it and moves those end points attached to the entity 
 		@internal functions - me.computeCoord
-							  me.createArrow
+							  me.addArrow
 	*/
 	me.dragGroup = function(that){
 		var cSvg = d3.select(that);
@@ -514,7 +538,7 @@ var draw = function(){
 				});
 			}
 			
-			var path = me.createArrow(line);
+			var path = me.addArrow(line);
 			if (line.style('stroke') === '#ff0000'){
 				path.style('stroke', '#ff0000');
 			}
@@ -624,7 +648,7 @@ var draw = function(){
 		@internal functions - me.computeCoord
 							  me.mouseover
 							  me.mouseout
-							  me.createArrow
+							  me.addArrow
 	*/
 	me.nodeclick = function(){
 		if(me.tool_mode.getMode() === 'rel_hold'){
@@ -714,7 +738,7 @@ var draw = function(){
 							  me.mouseout
 							  me.doubleClickNode (this function)
 							  me.nodeclick
-							  me.createArrow
+							  me.addArrow
 	*/
 	me.doubleClickNode = function(){
 		if (me.tool_mode.getMode() === ''){
@@ -986,21 +1010,6 @@ var draw = function(){
 			d3.selectAll('.canvas text').remove();
 			me.labelsShown = false;
 		}
-	};
-		
-	me.createArrow = function(line){
-		var path = d3.select(line[0][0].parentNode).insert('path', ':first-child')
-			.attr('class', 'arrow')
-			.attr('marker-mid', 'url(#Triangle)')
-			.attr('d', function(){
-				var midX = (parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2;
-				var midY = (parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2;
-				return 'M '+ line.attr('x1')+' ' + line.attr('y1') +
-					  ' L '+ midX + ' ' + midY +
-					  ' L '+ line.attr('x2')+' ' + line.attr('y2');
-			});
-		
-		return path;
 	};
 	
 	me.separateGroups = function(circleGroup){

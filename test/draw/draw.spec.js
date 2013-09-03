@@ -1,9 +1,28 @@
 describe('To test the target event definition widget', function(){
+	var body = d3.select('body');
+	body.append('div').attr('class', 'toolbar_modes')
+		.append('svg').attr('width', 40).attr('height', 500);
+	body.append('div').attr('class', 'canvas')
+		.append('svg').attr('class', 'csvg');
+	body.append('div').attr('class', 'toolbar_buttons')
+		.append('svg').attr('width', 40).attr('height', 500);
+	var forms = body.append('div').attr('class', 'forms');
+	var ent1 = forms.append('div').attr('class', 'ent1-form');
+	ent1.append('input').attr('class', 'ent1');
+	ent1.append('button').attr('class', 'ent-submit');
+	ent1.append('button').attr('class', 'ent-cancel');
 	
-	d3.select('body').append('div').attr('class', 'canvas');
-	d3.select('body').append('div').attr('class', 'toolbar')
-		.append('svg').attr('width', 500).attr('height', 500);
-	d3.select('body').append('div').attr('class', 'rel');
+	var rel = forms.append('div').attr('class', 'rel-form');
+	ent1.append('input').attr('class', 'rel-only');
+	rel.append('button').attr('class', 'rel-submit');
+	rel.append('button').attr('class', 'rel-cancel');
+	
+	var ent2 = forms.append('div').attr('class', 'rel-ent2-form');
+	ent1.append('input').attr('class', 'relate');
+	ent1.append('input').attr('class', 'ent2');
+	ent1.append('button').attr('class', 'rel-ent-submit');
+	ent1.append('button').attr('class', 'rel-ent-cancel');
+		
 	d3.select('body').append('div').attr('class', 'entity1Color')
 		.style('background-color', '#333399');
 	d3.select('body').append('div').attr('class', 'entity2Color')
@@ -12,40 +31,82 @@ describe('To test the target event definition widget', function(){
 		.style('background-color', '#9900cc');
 	
 	var test_draw = new draw();
-	var tool1 = new toolbar('.tool1');
-	var tool2 = new toolbar('.tool2');
+	test_draw.setUpToolbars();
+	var tool1 = d3.select('.toolbar_modes');
+	var tool2 = d3.select('.toolbar_buttons');
+	
 	describe('to see if test_draw attributes actually exist', function(){	
 		it('', function(){
 			expect(test_draw.canvasW).toEqual(0);
 			expect(test_draw.circles).toEqual([]);
+			expect(test_draw.entity1Color).toEqual('#333399');
+			expect(test_draw.entity2Color).toEqual('#339966');
+			expect(test_draw.bothColor).toEqual('#9900cc');
+		});
+	});
+	
+	describe('to test the utility functions outside of draw element', function(){
+		it('the getHexString function', function(){
+			spyOn(d3, 'select').andCallThrough();
+			
+			var c = getHexString('.entity1Color');
+			
+			expect(d3.select).toHaveBeenCalledWith('.entity1Color');
+			expect(c).toEqual('#333399');
+			
+			var d = getHexString('.hi');
+			expect(d).toEqual('#ffffff');
+		});
+		
+		it('specifically the Array.prototype.indexOfObj function', function(){				
+			var array = [{class:'zero'}];
+			expect(array.indexOfObj('zero', 'class')).toEqual(0);
+			expect(array.indexOfObj('one', 'class')).toEqual(-1);
+		});
+		
+		it('the Array.prototype.getAllIndicies function', function(){				
+			var array = [{class: 'zero'}, {class: 'one'}, {class: 'ZERO'}];
+			expect(array.getAllIndicies('zero', 'class').length).toEqual(2);
+			expect(array.getAllIndicies('one', 'class').length).toEqual(1);
+		});
+	});
+	
+	describe('to test the setUpToolbars function', function(){
+		it('', function(){
+			test_draw.setUpToolbars();
+			expect(d3.select('.toolbar_modes')[0][0]).not.toEqual(null);
+			expect(d3.select('.toolbar_buttons')[0][0]).not.toEqual(null);
+			expect(d3.select('.node_hold_fake')[0][0]).toEqual(null);
+			expect(d3.select('.node_hold')[0][0]).not.toEqual(null);
+			expect(d3.select('.rel_hold')[0][0]).not.toEqual(null);
+			expect(d3.select('.mover_hold')[0][0]).not.toEqual(null);
+			expect(d3.select('.delete_hold')[0][0]).not.toEqual(null);
+			expect(d3.select('.select_hold')[0][0]).not.toEqual(null);
+			expect(d3.select('.resetB')[0][0]).not.toEqual(null);
+			expect(d3.select('.submitB')[0][0]).not.toEqual(null);
+			expect(d3.select('.undoB')[0][0]).not.toEqual(null);
+			expect(d3.select('.deleteB')[0][0]).not.toEqual(null);
+			expect(d3.select('.labelB')[0][0]).not.toEqual(null);
 		});
 	});
 	
 	describe('to test the utility functions', function(){
+		it('the simplify function', function(){
+			var svg = d3.select('.csvg');
+			var cSvg = svg.append('circle')
+				.attr('class', 'test_one')
+				.attr('d', 'simplify')
+				.attr('cx', 4).attr('cy', 5)
+				.attr('r', 8);
 				
-		it('the createCancelClickers function', function(){
-			spyOn(d3, 'select').andCallThrough();
-			test_draw.createCancelClickers();
-			expect(d3.select.callCount).toEqual(3);
-		});
-	
-		it('specifically the Array.prototype.indexOfObj function', function(){
-			d3.selectAll('svg').remove();
-			var svg = d3.select('.canvas').append('svg').attr('class', 'svg');
-			svg.append('circle')
-				.attr('class', 'zero');
-			
-			svg.append('circle')
-				.attr('class', 'one');
-			
-			var a = d3.select('.zero');
-			var b = d3.select('.one');
-				
-			var array = [{class:'zero'}];
-			
-			expect(array.indexOfObj('zero', 'class')).toEqual(0);
-			expect(array.indexOfObj('one', 'class')).toEqual(-1);
-		});
+			var cObj = test_draw.simplify(cSvg);
+			expect(cObj.class).toEqual('test_one');
+			expect(cObj.html).toEqual(cSvg[0][0]);
+			expect(cObj.d).toEqual('simplify');
+			expect(cObj.x).toEqual('4');
+			expect(cObj.y).toEqual('5');
+			expect(cObj.r).toEqual('8');
+		});	
 		
 		it('the isAlone function', function(){
 			test_draw.lines = [{source: 'a', target: 'b'}, {source: 'c', target: 'd'}];
@@ -56,11 +117,7 @@ describe('To test the target event definition widget', function(){
 			expect(test_draw.isAlone({html: 'd'})).toEqual(false);
 			expect(test_draw.isAlone({html: 'e'})).toEqual(true);
 		});
-		
-		it('the simplify function', function(){
-			
-		});
-		
+				
 		it('the extractCircles function', function(){
 			test_draw.circles = [{html:'a', group: 1}, {html:'b', group:1},
 				{html:'d', group:3}, {html:'e', group:5}, {html:'c', group:3}];
@@ -87,6 +144,12 @@ describe('To test the target event definition widget', function(){
 			expect(test_draw.computeCoord(-9834, 'y')).toEqual(0);
 			
 			expect(Math.floor).toHaveBeenCalled();
+		});
+		
+		it('the createCancelClickers function', function(){
+			spyOn(d3, 'select').andCallThrough();
+			test_draw.createCancelClickers();
+			expect(d3.select.callCount).toEqual(3);
 		});
 		
 		it('the toggleLabels function', function(){
@@ -118,7 +181,7 @@ describe('To test the target event definition widget', function(){
 	
 	describe('specifically the createCanvas function', function(){
 		it('for proper method call logic ', function(){
-			d3.selectAll('svg').remove();
+			d3.select('.csvg').remove();
 			spyOn(d3, 'select').andCallThrough();
 			
 			test_draw.createCanvas();
@@ -126,16 +189,16 @@ describe('To test the target event definition widget', function(){
 		});
 		
 		it('for proper setting of style attributes', function(){
-			d3.selectAll('svg').remove();
+			d3.selectAll('.csvg').remove();
 			test_draw.createCanvas();
 			
-			var r = d3.select('.canvas svg rect');
+			var r = d3.select('.csvg rect');
 			expect(r.attr('class')).toEqual('background');
 			expect(parseInt(r.attr('x'))).toEqual(0);
 			expect(parseInt(r.attr('y'))).toEqual(0);
 			expect(parseInt(r.style('opacity'))).toEqual(0);
 			
-			var g = d3.select('.canvas svg g');
+			var g = d3.select('.csvg g');
 			expect(g.attr('class')).toEqual('node-link-container');
 			
 			var m = d3.select('marker');
@@ -146,10 +209,10 @@ describe('To test the target event definition widget', function(){
 	});
 
 	describe('the circle functions' , function(){
-		it('the createCircle function', function(){
+		it('the addCircle function', function(){
 			spyOn(d3, 'select').andCallThrough();
 			d3.selectAll('circle').remove();
-			var c1 = test_draw.createCircle(50, 100, 'hi');
+			var c1 = test_draw.addCircle(50, 100, 'hi');
 			
 			expect(d3.select).toHaveBeenCalledWith('.node-link-container');
 			expect(c1.attr('d')).toEqual('hi');
@@ -158,17 +221,36 @@ describe('To test the target event definition widget', function(){
 			expect(parseInt(c1.attr('r'))).toEqual(test_draw.radius);
 			expect(c1.style('fill')).toEqual('#ffffff');
 			
-			test_draw.createCircle(112, 135, 'hiya');
+			test_draw.addCircle(112, 135, 'hiya');
 			var cs = d3.selectAll('circle')[0];
 			expect(cs.length).toEqual(2);
 		});
 		
-		it('the appendCircle function', function(){
-			var mouse_event = [49, 20];
+		it('the createCircle function', function(){
 			spyOn(d3, 'select').andCallThrough();
-			test_draw.appendCircle(mouse_event);
+			var s1 = spyOn(test_draw.circles, 'indexOfObj').andCallThrough();
+			spyOn(test_draw, 'addCircle').andCallThrough();
+			spyOn(window, '$').andCallThrough();
+			
+			test_draw.circles = [];
+			test_draw.createCircle([49, 20]);
 			
 			expect(d3.select).toHaveBeenCalledWith('.ent-submit');
+			expect($).toHaveBeenCalledWith('.ent1-form');
+			expect($).toHaveBeenCalledWith('.ent1');
+			expect($).toHaveBeenCalledWith('.canvas');
+			$('.ent1').val('lady');
+			
+			var evt = document.createEvent('Event');
+			evt.initEvent('click', true, false);
+			document.getElementsByClassName('ent-submit')[0].dispatchEvent(evt);
+			
+			expect(test_draw.addCircle).toHaveBeenCalledWith(49, 20, 'lady');
+			
+			$('.ent1').val('lady');
+			test_draw.createCircle([100, 200]);
+			document.getElementsByClassName('ent-submit')[0].dispatchEvent(evt);
+			expect(test_draw.addCircle).not.toHaveBeenCalledWith(100, 200, 'lady');
 		});
 	});
 	
@@ -217,7 +299,24 @@ describe('To test the target event definition widget', function(){
 		});
 		
 		it('the doubleClick function in null mode', function(){
-		
+			test_draw.mode = '';
+			test_draw.circles = [];
+			test_draw.lines = [];
+			
+			spyOn(window, '$').andCallThrough();
+			spyOn(d3, 'select').andCallThrough();
+			
+			var svg1 = test_draw.addCircle(100, 100, 'apple');
+			svg1.call(test_draw.doubleClickNode);
+			
+			expect($).toHaveBeenCalledWith('.rel-ent2-form');
+			expect($).toHaveBeenCalledWith('.relate');
+			expect(d3.select).toHaveBeenCalledWith('.rel-ent-submit');
+			
+			//$('.rel-ent-submit').call(test_draw.doubleClick);
+			
+			//expect($).toHaveBeenCalledWith('.ent2');
+			//expect($).toHaveBeenCalledWith('.relate');
 		});
 	});	
 	
@@ -243,9 +342,9 @@ describe('To test the target event definition widget', function(){
 			spyOn(test_draw, 'separateGroups').andCallThrough();
 			//spyOn(window, 'indexOfObj').andCallThrough();
 			
-			var c11 = test_draw.createCircle(50, 100, 'hi');
+			var c11 = test_draw.addCircle(50, 100, 'hi');
 			
-			var c21 = test_draw.createCircle(450, 100, 'bye');
+			var c21 = test_draw.addCircle(450, 100, 'bye');
 			
 			var line = d3.select('.canvas svg').append('line')
 				.attr('x1', 50).attr('y1', 100)
@@ -276,7 +375,7 @@ describe('To test the target event definition widget', function(){
 			test_draw.lines = [];
 			
 			for (var i = 0; i < 4; i++){
-				var temp = test_draw.createCircle(i, i, 'a'+i);
+				var temp = test_draw.addCircle(i, i, 'a'+i);
 			}
 			
 			test_draw.circles[0].color = test_draw.entity1Color;
@@ -348,29 +447,29 @@ describe('To test the target event definition widget', function(){
 		});
 	});
 	
-	describe('the createArrow function', function(){
+	describe('the addArrow function', function(){
 		it('for proper method call logic', function(){
 		
-			var l = d3.select('.canvas svg').append('line')
+			var l = d3.select('.csvg').append('line')
 				.attr('x1', 0).attr('y1', 1)
 				.attr('x2', 2).attr('y2', 3);
 				
 			spyOn(d3, 'select').andCallThrough();
 			spyOn(window, 'parseInt').andCallThrough();
 			
-			test_draw.createArrow(l);
+			test_draw.addArrow(l);
 			
 			expect(d3.select).toHaveBeenCalled();
 			expect(parseInt).toHaveBeenCalled();
 		});
 		
 		it('for proper resulting values', function(){
-			var l = d3.select('.canvas svg').append('g')
+			var l = d3.select('.csvg').append('g')
 				.append('line')
 				.attr('x1', 0).attr('y1', 1)
 				.attr('x2', 2).attr('y2', 3);
 		
-			var p = test_draw.createArrow(l);
+			var p = test_draw.addArrow(l);
 			
 			expect(p.attr('class')).toEqual('arrow');
 			expect(p[0][0].parentNode.localName).toEqual('g');
