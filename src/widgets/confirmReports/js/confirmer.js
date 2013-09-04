@@ -16,9 +16,9 @@ var confirmer = function(){
 	me.assertions = [];
 	me.target_events = [];
 	me.target_assertions = [];
-	
-	me.width = 500;
-	me.height = 500;
+		
+	me.width = d3.select('.asserts').style('width').split('p')[0];
+	me.height = d3.select('.asserts').style('height').split('p')[0];
 	
 	me.confirmed = {};
 	me.curr_ar_id, me.curr_te_id;
@@ -37,7 +37,19 @@ var confirmer = function(){
 	me.te_view = new target_event_view(me.svg_target);
 
 	me.createListeners = function(){
-		d3.select('.confirm').on('click', me.confirmReport);
+		d3.select('.confirm').on('click', function(){
+			var d = parseFloat($('.percent').val());
+			console.log(d);
+			if ( isNaN(d) ){
+				alert('Please enter a number in the percent field!');
+				return;
+			} else if ( d > 1 || d < 0){
+				alert('Please enter a number between 0 and 1!');
+				return;	
+			} else {
+				me.confirmReport();
+			}
+		});
 		
 		d3.select('.patterns').on('change', function(){
 			var elem = $(this)[0];
@@ -130,8 +142,8 @@ var confirmer = function(){
 					}
 				}
 			}
-			me.displayTargetEventInfo(event);
 			
+			me.displayTargetEventInfo(event);
 			me.te_view.draw(me.target_assertions, maxX, maxY);
 		});
 	};
@@ -159,17 +171,20 @@ var confirmer = function(){
 	me.confirmReport = function(){		
 		me.confirmed.alpha_report_id = me.curr_ar_id;
 		me.confirmed.target_event_id = me.curr_te_id;
-		me.confirmed.target_event_percentage = 1.0;
 		me.confirmed.confirmed_date = new Date();
 		me.confirmed.assertions = me.curr_assert_ids;
+		me.confirmed.target_event_percentage = $('.percent').val();
+		
 		
 		$.ajax({
 			type: "POST",
 			url: "../../../lib/post_relay.php",
-			data: JSON.stringify({url: url+'confirmed_report/', data: postData}),
+			data: JSON.stringify({url: url+'confirmed_report/', data: me.confirmed}),
 			success: function(){console.log('success');},
 			error: function(){console.log('error');}
 		});
+		
+		$('.percent').val('');
 	};
 	
 	me.displayAlphaReportInfo = function(alpha_report){

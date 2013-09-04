@@ -1,6 +1,8 @@
-div {
-	
+svg {
+	width: 500px;
+	height: 500px;
 }
+
 .alpha, .matcher {
 	display:inline-block;
 	width:500px;
