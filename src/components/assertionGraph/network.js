@@ -10,7 +10,16 @@ function midpoint(p1, p2){
 
 var network = function(svg, data, disjoint){
 	var me = this;
-	me.svg = svg;
+	me.svg = svg;		
+	me.svg.append('defs').append('marker')
+		.attr('id', 'Triangle')
+		.attr('refX', 0).attr('refY', 3)
+		.attr('markerUnits', 'strokeWidth')
+		.attr('markerWidth', 100)
+		.attr('markerHeight', 100)
+		.attr('orient', 'auto')
+		.append('svg:path')
+			.attr('d', 'M 0 0 L 6 3 L 0 6 z');
 	
 	me.nodes = [];
 	me.links = [];

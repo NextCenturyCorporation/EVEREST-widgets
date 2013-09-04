@@ -4,21 +4,10 @@ var confirmer = function(){
 	me.alpha_reports = [];
 	me.assertions = [];
 
-	me.createListeners = function(){
-		d3.select('.confirm').on('click', function(){
-		
-		});
-		
-		d3.select('.patterns').on('change', function(){
-			var elem = $(this)[0];
-			
-			console.log(elem.options[elem.selectedIndex].text);
-		});
-		
+	me.createListeners = function(){			
 		d3.select('.alphas').on('change', function(){
 			var elem = $(this)[0];
 			var elem_id = elem.options[elem.selectedIndex].text;
-			
 			
 			for (var i = 0; i < me.alpha_reports.length; i++){
 				if (me.alpha_reports[i]._id === elem_id){
@@ -34,14 +23,6 @@ var confirmer = function(){
 	};
 	
 	me.getAlphaReports = function(){
-		/*$.getJSON(url + 'alpha_report/?callback=?', function(data){
-			me.alpha_reports = data;
-			for (var i = 0; i < data.length; i++){
-				d3.select('.alphas')
-					.append('option')
-					.text(data[i]._id);
-			}
-		});*/
 		$.ajax({
 			url: url + 'alpha_report/?callback=?',
 			async: false,
@@ -52,17 +33,6 @@ var confirmer = function(){
 		});
 		return data;
 	};
-	
-	/*me.getAssertions = function(id){
-		$.getJSON(url + 'assertion/?callback=?', function(data){
-			for (var i = 0; i < data.length; i++){
-				console.log(data[i].alpha_report_id);
-				if (data[i].alpha_report_id === id){
-					me.assertions.push(data[i]);
-				}
-			}
-		});
-	};*/
 	
 	me.getAssertions = function(ar_id){
 		$.getJSON(url +'assertion/?callback=?', function(asserts){
@@ -81,16 +51,6 @@ var confirmer = function(){
 				.attr('class', 'assertion-graph')
 				.attr('width', 490)
 				.attr('height', 490);
-				
-			svg.append('defs').append('marker')
-				.attr('id', 'Triangle')
-				.attr('refX', 0).attr('refY', 3)
-				.attr('markerUnits', 'strokeWidth')
-				.attr('markerWidth', 100)
-				.attr('markerHeight', 100)
-				.attr('orient', 'auto')
-				.append('svg:path')
-					.attr('d', 'M 0 0 L 6 3 L 0 6 z');
 			
 			var svg1 = d3.select('.target-pattern').append('svg')
 				.attr('class', 'target-graph')

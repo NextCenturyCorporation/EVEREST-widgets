@@ -19,16 +19,6 @@
 			var svg = d3.select("body").append("svg")
 				.attr("width", 600)
 				.attr("height", 600);
-				
-			svg.append('defs').append('marker')
-				.attr('id', 'Triangle')
-				.attr('refX', 0).attr('refY', 3)
-				.attr('markerUnits', 'strokeWidth')
-				.attr('markerWidth', 100)
-				.attr('markerHeight', 100)
-				.attr('orient', 'auto')
-				.append('svg:path')
-					.attr('d', 'M 0 0 L 6 3 L 0 6 z');
 						
 			//var net = new network(svg, [], 'disjoint');
 			var net = new network(svg, []);
