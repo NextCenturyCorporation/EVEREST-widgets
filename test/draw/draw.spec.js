@@ -559,42 +559,30 @@ describe('To test the target event definition widget', function(){
 	});
 	
 	describe('the deletion functions', function(){
-		//only letting me call one set of this atm, dk why
-		xit('the deleteItem function, method calls', function(){
+		//only letting me call one set of this atm
+		it('the deleteItem function, method calls', function(){
 			test_draw.circles = [];
 			test_draw.lines = [];
+			test_draw.circleCount = 0;
+			test_draw.lineCount = 0;
+			test_draw.count = 0;
+			d3.selectAll('circle').remove();
+			d3.selectAll('line').remove();
 			
 			spyOn(d3, 'selectAll').andCallThrough();
 			spyOn(d3, 'select').andCallThrough();
 			spyOn(test_draw, 'extractCircles').andCallThrough();
 			spyOn(test_draw, 'separateGroups').andCallThrough();
-			//spyOn(window, 'indexOfObj').andCallThrough();
 			
 			var c11 = test_draw.addCircle(50, 100, 'hi');
-			
 			var c21 = test_draw.addCircle(450, 100, 'bye');
-			
-			var line = d3.select('.canvas svg').append('line')
-				.attr('x1', 50).attr('y1', 100)
-				.attr('x2', 450).attr('y2', 100)
-				.attr('class', 0)
-				.attr('d', 'between');
-			
-			test_draw.lines = [{ 
-				source: c11.html, 
-				target: c21.html,
-				html: line[0][0],
-				d: "between",
-				class: '0'
-			}];
-				
-			test_draw.deleteItem(c11.html);
+			var line = test_draw.addLine(c11, c21, 'hi then bye');
+			test_draw.deleteItem(c11[0][0]);
 			
 			expect(d3.selectAll).toHaveBeenCalledWith('.canvas line');
 			expect(d3.select).toHaveBeenCalled();
 			expect(test_draw.extractCircles).toHaveBeenCalledWith(0);
 			expect(test_draw.separateGroups).toHaveBeenCalled();
-			//expect(indexOfObj).toHaveBeenCalledWith(d3.select(c1.html));
 			expect(d3.selectAll.callCount).toEqual(2);
 		});
 		
@@ -606,39 +594,30 @@ describe('To test the target event definition widget', function(){
 			
 			for (var i = 0; i < 4; i++){
 				var temp = test_draw.addCircle(i, i, 'a'+i);
+				test_draw.circles[i].group = 0;
 			}
 			
 			test_draw.circles[0].color = test_draw.entity1Color;
-			test_draw.circles[0].group = 0;
 			d3.select(test_draw.circles[0].html).style('fill', test_draw.entity1Color);
 			test_draw.circles[1].color = test_draw.bothColor;
-			test_draw.circles[1].group = 0;
 			d3.select(test_draw.circles[1].html).style('fill', test_draw.bothColor);
 			test_draw.circles[2].color = test_draw.bothColor;
-			test_draw.circles[2].group = 0;
 			d3.select(test_draw.circles[2].html).style('fill', test_draw.bothColor);
 			test_draw.circles[3].color = test_draw.entity2Color;
-			test_draw.circles[3].group = 0;
 			d3.select(test_draw.circles[3].html).style('fill', test_draw.entity2Color);
 			
+			expect(test_draw.isAlone(test_draw.circles[0])).toBe(true);
+			expect(test_draw.isAlone(test_draw.circles[1])).toBe(true);
+			expect(test_draw.isAlone(test_draw.circles[2])).toBe(true);
+			expect(test_draw.isAlone(test_draw.circles[3])).toBe(true);
+			
 			for (var i = 0; i < 3; i++){
-				var g = d3.select('.canvas svg')
-					.append('g');
-					
-				var temp = g.append('line')
-					.attr('x1', i).attr('y1', i)
-					.attr('x2', i+1).attr('y2', i+1)
-					.attr('class', i)
-					.attr('d', i);
-				
-				test_draw.lines.push({
-					source: test_draw.circles[i].html,
-					target: test_draw.circles[i+1].html,
-					html: temp[0][0],
-					d: i.toString() ,
-					class: i.toString()
-				});
+				var g = d3.select('.node-link-container').append('g');
+				var c1 = test_draw.circles[i].html;
+				var c2 = test_draw.circles[i+1].html;
+				test_draw.addLine(d3.select(c1), d3.select(c2), i);
 			}
+			
 			expect(test_draw.isAlone(test_draw.circles[0])).toBe(false);
 			expect(test_draw.isAlone(test_draw.circles[1])).toBe(false);
 			expect(test_draw.isAlone(test_draw.circles[2])).toBe(false);
@@ -677,12 +656,12 @@ describe('To test the target event definition widget', function(){
 		});
 	});
 	
-	describe('the addArrow function', function(){
+	xdescribe('the addArrow function', function(){
 		it('for proper method call logic', function(){
-		
-			var l = d3.select('.csvg').append('line')
-				.attr('x1', 0).attr('y1', 1)
-				.attr('x2', 2).attr('y2', 3);
+			var a = test_draw.addCircle(0, 1, 'a');
+			var b = test_draw.addCircle(2, 3, 'b');
+			
+			var l = test_draw.addLine(a, b, 'ab');
 				
 			spyOn(d3, 'select').andCallThrough();
 			spyOn(window, 'parseInt').andCallThrough();

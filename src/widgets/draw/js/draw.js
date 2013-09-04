@@ -317,7 +317,7 @@ var draw = function(){
 			.on('mouseover', me.mouseover)
 			.on('mouseout', me.mouseout)
 			.on('click', me.nodeclick);
-		
+				
 		var cObj = me.simplify(circle);
 		cObj.group = group;
 		cObj.color = fill;
