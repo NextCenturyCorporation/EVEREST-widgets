@@ -321,25 +321,9 @@ describe('To test the target event definition widget', function(){
 				spyOn(test_draw, 'deleteItem').andCallThrough();
 				spyOn(test_draw.circles, 'indexOfObj').andCallThrough();
 				spyOn(test_draw.lines, 'getAllIndicies').andCallThrough();
-				
 			});
 			
-			describe('in rel_hold mode', function(){
-				it ('for proper method calling', function(){
-					var aSvg = test_draw.addCircle(50, 50, 'rel_circle');
-					var bSvg = test_draw.addCircle(100, 100, 'other');
-					
-					var aObj = test_draw.circles[0];
-					var bObj = test_draw.circles[1];
-					document.getElementsByClassName(aObj.class)[0]
-						.dispatchEvent(clickEvt);
-						
-					expect(test_draw.lastNodeClicked).toEqual(aObj.html);
-					
-					document.getElementsByClassName(bObj.class)[0]
-						.dispatchEvent(clickEvt);
-				});
-				
+			describe('in rel_hold mode', function(){				
 				it('for proper return values, with proper input', function(){
 					var aSvg = test_draw.addCircle(50, 50, 'rs');
 					var bSvg = test_draw.addCircle(100, 100, 'other');
@@ -384,14 +368,10 @@ describe('To test the target event definition widget', function(){
 					var aSvg = test_draw.addCircle(50, 50, 'r');
 					
 					var aObj = test_draw.circles[0];
-					document.getElementsByClassName(aObj.class)[0]
-						.dispatchEvent(clickEvt);
-						
+					document.getElementsByClassName(aObj.class)[0].dispatchEvent(clickEvt);	
 					expect(test_draw.lastNodeClicked).toEqual(aObj.html);
 					
-					document.getElementsByClassName(aObj.class)[0]
-						.dispatchEvent(clickEvt);
-						
+					document.getElementsByClassName(aObj.class)[0].dispatchEvent(clickEvt);	
 					expect($).not.toHaveBeenCalled();
 				});
 				
@@ -402,32 +382,18 @@ describe('To test the target event definition widget', function(){
 					var aObj = test_draw.circles[0];
 					var bObj = test_draw.circles[1];
 					var origGroup = bObj.group;
-					document.getElementsByClassName(aObj.class)[0]
-						.dispatchEvent(clickEvt);
 					
-					document.getElementsByClassName(bObj.class)[0]
-						.dispatchEvent(clickEvt);
-					
+					document.getElementsByClassName(aObj.class)[0].dispatchEvent(clickEvt);
+					document.getElementsByClassName(bObj.class)[0].dispatchEvent(clickEvt);
 					$('.rel-only').val('bacon');
-					
-					document.getElementsByClassName('rel-submit')[0]
-						.dispatchEvent(clickEvt);
-						
+					document.getElementsByClassName('rel-submit')[0].dispatchEvent(clickEvt);
 					expect(test_draw.lines.length).toEqual(1);
 					
-					document.getElementsByClassName(aObj.class)[0]
-						.dispatchEvent(clickEvt);
-					
-					document.getElementsByClassName(bObj.class)[0]
-						.dispatchEvent(clickEvt);
-					
+					document.getElementsByClassName(aObj.class)[0].dispatchEvent(clickEvt);
+					document.getElementsByClassName(bObj.class)[0].dispatchEvent(clickEvt);
 					$('.rel-only').val('bacon');
-					
-					document.getElementsByClassName('rel-submit')[0]
-						.dispatchEvent(clickEvt);
-						
+					document.getElementsByClassName('rel-submit')[0].dispatchEvent(clickEvt);
 					expect(test_draw.lines.length).toEqual(1);
-					expect(test_draw.addLine.callCount).toEqual(1);
 				});
 			});
 			
@@ -549,17 +515,63 @@ describe('To test the target event definition widget', function(){
 	});	
 	
 	describe('the other event functions', function(){
-		it('the mouseover function in anything other than label_hold mode', function(){
-		
+		beforeEach(function(){
+			test_draw.labelsShown = false;
+			d3.selectAll('.canvas text').remove();
+			spyOn(d3, 'select').andCallThrough();
+			spyOn(d3, 'selectAll').andCallThrough();
+			spyOn(window, 'parseInt').andCallThrough();
+		});
+		it('the mouseover function when over a node', function(){			
+			var aSvg = test_draw.addCircle(0, 0, 'mouseover');
+			document.getElementsByClassName(aSvg.attr('class'))[0]
+				.dispatchEvent(mouseOverEvt);
+			
+			expect(d3.select).toHaveBeenCalledWith(aSvg[0][0]);
+			expect(parseInt).toHaveBeenCalled();
+			expect(parseInt.callCount).toEqual(2);
+			expect(d3.selectAll('.canvas text')[0].length).toEqual(1);
 		});
 		
-		it('the mouseout function in anything other than label_hold mode', function(){
+		it('the mouseover function when over a link', function(){
+			var aSvg = test_draw.addCircle(0, 0, 'mouseover1');
+			var bSvg = test_draw.addCircle(1, 1, 'mouseover2');
+			test_draw.addLine(aSvg, bSvg, 'mouseoverl');
+			document.getElementsByClassName(test_draw.lines[0].class)[0]
+				.dispatchEvent(mouseOverEvt);
+			
+			expect(parseInt).toHaveBeenCalled();
+			expect(d3.selectAll('.canvas text')[0].length).toEqual(1);
+		});
 		
+		it('the mouseover function when test_draw.labelsShown === true', function(){
+			test_draw.labelsShown = true;
+			
+			var aSvg = test_draw.addCircle(0, 0, 'mouseover up');
+			document.getElementsByClassName(aSvg.attr('class'))[0]
+				.dispatchEvent(mouseOverEvt);
+			
+			expect(d3.select).not.toHaveBeenCalledWith(aSvg[0][0]);
+			expect(parseInt).not.toHaveBeenCalled();
+			expect(d3.selectAll('.canvas text')[0].length).toEqual(0);
+		});
+		
+		it('the mouseout function in anything other than label_hold mode', function(){			
+			var aSvg = test_draw.addCircle(4, 40, 'mouseout');
+			document.getElementsByClassName(aSvg.attr('class'))[0]
+				.dispatchEvent(mouseOverEvt);
+			
+			expect(d3.selectAll('.canvas text')[0].length).toEqual(1);
+			
+			document.getElementsByClassName(aSvg.attr('class'))[0]
+				.dispatchEvent(mouseOutEvt);
+				
+			expect(d3.select).toHaveBeenCalled();
+			expect(d3.selectAll('.canvas text')[0].length).toEqual(0);
 		});
 	});
 	
 	describe('the deletion functions', function(){
-		//only letting me call one set of this atm
 		it('the deleteItem function, method calls', function(){
 			test_draw.circles = [];
 			test_draw.lines = [];
@@ -612,7 +624,6 @@ describe('To test the target event definition widget', function(){
 			expect(test_draw.isAlone(test_draw.circles[3])).toBe(true);
 			
 			for (var i = 0; i < 3; i++){
-				var g = d3.select('.node-link-container').append('g');
 				var c1 = test_draw.circles[i].html;
 				var c2 = test_draw.circles[i+1].html;
 				test_draw.addLine(d3.select(c1), d3.select(c2), i);
@@ -656,13 +667,15 @@ describe('To test the target event definition widget', function(){
 		});
 	});
 	
-	xdescribe('the addArrow function', function(){
-		it('for proper method call logic', function(){
-			var a = test_draw.addCircle(0, 1, 'a');
-			var b = test_draw.addCircle(2, 3, 'b');
-			
-			var l = test_draw.addLine(a, b, 'ab');
-				
+	describe('the addArrow function', function(){
+		it('for proper method call logic', function(){			
+			var l = d3.select('.node-link-container').append('g')
+				.append('line')
+					.attr('x1', 0).attr('y1', 1)
+					.attr('x2', 2).attr('y2', 3)
+					.attr('class', 0)
+					.attr('d', 'lala');
+							
 			spyOn(d3, 'select').andCallThrough();
 			spyOn(window, 'parseInt').andCallThrough();
 			
@@ -673,23 +686,91 @@ describe('To test the target event definition widget', function(){
 		});
 		
 		it('for proper resulting values', function(){
-			var l = d3.select('.csvg').append('g')
+			var l = d3.select('.node-link-container').append('g')
 				.append('line')
-				.attr('x1', 0).attr('y1', 1)
-				.attr('x2', 2).attr('y2', 3);
+					.attr('x1', 10).attr('y1', 11)
+					.attr('x2', 12).attr('y2', 13)
+					.attr('class', 1)
+					.attr('d', 'lala123');
 		
 			var p = test_draw.addArrow(l);
 			
 			expect(p.attr('class')).toEqual('arrow');
 			expect(p[0][0].parentNode.localName).toEqual('g');
 			expect(p.attr('marker-mid')).toEqual('url(#Triangle)');
-			expect(p.attr('d')).toEqual('M 0 1 L 1 2 L 2 3');
+			expect(p.attr('d')).toEqual('M 10 11 L 11 12 L 12 13');
 		});
 	});
 	
 	describe('the separateGroups function', function(){
-		it('for proper method call logic', function(){
+		it('for proper method call logic', function(){			
+			spyOn(d3, 'select').andCallThrough();
+			spyOn(d3, 'selectAll').andCallThrough();
 			
+			test_draw.circles = [];
+			test_draw.lines = [];
+			d3.selectAll('circle').remove();
+			d3.selectAll('line').remove();
+			
+			test_draw.addCircle(324, 21, 'center');
+			var center = d3.select(test_draw.circles[0].html);
+			
+			test_draw.addCircle(151, 35, 'app');
+			test_draw.addCircle(414, 1, 'pool');
+			test_draw.tool_mode.setMode('');
+			
+			document.getElementsByClassName(center.attr('class'))[0].dispatchEvent(dblClickEvt);
+			$('.relate').val('b703');
+			$('.ent2').val('c702');
+			document.getElementsByClassName('rel-ent-submit')[0].dispatchEvent(clickEvt);
+				
+			document.getElementsByClassName(center.attr('class'))[0].dispatchEvent(dblClickEvt);
+			$('.relate').val('b708');
+			$('.ent2').val('c709');
+			document.getElementsByClassName('rel-ent-submit')[0].dispatchEvent(clickEvt);	
+			
+			test_draw.addCircle(5, 195, 'cup');
+			
+			document.getElementsByClassName(center.attr('class'))[0].dispatchEvent(dblClickEvt);
+			$('.relate').val('b716');
+			$('.ent2').val('c717');
+			document.getElementsByClassName('rel-ent-submit')[0].dispatchEvent(clickEvt);
+			
+			document.getElementsByClassName(center.attr('class'))[0].dispatchEvent(dblClickEvt);	
+			$('.relate').val('b724');
+			$('.ent2').val('c725');
+			document.getElementsByClassName('rel-ent-submit')[0].dispatchEvent(clickEvt);
+				
+			var other = test_draw.addCircle(51, 51, 'other');
+			document.getElementsByClassName(other.attr('class'))[0].dispatchEvent(dblClickEvt);
+			$('.relate').val('other 1');
+			$('.ent2').val('other 2');
+			document.getElementsByClassName('rel-ent-submit')[0].dispatchEvent(clickEvt);
+				
+			var before = test_draw.circles[0];
+				
+			var cIndicies = test_draw.extractCircles(before.group);
+			expect(test_draw.circles[cIndicies[0]].color).toEqual(entity1Color);
+			for (var i = 1 ; i < cIndicies.length ; i++){
+				expect(test_draw.circles[cIndicies[i]].group).toEqual(before.group);
+				expect(test_draw.circles[cIndicies[i]].color).toEqual(entity2Color);
+			}
+			
+			center.remove();
+			var c = test_draw.circles.shift();
+			var cIndicies = test_draw.extractCircles(c.group);
+			
+			test_draw.separateGroups(cIndicies);
+			
+			expect(d3.select).toHaveBeenCalled();
+			expect(d3.selectAll).toHaveBeenCalledWith('.canvas line');
+			
+			expect(test_draw.circles[cIndicies[0]].group).toEqual(c.group);
+			expect(test_draw.circles[cIndicies[0]].color).toEqual('#ffffff');
+			for (var i = 1 ; i < cIndicies.length ; i++){
+				expect(test_draw.circles[cIndicies[i]].group).not.toEqual(c.group);
+				expect(test_draw.circles[cIndicies[i]].color).toEqual('#ffffff');
+			}
 		});
 	});
 	
@@ -769,6 +850,5 @@ describe('To test the target event definition widget', function(){
 			expect(d3.select(nodeC.html).style('fill')).toEqual(bothColor);
 			expect(d3.select(nodeE.html).style('fill')).toEqual(entity2Color);
 		});
-
 	});
 });
