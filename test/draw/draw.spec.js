@@ -34,7 +34,7 @@ describe('To test the target event definition widget', function(){
 	test_draw.setUpToolbars();
 	var tool1 = d3.select('.toolbar_modes');
 	var tool2 = d3.select('.toolbar_buttons');
-	
+		
 	var clickEvt = document.createEvent('Event');
 	clickEvt.initEvent('click', true, false);
 	
@@ -46,7 +46,7 @@ describe('To test the target event definition widget', function(){
 	
 	var mouseOutEvt = document.createEvent('Event');
 	mouseOutEvt.initEvent('mouseout', true, false);
-	
+		
 	describe('to see if test_draw attributes actually exist', function(){	
 		it('', function(){
 			expect(test_draw.canvasW).toEqual(0);
@@ -262,43 +262,6 @@ describe('To test the target event definition widget', function(){
 			expect(test_draw.addCircle).not.toHaveBeenCalledWith(100, 200, 'lady');
 		});
 	});
-	
-	//these are all used as callback in draw.js... (with this keyword)
-	describe('the movement functions', function(){
-		it('the move function in mover_hold mode', function(){
-			test_draw.tool_mode.setMode('mover_hold');
-			
-			spyOn(test_draw.circles, 'indexOfObj').andCallThrough();
-			spyOn(test_draw, 'extractCircles').andCallThrough();
-			spyOn(test_draw, 'dragGroup').andCallThrough();
-			
-			
-		});
-		
-		it('the move function in select_hold mode', function(){
-			test_draw.tool_mode.setMode('select_hold');
-			
-			spyOn(test_draw.circles, 'indexOfObj').andCallThrough();
-			spyOn(test_draw, 'extractCircles').andCallThrough();
-			spyOn(test_draw, 'dragGroup').andCallThrough();
-		});
-		
-		it('the dragGroup function', function(){
-		
-		});
-		
-		it('the dragstart function', function(){
-		
-		});
-		
-		it('the drag function', function(){
-		
-		});
-		
-		it('the dragend function', function(){
-		
-		});
-	});	
 	
 	describe('the clicking functions', function(){
 		describe('the nodeClick function', function(){
@@ -522,6 +485,7 @@ describe('To test the target event definition widget', function(){
 			spyOn(d3, 'selectAll').andCallThrough();
 			spyOn(window, 'parseInt').andCallThrough();
 		});
+		
 		it('the mouseover function when over a node', function(){			
 			var aSvg = test_draw.addCircle(0, 0, 'mouseover');
 			document.getElementsByClassName(aSvg.attr('class'))[0]
