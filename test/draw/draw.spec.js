@@ -266,7 +266,7 @@ describe('To test the target event definition widget', function(){
 	describe('the clicking functions', function(){
 		describe('the nodeClick function', function(){
 			beforeEach(function(){
-				test_draw.tool_mode.setMode('rel_hold');
+				test_draw.t_mode.setMode('rel_hold');
 				test_draw.circles = [];
 				test_draw.lines = [];
 				d3.selectAll('line').remove();
@@ -380,7 +380,7 @@ describe('To test the target event definition widget', function(){
 				expect(aSvg.style('fill')).toEqual(entity1Color);
 				expect(bSvg.style('fill')).toEqual(entity2Color);
 					
-				test_draw.tool_mode.setMode('delete_hold');
+				test_draw.t_mode.setMode('delete_hold');
 				
 				document.getElementsByClassName(aSvg.attr('class'))[0]
 					.dispatchEvent(clickEvt);
@@ -395,7 +395,7 @@ describe('To test the target event definition widget', function(){
 		
 		describe('the doubleClick function in empty mode', function(){
 			beforeEach(function(){
-				test_draw.tool_mode.setMode('');
+				test_draw.t_mode.setMode('');
 				test_draw.circles = [];
 				test_draw.lines = [];
 				d3.selectAll('line').remove();
@@ -681,7 +681,7 @@ describe('To test the target event definition widget', function(){
 			
 			test_draw.addCircle(151, 35, 'app');
 			test_draw.addCircle(414, 1, 'pool');
-			test_draw.tool_mode.setMode('');
+			test_draw.t_mode.setMode('');
 			
 			document.getElementsByClassName(center.attr('class'))[0].dispatchEvent(dblClickEvt);
 			$('.relate').val('b703');
@@ -740,7 +740,7 @@ describe('To test the target event definition widget', function(){
 	
 	describe('mimic interactions', function(){
 		beforeEach(function(){
-			test_draw.tool_mode.setMode('');
+			test_draw.t_mode.setMode('');
 			test_draw.circles = [];
 			test_draw.lines = [];
 			d3.selectAll('circle').remove();
@@ -753,7 +753,7 @@ describe('To test the target event definition widget', function(){
 		});
 		
 		it('click, dblclick, dblclick', function(){
-			test_draw.tool_mode.setMode('node_hold');
+			test_draw.t_mode.setMode('node_hold');
 						
 			document.getElementsByClassName('csvg')[0]
 				.dispatchEvent(clickEvt);
@@ -772,7 +772,7 @@ describe('To test the target event definition widget', function(){
 			expect(nodeA.color).toEqual('#ffffff');
 			expect(d3.select(nodeA.html).style('fill')).toEqual('#ffffff');
 			
-			test_draw.tool_mode.setMode('');
+			test_draw.t_mode.setMode('');
 
 			document.getElementsByClassName(nodeA.class)[0]
 				.dispatchEvent(dblClickEvt);

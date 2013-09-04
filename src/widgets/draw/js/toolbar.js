@@ -1,24 +1,33 @@
 var toolbar = function(div_class){
 	var me = this;
-	
+	me.svg = d3.select(div_class).append('svg')
+		.attr('class', 'tsvg');
+		
 	me.shift = 25;
 	me.radius = 8;
-	me.center = {};
+	me.center = {
+		x: me.svg.style('width').split('p')[0] / 2,
+		y: me.svg.style('height').split('p')[0] / 2
+	};
 	
 	me.num_tools = 0;
 	me.mode = "";
-	me.svg = d3.select(div_class).append('svg')
-		.attr('class', 'tsvg');
 	
 	var selectColor = '#ff0000';
 
-	me.createSelection = function(class_name, image){
+	me.createSelection = function(class_name, image, callback){
+		var clickFunction;
+		if ( callback !== undefined ){
+			clickFunction = callback;
+		} else {
+			clickFunction = me.toggleSelection;
+		}
 		me.num_tools++;
 		
 		//add a new space for the new tool, with an onclick event
 		var selection = me.svg.append('g')
 			.attr('class', class_name)
-			.on('click', me.toggleSelection);
+			.on('click', clickFunction);
 			
 		selection.append('svg:image')
 			//.attr('class', 'unselect')

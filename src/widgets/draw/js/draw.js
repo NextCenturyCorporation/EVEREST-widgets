@@ -1,4 +1,5 @@
 //with help from threedubmedia.com/code/event/drop/demo/selection
+
 /**
 @params   - div_class: a string pointing to the class of the hidden
 			div element containing a background color, most likely to
@@ -60,7 +61,7 @@ var draw = function(){
 	var me =  this;
 	var assert_url = 'http://localhost:8081/target_assertion/';
 	var event_url = 'http://localhost:8081/target_event/';
-	me.tool_mode, me.tool_button; 
+	me.t_mode, me.t_button; 
 	var white = '#ffffff';
 	
 	me.entity1Color = getHexString('.entity1Color');
@@ -92,42 +93,33 @@ var draw = function(){
 	me.assertions = {};
 	me.event = {};
 		
+	var images = {
+		node: 'img/node.png',
+		link: 'img/link.png',
+		move: 'img/mover.png',
+		deleteM: 'img/delete.png',
+		select: 'img/select.png',
+		reset: 'img/reset.png',
+		submit: 'img/submit.png',
+		undo: 'img/undo.png',
+		deleteB: 'img/delete.gif',
+		label: 'img/text.png'
+	};		
+
 	me.setUpToolbars = function(){
-		me.tool_mode = new toolbar('.toolbar_modes');
-		me.tool_mode.center.x = me.tool_mode.svg.style('width').split('p')[0] / 2;
-		me.tool_mode.center.y = me.tool_mode.svg.style('height').split('p')[0] / 2;
-		
-		me.tool_mode.createSelection('node_hold', 'img/node.png');
-		me.tool_mode.createSelection('rel_hold', 'img/link.png');
-		me.tool_mode.createSelection('mover_hold', 'img/mover.png');
-		me.tool_mode.createSelection('delete_hold', 'img/delete.png');	
-		me.tool_mode.createSelection('select_hold', 'img/select.png');
+		me.t_mode = new toolbar('.toolbar_modes');
+		me.t_mode.createSelection('node_hold', images.node);
+		me.t_mode.createSelection('rel_hold', images.link);
+		me.t_mode.createSelection('mover_hold', images.move);
+		me.t_mode.createSelection('delete_hold', images.deleteM);	
+		me.t_mode.createSelection('select_hold', images.select);
 	
-		me.tool_button = new toolbar('.toolbar_buttons');
-		me.tool_button.center.x = me.tool_button.svg.style('width').split('p')[0] / 2;
-		me.tool_button.center.y = me.tool_button.svg.style('height').split('p')[0] / 2;
-		
-		me.tool_button.createSelection('resetB', 'img/reset.png')
-			.on('click', function(){
-				d3.select('.node-link-container').remove();
-				d3.select('.canvas svg').append('g')
-					.attr('class', 'node-link-container');
-				
-				me.circles = [];
-				me.lines = [];
-			});
-		
-		me.tool_button.createSelection('submitB', 'img/submit.png') 
-			.on('click', me.saveTargetAssertions);	
-		
-		me.tool_button.createSelection('undoB', 'img/undo.png')
-			.on('click', me.undo);
-		
-		me.tool_button.createSelection('deleteB', 'img/delete.gif')
-			.on('click', me.deleteSelection);
-	
-		me.tool_button.createSelection('labelB', 'img/text.png')
-			.on('click', me.toggleLabels);
+		me.t_button = new toolbar('.toolbar_buttons');
+		me.t_button.createSelection('resetB', images.reset, me.resetCanvas);		
+		me.t_button.createSelection('submitB', images.submit,me.saveTargetAssertions);
+		me.t_button.createSelection('undoB', images.undo, me.undo);
+		me.t_button.createSelection('deleteB', images.deleteB, me.deleteSelection);
+		me.t_button.createSelection('labelB', images.label, me.toggleLabels);
 	};
 	/**
 		@param			item: a d3.select()'ed circle
@@ -248,10 +240,10 @@ var draw = function(){
 		var svg = canvas.append('svg')
 			.attr('class', 'csvg')
 			.on('click', function(){
-				if (me.tool_mode.getMode() === 'node_hold'){
+				if (me.t_mode.getMode() === 'node_hold'){
 					var ev = d3.mouse(this);
 					me.createCircle(ev);
-				} else if (me.tool_mode.getMode() === 'select_hold'){
+				} else if (me.t_mode.getMode() === 'select_hold'){
 					me.resetColors();
 				}
 			});
@@ -294,40 +286,6 @@ var draw = function(){
 		$('.csvg').mousedown(me.saveTargetAssertions);
 	};
 	
-	
-	me.addCircle = function(x, y, d, c){
-		var fill, cclass, group;
-		if ( c !== undefined ) {
-			fill = c.color;
-			cclass = c.class;
-			group = c.group;
-		} else {
-			fill = white;
-			cclass = me.circleCount;
-			group = me.count;
-		}
-		
-		var circle = d3.select('.node-link-container').append('circle')
-			.attr('d', d).attr('class', cclass)
-			.attr('cx', x).attr('cy', y)
-			.attr('r', me.radius)
-			.style('fill', fill)
-			.call(d3.behavior.drag().on('drag', me.move))
-			.on('dblclick', me.doubleClickNode)
-			.on('mouseover', me.mouseover)
-			.on('mouseout', me.mouseout)
-			.on('click', me.nodeclick);
-				
-		var cObj = me.simplify(circle);
-		cObj.group = group;
-		cObj.color = fill;
-		me.circles.push(cObj);
-
-		me.count++;
-		me.circleCount++;
-		
-		return circle;
-	};
 	/**
 		currently only called when the user clicks inside the svg canvas
 		and the node_hold selection is toggled from the toolbar
@@ -362,6 +320,40 @@ var draw = function(){
 		});
 	};
 	
+	me.addCircle = function(x, y, d, c){
+		var fill, cclass, group;
+		if ( c !== undefined ) {
+			fill = c.color;
+			cclass = c.class;
+			group = c.group;
+		} else {
+			fill = white;
+			cclass = me.circleCount;
+			group = me.count;
+		}
+		
+		var circle = d3.select('.node-link-container').append('circle')
+			.attr('d', d).attr('class', cclass)
+			.attr('cx', x).attr('cy', y)
+			.attr('r', me.radius)
+			.style('fill', fill)
+			.call(d3.behavior.drag().on('drag', me.move))
+			.on('dblclick', me.doubleClickNode)
+			.on('mouseover', me.mouseover)
+			.on('mouseout', me.mouseout)
+			.on('click', me.nodeclick);
+				
+		var cObj = me.simplify(circle);
+		cObj.group = group;
+		cObj.color = fill;
+		me.circles.push(cObj);
+
+		me.count++;
+		me.circleCount++;
+		
+		return circle;
+	};
+		
 	me.addLine = function(c1, c2, d, l){
 		var lineClass;
 		if ( l !== undefined ) {
@@ -450,7 +442,7 @@ var draw = function(){
 			item = this;
 		}
 	
-		if ( me.tool_mode.getMode() === 'mover_hold' ||
+		if ( me.t_mode.getMode() === 'mover_hold' ||
 				this.localName === 'line') {
 			var circles = [];
 			
@@ -462,7 +454,7 @@ var draw = function(){
 				var circle = me.circles[x[i]].html;
 				me.dragGroup(circle);
 			}
-		} else if ( me.tool_mode.getMode() === 'select_hold' ) {
+		} else if ( me.t_mode.getMode() === 'select_hold' ) {
 			if ( d3.select(item).style('fill') === '#ff0000' ) {
 				d3.selectAll('.canvas line').each(function(){
 					if (d3.select(this).style('stroke') === '#ff0000'){
@@ -477,7 +469,7 @@ var draw = function(){
 					}
 				});
 			}
-		} else if (me.tool_mode.getMode() === ''){
+		} else if (me.t_mode.getMode() === ''){
 			me.dragGroup(item);
 		}
 	};
@@ -550,7 +542,7 @@ var draw = function(){
 	
 	me.dragstart = function(){
 		me.startClick = d3.mouse(this);
-		if (me.tool_mode.getMode() === 'select_hold'){
+		if (me.t_mode.getMode() === 'select_hold'){
 			d3.select('.canvas svg').append('rect')
 				.attr('class', 'selection')
 				.style('opacity', 0.25);
@@ -559,7 +551,7 @@ var draw = function(){
 	
 	me.drag = function(){
 		var ev = d3.mouse(this);
-		if (me.tool_mode.getMode() === 'select_hold'){
+		if (me.t_mode.getMode() === 'select_hold'){
 			d3.select('.selection').attr('width', Math.abs( ev[0] - me.startClick[0] ))
 				.attr('height', Math.abs( ev[1] - me.startClick[1] ))
 				.attr('x', Math.min( ev[0], me.startClick[0] ))
@@ -615,7 +607,7 @@ var draw = function(){
 	};
 	
 	me.dragend = function(){
-		if (me.tool_mode.getMode() === 'select_hold'){
+		if (me.t_mode.getMode() === 'select_hold'){
 			d3.select('.selection').remove();
 		}
 	}
@@ -631,7 +623,7 @@ var draw = function(){
 		@internal functions - none
 	*/
 	me.lineclick = function(){	
-		if(me.tool_mode.getMode() === 'delete_hold'){
+		if(me.t_mode.getMode() === 'delete_hold'){
 			me.deleteItem(this);
 		}
 	};
@@ -654,7 +646,7 @@ var draw = function(){
 							  me.addArrow
 	*/
 	me.nodeclick = function(){
-		if(me.tool_mode.getMode() === 'rel_hold'){
+		if(me.t_mode.getMode() === 'rel_hold'){
 			//if no entities have been clicked before this one
 			if (me.lastNodeClicked === null){
 				me.lastNodeClicked = this;
@@ -727,7 +719,7 @@ var draw = function(){
 				});	
 			}
 		}
-		else if (me.tool_mode.getMode() === 'delete_hold'){
+		else if (me.t_mode.getMode() === 'delete_hold'){
 			me.deleteItem(this);
 		}
 	};
@@ -745,7 +737,7 @@ var draw = function(){
 							  me.addArrow
 	*/
 	me.doubleClickNode = function(){
-		if (me.tool_mode.getMode() === ''){
+		if (me.t_mode.getMode() === ''){
 			$('.rel-ent2-form').animate({
 				top: ( $('.canvas').height() / 2 ) - ( $('.rel-ent2-form').height() / 2 )
 			}, 750);
@@ -955,40 +947,6 @@ var draw = function(){
 		});
 	};
 	
-	/**
-		called from me.toggleSelection when mode is label_hold
-		@param - none
-		@return - none
-		@functionality - shows all labels for any element in the canvas
-		@internal functions - none
-	*/
-	me.toggleLabels = function(){
-		if (!me.labelsShown){
-			me.labelsShown = true;
-			var x = 0, y = 0;
-			d3.selectAll('.canvas circle').each(function(){
-				var circle = d3.select(this);
-				x = parseInt(circle.attr('cx'), 10) + 15;
-				y = parseInt(circle.attr('cy'), 10) - 15;
-				d3.select('.canvas svg').append('text')
-					.attr('x', x).attr('y', y)
-					.text(circle.attr('d'));
-			});
-			
-			d3.selectAll('.canvas line').each(function(){
-				var line = d3.select(this);
-				x = ((parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2) + 15;
-				y = ((parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2) - 15;
-				d3.select('.canvas svg').append('text')
-					.attr('x', x).attr('y', y)
-					.text(line.attr('d'));
-			});
-		} else {
-			d3.selectAll('.canvas text').remove();
-			me.labelsShown = false;
-		}
-	};
-	
 	me.separateGroups = function(circleGroup){
 		if(circleGroup.length !== 0){
 			me.circles[circleGroup[0]].color = white;
@@ -1056,6 +1014,125 @@ var draw = function(){
 		
 		d3.selectAll('.canvas line').style('stroke', '#004785');
 		d3.selectAll('.canvas path').style('stroke', '#004785');
+	};
+	
+	me.saveTargetEvent = function() {
+		var tempUrl = event_url;
+		if ( me.event.id !== undefined ) {
+			tempURL += me.event.id;
+		}
+		
+		me.event = {
+			name: "one",
+			description: "fish two fish",
+			event_horizon: [],
+			location: [],
+			assertions: []
+		};
+		
+		for ( var i = 0; i < me.circles; i++ ) {
+			var cObj = me.circles[i];
+			if ( me.isAlone(cObj) ) {
+				me.event.assertions.push(cObj.id.toString());
+			}
+		}
+		
+		for ( var i = 0; i < me.lines; i++ ) {
+			me.event.assertions.push(me.lines[i].id.toString());
+		}
+		
+		console.log(JSON.stringify(me.event));
+		$.ajax({
+			type: "POST",
+			url: tempUrl,
+			dataType: 'application/json',
+			data: JSON.stringify(me.event),
+			success: function(r){
+				console.log(r);
+			}
+		});
+	};
+	
+	me.redraw = function(json){
+		var assertions = json.assertions;
+		var singletons = json.singletons;
+				
+		for (var i = 0; i < assertions.length; i++){
+			var c1 = assertions[i].entity1[0];
+			var c2 = assertions[i].entity2[0];
+			var l = assertions[i].relationship[0];
+			
+			var cInd1 = me.circles.indexOfObj(c1.class, 'class');
+			var cInd2 = me.circles.indexOfObj(c2.class, 'class');
+			
+			if (cInd1 === -1){
+				me.addCircle(c1.x, c1.y, c1.value, c1);
+				cInd1 = me.circles.length - 1;
+			}
+			
+			if (cInd2 === -1){
+				me.addCircle(c2.x, c2.y, c2.value, c2);
+				cInd2 = me.circles.length - 1;
+			}
+			
+			if(me.lines.indexOfObj(l.class, 'class') === -1){
+				var cSvg1 = d3.select(me.circles[cInd1].html);
+				var cSvg2 = d3.select(me.circles[cInd2].html);
+				me.addLine(cSvg1, cSvg2, l.value, l);
+			}
+		}
+		
+		for (var i = 0; i < singletons.length; i++){
+			var c = singletons[i].entity1[0];
+			if (me.circles.indexOfObj(c.class,'class') === -1){
+				me.addCircle(c.x, c.y, c.value, c);
+			}
+		}
+	};
+	
+	me.saveState = function(state){
+		if (me.pastStates.indexOf(state,
+					'class') === -1){
+			me.pastStates.push(state);
+		}
+		
+		if(me.pastStates.length > 10){
+			me.pastStates.shift();
+		}
+		console.log(JSON.parse(state));
+		console.log(me.pastStates);
+	};
+	
+	me.alterNodeColor = function(type, obj){
+		if (type === 'entity1'){
+			if ( obj.color === white ) {
+				obj.color = me.entity1Color;
+			} else if ( obj.color !== me.entity1Color ) {
+				obj.color = me.bothColor;
+			}
+		} else if ( type === 'entity2' ) {
+			if ( obj.color === white ) {
+				obj.color = me.entity2Color;
+			} else if ( obj.color !== me.entity2Color ) {
+				obj.color = me.bothColor;
+			}
+		}
+	};
+	
+	//t_button callbacks
+	me.resetCanvas = function(){
+		d3.select('.node-link-container').remove();
+		d3.select('.canvas svg').append('g')
+			.attr('class', 'node-link-container');
+		
+		me.circles = [];
+		me.lines = [];
+		
+		me.count = 0;
+		me.circleCount = 0;
+		me.lineCount = 0;
+		
+		me.lastNodeClicked = null;
 	};
 	
 	me.saveTargetAssertions = function(){
@@ -1182,93 +1259,6 @@ var draw = function(){
 		console.log(me.assertions);
 	};
 	
-	me.saveTargetEvent = function() {
-		var tempUrl = event_url;
-		if ( me.event.id !== undefined ) {
-			tempURL += me.event.id;
-		}
-		
-		me.event = {
-			name: "one",
-			description: "fish two fish",
-			event_horizon: [],
-			location: [],
-			assertions: []
-		};
-		
-		for ( var i = 0; i < me.circles; i++ ) {
-			var cObj = me.circles[i];
-			if ( me.isAlone(cObj) ) {
-				me.event.assertions.push(cObj.id.toString());
-			}
-		}
-		
-		for ( var i = 0; i < me.lines; i++ ) {
-			me.event.assertions.push(me.lines[i].id.toString());
-		}
-		
-		console.log(JSON.stringify(me.event));
-		$.ajax({
-			type: "POST",
-			url: tempUrl,
-			dataType: 'application/json',
-			data: JSON.stringify(me.event),
-			success: function(r){
-				console.log(r);
-			}
-		});
-	};
-	
-	me.redraw = function(json){
-		var assertions = json.assertions;
-		var singletons = json.singletons;
-				
-		for (var i = 0; i < assertions.length; i++){
-			var c1 = assertions[i].entity1[0];
-			var c2 = assertions[i].entity2[0];
-			var l = assertions[i].relationship[0];
-			
-			var cInd1 = me.circles.indexOfObj(c1.class, 'class');
-			var cInd2 = me.circles.indexOfObj(c2.class, 'class');
-			
-			if (cInd1 === -1){
-				me.addCircle(c1.x, c1.y, c1.value, c1);
-				cInd1 = me.circles.length - 1;
-			}
-			
-			if (cInd2 === -1){
-				me.addCircle(c2.x, c2.y, c2.value, c2);
-				cInd2 = me.circles.length - 1;
-			}
-			
-			if(me.lines.indexOfObj(l.class, 'class') === -1){
-				var cSvg1 = d3.select(me.circles[cInd1].html);
-				var cSvg2 = d3.select(me.circles[cInd2].html);
-				me.addLine(cSvg1, cSvg2, l.value, l);
-			}
-		}
-		
-		for (var i = 0; i < singletons.length; i++){
-			var c = singletons[i].entity1[0];
-			if (me.circles.indexOfObj(c.class,'class') === -1){
-				me.addCircle(c.x, c.y, c.value, c);
-			}
-		}
-	};
-	
-	me.saveState = function(state){
-		if (me.pastStates.indexOf(state,
-					'class') === -1){
-			me.pastStates.push(state);
-		}
-		
-		if(me.pastStates.length > 10){
-			me.pastStates.shift();
-		}
-		console.log(JSON.parse(state));
-		console.log(me.pastStates);
-	};
-	
 	me.undo = function(){
 		if (me.pastStates.length > 0){
 			d3.select('.node-link-container').remove();
@@ -1311,19 +1301,37 @@ var draw = function(){
 		}
 	};
 	
-	me.alterNodeColor = function(type, obj){
-		if (type === 'entity1'){
-			if ( obj.color === white ) {
-				obj.color = me.entity1Color;
-			} else if ( obj.color !== me.entity1Color ) {
-				obj.color = me.bothColor;
-			}
-		} else if ( type === 'entity2' ) {
-			if ( obj.color === white ) {
-				obj.color = me.entity2Color;
-			} else if ( obj.color !== me.entity2Color ) {
-				obj.color = me.bothColor;
-			}
+	/**
+		called from me.toggleSelection when mode is label_hold
+		@param - none
+		@return - none
+		@functionality - shows all labels for any element in the canvas
+		@internal functions - none
+	*/
+	me.toggleLabels = function(){
+		if (!me.labelsShown){
+			me.labelsShown = true;
+			var x = 0, y = 0;
+			d3.selectAll('.canvas circle').each(function(){
+				var circle = d3.select(this);
+				x = parseInt(circle.attr('cx'), 10) + 15;
+				y = parseInt(circle.attr('cy'), 10) - 15;
+				d3.select('.canvas svg').append('text')
+					.attr('x', x).attr('y', y)
+					.text(circle.attr('d'));
+			});
+			
+			d3.selectAll('.canvas line').each(function(){
+				var line = d3.select(this);
+				x = ((parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2) + 15;
+				y = ((parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2) - 15;
+				d3.select('.canvas svg').append('text')
+					.attr('x', x).attr('y', y)
+					.text(line.attr('d'));
+			});
+		} else {
+			d3.selectAll('.canvas text').remove();
+			me.labelsShown = false;
 		}
 	};
 };
