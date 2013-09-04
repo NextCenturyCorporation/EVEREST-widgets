@@ -306,6 +306,8 @@ describe('To test the target event definition widget', function(){
 				test_draw.tool_mode.setMode('rel_hold');
 				test_draw.circles = [];
 				test_draw.lines = [];
+				d3.selectAll('line').remove();
+				d3.selectAll('circle').remove();
 				test_draw.lastNodeClicked = null;
 				
 				spyOn(window, '$').andCallThrough();
@@ -429,10 +431,26 @@ describe('To test the target event definition widget', function(){
 				});
 			});
 			
-			xit('in delete_hold mode', function(){
-				var aSvg = d3.select('.csvg').append('circle');
-				var cl = aSvg.attr('class');
-								
+			it('in delete_hold mode', function(){
+				var aSvg = test_draw.addCircle(9, 10, 'hello');
+				var bSvg = test_draw.addCircle(11, 12, 'goodbye');				
+				
+				document.getElementsByClassName(aSvg.attr('class'))[0]
+					.dispatchEvent(clickEvt);
+					
+				document.getElementsByClassName(bSvg.attr('class'))[0]
+					.dispatchEvent(clickEvt);
+					
+				$('.rel-only').val('bacon');
+					
+				document.getElementsByClassName('rel-submit')[0]
+					.dispatchEvent(clickEvt);
+					
+				expect(test_draw.circles.length).toEqual(2);
+				expect(test_draw.lines.length).toEqual(1);
+				expect(aSvg.style('fill')).toEqual(entity1Color);
+				expect(bSvg.style('fill')).toEqual(entity2Color);
+					
 				test_draw.tool_mode.setMode('delete_hold');
 				
 				document.getElementsByClassName(aSvg.attr('class'))[0]
@@ -441,6 +459,8 @@ describe('To test the target event definition widget', function(){
 				expect(test_draw.circles.length).toEqual(1);
 				expect(test_draw.lines.length).toEqual(0);
 				expect(test_draw.circles[0].color).toEqual('#ffffff');
+				
+				expect(test_draw.deleteItem).toHaveBeenCalled();
 			});
 		});
 		
@@ -449,6 +469,8 @@ describe('To test the target event definition widget', function(){
 				test_draw.tool_mode.setMode('');
 				test_draw.circles = [];
 				test_draw.lines = [];
+				d3.selectAll('line').remove();
+				d3.selectAll('circle').remove();
 				
 				spyOn(window, '$').andCallThrough();
 				spyOn(window, 'parseInt').andCallThrough();

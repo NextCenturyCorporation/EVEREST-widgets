@@ -909,7 +909,6 @@ var draw = function(){
 				var line_ind = me.lines.indexOfObj(d3.select(this).attr('class'),
 						'class');
 				var lObj = me.lines[line_ind];
-				
 				if (lObj.source === me.circles[index].html || 
 						lObj.target === me.circles[index].html){
 					me.lines.splice(line_ind,1);
