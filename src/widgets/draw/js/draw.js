@@ -89,7 +89,7 @@ var draw = function(){
 	
 	me.lastNodeClicked = null;
 	me.count = 0;
-	me.currentState = {};
+	me.assertions = {};
 	me.event = {};
 		
 	me.setUpToolbars = function(){
@@ -632,7 +632,7 @@ var draw = function(){
 	*/
 	me.lineclick = function(){	
 		if(me.tool_mode.getMode() === 'delete_hold'){
-			me.deleteLink(this);
+			me.deleteItem(this);
 		}
 	};
 	
@@ -728,7 +728,7 @@ var draw = function(){
 			}
 		}
 		else if (me.tool_mode.getMode() === 'delete_hold'){
-			me.deleteNode(this);
+			me.deleteItem(this);
 		}
 	};
 	
@@ -899,35 +899,49 @@ var draw = function(){
 		}
 	};
 	
-	me.deleteNode = function(t){
-		var index = me.circles.indexOfObj(d3.select(t).attr('class'),
+	me.deleteItem = function(t){
+		var group;
+		if ( t.localName === 'circle' ){
+			var index = me.circles.indexOfObj(d3.select(t).attr('class'),
 				'class');
-		var group = me.circles[index].group;
-		d3.selectAll('.canvas line').each(function(){
-			var line_index = me.lines.indexOfObj(d3.select(this).attr('class'),
-					'class');
-			var l = me.lines[line_index];
+			group = me.circles[index].group;
+			d3.selectAll('.canvas line').each(function(){
+				var line_ind = me.lines.indexOfObj(d3.select(this).attr('class'),
+						'class');
+				var lObj = me.lines[line_ind];
+				
+				if (lObj.source === me.circles[index].html || 
+						lObj.target === me.circles[index].html){
+					me.lines.splice(line_ind,1);
+					d3.select(this.parentNode).remove();
+				}
+			});
 			
-			if (l.source === me.circles[index].html || 
-					l.target === me.circles[index].html){
-				me.lines.splice(line_index,1);
-				d3.select(this.parentNode).remove();
+			me.circles.splice(index, 1);
+			d3.select(t).remove();
+		} else if ( t.localName === 'line' ){
+			var index = me.lines.indexOfObj(d3.select(t).attr('class'),
+				'class');
+			for (var i = 0; i < me.circles.length; i++){
+				if ( me.circles[i].html === me.lines[index].source ){
+					group = me.circles[i].group;
+				}
 			}
-		});
+			
+			me.lines.splice(index,1);
+			d3.select(t.parentNode).remove();
+		}
 		
-		me.circles.splice(index, 1);
-		d3.select(t).remove();
-
 		var cIndicies = me.extractCircles(group);
 		me.separateGroups(cIndicies);
 		
 		d3.selectAll('.canvas line').each(function(){
 			var line_index = me.lines.indexOfObj(d3.select(this).attr('class'),
 					'class');
-			var l = me.lines[line_index];
+			var lObj = me.lines[line_index];
 			
-			var cSvg1 = d3.select(l.source);
-			var cSvg2 = d3.select(l.target);
+			var cSvg1 = d3.select(lObj.source);
+			var cSvg2 = d3.select(lObj.target);
 			
 			var cObj1 = me.circles[me.circles.indexOfObj(cSvg1.attr('class'),
 					'class')];
@@ -942,44 +956,6 @@ var draw = function(){
 		});
 	};
 	
-	me.deleteLink = function(t){
-		var group;
-		var index = me.lines.indexOfObj(d3.select(t).attr('class'),
-					'class');
-		var cHtml = me.lines[index].source;
-		for (var i = 0; i < me.circles.length; i++){
-			if (me.circles[i].html === cHtml){
-				group = me.circles[i].group;
-			}
-		}
-		
-		me.lines.splice(index,1);
-		d3.select(t.parentNode).remove();
-		
-		var cIndicies = me.extractCircles(group);
-		me.separateGroups(cIndicies);
-		
-		d3.selectAll('.canvas line').each(function(){
-			var line_index = me.lines.indexOfObj(d3.select(this).attr('class'),
-					'class');
-			var l = me.lines[line_index];
-			
-			var cSvg1 = d3.select(l.source);
-			var cSvg2 = d3.select(l.target);
-			
-			var cObj1 = me.circles[me.circles.indexOfObj(cSvg1.attr('class'),
-					'class')];
-			var cObj2 = me.circles[me.circles.indexOfObj(cSvg2.attr('class'),
-					'class')];
-			
-			me.alterNodeColor('entity1', cObj1);
-			cSvg1.style('fill', cObj1.color);
-			
-			me.alterNodeColor('entity2', cObj2);
-			cSvg2.style('fill', cObj2.color);
-		});
-	};
-		
 	/**
 		called from me.toggleSelection when mode is label_hold
 		@param - none
@@ -1051,7 +1027,6 @@ var draw = function(){
 					} else {
 						//this group contains at least one circle
 						var small = {group:999999};
-						
 						for(var k = 0; k < thisGroup.length; k++){
 							if (thisGroup[k].group < small.group){
 								small = thisGroup[k];
@@ -1085,7 +1060,7 @@ var draw = function(){
 	};
 	
 	me.saveTargetAssertions = function(){
-		me.currentState = { assertions : [], singletons: [] };
+		me.assertions = { assertions : [], singletons: [] };
 		for (var i = 0; i < me.lines.length; i++){
 			var tempUrl = assert_url;
 			var line = me.lines[i];
@@ -1138,7 +1113,15 @@ var draw = function(){
 					tempUrl += line.id;
 				}
 			
-			me.currentState.assertions.push(postData);
+			me.assertions.assertions.push(postData);
+			
+			$.ajax({
+				type: "POST",
+				url: "../../../lib/post_relay.php",
+				data: JSON.stringify({url: assert_url, data: postData}),
+				success: function(){console.log('success');},
+				error: function(){console.log('error');}
+			});
 			
 			/*$.ajax({
 				type: "POST",
@@ -1175,15 +1158,16 @@ var draw = function(){
 					tempUrl += c.id;
 				}
 				
-				me.currentState.singletons.push(postData);
-				/*$.ajax({
+				me.assertions.singletons.push(postData);
+				$.ajax({
 					type: "POST",
 					url: "../../../lib/post_relay.php",
-					data: JSON.stringify({url: url, data: postData}),
+					data: JSON.stringify({url: assert_url, data: postData}),
 					success: function(){console.log('success');},
 					error: function(){console.log('error');}
 				});
 				
+				/*
 				$.ajax({
 					type: "POST",
 					url: tempUrl,
@@ -1194,9 +1178,9 @@ var draw = function(){
 				});*/
 			}
 		}
-		me.saveState(JSON.stringify(me.currentState));
+		me.saveState(JSON.stringify(me.assertions));
 		//me.saveTargetEvent();
-		console.log(me.currentState);
+		console.log(me.assertions);
 	};
 	
 	me.saveTargetEvent = function() {
@@ -1313,7 +1297,7 @@ var draw = function(){
 		});
 		
 		for (var i = 0; i < nodesToRemove.length; i++){
-			me.deleteNode(nodesToRemove[i]);
+			me.deleteItem(nodesToRemove[i]);
 		}
 		
 		d3.selectAll('.canvas line').each(function(){
@@ -1324,7 +1308,7 @@ var draw = function(){
 		});
 		
 		for (var i = 0; i < linksToRemove.length; i++){
-			me.deleteLink(linksToRemove[i]);
+			me.deleteItem(linksToRemove[i]);
 		}
 	};
 	

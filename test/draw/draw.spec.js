@@ -41,6 +41,12 @@ describe('To test the target event definition widget', function(){
 	var dblClickEvt = document.createEvent('Event');
 	dblClickEvt.initEvent('dblclick', true, false);
 	
+	var mouseOverEvt = document.createEvent('Event');
+	mouseOverEvt.initEvent('mouseover', true, false);
+	
+	var mouseOutEvt = document.createEvent('Event');
+	mouseOutEvt.initEvent('mouseout', true, false);
+	
 	describe('to see if test_draw attributes actually exist', function(){	
 		it('', function(){
 			expect(test_draw.canvasW).toEqual(0);
@@ -310,7 +316,7 @@ describe('To test the target event definition widget', function(){
 				spyOn(test_draw, 'alterNodeColor').andCallThrough();
 				spyOn(test_draw, 'extractCircles').andCallThrough();
 				spyOn(test_draw, 'addLine').andCallThrough();
-				spyOn(test_draw, 'deleteNode').andCallThrough();
+				spyOn(test_draw, 'deleteItem').andCallThrough();
 				spyOn(test_draw.circles, 'indexOfObj').andCallThrough();
 				spyOn(test_draw.lines, 'getAllIndicies').andCallThrough();
 				
@@ -532,7 +538,7 @@ describe('To test the target event definition widget', function(){
 	
 	describe('the deletion functions', function(){
 		//only letting me call one set of this atm, dk why
-		xit('the deleteNode function, method calls', function(){
+		xit('the deleteItem function, method calls', function(){
 			test_draw.circles = [];
 			test_draw.lines = [];
 			
@@ -560,7 +566,7 @@ describe('To test the target event definition widget', function(){
 				class: '0'
 			}];
 				
-			test_draw.deleteNode(c11.html);
+			test_draw.deleteItem(c11.html);
 			
 			expect(d3.selectAll).toHaveBeenCalledWith('.canvas line');
 			expect(d3.select).toHaveBeenCalled();
@@ -570,7 +576,7 @@ describe('To test the target event definition widget', function(){
 			expect(d3.selectAll.callCount).toEqual(2);
 		});
 		
-		it('the deleteNode function', function(){
+		it('the deleteItem function', function(){
 			test_draw.circles = [];
 			test_draw.lines = [];
 			d3.selectAll('circle').remove();
@@ -616,7 +622,7 @@ describe('To test the target event definition widget', function(){
 			expect(test_draw.isAlone(test_draw.circles[2])).toBe(false);
 			expect(test_draw.isAlone(test_draw.circles[3])).toBe(false);
 						
-			test_draw.deleteNode(test_draw.circles[1].html);
+			test_draw.deleteItem(test_draw.circles[1].html);
 			expect(test_draw.circles.length).toEqual(3);
 			expect(test_draw.lines.length).toEqual(1);
 						
@@ -635,7 +641,7 @@ describe('To test the target event definition widget', function(){
 			expect(cT1.group).not.toEqual(cT2.group);
 			expect(cT2.group).toEqual(cT3.group);
 			
-			test_draw.deleteNode(test_draw.circles[2].html);
+			test_draw.deleteItem(test_draw.circles[2].html);
 			expect(test_draw.circles.length).toEqual(2);
 			expect(test_draw.lines.length).toEqual(0);
 			
