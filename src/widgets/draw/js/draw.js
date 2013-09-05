@@ -165,8 +165,8 @@ var draw = function(){
 	*/
 	me.extractCircles = function(g){
 		var array = [];
-		for (var i = 0; i < me.circles.length; i++){
-			if(me.circles[i].group === g){
+		for ( var i = 0; i < me.circles.length; i++ ){
+			if ( me.circles[i].group === g ) {
 				array.push(i);
 			}
 		}
@@ -175,15 +175,13 @@ var draw = function(){
 	
 	/**
 		called when any line or entity is created, within the following
-		functions : me.dragGroup, me.nodeclick
-		me.doubleClickNode
+		functions : me.dragGroup, me.nodeclick, me.doubleClickNode
 		@param - newC: coordinate (x or y) within canvas to attempt to add new item
 				 axis: 'x' or 'y' to indicate what bound to compare against
 		@return - a float within the bounds of the svg element
 		@functionality - takes newC and checks to see if it is within the 
 				  bounds of the canvas, if it is, returns newC, if not, returns
 				  a proper min or max
-		@internal functions - none
 	*/
 	me.computeCoord = function(newC, axis){
 		var max = axis === 'x' ? me.canvasW : me.canvasH;
@@ -219,10 +217,10 @@ var draw = function(){
 		
 		d3.select('.rel-ent-cancel').on('click', function(){
 			$('.relate').val('');
-				$('.ent2').val('');
-				$('.rel-ent2-form').animate({
-					top: '-'+ 3*$('.rel-ent2-form').height()
-				}, 750);
+			$('.ent2').val('');
+			$('.rel-ent2-form').animate({
+				top: '-'+ 3*$('.rel-ent2-form').height()
+			}, 750);
 		});
 	};
 
@@ -236,13 +234,11 @@ var draw = function(){
 	*/
 	me.createCanvas = function(){
 		var canvas = d3.select('.canvas');
-		var svg = canvas.append('svg')
-			.attr('class', 'csvg')
+		var svg = canvas.append('svg').attr('class', 'csvg')
 			.on('click', function(){
-				if (me.t_mode.getMode() === 'node_hold'){
-					var ev = d3.mouse(this);
-					me.createCircle(ev);
-				} else if (me.t_mode.getMode() === 'select_hold'){
+				if ( me.t_mode.getMode() === 'node_hold' ) {
+					me.createCircle(d3.mouse(this));
+				} else if ( me.t_mode.getMode() === 'select_hold' ) {
 					me.resetColors();
 				}
 			});
@@ -325,7 +321,7 @@ var draw = function(){
 		} else {
 			fill = white;
 			cclass = me.count;
-			group = me.count++;
+			group = me.count;
 		}
 		
 		var circle = d3.select('.node-link-container').append('circle')
@@ -343,6 +339,7 @@ var draw = function(){
 		cObj.group = group;
 		cObj.color = fill;
 		me.circles.push(cObj);
+		me.count++
 		
 		return circle;
 	};
