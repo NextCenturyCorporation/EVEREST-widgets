@@ -5,13 +5,17 @@ $data_json = json_decode($data_string);
 
 $data = $data_json->{'data'};
 $url = $data_json->{'url'};
+$method = $data_json->{'method'};
+
+//print_r($method);
 
 $curl = curl_init();
 
 curl_setopt_array($curl, array(
 	CURLOPT_RETURNTRANSFER => 1,
     CURLOPT_URL => $url,
- 	CURLOPT_POST => 1,
+ 	//CURLOPT_POST => 1,
+ 	CURLOPT_CUSTOMREQUEST => $method,
  	CURLOPT_POSTFIELDS => $data
 ));
 
