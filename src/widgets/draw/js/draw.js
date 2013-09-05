@@ -345,7 +345,7 @@ var draw = function(){
 	};
 		
 	me.addLine = function(c1, c2, d, l){
-		var lClass = l !== undefined ? l.class : me.count++;
+		var lClass = l !== undefined ? l.class : me.count;
 			
 		//center of entity 1
 		var p1 = {
@@ -376,6 +376,7 @@ var draw = function(){
 			.on('mouseout', me.mouseout); 
 
 		var path = me.addArrow(lSvg);
+		me.count++;
 		
 		if ( me.lines.indexOfObj(lSvg.attr('class'), 'class') === -1 ) {
 			var lObj = {
@@ -431,22 +432,15 @@ var draw = function(){
 	
 		if ( me.t_mode.getMode() === 'mover_hold' ||
 				this.localName === 'line') {
-			var group = me.circles.indexOfObj(d3.select(item).attr('class'),
-					 'class');
-			var x = me.extractCircles(me.circles[group].group);
+			var cInd = me.circles.indexOfObj(d3.select(item).attr('class'),
+				'class');
+			var cIndicies = me.extractCircles(me.circles[cInd].group);
 			
-			for (var i = 0; i < x.length; i++){
-				var circle = me.circles[x[i]].html;
-				me.dragGroup(circle);
+			for (var i = 0; i < cIndicies.length; i++){
+				me.dragGroup(me.circles[cIndicies[i]].html);
 			}
 		} else if ( me.t_mode.getMode() === 'select_hold' ) {
 			if ( d3.select(item).style('fill') === me.selectColor ) {
-				d3.selectAll('.canvas line').each(function(){
-					if (d3.select(this).style('stroke') === me.selectColor){
-						d3.select(this.parentNode).select('path').remove();
-					}
-				});
-				
 				d3.selectAll('.canvas circle').each(function(){
 					var c = d3.select(this);
 					if (c.style('fill') === me.selectColor){
@@ -963,7 +957,7 @@ var draw = function(){
 		d3.selectAll('.canvas circle').each(function(){
 			var cSvg = d3.select(this);
 			var cInd = me.circles.indexOfObj(cSvg.attr('class'), 'class');
-			c.style('fill', me.circles[cInd].color);
+			cSvg.style('fill', me.circles[cInd].color);
 		});
 		
 		d3.selectAll('.canvas line').style('stroke', me.lineColor);
