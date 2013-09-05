@@ -148,12 +148,12 @@ describe('To test the target event definition widget', function(){
 			
 			expect(test_draw.computeCoord(30, 'x')).toEqual(30);
 			expect(test_draw.computeCoord(40, 'y')).toEqual(40);
-			expect(test_draw.computeCoord(1.929843975, 'x')).toEqual(1);
+			expect(test_draw.computeCoord(21.929843975, 'x')).toEqual(21);
 			expect(test_draw.computeCoord(103.123984775, 'y')).toEqual(103);
-			expect(test_draw.computeCoord(3000, 'x')).toEqual(test_draw.canvasW);
-			expect(test_draw.computeCoord(3000, 'y')).toEqual(test_draw.canvasH);
-			expect(test_draw.computeCoord(-30, 'x')).toEqual(0);
-			expect(test_draw.computeCoord(-9834, 'y')).toEqual(0);
+			expect(test_draw.computeCoord(3000, 'x')).toEqual(test_draw.canvasW - 15);
+			expect(test_draw.computeCoord(3000, 'y')).toEqual(test_draw.canvasH - 15);
+			expect(test_draw.computeCoord(-30, 'x')).toEqual(15);
+			expect(test_draw.computeCoord(-9834, 'y')).toEqual(15);
 			
 			expect(Math.floor).toHaveBeenCalled();
 		});

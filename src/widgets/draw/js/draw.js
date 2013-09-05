@@ -61,35 +61,33 @@ var draw = function(){
 	var me =  this;
 	var assert_url = 'http://localhost:8081/target_assertion/';
 	var event_url = 'http://localhost:8081/target_event/';
-	me.t_mode, me.t_button; 
 	var white = '#ffffff';
+	
+	me.t_mode, me.t_button;
 	
 	me.entity1Color = getHexString('.entity1Color');
 	me.entity2Color = getHexString('.entity2Color');
 	me.bothColor = getHexString('.bothColor');
+	me.lineColor = getHexString('.lineColor');
 	me.selectColor = '#ff0000';
 	
 	me.radius = 8;
-	
+	me.count = 0;
 	me.maxX = -1;
 	me.maxY = -1;
 	
 	me.canvasW = 0;
 	me.canvasH = 0;
-	me.canvasC = { };
-	me.pastStates = [];
+	me.padding = 15;
 	me.labelsShown = false;
-	
-	me.startClick;
-	
+		
 	me.circles = [];
 	me.lines = [];
-	
-	me.circleCount = 0;
-	me.lineCount = 0;
-	
+
 	me.lastNodeClicked = null;
-	me.count = 0;
+	me.startClick;
+	me.pastStates = [];
+	
 	me.assertions = {};
 	me.event = {};
 		
@@ -97,12 +95,12 @@ var draw = function(){
 		node: 'img/node.png',
 		link: 'img/link.png',
 		move: 'img/mover.png',
-		deleteM: 'img/delete.png',
+		deleteM: 'img/deleteM.png',
 		select: 'img/select.png',
 		reset: 'img/reset.png',
 		submit: 'img/submit.png',
 		undo: 'img/undo.png',
-		deleteB: 'img/delete.gif',
+		deleteB: 'img/deleteB.gif',
 		label: 'img/text.png'
 	};		
 
@@ -116,11 +114,12 @@ var draw = function(){
 	
 		me.t_button = new toolbar('.toolbar_buttons');
 		me.t_button.createSelection('resetB', images.reset, me.resetCanvas);		
-		me.t_button.createSelection('submitB', images.submit,me.saveTargetAssertions);
+		me.t_button.createSelection('submitB', images.submit, me.saveTargetAssertions);
 		me.t_button.createSelection('undoB', images.undo, me.undo);
 		me.t_button.createSelection('deleteB', images.deleteB, me.deleteSelection);
 		me.t_button.createSelection('labelB', images.label, me.toggleLabels);
 	};
+	
 	/**
 		@param			item: a d3.select()'ed circle
 		@return			an object containing the desired attributes of item
@@ -189,10 +188,10 @@ var draw = function(){
 	me.computeCoord = function(newC, axis){
 		var max = axis === 'x' ? me.canvasW : me.canvasH;
 		
-		if (newC < 0){	
-			return 0;
-		} else if (newC > max){
-			return max;
+		if (newC < me.padding){	
+			return me.padding;
+		} else if (newC > max - me.padding){
+			return max - me.padding;
 		} else {
 			return Math.floor(newC);
 		}
@@ -206,7 +205,7 @@ var draw = function(){
 		d3.select('.ent-cancel').on('click', function(){
 			$('.ent1').val('');
 			$('.ent1-form').animate({
-				top: '-'+ 2*$('.ent1-form').height()
+				top: '-'+ 3*$('.ent1-form').height()
 			}, 750);
 		});
 		
@@ -214,7 +213,7 @@ var draw = function(){
 			me.lastNodeClicked = null;
 			$('.rel-only').val('');
 			$('.rel-form').animate({
-				top: '-'+ 2*$('.rel-form').height()
+				top: '-'+ 3*$('.rel-form').height()
 			}, 750);
 		});
 		
@@ -222,7 +221,7 @@ var draw = function(){
 			$('.relate').val('');
 				$('.ent2').val('');
 				$('.rel-ent2-form').animate({
-					top: '-'+ 2*$('.rel-ent2-form').height()
+					top: '-'+ 3*$('.rel-ent2-form').height()
 				}, 750);
 		});
 	};
@@ -250,10 +249,7 @@ var draw = function(){
 		
 		me.canvasW = svg.style('width').split('p')[0];
 		me.canvasH = svg.style('height').split('p')[0];
-		me.canvasC.x = me.canvasW / 2;
-		me.canvasC.y = me.canvasH / 2;	
-		
-		//css
+
 		svg.append('rect')
 			.attr('class', 'background')
 			.attr('x', 0).attr('y', 0)
@@ -328,8 +324,8 @@ var draw = function(){
 			group = c.group;
 		} else {
 			fill = white;
-			cclass = me.circleCount;
-			group = me.count;
+			cclass = me.count;
+			group = me.count++;
 		}
 		
 		var circle = d3.select('.node-link-container').append('circle')
@@ -347,21 +343,13 @@ var draw = function(){
 		cObj.group = group;
 		cObj.color = fill;
 		me.circles.push(cObj);
-
-		me.count++;
-		me.circleCount++;
 		
 		return circle;
 	};
 		
 	me.addLine = function(c1, c2, d, l){
-		var lineClass;
-		if ( l !== undefined ) {
-			lineClass = l.class;
-		} else {
-			lineClass = me.lineCount;
-		}
-	
+		var lClass = l !== undefined ? l.class : me.count++;
+			
 		//center of entity 1
 		var p1 = {
 			x:parseInt(c1.attr('cx'), 10),
@@ -375,11 +363,11 @@ var draw = function(){
 		};
 	
 		//create the line for the new entity 1 entity 2 relationship
-		var lineGroup = d3.select('.node-link-container')
+		var lGroup = d3.select('.node-link-container')
 			.insert('g', ':first-child');
 		
-		var line = lineGroup.append('line', ':first-child')
-			.attr('class', lineClass)
+		var lSvg = lGroup.append('line')
+			.attr('class', lClass)
 			.attr('d', d)
 			.attr('x1', me.computeCoord(p1.x, 'x'))
 			.attr('y1', me.computeCoord(p1.y, 'y'))
@@ -390,24 +378,26 @@ var draw = function(){
 			.on('mouseover', me.mouseover)
 			.on('mouseout', me.mouseout); 
 
-		var path = me.addArrow(line);
-		me.lineCount++;
+		var path = me.addArrow(lSvg);
 		
-		if(me.lines.indexOfObj(line.attr('class'), 'class') === -1){
+		if ( me.lines.indexOfObj(lSvg.attr('class'), 'class') === -1 ) {
 			var lObj = {
-				class: line.attr('class'),
-				html: line[0][0],
-				d: line.attr('d'),
+				class: lSvg.attr('class'),
+				html: lSvg[0][0],
+				d: lSvg.attr('d'),
 				source: c1[0][0],
 				target: c2[0][0]
 			};
 			
 			me.lines.push(lObj);
 		}
+		
+		return lSvg;
 	};
 	
 	me.addArrow = function(line){
-		var path = d3.select(line[0][0].parentNode).insert('path', ':first-child')
+		var path = d3.select(line[0][0].parentNode)
+			.insert('path', ':first-child')
 			.attr('class', 'arrow')
 			.attr('marker-mid', 'url(#Triangle)')
 			.attr('d', function(){
@@ -444,8 +434,6 @@ var draw = function(){
 	
 		if ( me.t_mode.getMode() === 'mover_hold' ||
 				this.localName === 'line') {
-			var circles = [];
-			
 			var group = me.circles.indexOfObj(d3.select(item).attr('class'),
 					 'class');
 			var x = me.extractCircles(me.circles[group].group);
@@ -455,16 +443,16 @@ var draw = function(){
 				me.dragGroup(circle);
 			}
 		} else if ( me.t_mode.getMode() === 'select_hold' ) {
-			if ( d3.select(item).style('fill') === '#ff0000' ) {
+			if ( d3.select(item).style('fill') === me.selectColor ) {
 				d3.selectAll('.canvas line').each(function(){
-					if (d3.select(this).style('stroke') === '#ff0000'){
+					if (d3.select(this).style('stroke') === me.selectColor){
 						d3.select(this.parentNode).select('path').remove();
 					}
 				});
 				
 				d3.selectAll('.canvas circle').each(function(){
 					var c = d3.select(this);
-					if (c.style('fill') === '#ff0000'){
+					if (c.style('fill') === me.selectColor){
 						me.dragGroup(this);
 					}
 				});
@@ -483,38 +471,33 @@ var draw = function(){
 		@internal functions - me.computeCoord
 							  me.addArrow
 	*/
-	me.dragGroup = function(that){
-		var cSvg = d3.select(that);
+	me.dragGroup = function(cHtml){
+		var cSvg = d3.select(cHtml);
+		var cObj = me.circles[me.circles.indexOfObj(cSvg.attr('class'), 
+			'class')];
 		var dx = d3.event.dx, dy = d3.event.dy;
-		
-		var	cx = cSvg.attr('cx');
-		var	cy = cSvg.attr('cy');
-		var cObj = me.circles[me.circles.indexOfObj(cSvg.attr('class'),
-					'class')];
-					
+			
 		//move the circle based on the d3 event that occured
 		cSvg.attr('cx', function() { 
-			var newC = dx + parseInt(cx,10);
-			var newX = me.computeCoord(newC, 'x'); 
-			cObj.x = newX;
-			return newX;
+			var newC = dx + parseInt(cSvg.attr('cx'), 10);
+			cObj.x = me.computeCoord(newC, 'x'); 
+			return cObj.x;
 		}).attr('cy', function() { 
-			var newC = dy + parseInt(cy,10);
-			var newY = me.computeCoord(newC, 'y'); 
-			cObj.y = newY;
-			return newY;
+			var newC = dy + parseInt(cSvg.attr('cy'), 10);
+			cObj.y = me.computeCoord(newC, 'y'); 
+			return cObj.y;
 		});
 
 		d3.selectAll('.arrow').remove();
 		d3.selectAll('.canvas line').each(function(){
-			var line = d3.select(this);
-			var lineObj = me.lines[me.lines.indexOfObj(line.attr('class'),
+			var lSvg = d3.select(this);
+			var lObj = me.lines[me.lines.indexOfObj(lSvg.attr('class'),
 					'class')];
 					
-			if (lineObj.source === cObj.html) {
+			if ( lObj.source === cObj.html ) {
 				x = 'x1';
 				y = 'y1';
-			} else if (lineObj.target === cObj.html) {
+			} else if ( lObj.target === cObj.html ) {
 				x = 'x2';
 				y = 'y2';
 			} else {
@@ -523,27 +506,27 @@ var draw = function(){
 			}
 			
 			//if the entity is attached to a relationship and other entity 
-			if (x && y){
-				line.attr(x, function() { 
-					var newC = dx + parseInt(line.attr(x));
+			if ( x && y ) {
+				lSvg.attr(x, function() { 
+					var newC = dx + parseInt(lSvg.attr(x));
 					return me.computeCoord(newC, 'x');
 				}).attr(y, function() { 
-					var newC = dy + parseInt(line.attr(y));
+					var newC = dy + parseInt(lSvg.attr(y));
 					return me.computeCoord(newC, 'y');
 				});
 			}
 			
-			var path = me.addArrow(line);
-			if (line.style('stroke') === '#ff0000'){
-				path.style('stroke', '#ff0000');
+			var path = me.addArrow(lSvg);
+			if ( lSvg.style('stroke') === me.selectColor ) {
+				path.style('stroke', me.selectColor);
 			}
 		});
 	};
 	
 	me.dragstart = function(){
 		me.startClick = d3.mouse(this);
-		if (me.t_mode.getMode() === 'select_hold'){
-			d3.select('.canvas svg').append('rect')
+		if ( me.t_mode.getMode() === 'select_hold' ) {
+			d3.select('.csvg').append('rect')
 				.attr('class', 'selection')
 				.style('opacity', 0.25);
 		}
@@ -558,10 +541,10 @@ var draw = function(){
 				.attr('y', Math.min( ev[1], me.startClick[1] ));
 			 
 			var rect = d3.select('.selection');
-			var left = parseInt(rect.attr('x'),10);
-			var top = parseInt(rect.attr('y'),10);
-			var right = left + parseInt(rect.attr('width'),10);
-			var bottom = top + parseInt(rect.attr('height'),10);
+			var left = parseInt(rect.attr('x'), 10);
+			var top = parseInt(rect.attr('y'), 10);
+			var right = left + parseInt(rect.attr('width'), 10);
+			var bottom = top + parseInt(rect.attr('height'), 10);
 				
 			d3.selectAll('.canvas circle').each(function(){
 				var cSvg = d3.select(this);
@@ -575,8 +558,7 @@ var draw = function(){
 						cSvg.style('fill', me.circles[i].color);
 					}
 				} else {
-					var i = me.circles.indexOfObj(cSvg.attr('class'), 
-							'class');
+					var i = me.circles.indexOfObj(cSvg.attr('class'), 'class');
 					cSvg.style('fill', me.circles[i].color);
 				}
 			});
@@ -595,12 +577,12 @@ var draw = function(){
 						lSvg.style('stroke', me.selectColor);
 						path.style('stroke', me.selectColor);
 					} else {
-						lSvg.style('stroke', '#004785');
-						path.style('stroke', '#004785');
+						lSvg.style('stroke', me.lineColor);
+						path.style('stroke', me.lineColor);
 					}
 				} else {
-					lSvg.style('stroke', '#004785');
-					path.style('stroke', '#004785');
+					lSvg.style('stroke', me.lineColor);
+					path.style('stroke', me.lineColor);
 				}
 			});
 		}
@@ -659,7 +641,7 @@ var draw = function(){
 				}, 750);
 				$('.rel-only').focus();		//apparently errors in IE if focus before visible
 				
-				var that = this;
+				var c2Html = this;
 				
 				//creates on click event for relationship form submit button 
 				d3.select('.rel-submit').on('click', function(){
@@ -669,7 +651,7 @@ var draw = function(){
 					}	
 					
 					var cSvg1 = d3.select(me.lastNodeClicked);
-					var cSvg2 = d3.select(that);
+					var cSvg2 = d3.select(c2Html);
 					
 					var ind1 = me.circles.indexOfObj(cSvg1.attr('class'), 
 							'class');
@@ -678,7 +660,6 @@ var draw = function(){
 					
 					var cObj1 = me.circles[ind1];
 					me.alterNodeColor('entity1', cObj1);
-					cSvg1.style('fill', cObj1.color);
 					cSvg1.style('fill', cObj1.color);
 					
 					var cObj2 = me.circles[ind2];
@@ -726,15 +707,7 @@ var draw = function(){
 	
 	/**
 		used as a callback added to a new entity when it is double clicked
-		@param - none
-		@return - none
-		@functionality - 
-		@internal functions - me.computeCoord
-							  me.mouseover
-							  me.mouseout
-							  me.doubleClickNode (this function)
-							  me.nodeclick
-							  me.addArrow
+		@functionality 
 	*/
 	me.doubleClickNode = function(){
 		if (me.t_mode.getMode() === ''){
@@ -743,7 +716,7 @@ var draw = function(){
 			}, 750);
 			$('.relate').focus();		//apparently errors in IE if focus before visible
 			
-			var that = this;
+			var c1Html = this;
 			//creates on click event for rel - entity 2 form submit button 
 			d3.select('.rel-ent-submit').on('click', function(){
 				if ( $('.ent2').val() === ''  ||  $('.relate').val() === '' ) {
@@ -751,10 +724,10 @@ var draw = function(){
 					return;
 				}
 			
-				var cSvg1 = d3.select(that);
+				var cSvg1 = d3.select(c1Html);
 				var r = cSvg1.attr('r');
 				var cObj1 = me.circles[me.circles.indexOfObj(cSvg1.attr('class'), 
-							'class')];
+					'class')];
 							
 				me.alterNodeColor('entity1', cObj1);
 				cSvg1.style('fill', cObj1.color);
@@ -837,34 +810,28 @@ var draw = function(){
 	
 	/**
 		used as a callback added to a new entity when it is hovered over
-		@param - none
-		@return - none
 		@functionality - dependent upon what the mode is
 				  if the mode is anything other that label hold
 				  when the user hovers over an element, its data is displayed
-		@internal funcitons - none
 	*/
 	me.mouseover = function(){
-		if(!me.labelsShown){
+		if ( !me.labelsShown ) {
 			var x = 0, y = 0;
-			var item = d3.select(this);
-			
+			var item = d3.select(this);	
 			//if the element being hovered over is an entity
 			if(this.localName === 'circle'){
-				x = parseInt(item.attr('cx'), 10) + 15;
-				y = parseInt(item.attr('cy'), 10) - 15;
-				d3.select(this).transition()
-					.duration(750)
-					.attr("r", 2 * me.radius);
-				
-			//if instead it is a relationship
-			} else if (this.localName === 'line'){
-				x = ((parseInt(item.attr('x1'), 10) + parseInt(item.attr('x2'), 10)) / 2) + 15;
-				y = ((parseInt(item.attr('y1'), 10) + parseInt(item.attr('y2'), 10)) / 2) - 15;
+				x = parseInt(item.attr('cx'), 10) + me.padding;
+				y = parseInt(item.attr('cy'), 10) - me.padding;
+				item.transition().duration(750)
+					.attr('r', 2 * me.radius);
+			} else if (this.localName === 'line'){ 		//if instead it is a relationship
+				x = ((parseInt(item.attr('x1'), 10) + 
+					parseInt(item.attr('x2'), 10)) / 2) + me.padding;
+				y = ((parseInt(item.attr('y1'), 10) + 
+					parseInt(item.attr('y2'), 10)) / 2) - me.padding;
 			} 
 			
-			//add text to the canvas near the element
-			d3.select('.canvas svg').append('text')
+			d3.select('.csvg').append('text')
 				.attr('x', x).attr('y', y)
 				.text(item.attr('d'));
 		}
@@ -873,12 +840,9 @@ var draw = function(){
 	/**
 		used as a callback added to a new entity after it is hovered over
 		then the mouse moves off of the object
-		@param - none
-		@return - none
 		@functionality - dependent upon what the mode is
 				  if label_hold, all text elements in the canvas
 				  are removed
-		@internal functions - none
 	*/
 	me.mouseout = function(){
 		if(!me.labelsShown){
@@ -886,15 +850,15 @@ var draw = function(){
 			if (this.localName === 'circle'){
 				d3.select(this).transition()
 					.duration(750)
-					.attr("r", me.radius);
+					.attr('r', me.radius);
 			}
 		}
 	};
 	
-	me.deleteItem = function(t){
+	me.deleteItem = function(itemHtml){
 		var group;
-		if ( t.localName === 'circle' ){
-			var index = me.circles.indexOfObj(d3.select(t).attr('class'),
+		if ( itemHtml.localName === 'circle' ){
+			var index = me.circles.indexOfObj(d3.select(itemHtml).attr('class'),
 				'class');
 			group = me.circles[index].group;
 			d3.selectAll('.canvas line').each(function(){
@@ -909,9 +873,9 @@ var draw = function(){
 			});
 			
 			me.circles.splice(index, 1);
-			d3.select(t).remove();
-		} else if ( t.localName === 'line' ){
-			var index = me.lines.indexOfObj(d3.select(t).attr('class'),
+			d3.select(itemHtml).remove();
+		} else if ( itemHtml.localName === 'line' ){
+			var index = me.lines.indexOfObj(d3.select(itemHtml).attr('class'),
 				'class');
 			for (var i = 0; i < me.circles.length; i++){
 				if ( me.circles[i].html === me.lines[index].source ){
@@ -920,24 +884,24 @@ var draw = function(){
 			}
 			
 			me.lines.splice(index,1);
-			d3.select(t.parentNode).remove();
+			d3.select(itemHtml.parentNode).remove();
 		}
 		
 		var cIndicies = me.extractCircles(group);
 		me.separateGroups(cIndicies);
 		
 		d3.selectAll('.canvas line').each(function(){
-			var line_index = me.lines.indexOfObj(d3.select(this).attr('class'),
-					'class');
-			var lObj = me.lines[line_index];
+			var lInd = me.lines.indexOfObj(d3.select(this).attr('class'),
+				'class');
+			var lObj = me.lines[lInd];
 			
 			var cSvg1 = d3.select(lObj.source);
 			var cSvg2 = d3.select(lObj.target);
 			
 			var cObj1 = me.circles[me.circles.indexOfObj(cSvg1.attr('class'),
-					'class')];
+				'class')];
 			var cObj2 = me.circles[me.circles.indexOfObj(cSvg2.attr('class'),
-					'class')];
+				'class')];
 			
 			me.alterNodeColor('entity1', cObj1);
 			cSvg1.style('fill', cObj1.color);
@@ -954,15 +918,13 @@ var draw = function(){
 			for (var i = 1; i < circleGroup.length; i++){
 				var c = me.circles[circleGroup[i]];
 				c.color = white;
-				c.group = me.count;
+				c.group = me.count++;
 				d3.select(c.html).style('fill', white);
-				me.count++;
 			}
 			
 			//want to iterate through and divide them up
 			for (i = 0; i < circleGroup.length; i++){
 				var cObj = me.circles[circleGroup[i]];
-				var newGroup = me.count;
 				var thisGroup = [];
 				
 				//compare to those who have already been allocated a new group
@@ -978,19 +940,15 @@ var draw = function(){
 						}
 					});
 					
-					if (thisGroup.length === 0){
-						cObj.group = newGroup;
-						me.count++;
-					} else {
-						//this group contains at least one circle
-						var small = {group:999999};
-						for(var k = 0; k < thisGroup.length; k++){
-							if (thisGroup[k].group < small.group){
-								small = thisGroup[k];
-							}
+					if ( thisGroup.length === 0 ) {
+						cObj.group = me.count++;
+					} else {		//this group contains at least one circle
+						var small = { group: Number.MAX_VALUE };
+						for ( var k = 0; k < thisGroup.length; k++ ) {
+							small = Math.min(thisGroup[k].group, small.group);
 						}
 						
-						for(k = 0; k < thisGroup.length; k++){
+						for ( var k = 0; k < thisGroup.length; k++ ) {
 							var t = me.extractCircles(thisGroup[k].group);
 							for (var m = 0; m < t.length; t++){
 								me.circles[t[m]].group = small.group;
@@ -1006,14 +964,13 @@ var draw = function(){
 	
 	me.resetColors = function(){
 		d3.selectAll('.canvas circle').each(function(){
-			var c = d3.select(this);
-			var i = me.circles.indexOfObj(c.attr('class'),
-					'class');
-			c.style('fill', me.circles[i].color);
+			var cSvg = d3.select(this);
+			var cInd = me.circles.indexOfObj(cSvg.attr('class'), 'class');
+			c.style('fill', me.circles[cInd].color);
 		});
 		
-		d3.selectAll('.canvas line').style('stroke', '#004785');
-		d3.selectAll('.canvas path').style('stroke', '#004785');
+		d3.selectAll('.canvas line').style('stroke', me.lineColor);
+		d3.selectAll('.canvas path').style('stroke', me.lineColor);
 	};
 	
 	me.saveTargetEvent = function() {
@@ -1056,8 +1013,8 @@ var draw = function(){
 	me.redraw = function(json){
 		var assertions = json.assertions;
 		var singletons = json.singletons;
-				
-		for (var i = 0; i < assertions.length; i++){
+			 	
+		for ( var i = 0; i < assertions.length; i++ ) {
 			var c1 = assertions[i].entity1[0];
 			var c2 = assertions[i].entity2[0];
 			var l = assertions[i].relationship[0];
@@ -1075,7 +1032,7 @@ var draw = function(){
 				cInd2 = me.circles.length - 1;
 			}
 			
-			if(me.lines.indexOfObj(l.class, 'class') === -1){
+			if ( me.lines.indexOfObj(l.class, 'class') === -1){
 				var cSvg1 = d3.select(me.circles[cInd1].html);
 				var cSvg2 = d3.select(me.circles[cInd2].html);
 				me.addLine(cSvg1, cSvg2, l.value, l);
@@ -1091,16 +1048,13 @@ var draw = function(){
 	};
 	
 	me.saveState = function(state){
-		if (me.pastStates.indexOf(state,
-					'class') === -1){
+		if ( me.pastStates.indexOf(state, 'class') === -1 ) {
 			me.pastStates.push(state);
 		}
 		
-		if(me.pastStates.length > 10){
+		if ( me.pastStates.length > 10 ) {
 			me.pastStates.shift();
 		}
-		console.log(JSON.parse(state));
-		console.log(me.pastStates);
 	};
 	
 	me.alterNodeColor = function(type, obj){
@@ -1122,16 +1076,11 @@ var draw = function(){
 	//t_button callbacks
 	me.resetCanvas = function(){
 		d3.select('.node-link-container').remove();
-		d3.select('.canvas svg').append('g')
-			.attr('class', 'node-link-container');
+		d3.select('.csvg').append('g').attr('class', 'node-link-container');
 		
 		me.circles = [];
 		me.lines = [];
-		
-		me.count = 0;
-		me.circleCount = 0;
-		me.lineCount = 0;
-		
+		me.count = 0;		
 		me.lastNodeClicked = null;
 	};
 	
@@ -1140,25 +1089,25 @@ var draw = function(){
 		for (var i = 0; i < me.lines.length; i++){
 			var tempUrl = assert_url;
 			var line = me.lines[i];
-			var c1, c2;
-			for (var j = 0; j < me.circles.length; j++){
-				if(me.circles[j].html === line.source){
-					c1 = me.circles[j];
+			var cObj1, cObj2;
+			for ( var j = 0; j < me.circles.length; j++ ) {
+				if ( me.circles[j].html === line.source ) {
+					cObj1 = me.circles[j];
 				}
 				
 				if(me.circles[j].html === line.target){
-					c2 = me.circles[j];
+					cObj2 = me.circles[j];
 				}
 			}
 			
 			var entity1 = {
 				name: "entity1",
-				value: c1.d,
-				x: parseInt(c1.x, 10),
-				y: parseInt(c1.y, 10),
-				color: c1.color,
-				class: c1.class,
-				group: c1.group
+				value: cObj1.d,
+				x: parseInt(cObj1.x, 10),
+				y: parseInt(cObj1.y, 10),
+				color: cObj1.color,
+				class: cObj1.class,
+				group: cObj1.group
 			};
 			var relationship = {
 				name: "relationship",
@@ -1168,16 +1117,16 @@ var draw = function(){
 			};
 			var entity2 = {
 				name: "entity2",
-				value: c2.d,
-				x: parseInt(c2.x, 10),
-				y: parseInt(c2.y, 10),
-				color: c2.color,
-				class: c2.class,
-				group: c2.group
+				value: cObj2.d,
+				x: parseInt(cObj2.x, 10),
+				y: parseInt(cObj2.y, 10),
+				color: cObj2.color,
+				class: cObj2.class,
+				group: cObj2.group
 			};
 						
 			var postData = {
-				name: c1.d + ' ' + line.d + ' ' + c2.d,
+				name: cObj1.d + ' ' + line.d + ' ' + cObj2.d,
 				description:"",
 				entity1: [entity1],
 				relationship: [relationship],
@@ -1198,40 +1147,31 @@ var draw = function(){
 				success: function(){console.log('success');},
 				error: function(){console.log('error');}
 			});
-			
-			/*$.ajax({
-				type: "POST",
-				url: tempUrl,
-				data: postData,
-				success: function(r){
-					console.log(r);
-				}
-			});*/
 		}
 				
-		for (i = 0; i < me.circles.length; i++){
-			var c = me.circles[i];
+		for ( var i = 0; i < me.circles.length; i++ ) {
+			var cObj = me.circles[i];
 			var tempUrl = assert_url;
-			if(me.isAlone(c)){
+			if ( me.isAlone(cObj) ) {
 				var entity1 = {
 					name: 'entity1',
-					value: c.d,
-					x: parseInt(c.x, 10),
-					y: parseInt(c.y, 10),
-					color: c.color,
-					class: c.class,
-					group: c.group		
+					value: cObj.d,
+					x: parseInt(cObj.x, 10),
+					y: parseInt(cObj.y, 10),
+					color: cObj.color,
+					class: cObj.class,
+					group: cObj.group		
 				};
 				
 				var postData = {
-					name: c.d,
+					name: cObj.d,
 					description:"",
 					entity1: [entity1]
 				};
 				
 				//update if already exists in database
-				if ( c.id !== undefined ){
-					tempUrl += c.id;
+				if ( cObj.id !== undefined ){
+					tempUrl += cObj.id;
 				}
 				
 				me.assertions.singletons.push(postData);
@@ -1242,35 +1182,15 @@ var draw = function(){
 					success: function(){console.log('success');},
 					error: function(){console.log('error');}
 				});
-				
-				/*
-				$.ajax({
-					type: "POST",
-					url: tempUrl,
-					data: postData,
-					success: function(r){
-						console.log(r);
-					}
-				});*/
 			}
 		}
 		me.saveState(JSON.stringify(me.assertions));
 		//me.saveTargetEvent();
-		console.log(me.assertions);
 	};
 	
 	me.undo = function(){
-		if (me.pastStates.length > 0){
-			d3.select('.node-link-container').remove();
-			d3.select('.canvas svg').append('g')
-				.attr('class', 'node-link-container');
-	
-			me.circles = [];
-			me.lines = [];
-			me.count = 0;
-			me.circleCount = 0;
-			me.lineCount = 0;
-
+		if ( me.pastStates.length > 0 ) {
+			me.resetCanvas();
 			me.redraw(JSON.parse(me.pastStates.pop()));
 		}
 	};
@@ -1280,7 +1200,7 @@ var draw = function(){
 		var linksToRemove = [];
 		d3.selectAll('.canvas circle').each(function(){
 			var c = d3.select(this);
-			if(c.style('fill') === '#ff0000'){
+			if(c.style('fill') === me.selectColor){
 				nodesToRemove.push(this);
 			}
 		});
@@ -1291,7 +1211,7 @@ var draw = function(){
 		
 		d3.selectAll('.canvas line').each(function(){
 			var l = d3.select(this);
-			if (l.style('stroke') === '#ff0000'){
+			if (l.style('stroke') === me.selectColor){
 				linksToRemove.push(this);
 			}
 		});

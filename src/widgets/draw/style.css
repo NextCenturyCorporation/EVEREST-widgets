@@ -1,134 +1,97 @@
-.toolbar_modes, .toolbar_buttons{
-	top:0px;
-	border-style:ridge;
-	display:inline-block;
-	border-color:#004785;
+.toolbar_modes, .toolbar_buttons, .canvas {
+	border-style: ridge;
+	display: inline-block;
+	border-color: #666666;
+	border-width: 2px;
 }
 
-.tsvg{
+.tsvg {
 	width: 40px;
 	height: 500px;
 }
 
-.canvas{
-	border-style:ridge;
-	display:inline-block;
-	border-color:#004785;
-}
-
-.csvg{ 
+.csvg { 
 	width: 500px;
 	height: 500px;
 }
 
-.forms{
+.forms {
 	position: absolute;
 	display:inline-block;
 }
 
-.ent1-form{
-	top:-100px;
-	background:white;
-	position: absolute;
-	border-style:ridge;
-	border-color:#004785;
-	height:100px;
-}
-
-.rel-form{
-	top:-100px;
-	background:white;
-	position: absolute;
-	border-style:ridge;
-	border-color:#004785;
-	height:100px;
-}
-
-.rel-ent2-form{
+.ent1-form, .rel-form {
 	top:-200px;
 	background:white;
 	position: absolute;
 	border-style:ridge;
-	border-color:#004785;
+	border-color:#666666;
+	height:100px;
+	width:185px;
+}
+
+.rel-ent2-form {
+	top:-300px;
+	background:white;
+	position: absolute;
+	border-style:ridge;
+	border-color:#666666;
 	height:150px;
+	width:185px;
 }
 
-circle{
+circle {
 	cursor:pointer;
-	stroke: #666;
+	stroke: #666666;
 	stroke-width:1.5px;
 }
 
-line{
-	fill: #666;
-	stroke: #666;
-	stroke-width:1.5px;
-	cursor:pointer;
-}
-
-path {
-	fill: #666;
-	stroke: #666;
+line, path {
+	fill: #666666;
+	stroke: #666666;
 	stroke-width:1.5px;
 	cursor:pointer;
 }
 
-label{
-	display:block;
+text {
+	font-size: 1.2em;
 }
 
-.unselect{
-	fill: none;
-}
-.select{
-	fill: #333399;
-	opacity: 0.2;
-	stroke: #333399;
-}
-
-.selection{
+.selection {
 	border: 1px solid #89B;
 	background: #BCE;
 	background-color: #BEC;
 	border-color: #8B0;
 }
 
-.entity1Color{
+/* hidden divs for node/link color */
+.entity1Color {
 	display:none;
 	background-color: #333399;
 }
 
-.entity2Color{
+.entity2Color {
 	display:none;
 	background-color: #339966;
 }
 
-.bothColor{
+.bothColor {
 	display:none;
 	background-color: #9900cc;
 }
 
-.mover_hold{
-	background-image:url('img/move.gif');
-	background-repeat: no-repeat;
-	height:30px;
-	width:30px;
-	position:relative;
+.lineColor {
+	display:none;
+	background-color: #666666;
 }
 
-.delete_hold{
-	background-image:url('img/delete.gif');
-	background-repeat: no-repeat;
-	height:30px;
-	width:30px;
-	position:relative;
-}
-
-button{
-	width: 5em;
-}
-
-.border{
+/* toolbar */
+.unselect {
 	fill: none;
-	stroke: black;
+}
+
+.select {
+	fill: #333399;
+	opacity: 0.2;
+	stroke: #333399;
 }
