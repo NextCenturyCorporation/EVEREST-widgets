@@ -65,28 +65,42 @@ var twitter_admin = function() {
 	me.handleInitialKeyLoadSuccess = function(data, response) {
 		if(data.length !== 0) {
 			for(i in data) {
+				var id = data[i]._id;
 				var keyContainer = $(".twitter_filter_form");
-				keyContainer.append(me.createApiIdDiv($(".api_key_div").length, data[i]._id));
-				console.log(data[i].active);
-				$('.toggle').toggles({type:'select', on: data[i].active});
-				$('.toggle-select-' + data[i]._id).on('toggle', function(e, active) {
+				keyContainer.append(me.createApiIdDiv($(".api_key_div").length, id));
+				
+				me.createToggle(id, data[i].active);
+				me.bindDeleteHandler(id);
+				
+				var filter = me.createFilter(0, id);
+				filter += '<hr class="filter_hr" />';
+				$(".api_key_container_" + id).append(filter);
+				
+				me.bindMoreFiltersButton(id);
 
-					me.handleToggle(data[i]._id, active);
-				});
-
-				$(".api_delete_img_" + data[i]._id).click(function() {
-					me.handleDeleteClick(data[i]._id);
-					console.log("hit");
-				});
 			}
-
-			$(".api_key_container_" + data[i]._id).append(me.createFilter(0, data[i]._id));
-			me.bindMoreFiltersButton(data[i]._id);
 		}
 
 		if($(".api_key_div").length === 0) {
 			me.onNewKeyButtonClick();
 		}
+	};
+
+	me.createToggle = function(id, active) {
+		$('.toggle-select-'+id).toggles({type:'select', on: active});
+		me.bindToggleHandler(id);
+	};
+
+	me.bindDeleteHandler = function(id) {
+		$(".api_delete_img_" + id).click(function() {
+			me.handleDeleteClick(id);
+		});
+	};
+
+	me.bindToggleHandler = function(id) {
+		$('.toggle-select-' + id).on('toggle', function(e, active) {
+			me.handleToggle(id, active);
+		});
 	};
 
 	me.handleToggle = function(id, active) {
@@ -100,12 +114,13 @@ var twitter_admin = function() {
 			$.ajax({
 				type: "POST",
 				url: "./post_relay.php",
-				data: JSON.stringify({url: url, data: {filters: fields}}),
+				data: JSON.stringify({url: url, data: {filters: fields}, method: "POST"}),
 				success: function() {console.log("success");},
 				error: function() {console.log("error");}
 			});
 
 			//TODO gray filters
+			$(".twitter_admin_filter_" + id).attr('disabled', 'disabled');
 		} else {
 			//stop call
 			var url = 'http://localhost:8081/twitter-ingest/stop/' + id;
@@ -113,17 +128,17 @@ var twitter_admin = function() {
 			$.ajax({
 				type: "POST",
 				url: "./post_relay.php",
-				data: JSON.stringify({url: url, data: null}),
+				data: JSON.stringify({url: url, data: null, method: "POST"}),
 				success: function() {console.log("success");},
 				error: function() {console.log("error");}
 			});
 
 			//TODO unlock filters
+			$(".twitter_admin_filter_" + id).removeAttr('disabled');
 		}
 	};
 
 	me.setup_button_handlers = function() {
-		//me.bind_more_filters_button();
 		$(".twitter_admin_new_key").on('click', $.proxy(me.onNewKeyButtonClick, me));
 		$(".twitter_admin_save_button").on('click', $.proxy(me.onSaveButtonClick, me));
 		$(".twitter_admin_cancel_button").on('click', $.proxy(me.onCancelButtonClick, me));
@@ -131,21 +146,18 @@ var twitter_admin = function() {
 
 	me.bindMoreFiltersButton = function(id) {
 		var me = this;
-		$(".add_more_filters_button").on('click', function() {
+		$(".add_more_filters_button_"+id).on('click', function() {
 			me.onAddFilters(id);
 		});
 	}
 
 	me.onAddFilters = function(id) {
-		console.log("hit");
-
-		$(".add_more_filters_button").remove();
-		$(".filter_field_with_more_button").removeClass("filter_field_with_more_button").addClass("filter_field_with_no_button");
-		var filter_label = $(".base_filter_label");
-		console.log(filter_label);
+		$(".add_more_filters_button_"+id).remove();
+		$(".filter_line_"+id+">.filter_item_div>.filter_field_with_more_button").removeClass("filter_field_with_more_button").addClass("filter_field_with_no_button");
+		var filter_label = $(".filter_line_"+id+">.base_filter_label");
 		filter_label.text("Filters :");
 
-		var filters = $(".filter_line");
+		var filters = $(".filter_line_"+id);
 		var filter_count = filters.length;
 		var last_filter = $(filters[filter_count -1]);
 		last_filter.after(me.createFilter(filter_count, id));
@@ -206,39 +218,57 @@ var twitter_admin = function() {
 		apiFields.access_token_secret = $("input.access_token_secret_field").val();
 
 		var url = 'http://localhost:8081/twitter-ingest/';
-		console.log({url: url, data: apiFields});
 		$.ajax({
 			type: "POST",
 			url: "./post_relay.php",
-			data: JSON.stringify({url: url, data: apiFields}),
+			data: JSON.stringify({url: url, data: apiFields, method: "POST"}),
 			success: $.proxy(me.onKeySaveSuccess, me),
 			error: $.proxy(me.onKeySaveError, me)
 		});
 	};
 
 	me.onKeySaveSuccess = function(data, status, jqXHR) {
-		//figure out id
-		json = JSON.parse(data);
-		newId = json._id;
-		//kill form
+		id = data._id;
+
 		$(".api_key_entry_form").remove();
 		//add id line with down arrow and x icon
 		var currentKeyCount = $(".api_key_div").length;
 		var keyContainer = $(".twitter_admin_form");
-		keyContainer.append(me.createApiIdDiv(currentKeyCount, newId));
-		$('.toggle').toggles({type:'select', on: json.active});
-		$(".api_delete_img_" + id ).on('click', function() {
-			me.handleDeleteClick(id);
-		});
-		//TODO add form
+		keyContainer.append(me.createApiIdDiv(currentKeyCount, id));
+		me.createToggle(id, data.active);
+		me.bindDeleteHandler(id);
+
+		$(".api_key_container_" + id).append(me.createFilter(0, id));
+		me.bindMoreFiltersButton(id);
+		
+		me.changeToNewButton();
 	};
 
 	me.handleDeleteClick = function(id) {
 		//TODO
+
 		//make request
-		//on success delete div
+		var url = 'http://localhost:8081/twitter-ingest/' + id;
+
+		$.ajax({
+			type: "POST",
+			url: "./post_relay.php",
+			data: JSON.stringify({url: url, data: null, method: "DELETE"}),
+			success: function() {
+				me.handleDeleteSuccess(id)
+			},
+			error: function() {
+				me.handleDeleteError(id)
+			}
+		});
+	};
+
+	me.handleDeleteSuccess = function(id) {
 		$(".api_key_container_" + id).remove();
-		//on failure show error
+	};
+
+	me.handleDeleteError = function(id) {
+		$(".twitter_admin_alert").text("Error: error deleting " + id);
 	};
 
 	me.createApiIdDiv = function(i, id) {
@@ -252,8 +282,6 @@ var twitter_admin = function() {
 	    						</div> \
 	    						<div class="api_delete_img api_delete_img_' + id + '"> \
 	    						</div> \
-	    						<div class="api_down_arrow api_down_arrow_' + id + '"> \
-								</div> \
 							</div> \
 						</div> \
 					   </div>';
@@ -274,12 +302,12 @@ var twitter_admin = function() {
 
 	me.createFilter = function(i, id) {
 
-		var filter_html ='<div class="filter_line"> \
+		var filter_html ='<div class="filter_line filter_line_' + id + '"> \
 				<label for="filter_' + i + '" ' + (i === 0 ? 'class="base_filter_label">Filter' : '>') + '</label> \
 				<div class="filter_item_div"> \
 					<input name="filter_' + i + '" class="twitter_admin_filter \
 						twitter_admin_filter_' + id + ' filter_field_with_more_button multi_filter" /> \
-					<button type="button" class="add_more_filters_button">+</button> \
+					<button type="button" class="add_more_filters_button add_more_filters_button_' + id + '">+</button> \
 				</div> \
 			</div>';
 
