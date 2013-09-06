@@ -49,7 +49,7 @@ var twitter_admin = function() {
 				$(".twitter_admin_save_button").hide();
 				$(".twitter_admin_cancel_button").hide();
 				
-				var url = 'http://localhost:8081/twitter-ingest/';
+				var url = 'http://everest-build:8081/twitter-ingest/';
 				$.ajax({
 					type: "GET",
 					url: url,
@@ -106,7 +106,7 @@ var twitter_admin = function() {
 	me.handleToggle = function(id, active) {
 		if(active) {
 
-			var url = 'http://localhost:8081/twitter-ingest/start/' + id;
+			var url = 'http://everest-build:8081/twitter-ingest/start/' + id;
 
 			//get filters
 			var fields = $(".twitter_admin_filter_"+id).val();
@@ -123,7 +123,7 @@ var twitter_admin = function() {
 			$(".twitter_admin_filter_" + id).attr('disabled', 'disabled');
 		} else {
 			//stop call
-			var url = 'http://localhost:8081/twitter-ingest/stop/' + id;
+			var url = 'http://everest-build:8081/twitter-ingest/stop/' + id;
 
 			$.ajax({
 				type: "POST",
@@ -217,7 +217,7 @@ var twitter_admin = function() {
 		apiFields.access_token_key = $("input.access_token_key_field").val();
 		apiFields.access_token_secret = $("input.access_token_secret_field").val();
 
-		var url = 'http://localhost:8081/twitter-ingest/';
+		var url = 'http://everest-build:8081/twitter-ingest/';
 		$.ajax({
 			type: "POST",
 			url: "./post_relay.php",
@@ -248,7 +248,7 @@ var twitter_admin = function() {
 		//TODO
 
 		//make request
-		var url = 'http://localhost:8081/twitter-ingest/' + id;
+		var url = 'http://everest-build:8081/twitter-ingest/' + id;
 
 		$.ajax({
 			type: "POST",
