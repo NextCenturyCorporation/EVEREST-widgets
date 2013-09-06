@@ -24,7 +24,6 @@ describe('test the confirmer.js file', function(){
 			spyOn(test_confirm, 'getTargetEvents').andCallThrough();
 			spyOn(test_confirm, 'displayAlphaReportInfo').andCallThrough();
 			spyOn(test_confirm, 'getAssertions').andCallThrough();
-			
 			test_confirm.display();
 		});
 	});
@@ -44,8 +43,6 @@ describe('test the confirmer.js file', function(){
 			expect(d3.select).toHaveBeenCalledWith('.confirm');
 			expect(d3.select).toHaveBeenCalledWith('.patterns');
 			expect(d3.select).toHaveBeenCalledWith('.alphas');
-			
-			console.log(d3.selectAll('option')[0].length);
 		});
 	});
 });
