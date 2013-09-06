@@ -16,6 +16,7 @@ files = [
   'lib/underscore-min.js',
   'lib/backbone.js',
   'src/**/*.js',
+  //all specs
   'test/**/*.spec.js'
 ];
 

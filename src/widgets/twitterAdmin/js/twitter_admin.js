@@ -4,34 +4,32 @@ var twitter_admin = function() {
 	me.template = null;
 
 	me.execute = function() {
-		me.template = me.fetch_template();
+		me.loadTemplate();
+
 		me.setup_view();
 
 		me.admin_view = new me.Admin_View({el: $(".twitter_admin_container")[0]});
 	};
 
-	me.fetch_template = function() {
-		var templateName = 'twitter_admin';
-
-		var template = $('#template_' + templateName);
-    	if (template.length === 0) {
-	        var tmpl_dir = './templates';
-	        var tmpl_url = tmpl_dir + '/' + templateName + '.tmpl';
-	        var tmpl_string = '';
-
-	        $.ajax({
-	            url: tmpl_url,
-	            method: 'GET',
-	            async: false,
-	            contentType: 'text',
-	            success: function (data) {
-	                tmpl_string = data;
-	            }
-	        });
-
-	        $('head').append('<script id="template_' + 
-	        templateName + '" type="text/template">' + tmpl_string + '<\/script>');
-	    }
+	me.loadTemplate = function() {
+		if($("#template_twitter_admin").length === 0) {
+			$("head").append(
+				'<script id="template_twitter_admin" type="text/template">'+
+					'<div class="twitter_admin_alert"></div>'+
+					'<div class="twitter_admin_sub_alert"></div>'+
+					'<div class="twitter_filter_form">'+
+					'</div>'+
+					'<div class="twitter_admin_form">'+
+					'</div>'+
+					'<div class="twitter_admin_buttons_div">'+
+						'<div class="button_inner_div">'+
+							'<button type="button" class="twitter_admin_new_key">New Key</button>'+
+							'<button type="button" class="twitter_admin_save_button">Save Key</button>'+
+							'<button type="button" class="twitter_admin_cancel_button">Cancel</button>'+
+						'</div>'+
+					'</div>'+
+				'</script>');
+		}
 	};
 
 	me.setup_view = function() {
@@ -40,6 +38,8 @@ var twitter_admin = function() {
 				this.render();
 			},
 			render: function() {
+
+
 				var template = _.template($("#template_twitter_admin").html(), {});
 
 				this.$el.html(template);
@@ -166,7 +166,7 @@ var twitter_admin = function() {
 
 	me.onNewKeyButtonClick = function() {
 		var currentKeyCount = $(".api_key_div").length;
-		var keyContainer = $(".twitter_admin_form");
+		var keyContainer = $(".twitter_filter_form");
 		keyContainer.append(me.createApiKeyDiv(currentKeyCount));
 		me.changeToApiFormButtons(currentKeyCount);
 	};

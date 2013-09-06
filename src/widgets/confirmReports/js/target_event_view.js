@@ -27,7 +27,7 @@ var target_event_view = function(svg){
 		for (var i = 0; i < json.length; i++){
 			if ( json[i].entity2[0] === undefined ) {
 				var c = json[i].entity1[0];
-				if ( me.circles.indexOfObj(c.value, 'd') === -1 ) {
+				if ( indexOfObj(me.circles, c.value, 'd') === -1 ) {
 					me.addCircle(c);
 				}
 			} else {
@@ -35,8 +35,8 @@ var target_event_view = function(svg){
 				var c2 = json[i].entity2[0];
 				var l = json[i].relationship[0];				
 				
-				var cInd1 = me.circles.indexOfObj(c1.value, 'd');
-				var cInd2 = me.circles.indexOfObj(c2.value, 'd');
+				var cInd1 = indexOfObj(me.circles, c1.value, 'd');
+				var cInd2 = indexOfObj(me.circles, c2.value, 'd');
 				
 				if (cInd1 === -1){
 					me.addCircle(c1);
@@ -48,7 +48,7 @@ var target_event_view = function(svg){
 					cInd2 = me.circles.length - 1;
 				}
 				
-				if(me.lines.indexOfObj(l._id, '_id') === -1){
+				if(indexOfObj(me.lines, l._id, '_id') === -1){
 					var cSvg1 = d3.select(me.circles[cInd1].html);
 					var cSvg2 = d3.select(me.circles[cInd2].html);
 					me.addLine(cSvg1, cSvg2, l);
@@ -126,7 +126,7 @@ var target_event_view = function(svg){
 
 		var path = me.createArrow(line);
 		
-		if(me.lines.indexOfObj(l._id, '_id') === -1){
+		if(indexOfObj(me.lines, l._id, '_id') === -1){
 			var lObj = {
 				_id: l._id,
 				class: line.attr('class'),

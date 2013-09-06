@@ -70,16 +70,16 @@ describe('To test the target event definition widget', function(){
 			expect(d).toEqual('#ffffff');
 		});
 		
-		it('specifically the Array.prototype.indexOfObj function', function(){				
+		it('specifically the indexOfObj function', function(){				
 			var array = [{class:'zero'}];
-			expect(array.indexOfObj('zero', 'class')).toEqual(0);
-			expect(array.indexOfObj('one', 'class')).toEqual(-1);
+			expect(indexOfObj(array, 'zero', 'class')).toEqual(0);
+			expect(indexOfObj(array, 'one', 'class')).toEqual(-1);
 		});
 		
-		it('the Array.prototype.getAllIndicies function', function(){				
+		it('the getAllIndicies function', function(){				
 			var array = [{class: 'zero'}, {class: 'one'}, {class: 'ZERO'}];
-			expect(array.getAllIndicies('zero', 'class').length).toEqual(2);
-			expect(array.getAllIndicies('one', 'class').length).toEqual(1);
+			expect(getAllIndicies(array, 'zero', 'class').length).toEqual(2);
+			expect(getAllIndicies(array, 'one', 'class').length).toEqual(1);
 		});
 	});
 	
@@ -240,7 +240,7 @@ describe('To test the target event definition widget', function(){
 		
 		it('the createCircle function', function(){
 			spyOn(d3, 'select').andCallThrough();
-			var s1 = spyOn(test_draw.circles, 'indexOfObj').andCallThrough();
+			var s1 = spyOn(window, 'indexOfObj').andCallThrough();
 			spyOn(test_draw, 'addCircle').andCallThrough();
 			spyOn(window, '$').andCallThrough();
 			
@@ -282,8 +282,8 @@ describe('To test the target event definition widget', function(){
 				spyOn(test_draw, 'extractCircles').andCallThrough();
 				spyOn(test_draw, 'addLine').andCallThrough();
 				spyOn(test_draw, 'deleteItem').andCallThrough();
-				spyOn(test_draw.circles, 'indexOfObj').andCallThrough();
-				spyOn(test_draw.lines, 'getAllIndicies').andCallThrough();
+				spyOn(window, 'indexOfObj').andCallThrough();
+				spyOn(window, 'getAllIndicies').andCallThrough();
 			});
 			
 			describe('in rel_hold mode', function(){				
@@ -321,7 +321,7 @@ describe('To test the target event definition widget', function(){
 					expect(bSvg.style('fill')).toEqual(entity2Color);
 					
 					expect(test_draw.extractCircles).toHaveBeenCalledWith(origGroup);
-					expect(test_draw.lines.getAllIndicies).toHaveBeenCalledWith('bacon', 'd');
+					expect(getAllIndicies).toHaveBeenCalled();
 					
 					expect(test_draw.addLine).toHaveBeenCalledWith(aSvg, bSvg, 'bacon');
 					expect(test_draw.lastNodeClicked).toEqual(null);
@@ -409,8 +409,8 @@ describe('To test the target event definition widget', function(){
 				
 				spyOn(test_draw, 'alterNodeColor').andCallThrough();
 				
-				spyOn(test_draw.circles, 'indexOfObj').andCallThrough();
-				spyOn(test_draw.lines, 'getAllIndicies').andCallThrough();
+				spyOn(window, 'indexOfObj').andCallThrough();
+				spyOn(window, 'getAllIndicies').andCallThrough();
 				spyOn(Math, 'random').andCallThrough();
 				spyOn(Math, 'cos').andCallThrough();
 				spyOn(Math, 'sin').andCallThrough();
@@ -453,8 +453,8 @@ describe('To test the target event definition widget', function(){
 					
 				expect(alert).not.toHaveBeenCalled();
 				expect(test_draw.alterNodeColor).toHaveBeenCalled();
-				expect(test_draw.circles.indexOfObj).toHaveBeenCalledWith('cheese', 'd');
-				expect(test_draw.lines.getAllIndicies).toHaveBeenCalledWith('cow', 'd');
+				expect(indexOfObj).toHaveBeenCalled();
+				expect(getAllIndicies).toHaveBeenCalled();
 				expect(Math.random).toHaveBeenCalled();
 				expect(Math.sin).toHaveBeenCalled();
 				expect(Math.cos).toHaveBeenCalled();

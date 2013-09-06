@@ -1,13 +1,3 @@
-Array.prototype.indexOfObj = function(value, attribute){
-	for (var i = 0; i < this.length; i++){
-		if (value.toLowerCase() === 
-				this[i][attribute].toLowerCase()){
-			return i;
-		}
-	}
-	return -1;
-};
-
 var confirmer = function(){
 	var me = this;
 	var url = 'http://everest-build:8081/';
