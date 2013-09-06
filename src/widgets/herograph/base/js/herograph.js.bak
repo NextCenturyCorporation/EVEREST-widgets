@@ -59,6 +59,9 @@ var ptScale = d3.scale.log().domain([200, 13000]).range([1, 30]);
 
 //// D3
 d3.json('data/herograph.json', function(err, graph) {
+	if (err) {
+		return console.warn(err);
+	}
   players = toObject(graph.nodes, 'name');
 
   force
@@ -102,7 +105,7 @@ d3.json('data/herograph.json', function(err, graph) {
     //     .attr("x2", function(d) { return d.target.x; })
     //     .attr("y2", function(d) { return d.target.y; });
 
-    node.attr('transform', function(d) {return translateSVG(d.x, d.y);})
+    node.attr('transform', function(d) {return translateSVG(d.x, d.y);});
   });
 });
 

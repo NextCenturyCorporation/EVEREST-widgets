@@ -67,7 +67,7 @@ week_heatChart_widget.drawChart = function(day_labels, week_chunks, hour_labels)
 		.innerRadius(10)
 		.numSegments(7);
 
-	chart.accessor(function(d) {return d.value});
+	chart.accessor(function(d) {return d.value;});
 
 	d3.select('#weekChart')
 		.selectAll('svg')
@@ -82,7 +82,7 @@ week_heatChart_widget.drawChart = function(day_labels, week_chunks, hour_labels)
 			});
 
 	d3.selectAll("#weekChart svg").on('mouseout', function(){
-			var d = d3.select(this).data()[0];
+			//var d = d3.select(this).data()[0];
 			d3.select("#weekInfo").text('');
 			});
 };

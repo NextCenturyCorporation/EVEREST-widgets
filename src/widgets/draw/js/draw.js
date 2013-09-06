@@ -1189,6 +1189,7 @@ var draw = function(){
 	me.deleteSelection = function(){
 		var nodesToRemove = [];
 		var linksToRemove = [];
+		
 		d3.selectAll('.canvas circle').each(function(){
 			var c = d3.select(this);
 			if(c.style('fill') === me.selectColor){
@@ -1202,25 +1203,22 @@ var draw = function(){
 		
 		d3.selectAll('.canvas line').each(function(){
 			var l = d3.select(this);
-			if (l.style('stroke') === me.selectColor){
+			if ( l.style('stroke') === me.selectColor ) {
 				linksToRemove.push(this);
 			}
 		});
 		
-		for (var i = 0; i < linksToRemove.length; i++){
+		for ( var i = 0; i < linksToRemove.length; i++ ) {
 			me.deleteItem(linksToRemove[i]);
 		}
 	};
 	
 	/**
-		called from me.toggleSelection when mode is label_hold
-		@param - none
-		@return - none
-		@functionality - shows all labels for any element in the canvas
-		@internal functions - none
+	called from me.toggleSelection when mode is label_hold
+	@functionality - shows all labels for any element in the canvas
 	*/
 	me.toggleLabels = function(){
-		if (!me.labelsShown){
+		if ( !me.labelsShown ) {
 			me.labelsShown = true;
 			var x = 0, y = 0;
 			d3.selectAll('.canvas circle').each(function(){
@@ -1236,7 +1234,7 @@ var draw = function(){
 				var line = d3.select(this);
 				x = ((parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2) + 15;
 				y = ((parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2) - 15;
-				d3.select('.canvas svg').append('text')
+				d3.select('.csvg').append('text')
 					.attr('x', x).attr('y', y)
 					.text(line.attr('d'));
 			});
