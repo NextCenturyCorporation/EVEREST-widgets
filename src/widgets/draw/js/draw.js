@@ -1,12 +1,12 @@
 //with help from threedubmedia.com/code/event/drop/demo/selection
 
 /**
-@params   - div_class: a string pointing to the class of the hidden
+@params		div_class: a string pointing to the class of the hidden
 			div element containing a background color, most likely to
 			be in the form of rgb(0,0,0)
-@return   - a hex color string representing the background-color of the
+@return   	a hex color string representing the background-color of the
 			specified div element. If no div element exists, return white
-@function - d3.selects the div param and grabs its background color.
+@function	d3.selects the div param and grabs its background color.
 			if already in the form of a hex string, the color is returned
 			if in rgb(0,0,0) form, converts it to a hex string
 			if no div element with class div_class exists, return white
@@ -123,16 +123,18 @@ var draw = function(){
 	
 		me.t_button = new toolbar('.toolbar_buttons');
 		me.t_button.createSelection('resetB', images.reset, me.resetCanvas);		
-		me.t_button.createSelection('submitB', images.submit, me.saveTargetAssertions);
+		me.t_button.createSelection('submitB', images.submit,
+			 me.saveTargetAssertions);
 		me.t_button.createSelection('undoB', images.undo, me.undo);
-		me.t_button.createSelection('deleteB', images.deleteB, me.deleteSelection);
+		me.t_button.createSelection('deleteB', images.deleteB, 
+			me.deleteSelection);
 		me.t_button.createSelection('labelB', images.label, me.toggleLabels);
 	};
 	
 	/**
-		@param			item: a d3.select()'ed circle
-		@return			an object containing the desired attributes of item
-		@functionality	simplifies the circle for storage in me.circles
+	@param	 	item: a d3.select()'ed circle
+	@return		an object containing the desired attributes of item
+	@function	simplifies the circle for storage in me.circles
 	*/
 	me.simplify = function(item){	
 		return {
@@ -146,20 +148,18 @@ var draw = function(){
 	};
 	
 	/**
-		used when saving the state of the canvas
-		saves assertions (ent - rel - ent) and single entities
-		@param			circle: simplified circle object from me.circles
-		@return			boolean stating whether circle is connected by a line
-						to another circle
-		@functionality	search through each line in me.lines to see if this
-						circle's class is used as a source or target for any
-						of the lines. if it is, something is connected to it
+	@param		circle: simplified circle object from me.circles
+	@return		boolean stating whether circle is connected by a line
+				to another circle
+	@function	search through each line in me.lines to see if this
+				circle's class is used as a source or target for any
+				of the lines. if it is, something is connected to it
 	*/
 	me.isAlone = function(circle){
 		var alone = true;
 		for (var i = 0; i < me.lines.length; i++){
-			if(me.lines[i].source === circle.html 
-					|| me.lines[i].target === circle.html){
+			if ( me.lines[i].source === circle.html 
+					|| me.lines[i].target === circle.html ) {
 				alone = false;
 			}
 		}
@@ -167,11 +167,11 @@ var draw = function(){
 	};
 	
 	/**
-		@param 			g: group number 
-		@return 		an array of indicies pointing back to circles in
-						me.circles, which all have the same group number
-		@functionality	searches through me.circles for any circles that
-						have the same group as specified by g
+	@param 		g: group number corresponding to an existing circle 
+	@return 	an array of indicies pointing back to circles in
+				me.circles, which all have the same group number
+	@function	searches through me.circles for any circles that
+				have the same group as specified by g
 	*/
 	me.extractCircles = function(g){
 		var array = [];
@@ -184,14 +184,11 @@ var draw = function(){
 	};
 	
 	/**
-		called when any line or entity is created, within the following
-		functions : me.dragGroup, me.nodeclick, me.doubleClickNode
-		@param - newC: coordinate (x or y) within canvas to attempt to add new item
-				 axis: 'x' or 'y' to indicate what bound to compare against
-		@return - a float within the bounds of the svg element
-		@functionality - takes newC and checks to see if it is within the 
-				  bounds of the canvas, if it is, returns newC, if not, returns
-				  a proper min or max
+	@param		newC: coordinate within canvas to attempt to add new item at
+				axis: 'x' or 'y' to indicate what bound to compare against
+	@return		an integer within the bounds of the svg element
+	@function	takes newC, checks to see if it is w/in the bounds of the
+				canvas, returning if it is or returning a proper min or max
 	*/
 	me.computeCoord = function(newC, axis){
 		var max = axis === 'x' ? me.canvasW : me.canvasH;
@@ -206,8 +203,8 @@ var draw = function(){
 	};
 	
 	/**
-		@functionality	selects all of the cancel buttons in each of the
-		hidden forms and adds a hide function to them for when they are clicked
+	@function	selects all of the cancel buttons in each of the hidden forms 
+				and adds a hide function to them for when they are clicked
 	*/
 	me.createCancelClickers = function(){
 		d3.select('.ent-cancel').on('click', function(){
@@ -235,12 +232,11 @@ var draw = function(){
 	};
 
 	/**
-		called from javascript section in index.html
-		@functionality - grabs the .canvas div and adds an svg element to it 
-		which will be where any target event definition elements are added to.
-		an on click event is added to the svg element which executes 
-		me.createCircle if the mode is currently node_hold
-		@internal functions - me.createCircle
+	@function	adds an svg element to the canvas div which will be where any
+				circle or line elements are added to. An on click event is added
+				to the svg element which executes createCircle if the mode is 
+				currently node_hold and	resets the colors of each of the 
+				elements if the mode is select_hold
 	*/
 	me.createCanvas = function(){
 		var canvas = d3.select('.canvas');
@@ -264,7 +260,8 @@ var draw = function(){
 			.call(d3.behavior.drag().on('dragstart', me.dragstart)
 				.on('drag', me.drag)
 				.on('dragend', me.dragend));
-			
+		
+		//creates the marker for the midpoint arrow on each line	
 		svg.append('g').attr('class', 'node-link-container');	
 		svg.append('svg:defs').append('svg:marker')
 			.attr('id', 'Triangle')
@@ -289,16 +286,12 @@ var draw = function(){
 	};
 	
 	/**
-		currently only called when the user clicks inside the svg canvas
-		and the node_hold selection is toggled from the toolbar
-		@param - mouse_event is a d3.mouse(this) result containing an array
-				 of 2 elements representing the x and y coordinate of the 
-				 mouse when the user clicked the svg canvas
-		@return - none
-		@functionality - user enters a description through a form element.
-				 adds an on click event to the submit button that creates
-				 a circle/node based on the description the user entered.
-		@internal functions - none
+	@param		e is a d3.mouse(this) result containing an array
+				of 2 elements representing the x and y coordinate of the 
+				mouse when the user clicked the svg canvas
+	@function	user enters a description through a form element.
+			 	adds an on click event to the submit button that creates
+			 	a circle based on the description the user entered.
 	*/
 	me.createCircle = function(e){
 		if ( !e[0] ){ e[0] = 0; }
@@ -309,10 +302,9 @@ var draw = function(){
 		}, 750);
 		$('.ent1').focus();
 		
-		//click event gets defined every time a new node is created...?
 		d3.select('.ent-submit').on('click', function(){
 			if (getObj(me.circles, $('.ent1').val(), 'd') === null){
-				var circle = me.addCircle(e[0], e[1], $('.ent1').val());
+				me.addCircle(e[0], e[1], $('.ent1').val());
 			}
 			
 			$('.ent1').val('');
@@ -322,6 +314,19 @@ var draw = function(){
 		});
 	};
 	
+	/**
+	@param		x x-axis coordinate in the svg to place the new circle
+				y y-axis coordinate in the svg to place the new circle
+				d value assigned to the circle
+				c (optional) making a copy of a circle from data read in
+	@return		the svg representation of the newly created circle
+	@function	appends a circle to the svg group node-link-container with
+				the corresponding properties given in the parameters.
+				if the c parameter is given, assign fill, cclass and group
+				based off of c, if it is not, fill is white, and assign
+				the element count to group and class. also adds the simplified
+				version of the circle to the circles array
+	*/
 	me.addCircle = function(x, y, d, c){
 		var fill, cclass, group;
 		if ( c !== undefined ) {
@@ -353,29 +358,29 @@ var draw = function(){
 		
 		return circle;
 	};
-		
+	
+	/**
+	@param		c1 svg representation of source circle for new line
+				c2 svg representation of target circle for new line
+				d value assigned to the line
+				l (optional) making a copy of a line from data read in
+	@return		the svg representation of the newly created line
+	@function	inserts a new group to the beginning of the node-link-
+				container that will hold a new line and path. if the l 
+				parameter is given, assign class, if not, assign the element
+				count to class. also adds the simplified version of the line to
+				the lines array
+	*/	
 	me.addLine = function(c1, c2, d, l){
 		var lClass = l !== undefined ? l.class : me.count;
 			
-		//center of entity 1
-		var p1 = {
-			x:parseInt(c1.attr('cx'), 10),
-			y:parseInt(c1.attr('cy'), 10)
-		};
-		
-		//center of entity 2
-		var p2 = {
-			x:parseInt(c2.attr('cx'), 10),
-			y:parseInt(c2.attr('cy'), 10)
-		};
-	
-		//create the line for the new entity 1 entity 2 relationship
+		var p1 = {x:parseInt(c1.attr('cx'), 10), y:parseInt(c1.attr('cy'), 10)};
+		var p2 = {x:parseInt(c2.attr('cx'), 10), y:parseInt(c2.attr('cy'), 10)};
 		var lGroup = d3.select('.node-link-container')
 			.insert('g', ':first-child');
 		
 		var lSvg = lGroup.append('line')
-			.attr('class', lClass)
-			.attr('d', d)
+			.attr('class', lClass).attr('d', d)
 			.attr('x1', me.computeCoord(p1.x, 'x'))
 			.attr('y1', me.computeCoord(p1.y, 'y'))
 			.attr('x2', me.computeCoord(p2.x, 'x'))
@@ -388,21 +393,25 @@ var draw = function(){
 		var path = me.addArrow(lSvg);
 		me.count++;
 		
-		if ( getObj(me.lines, lSvg.attr('class'), 'class') === null ) {
-			var lObj = {
-				class: lSvg.attr('class'),
-				html: lSvg[0][0],
-				d: lSvg.attr('d'),
-				source: c1[0][0],
-				target: c2[0][0]
-			};
-			
-			me.lines.push(lObj);
-		}
+		var lObj = {
+			class: lSvg.attr('class'),
+			html: lSvg[0][0],
+			d: lSvg.attr('d'),
+			source: c1[0][0],
+			target: c2[0][0]
+		};
+		me.lines.push(lObj);
 		
 		return lSvg;
 	};
 	
+	/**
+	@param		line svg representation of the line to add a path to
+	@return		svg representation of the path corresponding to param line
+	@function	creates a svg path on top of the line so that a midpoint
+				marker representing and arrow is created, pointing from
+				source of line to target of line
+	*/
 	me.addArrow = function(line){
 		var path = d3.select(line[0][0].parentNode)
 			.insert('path', ':first-child')
@@ -420,14 +429,13 @@ var draw = function(){
 	};
 	
 	/** 
-		used as a callback added to a new entity when it is dragged
-		in the canvas
-		@param - none
-		@return - none
-		@functionality - depends on what the current mode is, based on 2 only.
-			      will move the entire group or just pivot the selected
-			      node, depending on what the current mode is
-		@internal functions - me.dragGroup
+	@function	if this is a line, point item at the source of the line
+				if this is a circle, point item at this
+				if the mode is mover_hold or this is a line, call drag group on 
+				each of the circles attached to item, in turn moving the entire
+				group the same amount. if the mode is select_hold and item is 
+				a circle, move only the elements that are colored with the 
+				select color. if the mode is '' and is a circle just drag item
 	*/
 	me.move = function(){
 		var item;
@@ -462,13 +470,11 @@ var draw = function(){
 	};
 	
 	/**
-		called from the me.move function
-		@param - that - entity that was clicked upon and is to be dragged
-		@return - none
-		@functionality - selects the clicked on entity and any lines 
-		attached to it and moves those end points attached to the entity 
-		@internal functions - me.computeCoord
-							  me.addArrow
+	@param		cHtml html representation of the circle that is to be dragged
+	@function	grabs the svg representation of cHtml and moves it and
+				the endpoint of any line that points to cHtml
+				redraws all paths instead of moving just those that would
+				be effected
 	*/
 	me.dragGroup = function(cHtml){
 		var cSvg = d3.select(cHtml);
@@ -520,6 +526,11 @@ var draw = function(){
 		});
 	};
 	
+	/**
+	@function	when in select_hold mode, gets the initial location of the mouse
+				when the user begins a dragstart event and creates a selection 
+				rectangle of size 0 beginning at that initial click
+	*/
 	me.dragstart = function(){
 		me.startClick = d3.mouse(this);
 		if ( me.t_mode.getMode() === 'select_hold' ) {
@@ -529,6 +540,15 @@ var draw = function(){
 		}
 	};
 	
+	/**
+	@function	when in select_hold mode, gets the current location of the mouse
+				as the user continues to drag, the mouse location updates and 
+				the selection rectangle created in dragstart changes shape
+				the diagonally opposite corner of the selection rectangle 
+				corresponds to the location of the mouse when this function is
+				called. any circles or lines that reside in the current location
+				of the selection rectangle are colored with the selectColor
+	*/
 	me.drag = function(){
 		var ev = d3.mouse(this);
 		if (me.t_mode.getMode() === 'select_hold'){
@@ -584,6 +604,11 @@ var draw = function(){
 		}
 	};
 	
+	/**
+	@function	when in select_hold mode, if the user stops dragging the
+				selection rectangle is removed, but any circles or lines that
+				were in that rectangle before it was remove remain selectColor
+	*/
 	me.dragend = function(){
 		if (me.t_mode.getMode() === 'select_hold'){
 			d3.select('.selection').remove();
@@ -591,14 +616,9 @@ var draw = function(){
 	}
 	
 	/**
-		used as a callback added to a new relationship when it is clicked
-		@param - none
-		@return - none
-		@functionality - dependent upon what the current mode is
-				  is called when a relationship in the canvas is clicked
-				  if the current mode is delete_hold the line is remove
-				  along with the arrow that was with it
-		@internal functions - none
+	@function	when in delete_hold mode, deleteItem is called on this line and
+				the svg:g element holding this and its corresponding path is
+				removed from the svg:g node-link-container
 	*/
 	me.lineclick = function(){	
 		if(me.t_mode.getMode() === 'delete_hold'){
@@ -607,21 +627,15 @@ var draw = function(){
 	};
 	
 	/**
-		used as a callback added to a new entity when it is clicked
-		@param - none
-		@return - none
-		@functionality - dependent upon what the current mode is
-				  is called when an entity in the canvas is clicked
-				  if the current mode is rel_hold and two entities are 
-				  clicked, a line is drawn between the representing
-				  a relationship
-				  if the current mode is delete_hold it removes the entity
-				  and any of its siblings, group(with lines and entities),
-				  line or arrow
-		@internal functions - me.computeCoord
-							  me.mouseover
-							  me.mouseout
-							  me.addArrow
+	@function	when in rel_hold mode, attaches two distinct nodes if one is
+				clicked and then another. uses lastNodeClicked to keep track of
+				the first node, and when the second is clicked, if there does
+				not already exist a line with the specified value between the 
+				two, a new line is added with the source as the first node and
+				the target as the second node. when in delete_hold mode, the
+				circle is removed from the svg node-link-container the colors of
+				each of the nodes that were clicked must change corresponding to
+				what kind of entity they are
 	*/
 	me.nodeclick = function(){
 		if(me.t_mode.getMode() === 'rel_hold'){
@@ -697,8 +711,11 @@ var draw = function(){
 	};
 	
 	/**
-		used as a callback added to a new entity when it is double clicked
-		@functionality 
+	@function	when in '' mode, if a circle is doubleclicked and valid input is
+				placed in the corresponding form, a new line and circle is
+				attached to the circle that was double clicked, creating a new
+				relationship. the colors of the double clicked circle and new 
+				circle must change corresponding to what kind of entity they are
 	*/
 	me.doubleClickNode = function(){
 		if (me.t_mode.getMode() === ''){
@@ -798,10 +815,9 @@ var draw = function(){
 	};
 	
 	/**
-		used as a callback added to a new entity when it is hovered over
-		@functionality - dependent upon what the mode is
-				  if the mode is anything other that label hold
-				  when the user hovers over an element, its data is displayed
+	@function	if labelsShown is false, meaning the show all text button has
+				not been pressed, a new svg text element is added to the canvas
+				representing the value of the item currently being hovered over
 	*/
 	me.mouseover = function(){
 		if ( !me.labelsShown ) {
@@ -827,11 +843,10 @@ var draw = function(){
 	};
 	
 	/**
-		used as a callback added to a new entity after it is hovered over
-		then the mouse moves off of the object
-		@functionality - dependent upon what the mode is
-				  if label_hold, all text elements in the canvas
-				  are removed
+	@function	if labelsShown is false, meaning the show all text button has
+				not been pressed, all svg text elements are removed from the
+				canvas when the mouse previously hovering over this element 
+				has moved off of this element.
 	*/
 	me.mouseout = function(){
 		if ( !me.labelsShown ) {
@@ -844,6 +859,15 @@ var draw = function(){
 		}
 	};
 	
+	/**
+	@param		itemHtml the html representation of an item that has been 
+				clicked and is to be removed
+	@function	removes the selected item (line or circle) from the svg
+				node-link-container and also removes it from lines or circles
+				then calls separate groups to regroup remaining circles 
+				and then recolor them based on what type of entity they are
+				
+	*/
 	me.deleteItem = function(itemHtml){
 		var group;
 		if ( itemHtml.localName === 'circle' ){
@@ -895,6 +919,17 @@ var draw = function(){
 		});
 	};
 	
+	/**
+	@param		circleGroup array of integers representing circles that all
+				have the same group number
+	@function	first recolors all circles pointed to by the indicies in 
+				circleGroup and assigns new distinct group numbers to each
+				double for loop iterates through each of the circles and then
+				previously seen circles to see if there exist any lines between
+				them, if there is a line, the new circle gets reassigned to
+				the past circles group. in the end, all circles that are 
+				connected are lumped into a group
+	*/
 	me.separateGroups = function(circleGroup){
 		if ( circleGroup.length !== 0 ) {
 			me.circles[circleGroup[0]].color = white;
@@ -947,6 +982,11 @@ var draw = function(){
 		}
 	};
 	
+	/**
+	@function	used mainly to remove selectColor from previously selected nodes
+				resets all the circles to be filled with their correct color
+				and resets line/path colors
+	*/
 	me.resetColors = function(){
 		d3.selectAll('.canvas circle').each(function(){
 			var cSvg = d3.select(this);
@@ -958,6 +998,12 @@ var draw = function(){
 		d3.selectAll('.canvas path').style('stroke', me.lineColor);
 	};
 	
+	/**
+	@function	saves the state of the current canvas as a target event
+				and posts it to /target_event/
+				if this target event already has an _id, the target event
+				is updated instead of created
+	*/
 	me.saveTargetEvent = function() {
 		var tempUrl = event_url;
 		if ( me.event.id !== undefined ) {
@@ -995,6 +1041,12 @@ var draw = function(){
 		});
 	};
 	
+	/**
+	@param		json json object formatted with asserions and singletons which
+				will be used to redraw a previously saved canvas
+	@function	takes the json object and draws circles and lines for each
+				assertion and singleton that exists in the arrays
+	*/
 	me.redraw = function(json){
 		var assertions = json.assertions;
 		var singletons = json.singletons;
@@ -1029,16 +1081,27 @@ var draw = function(){
 		}
 	};
 	
+	/**
+	@param		state 
+	@function	adds state to the undo stack of me.pastStates
+				if the stack grows above 10, removes the item at the front
+	*/
 	me.saveState = function(state){
-		if ( me.pastStates.indexOf(state, 'class') === -1 ) {
-			me.pastStates.push(state);
-		}
+		me.pastStates.push(state);
 		
 		if ( me.pastStates.length > 10 ) {
 			me.pastStates.shift();
 		}
 	};
 	
+	/**
+	@param 		type either 'entity1', 'entity2' or 'both'
+				obj the object version of the circle to alter
+	@function	changes the node color to correspond to what kind of entity 
+				it now is. if type is entity1 but obj is entity2 or type is 
+				entity2 but obj is entity1, obj is now both, otherwise 
+				it goes from white to entity1 or entity2 color
+	*/
 	me.alterNodeColor = function(type, obj){
 		if (type === 'entity1'){
 			if ( obj.color === white ) {
@@ -1056,6 +1119,11 @@ var draw = function(){
 	};
 	
 	//t_button callbacks
+	/**
+	@function	creates a new empty node-link-container, empties circles and 
+				lines arrays, resets the element count and assigns null to 
+				lastNodeClicked 
+	*/
 	me.resetCanvas = function(){
 		d3.select('.node-link-container').remove();
 		d3.select('.csvg').append('g').attr('class', 'node-link-container');
@@ -1066,6 +1134,12 @@ var draw = function(){
 		me.lastNodeClicked = null;
 	};
 	
+	/**
+	@function	takes the current state of the canvas and saves each assertion
+				or singleton to /target_assertions/. if an assertion already 
+				has an _id, it is simply updated in the database instead of
+				being recreated
+	*/
 	me.saveTargetAssertions = function(){
 		me.assertions = { assertions : [], singletons: [] };
 		for (var i = 0; i < me.lines.length; i++){
@@ -1190,6 +1264,10 @@ var draw = function(){
 		me.saveTargetEvent();
 	};
 	
+	/**
+	@function	if there exists a past saved state, reset the canvas and redraw
+				based on that saved state, removing it from the stack
+	*/
 	me.undo = function(){
 		if ( me.pastStates.length > 0 ) {
 			me.resetCanvas();
@@ -1197,6 +1275,10 @@ var draw = function(){
 		}
 	};
 	
+	/**
+	@function	removes all circles and lines that are colored selectColor
+				then regroups and recolors the remainder
+	*/
 	me.deleteSelection = function(){
 		var nodesToRemove = [];
 		var linksToRemove = [];
@@ -1225,8 +1307,9 @@ var draw = function(){
 	};
 	
 	/**
-	called from me.toggleSelection when mode is label_hold
-	@functionality - shows all labels for any element in the canvas
+	@function	if labelsShown is false shows all labels for any element 
+				in the canvas when the show all text button is clicked
+				if labelsShown is true, it removes all labels from the canvas
 	*/
 	me.toggleLabels = function(){
 		if ( !me.labelsShown ) {
