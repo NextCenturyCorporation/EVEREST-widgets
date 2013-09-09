@@ -1,6 +1,6 @@
 var confirmer = function(){
 	var me = this;
-	var url = 'http://everest-build:8081/';
+	var url = 'http://localhost:8081/';
 	me.alpha_reports = [];
 	me.assertions = [];
 	me.target_events = [];
@@ -24,11 +24,10 @@ var confirmer = function(){
 		.attr('height', me.height);
 		
 	me.te_view = new target_event_view(me.svg_target);
-
+	
 	me.createListeners = function(){
 		d3.select('.confirm').on('click', function(){
 			var d = parseFloat($('.percent').val());
-			console.log(d);
 			if ( isNaN(d) ){
 				alert('Please enter a number in the percent field!');
 				return;
@@ -90,7 +89,28 @@ var confirmer = function(){
 				} 
 			}			
 		});
+	};
 		
+	me.getAlphaReports = function(){
+		$.ajax({
+			dataType: 'json',
+			url: url + 'alpha_report/?callback=?',
+			success: function(data) {
+				for (var i = 0; i < data.length; i++){
+					d3.select('.alphas')
+						.append('option')
+						.text(data[i]._id);
+				}
+				me.alpha_reports = data;
+			},
+			complete: function(){
+				if ( me.alpha_reports.length > 0 ){
+					var ar = me.alpha_reports[0];
+					me.displayAlphaReportInfo(ar);
+					me.getAssertions(ar._id);
+				}
+			}			
+		});
 	};
 	
 	me.getTargetEvents = function(){
@@ -154,24 +174,7 @@ var confirmer = function(){
 	};
 	
 	me.display = function(){
-		$.ajax({
-			dataType: 'json',
-			url: url + 'alpha_report/?callback=?',
-			success: function(data) {
-				for (var i = 0; i < data.length; i++){
-					d3.select('.alphas')
-						.append('option')
-						.text(data[i]._id);
-				}
-				me.alpha_reports = data;
-			},
-			complete: function(){
-				var ar = me.alpha_reports[0];
-				me.displayAlphaReportInfo(ar);
-				me.getAssertions(ar._id);
-			}			
-		});
-		
+		me.getAlphaReports();
 		me.getTargetEvents();
 	};
 	
@@ -182,13 +185,24 @@ var confirmer = function(){
 		me.confirmed.assertions = me.curr_assert_ids;
 		me.confirmed.target_event_percentage = $('.percent').val();
 		
+		
 		$.ajax({
+			type: "POST",
+			url: url+'confirmed_report/',
+			dataType: 'application/json',
+			data: me.confirmed,
+			success: function(r){
+				console.log(r);
+			}
+		});
+		
+		/*$.ajax({
 			type: "POST",
 			url: "../../../lib/post_relay.php",
 			data: JSON.stringify({url: url+'confirmed_report/', data: me.confirmed}),
 			success: function(){console.log('success');},
 			error: function(){console.log('error');}
-		});
+		});*/
 		
 		$('.percent').val('');
 	};

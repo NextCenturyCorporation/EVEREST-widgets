@@ -22,6 +22,7 @@ var toolbar = function(div_class){
 		} else {
 			clickFunction = me.toggleSelection;
 		}
+		
 		me.num_tools++;
 		
 		//add a new space for the new tool, with an onclick event
@@ -70,12 +71,6 @@ var toolbar = function(div_class){
 			//clear mode and remove any labels
 			me.mode = '';
 		}	
-		
-		if (me.mode === 'label_hold'){
-			me.addAllLabels();
-		} else {
-			d3.selectAll('.canvas text').remove();
-		}
 	};
 	
 	me.getMode = function(){

@@ -409,7 +409,7 @@ describe('To test the target event definition widget', function(){
 				
 				spyOn(test_draw, 'alterNodeColor').andCallThrough();
 				
-				spyOn(window, 'indexOfObj').andCallThrough();
+				//spyOn(window, 'indexOfObj').andCallThrough();
 				spyOn(window, 'getAllIndicies').andCallThrough();
 				spyOn(Math, 'random').andCallThrough();
 				spyOn(Math, 'cos').andCallThrough();
@@ -453,7 +453,7 @@ describe('To test the target event definition widget', function(){
 					
 				expect(alert).not.toHaveBeenCalled();
 				expect(test_draw.alterNodeColor).toHaveBeenCalled();
-				expect(indexOfObj).toHaveBeenCalled();
+				//expect(indexOfObj).toHaveBeenCalled();
 				expect(getAllIndicies).toHaveBeenCalled();
 				expect(Math.random).toHaveBeenCalled();
 				expect(Math.sin).toHaveBeenCalled();

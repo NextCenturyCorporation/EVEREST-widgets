@@ -10,6 +10,16 @@ var target_event_view = function(svg){
 	
 	me.maxX, me.maxY;
 	
+	var indexOfObj = function(ra, value, attribute){
+		for (var i = 0; i < ra.length; i++){
+			if (value.toLowerCase() === ra[i][attribute].toLowerCase()){
+				return i;
+			}
+		}
+		
+		return -1;
+	};
+	
 	me.draw = function(json, x, y){	
 		me.maxX = x;
 		me.maxY = y;	
