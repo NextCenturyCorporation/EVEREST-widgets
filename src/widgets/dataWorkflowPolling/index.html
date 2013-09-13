@@ -1,0 +1,21 @@
+<html>
+<head>
+	<script src="./lib/owf-widget-debug.js"></script>
+	<script src="http://localhost:8081/socket.io/socket.io.js"></script>
+</head>
+<body>
+	<script type="text/javascript">
+		var socket = io.connect('http://localhost:8081');
+		socket.on('connect', function () {
+			console.log("connected");
+			socket.emit('join_room', {room: 'EVEREST.data.workflow'});
+		});
+
+		socket.on('item_saved', function(data) {
+			var msg = {eventType: 'item_saved', data: data};
+
+			OWF.Eventing.publish("com.nextcentury.everest.data.workflow", JSON.stringify(msg));
+		});
+	</script>
+</body>
+</html>
