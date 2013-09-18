@@ -1,0 +1,46 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
+		<link href="./css/rssAtomAdmin.css" rel="stylesheet">
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-static-top" role="navigation">
+  			<div class="navbar-header">
+    			<a class="navbar-brand" href="#">RSS/ATOM Feeds</a>
+ 			</div>
+    		<ul class="nav navbar-nav navbar-right">
+		    	<li id ="start-all-feeds" class="active"><a href="#"><span class="glyphicon glyphicon-play"></span> Start All Feeds</a></li>
+		    	<li id ="stop-all-feeds" class="active"><a href="#"><span class="glyphicon glyphicon-pause"></span> Stop All Feeds</a></li>
+		    </ul>
+		</nav>
+		<div class="row">
+			<div class="col-xs-1"></div>
+			<div class="col-xs-10">
+				<div class="page-header">
+			 		<h1>Rss Feeds <small>Add new feeds below</small></h1>
+				</div>
+			</div>
+			<div class="col-xs-1"></div>
+		</div>
+		<div class="row">
+			<div class="col-xs-1"></div>
+			<div class="col-xs-10">
+				<div class="alert alert-info">Enter the URL and polling interval (in minutes) for each RSS stream you want to collect below.</div>
+			</div>
+			<div class="col-xs-1"></div>
+		</div>
+
+		<!-- The following div will dynamically grow and shrink as RSS Feeds are added-->
+		<div id="feed-rows"></div>
+		<div class="row">
+			<div class="col-xs-9"></div>
+			<div class="col-xs-3">
+				<button id = "add-feed" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Add New <span class="glyphicon glyphicon-plus"></span></button>
+			</div>
+		</div>	
+		<script src="//code.jquery.com/jquery.min.js"></script>
+		<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+		<script src="rssAtomAdmin.js"></script>
+	</body>
+</html>

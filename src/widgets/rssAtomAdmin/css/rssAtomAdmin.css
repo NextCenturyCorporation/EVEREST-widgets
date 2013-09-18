@@ -1,0 +1,69 @@
+.page-header {
+  margin: 0px 0px 0px 0px;
+}
+
+.nav-collapse, .nav-collapse.collapse {
+    overflow: visible;
+}   
+.navbar .btn-navbar {
+    display: none;
+}
+.container {
+  max-width: none !important;
+  width: 970px;
+}
+
+.row {
+  margin-right: 0px;
+  margin-left: 0px;
+}
+
+.col-xs-4 {
+  padding-right: 0px;
+  padding-left: 0px;
+}
+
+.col-xs-5 {
+  padding-right: 0px;
+  padding-left: 0px;
+}
+
+.col-xs-6 {
+  padding-right: 0px;
+  padding-left: 0px;
+}
+
+.col-xs-10 {
+  padding-right: 0px;
+  padding-left: 0px;
+}
+
+.col-xs-2 {
+  padding-right: 0px;
+  padding-left: 0px;
+}
+.col-xs-3 {
+  padding-right: 0px;
+  padding-left: 0px;
+}
+
+.col-xs-9 {
+  padding-right: 0px;
+  padding-left: 0px;
+}
+.btn {
+  min-width: 95px;
+  max-width: 95px;
+  padding-right: 0px;
+}
+
+
+
+
+
+
+
+
+
+
+
