@@ -1,7 +1,7 @@
 <html>
 	<head>
-		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
-		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
+		<link href="./css/bootstrap.min.css" rel="stylesheet">
+		<link href="./css/bootstrap-theme.min.css" rel="stylesheet">
 		<link href="./css/rssAtomAdmin.css" rel="stylesheet">
 	</head>
 	<body>
@@ -26,7 +26,8 @@
 		<div class="row">
 			<div class="col-xs-1"></div>
 			<div class="col-xs-10">
-				<div class="alert alert-info">Enter the URL and polling interval (in minutes) for each RSS stream you want to collect below.</div>
+				<div id ="info-alert" class="alert alert-info">Enter the URL and polling interval (in minutes) for each RSS stream you want to collect below.</div>
+				<div id ="error-alert" class="alert alert-danger">You must enter a valid URL to start an RSS/ATOM feed.</div>
 			</div>
 			<div class="col-xs-1"></div>
 		</div>
@@ -39,8 +40,8 @@
 				<button id = "add-feed" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Add New <span class="glyphicon glyphicon-plus"></span></button>
 			</div>
 		</div>	
-		<script src="//code.jquery.com/jquery.min.js"></script>
-		<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-		<script src="rssAtomAdmin.js"></script>
+		<script src="./js/jquery.min.js"></script>
+		<script src="./js/bootstrap.min.js"></script>
+		<script src="./js/rssAtomAdmin.js"></script>
 	</body>
 </html>

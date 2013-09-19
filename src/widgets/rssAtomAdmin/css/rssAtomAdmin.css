@@ -13,6 +13,10 @@
   width: 970px;
 }
 
+.alert-danger {
+  display:none;
+}
+
 .row {
   margin-right: 0px;
   margin-left: 0px;
