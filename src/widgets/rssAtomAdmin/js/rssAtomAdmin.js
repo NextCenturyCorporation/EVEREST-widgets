@@ -117,7 +117,9 @@ var rssAtomAdmin = function() {
 			} else if (selectedValue === "Remove Feed") {
 				if(numFields() > 1) {
 					var closestRow = $(this).closest(".row").eq(0).attr('id');
-					removeFeed(closestRow);
+					if(closestRow != 1) {
+						removeFeed(closestRow);
+					}
 					$(this).closest(".row").remove();
 					checkLastRow();
 				} 
