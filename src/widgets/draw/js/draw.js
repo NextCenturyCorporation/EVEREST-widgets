@@ -1136,24 +1136,6 @@ var draw = function(){
 		d3.select('.node-link-container').remove();
 		d3.select('.csvg').append('g').attr('class', 'node-link-container');
 		
-		target_event = {
-			name: 'metadata'
-		};
-		
-		$.ajax({
-			type: 'POST',
-			url: buildNode(target_event),
-			dataType: 'application/json',
-			success: function(r){ console.log(r); },
-			error: function(e){
-				var resp = JSON.parse(e.responseText);
-				if (resp.message === undefined){
-					target_event._titan_id = resp.results._id;
-				}
-				
-			}
-		});
-		
 		me.circles = [];
 		me.lines = [];
 		me.count = 0;		
