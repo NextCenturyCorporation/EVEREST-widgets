@@ -61,30 +61,22 @@ var confirmer = function(){
 		var assertions = [];
 		me.curr_assert_ids = [];
 		me.curr_ar_id = ar_id;
+			
 		$.ajax({
-			type: 'GET',
-			dataType: 'application/json',
-			url: url + 'assertion/?callback=?',
-			success: function(data) {
-				me.assertions = data;
+			type: 'POST',
+			url: '../../../lib/post_relay.php',
+			data: JSON.stringify({ url : url + 'assertion/', data: null, method: 'GET'}),
+			success: function(data){ 
+				console.log('success');	
+				
 				data.forEach(function(as){
 					if (as.alpha_report_id === ar_id){
 						assertions.push(as);
 						me.curr_assert_ids.push(as._id);
 					}
 				});
-			},
-			error: function(e){
-				var data = JSON.parse(e.responseText);
 				me.assertions = data;
-				data.forEach(function(as){
-					if (as.alpha_report_id === ar_id){
-						assertions.push(as);
-						me.curr_assert_ids.push(as._id);
-					}
-				});
-			},
-			complete: function(){
+				
 				me.svg_asserts.remove();
 				me.svg_asserts = d3.select('.asserts')
 					.append('svg')
@@ -98,18 +90,18 @@ var confirmer = function(){
 					var net = new network(me.svg_asserts, assertions, false);
 					net.draw();
 				} 
-			}			
+			},
+			error: function(){ console.log('error'); }
 		});
 	};
 		
 	me.getAlphaReports = function(){
-		console.log(JSON.stringify({ url : url + 'alpha-report/', data: {}, method: 'GET'}));
 		$.ajax({
-			type: "POST",
-			url: "../../../lib/post_relay.php",
-			data: JSON.stringify({ url : url + "alpha-report/", data: null, method: "GET"}),
+			type: 'POST',
+			url: '../../../lib/post_relay.php',
+			data: JSON.stringify({ url : url + 'alpha-report/', data: null, method: 'GET'}),
 			success: function(data){ 
-				console.log(data);
+				console.log('success');
 				data.forEach(function(ar){
 					d3.select('.alphas').append('option').text(ar._id);
 				});
@@ -123,66 +115,24 @@ var confirmer = function(){
 			},
 			error: function(){ console.log('error'); }
 		});
-		console.log('in here');
-		/*$.ajax({
-			type: 'GET',
-			dataType: 'application/json',
-			url: url + 'alpha-report/',
-			success: function(data) {
-				console.log('success');
-				data.forEach(function(ar){
-					d3.select('.alphas').append('option').text(ar._id);
-				});
-				me.alpha_reports = data;
-			},
-			error: function(e){
-				console.log('error');
-				console.log(e);
-				var data = JSON.parse(e.responseText);
-				data.forEach(function(ar){
-					d3.select('.alphas').append('option').text(ar._id);
-				});
-				me.alpha_reports = data;
-			},
-			complete: function(){
-				if ( me.alpha_reports.length > 0 ){
-					var ar = me.alpha_reports[0];
-					me.displayAlphaReportInfo(ar);
-					me.getAssertions(ar._id);
-				}
-			}			
-		});*/
 	};
 	
 	me.getTargetEvents = function(){
-		/*$.ajax({
-			type: "POST",
-			url: "../../../lib/post_relay.php",
-			data: JSON.stringify({url: url+'confirmed_report/', data: me.confirmed}),
-			success: function(){console.log('success');},
-			error: function(){console.log('error');}
-		});*/
-	
 		$.ajax({
-			type: 'GET',
-			dataType: 'json',
-			url: url + 'target_event/?callback=?',
-			success: function(data) {
+			type: 'POST',
+			url: "../../../lib/post_relay.php",
+			data: JSON.stringify({url: url+'confirmed_report/', data: null, method: 'GET'}),
+			success: function(data){
+				console.log('success');
 				if (data[0] !== undefined){
 					me.target_events = data;
 					data.forEach(function(te){
 						d3.select('.patterns').append('option').text(te._id);
 					});
-				}
-			},
-			error: function(e){
-				console.log(e);
-			},
-			complete: function(){
-				if (me.target_events.length !== 0){
 					me.getTargetAssertions(me.target_events[0]._id);
 				}
-			}			
+			},
+			error: function(){console.log('error');}
 		});
 	};
 	
@@ -200,9 +150,11 @@ var confirmer = function(){
 		}
 		
 		$.ajax({
-			dataType: 'json',
-			url: url + 'target_assertion/?callback=?',
-			success: function(data) {
+			type: 'POST',
+			url: "../../../lib/post_relay.php",
+			data: JSON.stringify({url: url+'target_assertion/', data: null, method: 'GET'}),
+			success: function(data){
+				console.log('success');
 				data.forEach(function(ta){
 					if ( event.assertions.indexOf(ta._id.toString()) !== -1 ) {
 						me.target_assertions.push(ta);
@@ -215,14 +167,13 @@ var confirmer = function(){
 							maxY = Math.max(maxY, ta.entity2[0].y);
 						}
 					}
+					
+					me.displayTargetEventInfo(event);
+					me.te_view.draw(me.target_assertions, maxX, maxY);
 				});
 			},
-			complete: function(){
-				me.displayTargetEventInfo(event);
-				me.te_view.draw(me.target_assertions, maxX, maxY);
-			}			
+			error: function(){console.log('error');}
 		});
-		
 	};
 	
 	me.display = function(){
@@ -239,21 +190,11 @@ var confirmer = function(){
 		
 		$.ajax({
 			type: "POST",
-			url: url+'confirmed_report/',
-			dataType: 'application/json',
-			data: me.confirmed,
-			success: function(r){
-				console.log(r);
-			}
-		});
-		
-		/*$.ajax({
-			type: "POST",
 			url: "../../../lib/post_relay.php",
-			data: JSON.stringify({url: url+'confirmed_report/', data: me.confirmed}),
+			data: JSON.stringify({url: url+'confirmed_report/', data: me.confirmed, method: 'POST'}),
 			success: function(){console.log('success');},
 			error: function(){console.log('error');}
-		});*/
+		});
 		
 		$('.percent').val('');
 	};
