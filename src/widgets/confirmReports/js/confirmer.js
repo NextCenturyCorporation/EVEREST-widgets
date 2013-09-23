@@ -1,6 +1,6 @@
 var confirmer = function(){
 	var me = this;
-	var url = 'http://localhost:8081/';
+	var url = 'http://everest-build:8081/';
 	me.alpha_reports = [];
 	me.assertions = [];
 	me.target_events = [];
@@ -108,7 +108,19 @@ var confirmer = function(){
 			type: "POST",
 			url: "../../../lib/post_relay.php",
 			data: JSON.stringify({ url : url + "alpha-report/", data: null, method: "GET"}),
-			success: function(r){ console.log(r); },
+			success: function(data){ 
+				console.log(data);
+				data.forEach(function(ar){
+					d3.select('.alphas').append('option').text(ar._id);
+				});
+				me.alpha_reports = data;
+
+				if ( me.alpha_reports.length > 0 ){
+					var ar = me.alpha_reports[0];
+					me.displayAlphaReportInfo(ar);
+					me.getAssertions(ar._id);	
+				}
+			},
 			error: function(){ console.log('error'); }
 		});
 		console.log('in here');
