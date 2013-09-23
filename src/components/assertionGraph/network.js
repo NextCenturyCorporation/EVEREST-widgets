@@ -41,7 +41,7 @@ var network = function(svg, data, disjoint){
 		.charge(-500);
 		
 	me.draw = function(sender, msg){
-		if(msg){
+		if ( msg ){
 			var arrays = addNewAssertion(me.nodes, me.links, msg, disjoint);
 			me.nodes = arrays[0];
 			me.links = arrays[1];
@@ -120,14 +120,22 @@ var network = function(svg, data, disjoint){
 	};
 	
 	me.mouseover = function(){
-		d3.select(this).select("circle").transition()
+		d3.select(this).select('circle').transition()
 			.duration(750)
 			.attr("r", 2 * me.radius);
 	};
 	
 	me.mouseout = function(){
-		d3.select(this).select("circle").transition()
+		d3.select(this).select('circle').transition()
 			.duration(750)
 			.attr("r", me.radius);
+	};
+	
+	me.setNodes = function(n){
+		me.nodes = n;
+	};
+	
+	me.setLinks = function(l){
+		me.links = l;
 	};
 };

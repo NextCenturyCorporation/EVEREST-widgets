@@ -814,5 +814,88 @@ describe('To test the target event definition widget', function(){
 			expect(d3.select(nodeC.html).style('fill')).toEqual(bothColor);
 			expect(d3.select(nodeE.html).style('fill')).toEqual(entity2Color);
 		});
+		
+		it('a-b b-d c-d c-a undo -> a-b b-d c-d', function(){
+			test_draw.t_mode.setMode('node_hold');
+			
+			//add node a			
+			document.getElementsByClassName('csvg')[0].dispatchEvent(clickEvt);
+			$('.ent1').val('a');
+			document.getElementsByClassName('ent-submit')[0].dispatchEvent(clickEvt);
+				
+			//add node b
+			document.getElementsByClassName('csvg')[0].dispatchEvent(clickEvt);
+			$('.ent1').val('b');
+			document.getElementsByClassName('ent-submit')[0].dispatchEvent(clickEvt);
+			
+			//add node c
+			document.getElementsByClassName('csvg')[0].dispatchEvent(clickEvt);
+			$('.ent1').val('c');
+			document.getElementsByClassName('ent-submit')[0].dispatchEvent(clickEvt);
+			
+			//add node d
+			document.getElementsByClassName('csvg')[0].dispatchEvent(clickEvt);
+			$('.ent1').val('d');
+			document.getElementsByClassName('ent-submit')[0].dispatchEvent(clickEvt);
+				
+			expect(test_draw.addCircle).toHaveBeenCalled();
+			expect(test_draw.circles.length).toEqual(4);
+			expect(test_draw.lines.length).toEqual(0);
+			
+			var nodeA = test_draw.circles[0];
+			var nodeB = test_draw.circles[1];
+			var nodeC = test_draw.circles[2];
+			var nodeD = test_draw.circles[3];
+			
+			test_draw.t_mode.setMode('rel_hold');
+
+			//add link A-B
+			document.getElementsByClassName(nodeA.class)[0].dispatchEvent(clickEvt);
+			document.getElementsByClassName(nodeB.class)[0].dispatchEvent(clickEvt);			
+			$('.rel-only').val('AB');
+			document.getElementsByClassName('rel-submit')[0].dispatchEvent(clickEvt);
+				
+			//add link B-D
+			document.getElementsByClassName(nodeB.class)[0].dispatchEvent(clickEvt);
+			document.getElementsByClassName(nodeD.class)[0].dispatchEvent(clickEvt);
+			$('.rel-only').val('BD');
+			document.getElementsByClassName('rel-submit')[0].dispatchEvent(clickEvt);
+				
+			//add link C-D
+			document.getElementsByClassName(nodeC.class)[0].dispatchEvent(clickEvt);
+			document.getElementsByClassName(nodeD.class)[0].dispatchEvent(clickEvt);
+			$('.rel-only').val('CD');
+			document.getElementsByClassName('rel-submit')[0].dispatchEvent(clickEvt);
+			
+			test_draw.saveTargetAssertions();
+			//add link C-A
+			document.getElementsByClassName(nodeC.class)[0].dispatchEvent(clickEvt);
+			document.getElementsByClassName(nodeA.class)[0].dispatchEvent(clickEvt);
+			$('.rel-only').val('CA');
+			document.getElementsByClassName('rel-submit')[0].dispatchEvent(clickEvt);
+			
+			expect(test_draw.lines.length).toEqual(4);
+			expect(nodeA.color).toEqual(bothColor);
+			expect(nodeB.color).toEqual(bothColor);
+			expect(nodeC.color).toEqual(entity1Color);
+			expect(nodeD.color).toEqual(entity2Color);	
+			expect(nodeA.group).toEqual(nodeB.group);
+			expect(nodeA.group).toEqual(nodeC.group);
+			expect(nodeA.group).toEqual(nodeD.group);
+			
+			expect(test_draw.pastStates.length).not.toEqual(0);
+			test_draw.undo();
+			
+			expect(test_draw.pastStates.length).toEqual(0);
+			expect(test_draw.circles.length).toEqual(4);
+			expect(test_draw.lines.length).toEqual(3);
+			expect(nodeA.color).toEqual(entity1Color);
+			expect(nodeB.color).toEqual(bothColor);
+			expect(nodeC.color).toEqual(entity1Color);
+			expect(nodeD.color).toEqual(entity2Color);	
+			expect(nodeA.group).toEqual(nodeB.group);
+			expect(nodeA.group).toEqual(nodeC.group);
+			expect(nodeA.group).toEqual(nodeD.group);
+		});
 	});
 });
