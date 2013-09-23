@@ -76,23 +76,6 @@ var draw = function(){
 	var event_url = 'http://everest-build:8081/target_event/';
 	var white = '#ffffff';
 	
-	var target_event = {
-		name: 'metadata'
-	};
-	
-	$.ajax({
-		type: 'POST',
-		url: buildNode(target_event),
-		dataType: 'application/json',
-		success: function(r){ console.log(r); },
-		error: function(e){
-			var resp = JSON.parse(e.responseText);
-			if (resp.message === undefined){
-				target_event._titan_id = resp.results._id;
-			}
-		}
-	});
-	
 	me.t_mode, me.t_button;
 	
 	me.entity1Color = getHexString('.entity1Color');
@@ -1305,7 +1288,6 @@ var draw = function(){
 		}
 		me.saveState(JSON.stringify(me.assertions));
 		//me.saveTargetEvent();
-		me.saveAssertionsToTitan();
 	};
 	
 	/**
