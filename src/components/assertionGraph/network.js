@@ -88,7 +88,13 @@ var network = function(svg, data, disjoint){
 		nodeEnter.append("text")
 			.attr("x", 12)
 			.attr("dy", ".35em")
-			.text(function(d) { return d.value; });
+			.text(function(d) { 
+				if (d.name !== undefined){
+					return d.name; 
+				} else {
+					return d.value;
+				}
+			});
 		
 		//d3.selectAll('circle').each(function(){		changes those in the other graphs too	
 		if(!disjoint){
