@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="utf-8">
+	<title>Confirm Reports</title>
+	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="compare.css" />
+	<script src='./js/compare.js'></script>
+	<script src='./js/buildQuery.js'></script>
+	<script src='./js/comparer.js'></script>
+	<script src='./js/target_event_view.js'></script>
+	<script src='../../components/assertionGraph/convert.js'></script>
+	<script src='../../components/assertionGraph/network.js'></script>
+</head>
+<body>
+	<div class='app'>
+		<div class='alpha'>
+			<div class='alpha_report'>
+				<b>Alpha Report</b>
+				<select class='alphas'></select>
+				<div class='alpha-info'></div>
+				<div class='alpha-range'>
+					Start:<input type='text' class='start-alpha' placeholder='Start' value='0'></br>
+					End:<input type='text' class='end-alpha' placeholder='End' value='10'></br>
+					<button class='get_ars'>Get Alpha Reports</button>
+				</div>
+			</div>
+			<div class='asserts'></div>	
+		</div>
+		<div class='matcher'>
+			<div class='confirmer'>
+				<b>Target Event</b>
+				<select class='patterns'></select></br>
+				<div class='target-info'></div>	
+				<div class='target-range'>
+					Start:<input type='text' class='start-target' placeholder='Start' value='0'></br>
+					End:<input type='text' class='end-target' placeholder='End' value='10'></br>
+					<button class='get_tes'>Get Target Events</button>
+				</div>
+				<button class='compare'>Compare</button>
+				Percent Match:
+			</div>
+			
+			<div class='target-pattern'></div>
+		</div>
+	</div>
+	
+	<script type="text/javascript">
+	var c = new confirmer();
+	c.createListeners();
+	c.display();
+	</script>
+	
+</body>
+</html>
