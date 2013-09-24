@@ -5,11 +5,11 @@
 			div element containing a background color, most likely to
 			be in the form of rgb(0,0,0)
 @return   	a hex color string representing the background-color of the
-			specified div element. If no div element exists, return white
+			specified div element. If no div element exists, return me.aloneColor
 @function	d3.selects the div param and grabs its background color.
 			if already in the form of a hex string, the color is returned
 			if in rgb(0,0,0) form, converts it to a hex string
-			if no div element with class div_class exists, return white
+			if no div element with class div_class exists, return me.aloneColor
 */
 
 var c_Array = [];
@@ -74,10 +74,12 @@ var draw = function(){
 	var me =  this;
 	var assert_url = 'http://everest-build:8081/target_assertion/';
 	var event_url = 'http://everest-build:8081/target_event/';
-	var white = '#ffffff';
 	
+	me.target_event = { name: 'target event' };
+		
 	me.t_mode, me.t_button;
 	
+	me.aloneColor = getHexString('.aloneColor');
 	me.entity1Color = getHexString('.entity1Color');
 	me.entity2Color = getHexString('.entity2Color');
 	me.bothColor = getHexString('.bothColor');
@@ -327,7 +329,7 @@ var draw = function(){
 	@function	appends a circle to the svg group node-link-container with
 				the corresponding properties given in the parameters.
 				if the c parameter is given, assign fill, cclass and group
-				based off of c, if it is not, fill is white, and assign
+				based off of c, if it is not, fill is me.aloneColor, and assign
 				the element count to group and class. also adds the simplified
 				version of the circle to the circles array
 	*/
@@ -338,7 +340,7 @@ var draw = function(){
 			cclass = c.class;
 			group = c.group;
 		} else {
-			fill = white;
+			fill = me.aloneColor;
 			cclass = me.count;
 			group = me.count;
 		}
@@ -936,13 +938,13 @@ var draw = function(){
 	*/
 	me.separateGroups = function(circleGroup){
 		if ( circleGroup.length !== 0 ) {
-			me.circles[circleGroup[0]].color = white;
-			d3.select(me.circles[circleGroup[0]].html).style('fill', white);
+			me.circles[circleGroup[0]].color = me.aloneColor;
+			d3.select(me.circles[circleGroup[0]].html).style('fill', me.aloneColor);
 			for ( var i = 1; i < circleGroup.length; i++ ) {
 				var c = me.circles[circleGroup[i]];
-				c.color = white;
+				c.color = me.aloneColor;
 				c.group = me.count++;
-				d3.select(c.html).style('fill', white);
+				d3.select(c.html).style('fill', me.aloneColor);
 			}
 			
 			//want to iterate through and divide them up
@@ -1013,14 +1015,16 @@ var draw = function(){
 		if ( me.event.id !== undefined ) {
 			tempURL += me.event.id;
 		}
-		
+		var date = new Date();
+		console.log(date);
 		me.event = {
-			name: "three",
-			description: "fish two fish",
+			name: date.getTime(),
 			event_horizon: [],
 			location: [],
 			assertions: []
 		};
+		
+		console.log(me.event);
 		
 		for ( var i = 0; i < me.circles; i++ ) {
 			var cObj = me.circles[i];
@@ -1108,17 +1112,17 @@ var draw = function(){
 	@function	changes the node color to correspond to what kind of entity 
 				it now is. if type is entity1 but obj is entity2 or type is 
 				entity2 but obj is entity1, obj is now both, otherwise 
-				it goes from white to entity1 or entity2 color
+				it goes from me.aloneColor to entity1 or entity2 color
 	*/
 	me.alterNodeColor = function(type, obj){
 		if (type === 'entity1'){
-			if ( obj.color === white ) {
+			if ( obj.color === me.aloneColor ) {
 				obj.color = me.entity1Color;
 			} else if ( obj.color !== me.entity1Color ) {
 				obj.color = me.bothColor;
 			}
 		} else if ( type === 'entity2' ) {
-			if ( obj.color === white ) {
+			if ( obj.color === me.aloneColor ) {
 				obj.color = me.entity2Color;
 			} else if ( obj.color !== me.entity2Color ) {
 				obj.color = me.bothColor;
@@ -1270,6 +1274,7 @@ var draw = function(){
 		}
 		me.saveState(JSON.stringify(me.assertions));
 		//me.saveTargetEvent();
+		
 	};
 	
 	/**
@@ -1344,5 +1349,95 @@ var draw = function(){
 			d3.selectAll('.canvas text').remove();
 			me.labelsShown = false;
 		}
+	};
+	
+	me.saveTargetEventToTitan = function(){
+		$.ajax({
+			type: 'POST', 
+			url: buildNode(me.target_event),
+			dataType: 'application/json',
+			success: function(r){
+				console.log(r);
+			},
+			error: function(e){
+				var resp = JSON.parse(e.responseText);
+				if (resp.message === undefined){
+					me.target_event._titan_id = resp.results._id;
+				}
+			}
+		});
+	};
+	
+	me.saveCirclesToTitan = function(m_id){
+		me.circles.forEach(function(circle){
+			$.ajax({
+				type: 'POST', 
+				url: buildNode(circle),
+				dataType: 'application/json',
+				success: function(r){
+					console.log(r);
+				},
+				error: function(e){
+					var resp = JSON.parse(e.responseText);
+					if (resp.message === undefined){
+						var cObj = me.circles[indexOfObj(me.circles, 
+							resp.results.name,	'd')];
+						cObj._titan_id = resp.results._id;
+						
+						var edge = {
+							_label: 'metadata of',
+							target: m_id,
+							source: cObj._titan_id
+						};
+						$.ajax({
+							type: 'POST',
+							url: buildEdge(edge),
+							dataType: 'application/json',
+							success: function(r){ console.log(r); },
+							error: function(e){ console.log(JSON.parse(e.responseText)); }
+						});
+					}
+				}
+			});			
+		});
+	};
+
+	me.saveLinesToTitan = function(){
+		me.lines.forEach(function(line){
+			if ( line._titan_id === undefined ) {
+				var cSvg1 = d3.select(line.source);
+				var cSvg2 = d3.select(line.target);
+				
+				var cInd1 = indexOfObj(me.circles, cSvg1.attr('class'), 'class');
+				var cInd2 = indexOfObj(me.circles, cSvg2.attr('class'), 'class');
+				
+				line.source = me.circles[cInd1]._titan_id;
+				line.target = me.circles[cInd2]._titan_id;
+				
+				$.ajax({
+					type: 'POST',
+					url : buildEdge(line),
+					dataType: 'application/json',
+					success: function(r){
+						console.log(r);
+					},
+					error: function(e){
+						var resp = JSON.parse(e.responseText);
+						
+						if (resp.message === undefined){
+							var lObj = me.lines[indexOfObj(me.lines, 
+								resp.results.class,	'class')];
+							lObj._titan_id = JSON.parse(e.responseText).results._id;
+							console.log(JSON.parse(e.responseText).results._id);
+						}	
+					}
+				});
+			}
+		});
+	};
+	
+	me.saveAssertionsToTitan = function(){
+		me.saveCirclesToTitan(me.target_event._titan_id);
+		setTimeout(me.saveLinesToTitan, 5000);
 	};
 };
