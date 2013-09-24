@@ -159,3 +159,22 @@ var compareEdges = function(ar, te){
 		}
 	});
 };
+
+var compareOrientation = function(ar, te){
+	$.ajax({
+		type: 'GET',
+		url: getAssertionsById(ar),
+		dataType: 'application/json',
+		success: function(r1){ 
+			console.log('success');
+		},
+		error: function(e){
+			var assertions = JSON.parse(e.responseText).results;
+			
+			for (var i = 0; i < assertions.length; i++){
+				assertions[i] = assertions[i].slice(2, assertions[i].length);
+			}
+			console.log(assertions);
+		}
+	});
+};

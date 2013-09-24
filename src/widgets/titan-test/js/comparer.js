@@ -234,6 +234,7 @@ var confirmer = function(){
 			compareEdgeAmount(ar_id, te_id);
 			compareVertices(ar_id, te_id);
 			compareEdges(ar_id, te_id);
+			compareOrientation(ar_id, te_id);
 		});
 		
 		d3.select('.patterns').on('change', function(){

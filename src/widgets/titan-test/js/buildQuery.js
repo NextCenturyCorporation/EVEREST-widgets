@@ -93,6 +93,10 @@ var getVertexById = function(id){
 	return titanAddress+'/tp/gremlin?script=g.v(' + id + ')';
 };
 
+var getAssertionsById = function(id){
+	return titanAddress+'/tp/gremlin?script=g.v(' + id + ').inE.outV.inE.outV.path';
+};
+
 var getMatchingVertices = function(id, array){
 	var query = titanAddress+'/tp/gremlin?script=g.v(' + id + ').inE.outV.or(';
 	array.forEach(function(d){
