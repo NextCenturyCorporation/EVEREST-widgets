@@ -1,4 +1,4 @@
-describe('test the confirmer.js file', function(){
+xdescribe('test the confirmer.js file', function(){
 	
 	var app = d3.select('body').append('div').attr('class', 'app');
 	var alpha = app.append('div').attr('class', 'alpha');
