@@ -18,9 +18,9 @@ var compareVertexAmount = function(ar, te){
 				error: function(e){
 					var te_length = JSON.parse(e.responseText).results[0];
 					if (te_length === ar_length){
-						$('.true').append('<p>There are the same number of vertices</p>');
+						$('#true').append('<li>There are the same number of vertices</li>');
 					} else {
-						$('.false').append('<p>There are a different number of vertices</p>');
+						$('#false').append('<li>There are a different number of vertices</li>');
 					}
 				}
 			});
@@ -48,9 +48,9 @@ var compareEdgeAmount = function(ar, te){
 				error: function(e){
 					var te_length = JSON.parse(e.responseText).results[0];
 					if (te_length === ar_length){
-						$('.true').append('<p>There are the same number of edges</p>');
+						$('#true').append('<li>There are the same number of edges</li>');
 					} else {
-						$('.false').append('<p>There are a different number of edges</p>');
+						$('#false').append('<li>There are a different number of edges</li>');
 					}
 				}
 			});
@@ -80,9 +80,9 @@ var compareVertices = function(ar, te){
 				error: function(e){
 					var te_matches = JSON.parse(e.responseText).results;
 					if (te_matches.length === ar_names.length){
-						$('.true').append('<p>Alpha Report vertices are subset of Target Event</p>');
+						$('#true').append('<li>Alpha Report vertices are subset of Target Event</li>');
 					} else {
-						$('.false').append('<p>Alpha Report vertices are not subset of Target Event</p>');
+						$('#false').append('<li>Alpha Report vertices are not subset of Target Event</li>');
 					}
 				}
 			});
@@ -109,9 +109,9 @@ var compareVertices = function(ar, te){
 				error: function(e){
 					var ar_matches = JSON.parse(e.responseText).results;
 					if (ar_matches.length === te_names.length){
-						$('.true').append('<p>Target Event vertices are subset of Alpha Report</p>');
+						$('#true').append('<li>Target Event vertices are subset of Alpha Report</li>');
 					} else {
-						$('.false').append('<p>Target Event vertices are not subset of Alpha Report</p>');
+						$('#false').append('<li>Target Event vertices are not subset of Alpha Report</li>');
 					}
 				}
 			});
@@ -140,9 +140,9 @@ var compareEdges = function(ar, te){
 				error: function(e){
 					var te_matches = JSON.parse(e.responseText).results;
 					if (te_matches.length === ar_labels.length){
-						$('.true').append('<p>Alpha Report egdes are subset of Target Event</p>');
+						$('#true').append('<li>Alpha Report egdes are subset of Target Event</li>');
 					} else {
-						$('.false').append('<p>Alpha Report egdes are not subset of Target Event</p>');
+						$('#false').append('<li>Alpha Report egdes are not subset of Target Event</li>');
 					}
 				}
 			});
@@ -168,9 +168,9 @@ var compareEdges = function(ar, te){
 				error: function(e){
 					var ar_matches = JSON.parse(e.responseText).results;
 					if (ar_matches.length === te_labels.length){
-						$('.true').append('<p>Target Event edges are subset of Alpha Report</p>');
+						$('#true').append('<li>Target Event edges are subset of Alpha Report</li>');
 					} else {
-						$('.false').append('<p>Target Event edges are not subset of Alpha Report</p>');
+						$('#false').append('<li>Target Event edges are not subset of Alpha Report</li>');
 					}
 				}
 			});
@@ -204,9 +204,9 @@ var compareOrientation = function(ar, te){
 				error: function(e){
 					var te_matches = JSON.parse(e.responseText).results;
 					if (assertions.length === te_matches.length) {
-						$('.true').append('<p>Alpha Report is a subset of Target Event<p>');
+						$('#true').append('<li>Alpha Report is a subset of Target Event</li>');
 					} else {
-						$('.false').append('<p>Alpha Report is not a subset of Target Event</p>');
+						$('#false').append('<li>Alpha Report is not a subset of Target Event</li>');
 					}
 				}
 			});
@@ -239,9 +239,9 @@ var compareOrientation = function(ar, te){
 					var ar_matches = JSON.parse(e.responseText).results;
 					
 					if (assertions.length === ar_matches.length){
-						$('.true').append('<p>Target Event is a subset of Alpha Report</p>');
+						$('#true').append('<li>Target Event is a subset of Alpha Report</li>');
 					} else {
-						$('.false').append('<p>Target Event is not a subset of Alpha Report</p>');
+						$('#false').append('<li>Target Event is not a subset of Alpha Report</li>');
 					}
 				}
 			});

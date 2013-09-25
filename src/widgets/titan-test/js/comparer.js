@@ -58,26 +58,26 @@ var confirmer = function(){
 	me.alpha_reports = [];
 	me.target_events = [];
 		
-	me.width = d3.select('.asserts').style('width').split('p')[0];
-	me.height = d3.select('.asserts').style('height').split('p')[0];
+	me.width = d3.select('#asserts').style('width').split('p')[0];
+	me.height = d3.select('#asserts').style('height').split('p')[0];
 	
 	me.confirmed = {};
 	me.curr_ar_id, me.curr_te_id;
 	me.curr_assert_ids = [];
 	
-	me.svg_target = d3.select('.target-pattern')
+	me.svg_target = d3.select('#target-pattern')
 		.append('svg')
 		.attr('width', me.width)
 		.attr('height', me.height);
 	
-	me.svg_asserts = d3.select('.asserts')
+	me.svg_asserts = d3.select('#asserts')
 		.append('svg')
 		.attr('width', me.width)
 		.attr('height', me.height);
 			
 	me.getAllTitanAlphaReports = function(){
-		var start = $('.start-alpha').val();
-		var end = $('.end-alpha').val();
+		var start = $('#start-alpha').val();
+		var end = $('#end-alpha').val();
 		$.ajax({
 			type: 'GET',
 			url: buildKeyValueQuery('name', 'alpha report', start, end),
@@ -91,7 +91,7 @@ var confirmer = function(){
 				var data = JSON.parse(e.responseText).results;
 				if ( data.length > 0 ){
 					data.forEach(function(ar){
-						d3.select('.alphas').append('option').text(ar._id);
+						d3.select('#alphas').append('option').text(ar._id);
 					});
 					
 					me.alpha_reports = data;
@@ -104,8 +104,8 @@ var confirmer = function(){
 	};
 	
 	me.getAllTitanTargetEvents = function(){
-		var start = $('.start-target').val();
-		var end = $('.end-target').val();
+		var start = $('#start-target').val();
+		var end = $('#end-target').val();
 		$.ajax({
 			type: 'GET',
 			url: buildKeyValueQuery('name', 'target event', start, end),
@@ -120,7 +120,7 @@ var confirmer = function(){
 				if ( data.length > 0 ){
 					me.target_events = data;
 					data.forEach(function(te){
-						d3.select('.patterns').append('option').text(te._id);
+						d3.select('#patterns').append('option').text(te._id);
 					});
 					
 					var te = me.target_events[0];
@@ -155,7 +155,7 @@ var confirmer = function(){
 		        edgesById = null;
 				
 				me.svg_asserts.remove();
-				me.svg_asserts = d3.select('.asserts')
+				me.svg_asserts = d3.select('#asserts')
 					.append('svg')
 					.attr('width', me.width)
 					.attr('height', me.height);
@@ -197,7 +197,7 @@ var confirmer = function(){
 		        edgesById = null;
 				
 				me.svg_target.remove();
-				me.svg_target = d3.select('.target-pattern')
+				me.svg_target = d3.select('#target-pattern')
 					.append('svg')
 					.attr('width', me.width)
 					.attr('height', me.height);
@@ -214,21 +214,21 @@ var confirmer = function(){
 	};
 
 	me.createListeners = function(){
-		d3.select('.get_ars').on('click', function(){
-			d3.selectAll('.alphas option').remove();
+		d3.select('#get_ars').on('click', function(){
+			d3.selectAll('#alphas option').remove();
 			me.getAllTitanAlphaReports();
 		});
 		
-		d3.select('.get_tes').on('click', function(){
-			d3.selectAll('.patterns option').remove();
+		d3.select('#get_tes').on('click', function(){
+			d3.selectAll('#patterns option').remove();
 			me.getAllTitanTargetEvents();
 		});
 	
-		d3.select('.compare').on('click', function(){
-			d3.selectAll('.information p').remove();
+		d3.select('#compare').on('click', function(){
+			d3.selectAll('#information li').remove();
 		
-			var alphas = d3.select('.alphas')[0][0];
-			var targets = d3.select('.patterns')[0][0];
+			var alphas = d3.select('#alphas')[0][0];
+			var targets = d3.select('#patterns')[0][0];
 			var ar_id = alphas.options[alphas.selectedIndex].text;
 			var te_id = targets.options[targets.selectedIndex].text;
 			
@@ -239,13 +239,13 @@ var confirmer = function(){
 			compareOrientation(ar_id, te_id);
 		});
 		
-		d3.select('.patterns').on('change', function(){
+		d3.select('#patterns').on('change', function(){
 			var elem = $(this)[0];
 			var elem_id = elem.options[elem.selectedIndex].text;
 			me.getTitanTargetEvent(elem_id);
 		});
 		
-		d3.select('.alphas').on('change', function(){
+		d3.select('#alphas').on('change', function(){
 			var elem = $(this)[0];
 			var elem_id = elem.options[elem.selectedIndex].text;
 			me.getTitanAlphaReport(elem_id);
