@@ -79,7 +79,13 @@ var network = function(svg, data, disjoint){
 			.attr("dx", 1)
 			.attr("dy", "1em")
 			.attr("text-anchor", "middle")
-			.text(function(d) { return d.value; });
+			.text(function(d) { 
+				if (d._label !== undefined){
+					return d._label; 
+				} else {
+					return d.value;
+				}
+			});
 		
 		nodeEnter.append("circle")
 			.attr('class', function(d) { return d.value; })
