@@ -17,8 +17,11 @@ var compareVertexAmount = function(ar, te){
 				},
 				error: function(e){
 					var te_length = JSON.parse(e.responseText).results[0];
-					console.log('There are the same number of vertices: ');
-					console.log(te_length === ar_length);
+					if (te_length === ar_length){
+						$('.true').append('<p>There are the same number of vertices</p>');
+					} else {
+						$('.false').append('<p>There are a different number of vertices</p>');
+					}
 				}
 			});
 		}
@@ -44,8 +47,11 @@ var compareEdgeAmount = function(ar, te){
 				},
 				error: function(e){
 					var te_length = JSON.parse(e.responseText).results[0];
-					console.log('There are the same number of edges: ');
-					console.log(te_length === ar_length);
+					if (te_length === ar_length){
+						$('.true').append('<p>There are the same number of edges</p>');
+					} else {
+						$('.false').append('<p>There are a different number of edges</p>');
+					}
 				}
 			});
 		}
@@ -73,8 +79,11 @@ var compareVertices = function(ar, te){
 				},
 				error: function(e){
 					var te_matches = JSON.parse(e.responseText).results;
-					console.log('Alpha Report vertices are subset of Target Event: ');
-					console.log(te_matches.length === ar_names.length);
+					if (te_matches.length === ar_names.length){
+						$('.true').append('<p>Alpha Report vertices are subset of Target Event</p>');
+					} else {
+						$('.false').append('<p>Alpha Report vertices are not subset of Target Event</p>');
+					}
 				}
 			});
 		}
@@ -99,8 +108,11 @@ var compareVertices = function(ar, te){
 				},
 				error: function(e){
 					var ar_matches = JSON.parse(e.responseText).results;
-					console.log('Target Event vertices are subset of Alpha Report: ');
-					console.log(ar_matches.length === te_names.length);
+					if (ar_matches.length === te_names.length){
+						$('.true').append('<p>Target Event vertices are subset of Alpha Report</p>');
+					} else {
+						$('.false').append('<p>Target Event vertices are not subset of Alpha Report</p>');
+					}
 				}
 			});
 		}
@@ -127,8 +139,11 @@ var compareEdges = function(ar, te){
 				},
 				error: function(e){
 					var te_matches = JSON.parse(e.responseText).results;
-					console.log('Alpha Report egdes are subset of Target Event: ');
-					console.log(te_matches.length === ar_labels.length);
+					if (te_matches.length === ar_labels.length){
+						$('.true').append('<p>Alpha Report egdes are subset of Target Event</p>');
+					} else {
+						$('.false').append('<p>Alpha Report egdes are not subset of Target Event</p>');
+					}
 				}
 			});
 		}
@@ -152,8 +167,11 @@ var compareEdges = function(ar, te){
 				},
 				error: function(e){
 					var ar_matches = JSON.parse(e.responseText).results;
-					console.log('Target Event edges are subset of Alpha Report: ');
-					console.log(ar_matches.length === te_labels.length);
+					if (ar_matches.length === te_labels.length){
+						$('.true').append('<p>Target Event edges are subset of Alpha Report</p>');
+					} else {
+						$('.false').append('<p>Target Event edges are not subset of Alpha Report</p>');
+					}
 				}
 			});
 		}
@@ -175,6 +193,58 @@ var compareOrientation = function(ar, te){
 				assertions[i] = assertions[i].slice(2, assertions[i].length);
 			}
 			console.log(assertions);
+			
+			$.ajax({
+				type: 'GET',
+				url: getMatchingOrientation(te, assertions),
+				dataType: 'application/json',
+				success: function(r){
+					console.log('success');
+				},
+				error: function(e){
+					var te_matches = JSON.parse(e.responseText).results;
+					if (assertions.length === te_matches.length) {
+						$('.true').append('<p>Alpha Report is a subset of Target Event<p>');
+					} else {
+						$('.false').append('<p>Alpha Report is not a subset of Target Event</p>');
+					}
+				}
+			});
+		}
+	});
+	
+	$.ajax({
+		type: 'GET',
+		url: getAssertionsById(te),
+		dataType: 'application/json',
+		success: function(r1){ 
+			console.log('success');
+		},
+		error: function(e){
+			var assertions = JSON.parse(e.responseText).results;
+			
+			for (var i = 0; i < assertions.length; i++){
+				assertions[i] = assertions[i].slice(2, assertions[i].length);
+			}
+			console.log(assertions);
+			
+			$.ajax({
+				type: 'GET',
+				url: getMatchingOrientation(ar, assertions),
+				dataType: 'application/json',
+				success: function(r){
+					console.log('success');
+				},
+				error: function(e){
+					var ar_matches = JSON.parse(e.responseText).results;
+					
+					if (assertions.length === ar_matches.length){
+						$('.true').append('<p>Target Event is a subset of Alpha Report</p>');
+					} else {
+						$('.false').append('<p>Target Event is not a subset of Alpha Report</p>');
+					}
+				}
+			});
 		}
 	});
 };

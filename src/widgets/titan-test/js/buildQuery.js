@@ -111,8 +111,17 @@ var getMatchingEdges = function(id, array){
 	var query = titanAddress+'/tp/gremlin?script=g.v(' + id + ').inE.outV.inE.or(';
 	array.forEach(function(d){
 		query += '_().has("label","' + d + '"),';
-		
 	});
 	query = query.substring(0, query.length - 1) + ')';
 	return query;
+};
+
+var getMatchingOrientation = function(id, array){
+	var query = titanAddress+'/tp/gremlin?script=g.v(' + id + ').inE.outV.or(';
+	array.forEach(function(d){
+		query += '_().has("name","' + d[0].name + 
+			'").inE.has("label","' + d[1]._label + 
+			'").outV.has("name","' + d[2].name + '"),'
+	});
+	return query.substr(0, query.length - 1) + ')';
 };

@@ -225,6 +225,8 @@ var confirmer = function(){
 		});
 	
 		d3.select('.compare').on('click', function(){
+			d3.selectAll('.information p').remove();
+		
 			var alphas = d3.select('.alphas')[0][0];
 			var targets = d3.select('.patterns')[0][0];
 			var ar_id = alphas.options[alphas.selectedIndex].text;

@@ -6,7 +6,7 @@ svg {
 .alpha, .matcher {
 	display:inline-block;
 	width:500px;
-	height:700px;
+	height:625px;
 	border-style:solid;
 	border-width:3px;
 	border-color:#004785;
@@ -15,7 +15,7 @@ svg {
 .alpha_report, .confirmer {
 	display:block;
 	width:500px;
-	height:200px;
+	height:125px;
 }
 
 .asserts, .target-pattern{
@@ -40,4 +40,23 @@ line, path {
 	pointer-events: none;
 	fill: black;
 	word-wrap:break-word;
+}
+
+p {
+	float : top;
+	
+}
+
+.true {
+	color: black;
+	height: 300px;
+	width: 500px;
+	display: inline-block;
+}
+
+.false {
+	height: 300px;
+	width: 500px;
+	display: inline-block;
+	color: red;	
 }
