@@ -65,6 +65,10 @@ text {
 }
 
 /* hidden divs for node/link color */
+.aloneColor {
+	display:none;
+	background-color: #ffcc99;
+}
 .entity1Color {
 	display:none;
 	background-color: #333399;
