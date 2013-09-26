@@ -16,7 +16,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	me.max_rows = (rows ? rows : 10);
 	me.max_pages = Math.floor(me.datas.length / me.max_rows);
 	me.count = me.page * me.max_rows;
-	me.shown_datas = me.datas.slice(0, me.max_rows);
+	me.temp_datas = me.datas.slice(0, me.max_rows);
 	me.page = 0;
 	
 	me.headers = [];
@@ -79,11 +79,11 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			},
 			render: function(){	
 				var that = this;
-				me.shown_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);
-				that.collection = new me.table(me.shown_datas);
+				me.temp_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);
+				that.collection = new me.table(me.temp_datas);
 				me.showPageNumbers(that);
 				
-				var s = 'Displaying ' + me.shown_datas.length + ' of ' + me.datas.length + ' objects';
+				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.datas.length + ' objects';
 				$('.panel-title').text(s);
 	
 				me.count = me.page * me.max_rows;
@@ -125,8 +125,8 @@ var data_table = function(datas_to_set, announce_function, rows) {
 					me.datas.sort(function(a,b){ return a[colText] < b[colText] ? 1 : -1; });
 				}
 				
-				me.shown_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);						
-				this.collection = new me.table(me.shown_datas);
+				me.temp_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);						
+				this.collection = new me.table(me.temp_datas);
 
 				me.addRow(item, this);
 				
@@ -138,15 +138,15 @@ var data_table = function(datas_to_set, announce_function, rows) {
 					me.showPageNumbers(that);
 				}
 				
-				var s = 'Displaying ' + me.shown_datas.length + ' of ' + me.datas.length + ' objects';
+				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.datas.length + ' objects';
 				$('.panel-title').text(s);
 			}
 		}
 	);
 
 	me.createTable = function(s, e){
-		me.shown_datas = me.extractData(s, e);	
-		table = new me.tableView(me.shown_datas);									
+		me.temp_datas = me.extractData(s, e);	
+		table = new me.tableView(me.temp_datas);									
 		return table;
 	};
 	
@@ -155,7 +155,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		d3.selectAll('th')
 			.on('click', function() {
 				var col = parseInt(this.id, 10);
-				col = Object.keys(me.shown_datas[0])[col];
+				col = Object.keys(me.temp_datas[0])[col];
 				me.sorter(this, col);
 				table.render();
 			});
@@ -211,7 +211,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	
 	me.sorter = function(elem, colId){
 		//don't bother sorting if temp is empty
-		if (me.shown_datas.length !== 0){
+		if (me.temp_datas.length !== 0){
 			elem = d3.select(elem);
 
 			var elements = d3.selectAll('th');
@@ -291,18 +291,18 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	me.setMaxRows = function(r){
 		if( r > 0 && r < MAX_ROWS){
 			me.max_rows = r;
-			me.shown_datas = me.datas.slice(0, me.max_rows);
+			me.temp_datas = me.datas.slice(0, me.max_rows);
 			me.max_pages = Math.floor( me.datas.length / me.max_rows );
 		}
 	};
 	
 	me.addRow = function(item, that){
-		var ind = me.shown_datas.indexOf(item);
+		var ind = me.temp_datas.indexOf(item);
 		var isIn = -1 === ind ? false : true;
 		
 		if (isIn){
 			
-			if (ind === me.shown_datas.length - 1){
+			if (ind === me.temp_datas.length - 1){
 				that.renderSentence(item, false);
 			} else {
 				that.renderSentence(item, ind);
@@ -313,7 +313,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			
 			if (rs === me.max_rows + 1){
 				$('tbody').children()[me.max_rows].remove();
-				me.shown_datas.pop();
+				me.temp_datas.pop();
 			}
 			
 			//hi-light the row as it is added, with a fade out
