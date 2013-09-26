@@ -16,12 +16,15 @@
 			<li class='dropdown'>
 				<a href='#' class='dropdown-toggle' data-toggle='dropdown'> Set Max Rows <b class='caret'></b></a>
 				<ul class='dropdown-menu'>
-					<li><a href='#' class='show' id='10' value='10'>Show 10</a></li>
+					<li><a href='#' class='show' id='10'>Show 10</a></li>
 					<li><a href='#' class='show' id='25'>Show 25</a></li>
 					<li><a href='#' class='show' id='50'>Show 50</a></li>
 					<li><a href='#' class='show' id='100'>Show 100</a></li>
 				</ul>
-			</li>		
+			</li>
+			<li>
+				<a href='#' class='show_all'>Show All Data</a>
+			</li>	
 	    </ul>
 	</nav>
 	<div class='well'>
@@ -41,7 +44,6 @@
 						<label>End Date: </label>
 						<input type="text" name="end" class="data_table_end">
 						<input type="button" value="Submit" class="data_table_submit">
-						<input type="button" value="Show All" class="data_table_reset">
 					</div>	
 				</div>
 				<div class="data_table_hold">
@@ -52,8 +54,6 @@
 				</div>
 			</div>
 		</div>
-	</div>
-	<div class='well'>
 		<div class="data_table_text"></div>
 	</div>
 	<script src="../../../lib/underscore.js"></script>

@@ -456,7 +456,7 @@ describe('To test src/components/data_table/data_table.js', function(){
 	describe('Tests the addRow function ', function(){
 		
 		it('for proper method call logic when isIn is false', function(){
-			spyOn(test_data_table.temp_datas, 'indexOf').andCallThrough();
+			spyOn(test_data_table.shown_datas, 'indexOf').andCallThrough();
 			spyOn(test_data_table.datas, 'indexOf').andCallThrough();
 			
 			var that = {
@@ -470,7 +470,7 @@ describe('To test src/components/data_table/data_table.js', function(){
 			
 			test_data_table.addRow(a, that);
 			
-			expect(test_data_table.temp_datas.indexOf).toHaveBeenCalledWith(a);
+			expect(test_data_table.shown_datas.indexOf).toHaveBeenCalledWith(a);
 			expect(test_data_table.datas.indexOf).toHaveBeenCalledWith(a);
 		});
 		
@@ -487,7 +487,7 @@ describe('To test src/components/data_table/data_table.js', function(){
 				monkey: "see"
 			};
 		
-			test_data_table.temp_datas = [a];
+			test_data_table.shown_datas = [a];
 			test_data_table.addRow(a, that);
 			
 			expect(d3.selectAll).toHaveBeenCalledWith('tr');

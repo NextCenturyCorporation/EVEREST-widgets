@@ -46,7 +46,7 @@ raw_data_widget.execute = function() {
 	});
 	
 	//look for changes and add them to table, no new table creations
-	/*setInterval(function(){
+	setInterval(function(){
 		$.getJSON(url + "?callback=?", function(data){
 			
 			if (data !== []){
@@ -82,6 +82,5 @@ raw_data_widget.execute = function() {
 				}
 			}
 		});
-	}, 5000);*/
-
+	}, 1000);
 };
