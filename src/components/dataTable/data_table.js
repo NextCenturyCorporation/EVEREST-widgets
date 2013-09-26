@@ -16,6 +16,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	me.max_rows = (rows ? rows : 10);
 	me.max_pages = Math.floor(me.datas.length / me.max_rows);
 	me.count = me.page * me.max_rows;
+	me.range_datas = me.datas;
 	me.temp_datas = me.datas.slice(0, me.max_rows);
 	me.page = 0;
 	
@@ -79,11 +80,11 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			},
 			render: function(){	
 				var that = this;
-				me.temp_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);
+				me.temp_datas = me.range_datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);
 				that.collection = new me.table(me.temp_datas);
 				me.showPageNumbers(that);
 				
-				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.datas.length + ' objects';
+				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.range_datas.length + ' objects';
 				$('.panel-title').text(s);
 	
 				me.count = me.page * me.max_rows;
@@ -145,8 +146,9 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	);
 
 	me.createTable = function(s, e){
-		me.temp_datas = me.extractData(s, e);	
-		table = new me.tableView(me.temp_datas);									
+		me.range_datas = me.extractData(s, e);
+		me.max_pages = Math.floor(me.range_datas.length / me.max_rows);	
+		table = new me.tableView(me.range_datas);									
 		return table;
 	};
 	
