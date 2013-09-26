@@ -12,6 +12,9 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	me.MIN = 0;
 	me.MAX = Number.MAX_VALUE;
 	
+	me.start = me.MIN;
+	me.end = me.MAX;
+	
 	me.datas = datas_to_set;
 	me.max_rows = (rows ? rows : 10);
 	me.max_pages = Math.floor(me.datas.length / me.max_rows);
@@ -146,6 +149,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	);
 
 	me.createTable = function(s, e){
+		me.page = 0;
 		me.range_datas = me.extractData(s, e);
 		me.max_pages = Math.floor(me.range_datas.length / me.max_rows);	
 		table = new me.tableView(me.range_datas);									
@@ -164,13 +168,13 @@ var data_table = function(datas_to_set, announce_function, rows) {
 
 		d3.select('.data_table_submit')
 			.on('click', function(){
-				var s = Date.parse($('.data_table_start').val());
-				var e = Date.parse($('.data_table_end').val());
+				me.start = Date.parse($('.data_table_start').val());
+				me.end = Date.parse($('.data_table_end').val());
 				$('.data_table_start').val('');
 				$('.data_table_end').val('');
 		
-				if (s && e && s <= e) { 
-					me.createTable(s,e); 
+				if (me.start && me.end && me.start <= me.end) { 
+					me.createTable(me.start,me.end); 
 				}
 				else { 
 					me.createTable(me.MIN,me.MAX); 
@@ -189,7 +193,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		d3.selectAll('.show').on('click', function(){
 			me.setMaxRows(parseInt(this.id, 10));
 			me.page = 0;
-			me.createTable(me.MIN,me.MAX);
+			me.createTable(me.start,me.end);
 		});	
 	};
 	
@@ -209,8 +213,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		}
 		return currData;
 	};
-/*============================================================================================================*/
-	
+
 	me.sorter = function(elem, colId){
 		//don't bother sorting if temp is empty
 		if (me.temp_datas.length !== 0){
@@ -253,7 +256,6 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		return found;
 	};
 	
-	/*Create the headers of the table*/
 	me.createHeaders = function(arr){
 		time = $.inArray(TYPE_OF_DATE, arr) !== -1 ? TYPE_OF_DATE : arr[0];
 		me.headers = arr;
@@ -283,18 +285,12 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			me.announce(JSON.stringify(time_data));
 		}
 	};
-
-	me.execute = function() {
-		window.onresize = function(){
-			me.setLocations();
-		};
-	};	
 	
 	me.setMaxRows = function(r){
 		if( r > 0 && r < MAX_ROWS){
 			me.max_rows = r;
-			me.temp_datas = me.datas.slice(0, me.max_rows);
-			me.max_pages = Math.floor( me.datas.length / me.max_rows );
+			me.temp_datas = me.range_datas.slice(0, me.max_rows);
+			me.max_pages = Math.floor( me.range_datas.length / me.max_rows );
 		}
 	};
 	
