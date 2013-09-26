@@ -49,33 +49,33 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			
 			//grab this element and add d3 functionality
 			d3.select(this.el)
-				.on("mouseover", function() { 
+				.on('mouseover', function() { 
 					d3.select(this)
-						.classed("lit", true)
-						.classed("unlit", false);
+						.classed('lit', true)
+						.classed('unlit', false);
 				})
-				.on("mouseout", function() {
+				.on('mouseout', function() {
 					d3.select(this)
-						.classed("unlit", true)
-						.classed("lit", false);
+						.classed('unlit', true)
+						.classed('lit', false);
 				})					
 				.selectAll('td')
 				.data(vals)
 				.enter().append('td')
 					.text(function(d){ 
 						var str = d.toString();
-						return str.length > MAX_CHARS ? str.substring(0, MAX_CHARS) + "..." : str;
+						return str.length > MAX_CHARS ? str.substring(0, MAX_CHARS) + '...' : str;
 					})
-					.on("click", function(d){
+					.on('click', function(d){
 						var coord = d3.mouse(this);
-						d3.selectAll(".data_table_descr").remove();
+						d3.selectAll('.data_table_descr').remove();
 						d3.select('.data_table_text')
-							.append("text")
+							.append('text')
 							.text(d)
-							.classed("data_table_descr", true);
+							.classed('data_table_descr', true);
 							
-						d3.selectAll('td').style("font-weight", "normal");
-						d3.select(this).style("font-weight", "bold");
+						d3.selectAll('td').style('font-weight', 'normal');
+						d3.select(this).style('font-weight', 'bold');
 					});
 		}
 	});
@@ -93,13 +93,13 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				me.temp_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);
 				this.collection = new me.table(me.temp_datas);
 				
-				var s = "Displaying " + me.temp_datas.length + " of " + me.datas.length + " objects";
-				$('.data_table_display_info').text(s);
+				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.datas.length + ' objects';
+				$('.panel-title').text(s);
 	
 				me.count = me.page * me.max_rows;
 				var temp = (1 + me.page) * me.max_rows;
 								
-				d3.selectAll("tr").remove();
+				d3.selectAll('tr').remove();
 				_.each(this.collection.models, function (item){
 					if ( me.count < temp) {
 						that.renderSentence(item, false);
@@ -151,8 +151,8 @@ var data_table = function(datas_to_set, announce_function, rows) {
 					me.showPageNumbers(that);
 				}
 				
-				var s = "Displaying " + me.temp_datas.length + " of " + me.datas.length + " objects";
-				$('.data_table_display_info').text(s);
+				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.datas.length + ' objects';
+				$('.panel-title').text(s);
 			}
 		}
 	);
@@ -163,7 +163,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		me.createHeaders(headers_to_use);
 		me.createTable(me.MIN,me.MAX);
 		me.createClickers();
-		me.setLocations();
+		//me.setLocations();
 	};
 
 	me.createTable = function(s, e){
@@ -173,7 +173,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	};
 	
 	me.getPageNumbers = function(current, last){
-		var maxNumPages = 10; 		
+		var maxNumPages = 8; 		
 		var nums = [], j = 0;
 			
 		//if there are less pages than the max number of pages to show
@@ -185,12 +185,12 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		//if on page at least half the max number of pages to show above page 1
 		if (current - (maxNumPages / 2) > 1){
 			nums[j] = 1;
-			nums[j+1] = "...";
+			nums[j+1] = '...';
 			j += 2;
 		}
 		
 		var low = Math.max(1, current - (maxNumPages / 2));
-		var high = Math.min(last, low + maxNumPages - 1);
+		var high = Math.min(last, low + maxNumPages - 1 - j);
 		
 		for (var i = low; i <= high; i++){
 			nums[j] = i;
@@ -198,38 +198,100 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		}
 		
 		//if on page at least half the max number of pages below last page
-		if (current + (maxNumPages / 2) <= last){
-			nums[j] = "...";
+		if (current + (maxNumPages / 2) - j <= last){
+			nums[j] = '...';
 			nums[j+1] = last;
 		}
 		
 		return nums;
 	};
 	
-	me.showPageNumbers = function(that){
-		d3.selectAll('a').remove();
-		var pages = d3.select(".data_table_pages");
-		var nums = me.getPageNumbers(me.page + 1, me.max_pages + 1);
-
-		for (i = 0; i <= nums.length; i++){
-			if (nums[i] === "..."){
-				pages.append('a').text(nums[i]);
-			} else {
-				pages.append('a')
-					.attr('class', nums[i] === (me.page + 1) ? 'current' : 'other')
-					.text(nums[i])
-					.on('click', function(){
-						me.page = parseInt(this.text,10) - 1;
-						that.render();
-					});
+	me.getOtherPageNumbers = function(current, last){
+		var maxNumPages = 8; 		
+		var nums = [];
+		var j = 0;
+			
+		//if there are less pages than the max number of pages to show
+		if (last <= maxNumPages){
+			for (var i = 0; i < last; i++){ 
+				nums[i] = i+1; 
 			}
+			return nums;
+		}
+		
+		if (current <= maxNumPages / 2){
+			for (var i = 1; i <= maxNumPages; i++){
+				nums[j++] = i;
+			}
+			return nums;
+		}
+		
+		if (current >= last - maxNumPages / 2){
+			for (var i = last - maxNumPages + 1; i <= last; i++){
+				nums[j++] = i;
+			}
+			return nums;
+		}
+		var first = Math.max(1, current - maxNumPages / 2);
+		var last = Math.min(last, current + maxNumPages / 2);
+		for (var i = first; i < last; i++){
+			nums[j++] = i;
+		}
+		
+		return nums;
+	};
+	
+	me.showPageNumbers = function(that){
+		d3.selectAll('.pagination li').remove();
+		var pages = d3.select('.pagination');
+		var nums = me.getOtherPageNumbers(me.page + 1, me.max_pages + 1);
+
+		var li = pages.append('li');
+		if (nums[0] === 1){
+			li.append('span')
+				.text('<<');
+		} else {
+			li.append('a')
+				.attr('class', '#')
+				.text('<<')
+				.on('click', function(){
+					me.page = 0;
+					that.render();
+				});;
+		}
+
+		nums.forEach(function(n){
+			li = pages.append('li')
+				.attr('class', n === (me.page + 1) ? 'active' : 'other');
+			li.append('a')
+				.attr('xlink:href', '#')
+				.text(n)
+				.on('click', function(){
+					me.page = parseInt(this.text, 10) - 1;
+					that.render();
+				});
+			
+		});
+		
+		
+		if (nums[nums.length - 1] === me.max_pages + 1) {
+			li.append('span')
+				.text('>>');
+		} else {
+			li.append('a')
+				.attr('class', '#')
+				.text('>>')
+				.on('click', function(){
+					me.page = me.max_pages;
+					that.render();
+				});;
 		}
 	}
 
 	me.createClickers = function() {
 		//add a listener to sort the rows based upon what column is clicked
-		d3.selectAll("th")
-			.on("click", function() {
+		d3.selectAll('th')
+			.on('click', function() {
 				var col = parseInt(this.id, 10);
 				col = Object.keys(me.temp_datas[0])[col];
 				me.sorter(this, col);
@@ -243,8 +305,12 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				$('.data_table_start').val('');
 				$('.data_table_end').val('');
 		
-				if (s && e && s <= e) { me.createTable(s,e); }
-				else { me.createTable(me.MIN,me.MAX); }
+				if (s && e && s <= e) { 
+					me.createTable(s,e); 
+				}
+				else { 
+					me.createTable(me.MIN,me.MAX); 
+				}
 			
 				me.resetAndSend();
 			});
@@ -253,7 +319,13 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			.on('click', function(){
 				me.createTable(me.MIN,me.MAX);
 				me.resetAndSend();
-			});			
+			});		
+			
+		d3.selectAll('.show').on('click', function(){
+			me.setMaxRows(parseInt(this.id, 10));
+			me.page = 0;
+			me.createTable(me.MIN,me.MAX);
+		});	
 	};
 
 
@@ -262,25 +334,23 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		if (me.temp_datas.length !== 0){
 			elem = d3.select(elem);
 
-			if (elem.classed("up")){
-				var elements = d3.selectAll("th")
+			var elements = d3.selectAll('th');
+			
+			if (elem.classed('up')){
 				elements.classed('up', false)
 				elements.classed('down', false)
 				elements.classed('unsorted', true);
-
+			
 				elem.classed('unsorted', false);
 				elem.classed('down', true);
 				me.datas.sort( function (a, b){ return a[colId] < b[colId] ? 1 : -1; });
-				//me.temp_datas.sort( function (a, b){ return a[colId] < b[colId] ? 1 : -1; });
 			} else {
-				var elements = d3.selectAll("th")
 				elements.classed('up', false)
 				elements.classed('down', false)
 				elements.classed('unsorted', true);
-
+				
 				elem.classed('unsorted', false);
 				elem.classed('up', true);
-				//me.temp_datas.sort( function (a, b){ return a[colId] > b[colId] ? 1 : -1; });
 				me.datas.sort( function (a, b){ return a[colId] > b[colId] ? 1 : -1; });
 			}
 		}
@@ -290,10 +360,10 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		var cols = d3.selectAll('th');
 		var found = { 
 			id: '-1',
-			class: "unsorted"
+			class: 'unsorted'
 		};
 		cols.each(function(){
-			if (this.className === "up" || this.className === "down"){
+			if (this.className === 'up' || this.className === 'down'){
 				found.id = this.id;
 				found.class = this.className;
 			}
@@ -301,43 +371,19 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		return found;
 	}
 
-	//grab the x coordinate of the center of the element in the dom with id tag
-	me.getCenter = function(tag){
-		var width = d3.select(tag).style("width");
-		width = width.split("px")[0];
-		return parseInt(width,10)/2;
-	}
-
-	/*Allows for automatic resizing and recentering of all objects within the
-	widget when the window/frame is resized */
-	me.setLocations = function(){
-		var center = me.getCenter(".data_table_hold");
-		var text_center = me.getCenter(".data_table_text");
-		var input_center = me.getCenter(".data_table_inputs");
-	
-		//push title and inputs over until they are centered
-		d3.select(".data_table_text").style("margin-left", (center - text_center) + "px");
-		d3.select(".data_table_inputs").style("margin-left", (center - input_center) + "px");
-
-		//expand the table until it takes up entire width of frame
-		d3.select(".data_table_container").style("width", (center * 2) + "px");
-		d3.select(".data_table_data").style("width", (center * 2 - 15) + "px");
-		//d3.select(".data_table_headers").style("width", (center * 2 - 15) + "px");
-	}
-
 	/*Create the headers of the table*/
 	me.createHeaders = function(arr){
 		time = $.inArray(TYPE_OF_DATE, arr) !== -1 ? TYPE_OF_DATE : arr[0];
 		me.headers = arr;
 	
-		var header = d3.select(".data_table_data").append("thead");
-		//var header = d3.select(".data_table_header").append("thead");   //for fixed header
-		header.selectAll("th").remove();
+		var header = d3.select('.data_table_data').append('thead');
+		//var header = d3.select('.data_table_header').append('thead');   //for fixed header
+		header.selectAll('th').remove();
 		for (var i = arr.length - 1; i >= 0; i--){
-			header.insert("th",":first-child")
+			header.insert('th',':first-child')
 					.text(arr[i])
-					.attr("id", i)
-					.attr("class", "unsorted");
+					.attr('id', i)
+					.attr('class', 'unsorted');
 		}
 	}
 
@@ -360,7 +406,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 
 
 	me.resetAndSend = function(){
-		var headers = d3.selectAll("th")
+		var headers = d3.selectAll('th');
 		headers.classed('up', false);
 		headers.classed('down', false);
 		headers.classed('unsorted', true);
@@ -411,10 +457,10 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			//hi-light the row as it is added, with a fade out
 			var rows = d3.select('.data_table_data').selectAll('tr');
 			var lastRow = rows[0][ind];
-			d3.select(lastRow).style("color", HILIGHT)
+			d3.select(lastRow).style('color', HILIGHT)
 				.transition()
 				.duration(FADE_OUT_TIME)
-				.style("color", STANDARD);
+				.style('color', STANDARD);
 
 		} else {
 			//item inserted before this page, re-render table to show shift of elements down
@@ -422,22 +468,5 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				that.render();
 			}
 		}		
-	};
-		
-	me.adjustDataWidths = function(){
-		var rowData = d3.select('tr').selectAll('td')[0];
-		var heads = d3.selectAll('th')[0];
-		for (var i = 0; i < rowData.length; i++){
-			var rowWidth = parseInt(d3.select(rowData[i]).style('width').split('px')[0], 10);
-			var headerWidth = parseInt(d3.select(heads[i]).style('width').split('px')[0], 10);
-			if (rowWidth > headerWidth){
-				d3.select(heads[i]).style('width', rowWidth + "px");
-			} else if (headerWidth > rowWidth){
-				d3.selectAll('tr').each(function(d,j){
-					var c = d3.select(this).selectAll('td')[0][i];
-					d3.select(c).style('width', headerWidth + 'px');
-				});
-			}
-		}
 	};
 }

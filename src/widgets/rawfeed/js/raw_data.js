@@ -16,18 +16,10 @@ function initTable(data){
 	raw_data_table.createHeaders(Object.keys(raw_data_table.datas[0]));
 	table = raw_data_table.createTable(raw_data_table.MIN,raw_data_table.MAX);
 	raw_data_table.createClickers();
-	raw_data_table.setLocations();
-	//raw_data_table.adjustDataWidths();
 	raw_data_table.execute();
 };
 
 raw_data_widget.execute = function() {
-	
-	d3.selectAll('input').on('change', function(){
-		raw_data_table.setMaxRows(parseInt(this.value,10));
-		raw_data_table.page = 0;
-		table.render();
-	});
 
 	$.getJSON(url + "?callback=?", function(data){
 		if (data !== []){
@@ -54,7 +46,7 @@ raw_data_widget.execute = function() {
 	});
 	
 	//look for changes and add them to table, no new table creations
-	setInterval(function(){
+	/*setInterval(function(){
 		$.getJSON(url + "?callback=?", function(data){
 			
 			if (data !== []){
@@ -90,6 +82,6 @@ raw_data_widget.execute = function() {
 				}
 			}
 		});
-	}, 5000);
+	}, 5000);*/
 
 };

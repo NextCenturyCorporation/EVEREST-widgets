@@ -1,0 +1,72 @@
+table {	
+	border-color:#004785;
+	border-collapse:collapse;
+	font-size:14px;
+}
+
+td {
+	padding: 5px 20px 5px 5px;
+}
+
+th {
+	cursor: pointer;
+	padding: 5px 20px 5px 5px;
+	text-align:left;
+	background-repeat:no-repeat;
+	background-position:right;
+}
+
+.info {
+	position: relative;
+}
+
+.data_table_container{
+	overflow: auto;
+	height: 600px;
+}
+
+.data_table_headers{
+	margin:0px;
+	background: white;
+	//position: fixed;
+	border-color:#004785;
+}
+
+.data_table_inputs{
+	display:inline-block;
+	position: absolute;
+	right: 0px;
+}
+
+.data_table_text{
+	word-wrap: break-word;
+}
+
+.data_table_pages {
+	display: inline-block;
+	right: 0px;
+}
+
+.pagination {
+	display: inline-block;
+}
+
+.up{
+	background-image:url('../img/asc.png');
+}
+
+.down{
+	background-image:url('../img/des.png');
+}
+
+.unsorted{
+	background-image:url('../img/uns.png');
+}
+
+.lit {
+	background-color:#366fb4;
+}
+
+.unlit {
+	background-color:#d5d8d9;
+}
