@@ -1,52 +1,10 @@
 //Base URL of the server the widget is located at.
 var baseURL = "http://localhost:8081";
-
 $(function() {
-	var rssAdmin = new rssAtomAdmin();
-
-	$("#add-feed").on("click", function () {
-		rssAdmin.addFieldHandler();
-	});
-	$("#start-all-feeds").on("click", function () {
-		$.post(baseURL+"/atom-rss-ingest/start");
-		rssAdmin.changeCSSGreen($("#feed-rows").find(".row").find("#rss-url"));
-		$("#feed-rows").find(".row").find("#start-stop-feed-option a").text("Stop Feed");
-	});
-
-	$("#stop-all-feeds").on("click", function () {
-		$.post(baseURL+"/atom-rss-ingest/stop");
-		rssAdmin.changeCSSWhite($("#feed-rows").find(".row").find("#rss-url"));
-		$("#feed-rows").find(".row").find("#start-stop-feed-option a").text("Start Feed");
-	});
-
-	//This pre-populates all of the fields with whatever feeds are already in the database.
-	var list = $.ajax({
-		type: 'GET',
-	    url: baseURL+"/atom-rss-ingest"
-	});
-	list.done(function(result) {
-		if(result && result.length > 0) {
-			$.each(result, function(i, field) {
-				rssAdmin.addFieldHandler(field.feed_url,field.polling_interval, field.feed_active, field._id);
-			});
-			var rows = $("#feed-rows").find(".row");
-			rows.each(function(index, elem) {
-				if($(elem).attr("active") === "true") {
-					rssAdmin.changeCSSGreen($(elem).find("#rss-url"));
-					$(elem).find("#start-stop-feed-option a").text("Stop Feed");
-				}
-				$(elem).find("#create-option").remove();
-				$(elem).find("#create-and-start-option").remove();
-			});
-		} else {
-			rssAdmin.addFieldHandler();
-		}
-    	
-	});
-	list.fail(function() {
-		rssAdmin.addFieldHandler();
-	});
+	new rssAtomAdmin().execute();
 });
+
+
 
 var rssAtomAdmin = function() {
 	var self =this;
@@ -57,6 +15,52 @@ var rssAtomAdmin = function() {
 	var alertSuccess = '<div class="alert alert-success">Feed Sucessfully Started.</div>';
 
 	var alertStopped = '<div class="alert alert-warning">Feed Has Been Stopped.</div>';
+
+	self.execute = function() {
+
+		$("#add-feed").on("click", function () {
+			self.addFieldHandler();
+		});
+		$("#start-all-feeds").on("click", function () {
+			$.post(baseURL+"/atom-rss-ingest/start");
+			self.changeCSSGreen($("#feed-rows").find(".row").find("#rss-url"));
+			$("#feed-rows").find(".row").find("#start-stop-feed-option a").text("Stop Feed");
+		});
+
+		$("#stop-all-feeds").on("click", function () {
+			$.post(baseURL+"/atom-rss-ingest/stop");
+			self.changeCSSWhite($("#feed-rows").find(".row").find("#rss-url"));
+			$("#feed-rows").find(".row").find("#start-stop-feed-option a").text("Start Feed");
+		});
+
+		//This pre-populates all of the fields with whatever feeds are already in the database.
+		var list = $.ajax({
+			type: 'GET',
+		    url: baseURL+"/atom-rss-ingest"
+		});
+		list.done(function(result) {
+			if(result && result.length > 0) {
+				$.each(result, function(i, field) {
+					self.addFieldHandler(field.feed_url,field.polling_interval, field.feed_active, field._id);
+				});
+				var rows = $("#feed-rows").find(".row");
+				rows.each(function(index, elem) {
+					if($(elem).attr("active") === "true") {
+						self.changeCSSGreen($(elem).find("#rss-url"));
+						$(elem).find("#start-stop-feed-option a").text("Stop Feed");
+					}
+					$(elem).find("#create-option").remove();
+					$(elem).find("#create-and-start-option").remove();
+				});
+			} else {
+				self.addFieldHandler();
+			}
+	    	
+		});
+		list.fail(function() {
+			self.addFieldHandler();
+		});
+	};
 
 	//This is a row comprised of the RSS URL polling interval and an Actions Drop Down
 	var RssInputFields = function(url, interval, active, feedID) {
@@ -124,7 +128,6 @@ var rssAtomAdmin = function() {
 					checkLastRow();
 				} 
 			} else {
-				console.log("Selected Option:"+ selectedValue);
 				self.toggleStartStop($(this));
 			}
 		});
@@ -194,7 +197,6 @@ var rssAtomAdmin = function() {
 		});
 		//This is a way to guarentee that the item row that is created will have the item id
 		create.done(function(result) {
-			console.log(result);
 			var getCreated = $.ajax({
 				type: 'GET',
 			    url: baseURL+"/atom-rss-ingest",
