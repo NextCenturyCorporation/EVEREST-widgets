@@ -37,7 +37,7 @@ var network = function(svg, data, disjoint){
 	
 	me.force = d3.layout.force()
 		.size([svg.attr('width'), svg.attr('height')])
-		.linkDistance(100)
+		.linkDistance(150)
 		.charge(-500);
 		
 	me.draw = function(sender, msg){
@@ -68,6 +68,11 @@ var network = function(svg, data, disjoint){
 			.on("mouseover", me.mouseover)
 			.on("mouseout", me.mouseout)
 			.style("fill", function(d){
+				if ( d.color === undefined ){
+					d.color = '#000000';
+				} else if (d.color.indexOf('#') === -1){
+					d.color = '#' + d.color;
+				}
 				return d.color;
 			})
 			.call(me.force.drag);
@@ -101,8 +106,7 @@ var network = function(svg, data, disjoint){
 					return d.value;
 				}
 			});
-		
-		//d3.selectAll('circle').each(function(){		changes those in the other graphs too	
+			
 		if(!disjoint){
 			svg.selectAll('circle').each(function(){
 				var c = d3.select(this);
