@@ -59,9 +59,13 @@ var getAllVertices = function(){
 	return titanAddress + 'tp/gremlin?script=g.V';
 };
 
+var buildKeyValueCountQuery = function(key, value){
+	return titanAddress+'/tp/gremlin?script=g.V.has("' + key + '","' + value + '").count()';
+};
+
 var buildKeyValueQuery = function(key, value, start, end){
 	start = start === undefined ? 0 : start;
-	end = end === undefined ? start + 10 : end;
+	end = end === undefined ? start + 9 : end;
 	return titanAddress+'/tp/gremlin?script=g.V.has("' + key + '","' + value + '")[' + start + '..' + end + ']';
 };
 

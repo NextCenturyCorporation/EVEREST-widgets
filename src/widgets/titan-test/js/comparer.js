@@ -74,6 +74,38 @@ var confirmer = function(){
 		.append('svg')
 		.attr('width', me.width)
 		.attr('height', me.height);
+		
+	me.getTitanAlphaReportCount = function(){
+		$.ajax({
+			type: 'GET',
+			url: buildKeyValueCountQuery('name', 'alpha report'),
+			dataType: 'application/json',
+			success: function(r){ 
+				console.log('success');
+			},
+			error: function(e){
+				var data = JSON.parse(e.responseText).results;
+				var options = d3.selectAll('#alphas option')[0].length;			
+				$('#alpha-info').text('Displaying ' + options + ' of ' + data + ' Alpha Reports');
+			}
+		});
+	};
+	
+	me.getTitanTargetEventCount = function(){
+		$.ajax({
+			type: 'GET',
+			url: buildKeyValueCountQuery('name', 'target event'),
+			dataType: 'application/json',
+			success: function(r){ 
+				console.log('success');
+			},
+			error: function(e){
+				var data = JSON.parse(e.responseText).results;
+				var options = d3.selectAll('#patterns option')[0].length;		
+				$('#target-info').text('Displaying ' + options + ' of ' + data + ' Target Events');
+			}
+		});
+	};
 			
 	me.getAllTitanAlphaReports = function(){
 		var start = $('#start-alpha').val();
@@ -95,7 +127,7 @@ var confirmer = function(){
 					});
 					
 					me.alpha_reports = data;
-
+					me.getTitanAlphaReportCount();
 					var ar = me.alpha_reports[0];
 					me.getTitanAlphaReport(ar._id);
 				}
@@ -123,6 +155,7 @@ var confirmer = function(){
 						d3.select('#patterns').append('option').text(te._id);
 					});
 					
+					me.getTitanTargetEventCount();
 					var te = me.target_events[0];
 					me.getTitanTargetEvent(te._id);
 				}
@@ -163,10 +196,10 @@ var confirmer = function(){
 				me.svg_asserts.append('g')
 					.attr('class', 'node-link-container');
 						
-				var net = new network(me.svg_asserts, [], false);
-				net.setNodes(nodes);
-				net.setLinks(edges);
-				net.draw();		
+				var net1 = new network(me.svg_asserts, [], false);
+				net1.setNodes(nodes);
+				net1.setLinks(edges);
+				net1.draw();		
 			}
 		});
 	

@@ -21,15 +21,15 @@
 			<div class='panel panel-default' id='alpha_report'>
 				<div class='panel-heading'>
 					<h3 class='panel-title'>Alpha Report</h3>
+					<div id='alpha-info'></div>
 					<select id='alphas'></select>
 				</div>
 				<div class='panel-body'>
-					<div id='alpha-info'></div>
-					<div id='alpha-range' id='range'>
+					<div class='alpha-range' id='range'>
 						<label> Start: </label>
 						<input type='text' id='start-alpha' placeholder='Start' value='0'>
 						<label> End: </label>
-						<input type='text' id='end-alpha' placeholder='End' value='10'>
+						<input type='text' id='end-alpha' placeholder='End' value='9'>
 						<button id='get_ars'>Get Alpha Reports</button>
 					</div>
 				</div>
@@ -41,11 +41,11 @@
 			<div class='panel panel-default' id='confirmer'>
 				<div class='panel-heading'>
 					<h3 class='panel-title'>Target Event</h3>
+					<div id='target-info'></div>
 					<select id='patterns'></select>
 				</div>
-				<div class='panel-body'>
-					<div id='target-info'></div>	
-					<div id='target-range' id='range'>
+				<div class='panel-body'>	
+					<div class='target-range' id='range'>
 						<label> Start: </label>
 						<input type='text' id='start-target' placeholder='Start' value='0'>
 						<label> End: </label>

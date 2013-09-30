@@ -1,3 +1,33 @@
+var indexOfObj = function(ra, value, attribute){
+	for (var i = 0; i < ra.length; i++){
+		if (value.toLowerCase() === ra[i][attribute].toLowerCase()){
+			return i;
+		}
+	}
+	
+	return -1;
+};
+
+var getUnique = function(array){
+	var new_array = [];
+	array.forEach(function(d){
+		if (new_array.indexOf(d) === -1){
+			new_array.push(d);
+		}
+	});
+	return new_array;
+};
+
+var getUniqueObjectArray = function(array){
+	var new_array = [];
+	array.forEach(function(d){
+		if (indexOfObj(new_array, d.name, 'name') === -1){
+			new_array.push(d);
+		}
+	});
+	return new_array;
+};
+
 var compareVertexAmount = function(ar, te){
 	$.ajax({
 		type: 'GET',
@@ -69,7 +99,7 @@ var compareVertices = function(ar, te){
 		},
 		error: function(e){
 			var ar_names = JSON.parse(e.responseText).results;
-			
+			var unique_ar = getUnique(ar_names);
 			$.ajax({
 				type: 'GET',
 				url: getMatchingVertices(te, ar_names),
@@ -79,7 +109,8 @@ var compareVertices = function(ar, te){
 				},
 				error: function(e){
 					var te_matches = JSON.parse(e.responseText).results;
-					if (te_matches.length === ar_names.length){
+					var unique_te = getUniqueObjectArray(te_matches);
+					if (unique_te.length === unique_ar.length){
 						$('#true').append('<li>Alpha Report vertices are subset of Target Event</li>');
 					} else {
 						$('#false').append('<li>Alpha Report vertices are not subset of Target Event</li>');
@@ -98,6 +129,8 @@ var compareVertices = function(ar, te){
 		},
 		error: function(e){
 			var te_names = JSON.parse(e.responseText).results;
+			var unique_te = getUnique(te_names);
+			console.log(unique_te);
 			
 			$.ajax({
 				type: 'GET',
@@ -108,7 +141,9 @@ var compareVertices = function(ar, te){
 				},
 				error: function(e){
 					var ar_matches = JSON.parse(e.responseText).results;
-					if (ar_matches.length === te_names.length){
+					var unique_ar = getUniqueObjectArray(ar_matches);
+					console.log(unique_ar);
+					if (unique_ar.length === unique_te.length){
 						$('#true').append('<li>Target Event vertices are subset of Alpha Report</li>');
 					} else {
 						$('#false').append('<li>Target Event vertices are not subset of Alpha Report</li>');
