@@ -1,43 +1,22 @@
-.toolbar_modes, .toolbar_buttons, .canvas {
-	border-style: ridge;
+#draw_container {
 	display: inline-block;
-	border-color: #666666;
-	border-width: 2px;
 }
 
-.tsvg {
-	width: 40px;
+#canvas, 
+#custom-accordion,
+#toolbar_modes,
+#toolbar_buttons{
+	vertical-align: top;
 	height: 500px;
 }
 
-.csvg { 
-	width: 500px;
+.ent1-form, .rel-form, .rel-ent2-form{
+	height: 0px;
+	opacity: 0;
+}
+
+.tsvg, .csvg {
 	height: 500px;
-}
-
-.forms {
-	position: absolute;
-	display:inline-block;
-}
-
-.ent1-form, .rel-form {
-	top:-200px;
-	background:white;
-	position: absolute;
-	border-style:ridge;
-	border-color:#666666;
-	height:100px;
-	width:185px;
-}
-
-.rel-ent2-form {
-	top:-300px;
-	background:white;
-	position: absolute;
-	border-style:ridge;
-	border-color:#666666;
-	height:150px;
-	width:185px;
 }
 
 circle {
@@ -57,18 +36,12 @@ text {
 	font-size: 1.2em;
 }
 
-.selection {
-	border: 1px solid #89B;
-	background: #BCE;
-	background-color: #BEC;
-	border-color: #8B0;
-}
-
 /* hidden divs for node/link color */
 .aloneColor {
 	display:none;
 	background-color: #ffcc99;
 }
+
 .entity1Color {
 	display:none;
 	background-color: #333399;

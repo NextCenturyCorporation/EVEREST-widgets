@@ -1,28 +1,31 @@
 describe('To test the target event definition widget', function(){
 	var body = d3.select('body');
-	body.append('div').attr('class', 'toolbar_modes')
+	body.append('div').attr('id', 'toolbar_modes')
 		.append('svg').attr('width', 40).attr('height', 500);
-	body.append('div').attr('class', 'canvas')
+	body.append('div').attr('id', 'canvas')
 		.append('svg').attr('class', 'csvg');
-	body.append('div').attr('class', 'toolbar_buttons')
+	body.append('div').attr('id', 'toolbar_buttons')
 		.append('svg').attr('width', 40).attr('height', 500);
 	var forms = body.append('div').attr('class', 'forms');
+	
 	var ent1 = forms.append('div').attr('class', 'ent1-form');
 	ent1.append('input').attr('class', 'ent1');
-	ent1.append('button').attr('class', 'ent-submit');
-	ent1.append('button').attr('class', 'ent-cancel');
+	ent1.append('button').attr('id', 'ent-submit');
+	ent1.append('button').attr('id', 'ent-cancel');
 	
 	var rel = forms.append('div').attr('class', 'rel-form');
 	rel.append('input').attr('class', 'rel-only');
-	rel.append('button').attr('class', 'rel-submit');
-	rel.append('button').attr('class', 'rel-cancel');
+	rel.append('button').attr('id', 'rel-submit');
+	rel.append('button').attr('id', 'rel-cancel');
 	
 	var ent2 = forms.append('div').attr('class', 'rel-ent2-form');
 	ent2.append('input').attr('class', 'relate');
 	ent2.append('input').attr('class', 'ent2');
-	ent2.append('button').attr('class', 'rel-ent-submit');
-	ent2.append('button').attr('class', 'rel-ent-cancel');
-		
+	ent2.append('button').attr('id', 'rel-ent-submit');
+	ent2.append('button').attr('id', 'rel-ent-cancel');
+	
+	d3.select('body').append('div').attr('class', 'aloneColor')
+		.style('background-color', '#ffffff');	
 	d3.select('body').append('div').attr('class', 'entity1Color')
 		.style('background-color', '#333399');
 	d3.select('body').append('div').attr('class', 'entity2Color')
@@ -32,8 +35,8 @@ describe('To test the target event definition widget', function(){
 	
 	var test_draw = new draw();
 	test_draw.setUpToolbars();
-	var tool1 = d3.select('.toolbar_modes');
-	var tool2 = d3.select('.toolbar_buttons');
+	var tool1 = d3.select('#toolbar_modes');
+	var tool2 = d3.select('#toolbar_buttons');
 		
 	var clickEvt = document.createEvent('Event');
 	clickEvt.initEvent('click', true, false);
@@ -86,8 +89,8 @@ describe('To test the target event definition widget', function(){
 	describe('to test the setUpToolbars function', function(){
 		it('', function(){
 			test_draw.setUpToolbars();
-			expect(d3.select('.toolbar_modes')[0][0]).not.toEqual(null);
-			expect(d3.select('.toolbar_buttons')[0][0]).not.toEqual(null);
+			expect(d3.select('#toolbar_modes')[0][0]).not.toEqual(null);
+			expect(d3.select('#toolbar_buttons')[0][0]).not.toEqual(null);
 			expect(d3.select('.node_hold_fake')[0][0]).toEqual(null);
 			expect(d3.select('.node_hold')[0][0]).not.toEqual(null);
 			expect(d3.select('.rel_hold')[0][0]).not.toEqual(null);
@@ -158,10 +161,10 @@ describe('To test the target event definition widget', function(){
 			expect(Math.floor).toHaveBeenCalled();
 		});
 		
-		it('the createCancelClickers function', function(){
+		it('the createClickers function', function(){
 			spyOn(d3, 'select').andCallThrough();
-			test_draw.createCancelClickers();
-			expect(d3.select.callCount).toEqual(3);
+			test_draw.createClickers();
+			expect(d3.select.callCount).toEqual(6);
 		});
 		
 		it('the toggleLabels function', function(){
@@ -171,22 +174,22 @@ describe('To test the target event definition widget', function(){
 			d3.selectAll('line').remove();
 			test_draw.toggleLabels();
 			
-			expect(d3.selectAll).toHaveBeenCalledWith('.canvas circle');
-			expect(d3.selectAll).toHaveBeenCalledWith('.canvas line');
-			expect(d3.select).not.toHaveBeenCalledWith('.canvas svg');
+			expect(d3.selectAll).toHaveBeenCalledWith('#canvas circle');
+			expect(d3.selectAll).toHaveBeenCalledWith('#canvas line');
+			expect(d3.select).not.toHaveBeenCalledWith('#canvas svg');
 			
-			d3.select('.canvas svg').append('g')
+			d3.select('#canvas svg').append('g')
 				.append('line')
 					.attr('x1', 0).attr('y1', 1)
 					.attr('x2', 0).attr('y2', 3)
 					.attr('d', 'hello');
 					
-			d3.select('.canvas svg').append('circle')
+			d3.select('#canvas svg').append('circle')
 				.attr('cx', 0).attr('cy', 0)
 				.attr('d', 'goodbye');
 				
 			test_draw.toggleLabels();
-			expect(d3.select).toHaveBeenCalledWith('.canvas svg');
+			expect(d3.select).toHaveBeenCalledWith('#canvas svg');
 			
 		});
 	});
@@ -197,7 +200,7 @@ describe('To test the target event definition widget', function(){
 			spyOn(d3, 'select').andCallThrough();
 			
 			test_draw.createCanvas();
-			expect(d3.select).toHaveBeenCalledWith('.canvas');
+			expect(d3.select).toHaveBeenCalledWith('#canvas');
 		});
 		
 		it('for proper setting of style attributes', function(){
@@ -247,18 +250,17 @@ describe('To test the target event definition widget', function(){
 			test_draw.circles = [];
 			test_draw.createCircle([49, 20]);
 			
-			expect(d3.select).toHaveBeenCalledWith('.ent-submit');
+			expect(d3.select).toHaveBeenCalledWith('#ent-submit');
 			expect($).toHaveBeenCalledWith('.ent1-form');
 			expect($).toHaveBeenCalledWith('.ent1');
-			expect($).toHaveBeenCalledWith('.canvas');
 			$('.ent1').val('lady');
 			
-			document.getElementsByClassName('ent-submit')[0].dispatchEvent(clickEvt);
+			document.getElementById('ent-submit').dispatchEvent(clickEvt);
 			expect(test_draw.addCircle).toHaveBeenCalledWith(49, 20, 'lady');
 			
 			$('.ent1').val('lady');
 			test_draw.createCircle([100, 200]);
-			document.getElementsByClassName('ent-submit')[0].dispatchEvent(clickEvt);
+			document.getElementById('ent-submit').dispatchEvent(clickEvt);
 			expect(test_draw.addCircle).not.toHaveBeenCalledWith(100, 200, 'lady');
 		});
 	});
@@ -303,13 +305,11 @@ describe('To test the target event definition widget', function(){
 						.dispatchEvent(clickEvt);
 						
 					expect($).toHaveBeenCalledWith('.rel-form');
-					expect($).toHaveBeenCalledWith('.canvas');
 					expect($).toHaveBeenCalledWith('.rel-only');
-					expect(d3.select).toHaveBeenCalledWith('.rel-submit');
+					expect(d3.select).toHaveBeenCalledWith('#rel-submit');
 					
 					$('.rel-only').val('bacon');
-					document.getElementsByClassName('rel-submit')[0]
-						.dispatchEvent(clickEvt);
+					document.getElementById('rel-submit').dispatchEvent(clickEvt);
 						
 					expect(alert).not.toHaveBeenCalled();
 					expect(d3.select).toHaveBeenCalledWith(aObj.html);
@@ -349,13 +349,13 @@ describe('To test the target event definition widget', function(){
 					document.getElementsByClassName(aObj.class)[0].dispatchEvent(clickEvt);
 					document.getElementsByClassName(bObj.class)[0].dispatchEvent(clickEvt);
 					$('.rel-only').val('bacon');
-					document.getElementsByClassName('rel-submit')[0].dispatchEvent(clickEvt);
+					document.getElementById('rel-submit').dispatchEvent(clickEvt);
 					expect(test_draw.lines.length).toEqual(1);
 					
 					document.getElementsByClassName(aObj.class)[0].dispatchEvent(clickEvt);
 					document.getElementsByClassName(bObj.class)[0].dispatchEvent(clickEvt);
 					$('.rel-only').val('bacon');
-					document.getElementsByClassName('rel-submit')[0].dispatchEvent(clickEvt);
+					document.getElementById('rel-submit').dispatchEvent(clickEvt);
 					expect(test_draw.lines.length).toEqual(1);
 				});
 			});
@@ -372,8 +372,7 @@ describe('To test the target event definition widget', function(){
 					
 				$('.rel-only').val('bacon');
 					
-				document.getElementsByClassName('rel-submit')[0]
-					.dispatchEvent(clickEvt);
+				document.getElementById('rel-submit').dispatchEvent(clickEvt);
 					
 				expect(test_draw.circles.length).toEqual(2);
 				expect(test_draw.lines.length).toEqual(1);
@@ -423,7 +422,7 @@ describe('To test the target event definition widget', function(){
 				
 				expect($).toHaveBeenCalledWith('.rel-ent2-form');
 				expect($).toHaveBeenCalledWith('.relate');
-				expect(d3.select).toHaveBeenCalledWith('.rel-ent-submit');
+				expect(d3.select).toHaveBeenCalledWith('#rel-ent-submit');
 				expect($).not.toHaveBeenCalledWith('.ent2');
 			});
 			
@@ -433,8 +432,7 @@ describe('To test the target event definition widget', function(){
 				document.getElementsByClassName(cl)[0]
 					.dispatchEvent(dblClickEvt);
 					
-				document.getElementsByClassName('rel-ent-submit')[0]
-					.dispatchEvent(clickEvt);
+				document.getElementById('rel-ent-submit').dispatchEvent(clickEvt);
 					
 				expect($).toHaveBeenCalledWith('.ent2');
 				expect(alert).toHaveBeenCalled();
@@ -448,7 +446,7 @@ describe('To test the target event definition widget', function(){
 				$('.ent2').val('cheese');
 				$('.relate').val('cow');
 				
-				var elem = document.getElementsByClassName('rel-ent-submit')[0];
+				var elem = document.getElementById('rel-ent-submit');
 				elem.dispatchEvent(clickEvt);
 					
 				expect(alert).not.toHaveBeenCalled();
@@ -468,7 +466,7 @@ describe('To test the target event definition widget', function(){
 				$('.ent2').val('dog');
 				$('.relate').val('drive');
 				
-				var elem = document.getElementsByClassName('rel-ent-submit')[0];
+				var elem = document.getElementById('rel-ent-submit');
 				elem.dispatchEvent(clickEvt);
 				
 				expect(test_draw.circles.length).toEqual(2);
@@ -480,7 +478,7 @@ describe('To test the target event definition widget', function(){
 	describe('the other event functions', function(){
 		beforeEach(function(){
 			test_draw.labelsShown = false;
-			d3.selectAll('.canvas text').remove();
+			d3.selectAll('#canvas text').remove();
 			spyOn(d3, 'select').andCallThrough();
 			spyOn(d3, 'selectAll').andCallThrough();
 			spyOn(window, 'parseInt').andCallThrough();
@@ -494,7 +492,7 @@ describe('To test the target event definition widget', function(){
 			expect(d3.select).toHaveBeenCalledWith(aSvg[0][0]);
 			expect(parseInt).toHaveBeenCalled();
 			expect(parseInt.callCount).toEqual(2);
-			expect(d3.selectAll('.canvas text')[0].length).toEqual(1);
+			expect(d3.selectAll('#canvas text')[0].length).toEqual(1);
 		});
 		
 		it('the mouseover function when over a link', function(){
@@ -505,7 +503,7 @@ describe('To test the target event definition widget', function(){
 				.dispatchEvent(mouseOverEvt);
 			
 			expect(parseInt).toHaveBeenCalled();
-			expect(d3.selectAll('.canvas text')[0].length).toEqual(1);
+			expect(d3.selectAll('#canvas text')[0].length).toEqual(1);
 		});
 		
 		it('the mouseover function when test_draw.labelsShown === true', function(){
@@ -517,7 +515,7 @@ describe('To test the target event definition widget', function(){
 			
 			expect(d3.select).not.toHaveBeenCalledWith(aSvg[0][0]);
 			expect(parseInt).not.toHaveBeenCalled();
-			expect(d3.selectAll('.canvas text')[0].length).toEqual(0);
+			expect(d3.selectAll('#canvas text')[0].length).toEqual(0);
 		});
 		
 		it('the mouseout function in anything other than label_hold mode', function(){			
@@ -525,13 +523,13 @@ describe('To test the target event definition widget', function(){
 			document.getElementsByClassName(aSvg.attr('class'))[0]
 				.dispatchEvent(mouseOverEvt);
 			
-			expect(d3.selectAll('.canvas text')[0].length).toEqual(1);
+			expect(d3.selectAll('#canvas text')[0].length).toEqual(1);
 			
 			document.getElementsByClassName(aSvg.attr('class'))[0]
 				.dispatchEvent(mouseOutEvt);
 				
 			expect(d3.select).toHaveBeenCalled();
-			expect(d3.selectAll('.canvas text')[0].length).toEqual(0);
+			expect(d3.selectAll('#canvas text')[0].length).toEqual(0);
 		});
 	});
 	
@@ -555,7 +553,7 @@ describe('To test the target event definition widget', function(){
 			var line = test_draw.addLine(c11, c21, 'hi then bye');
 			test_draw.deleteItem(c11[0][0]);
 			
-			expect(d3.selectAll).toHaveBeenCalledWith('.canvas line');
+			expect(d3.selectAll).toHaveBeenCalledWith('#canvas line');
 			expect(d3.select).toHaveBeenCalled();
 			expect(test_draw.extractCircles).toHaveBeenCalledWith(0);
 			expect(test_draw.separateGroups).toHaveBeenCalled();
@@ -686,30 +684,30 @@ describe('To test the target event definition widget', function(){
 			document.getElementsByClassName(center.attr('class'))[0].dispatchEvent(dblClickEvt);
 			$('.relate').val('b703');
 			$('.ent2').val('c702');
-			document.getElementsByClassName('rel-ent-submit')[0].dispatchEvent(clickEvt);
+			document.getElementById('rel-ent-submit').dispatchEvent(clickEvt);
 				
 			document.getElementsByClassName(center.attr('class'))[0].dispatchEvent(dblClickEvt);
 			$('.relate').val('b708');
 			$('.ent2').val('c709');
-			document.getElementsByClassName('rel-ent-submit')[0].dispatchEvent(clickEvt);	
+			document.getElementById('rel-ent-submit').dispatchEvent(clickEvt);	
 			
 			test_draw.addCircle(5, 195, 'cup');
 			
 			document.getElementsByClassName(center.attr('class'))[0].dispatchEvent(dblClickEvt);
 			$('.relate').val('b716');
 			$('.ent2').val('c717');
-			document.getElementsByClassName('rel-ent-submit')[0].dispatchEvent(clickEvt);
+			document.getElementById('rel-ent-submit').dispatchEvent(clickEvt);
 			
 			document.getElementsByClassName(center.attr('class'))[0].dispatchEvent(dblClickEvt);	
 			$('.relate').val('b724');
 			$('.ent2').val('c725');
-			document.getElementsByClassName('rel-ent-submit')[0].dispatchEvent(clickEvt);
+			document.getElementById('rel-ent-submit').dispatchEvent(clickEvt);
 				
 			var other = test_draw.addCircle(51, 51, 'other');
 			document.getElementsByClassName(other.attr('class'))[0].dispatchEvent(dblClickEvt);
 			$('.relate').val('other 1');
 			$('.ent2').val('other 2');
-			document.getElementsByClassName('rel-ent-submit')[0].dispatchEvent(clickEvt);
+			document.getElementById('rel-ent-submit').dispatchEvent(clickEvt);
 				
 			var before = test_draw.circles[0];
 				
@@ -727,7 +725,7 @@ describe('To test the target event definition widget', function(){
 			test_draw.separateGroups(cIndicies);
 			
 			expect(d3.select).toHaveBeenCalled();
-			expect(d3.selectAll).toHaveBeenCalledWith('.canvas line');
+			expect(d3.selectAll).toHaveBeenCalledWith('#canvas line');
 			
 			expect(test_draw.circles[cIndicies[0]].group).toEqual(c.group);
 			expect(test_draw.circles[cIndicies[0]].color).toEqual('#ffffff');
@@ -761,8 +759,7 @@ describe('To test the target event definition widget', function(){
 			expect(test_draw.createCircle).toHaveBeenCalled();
 			$('.ent1').val('a');
 			
-			document.getElementsByClassName('ent-submit')[0]
-				.dispatchEvent(clickEvt);
+			document.getElementById('ent-submit').dispatchEvent(clickEvt);
 				
 			expect(test_draw.addCircle).toHaveBeenCalled();
 			expect(test_draw.circles.length).toEqual(1);
@@ -782,8 +779,7 @@ describe('To test the target event definition widget', function(){
 			$('.ent2').val('c');
 			$('.relate').val('b');
 			
-			document.getElementsByClassName('rel-ent-submit')[0]
-				.dispatchEvent(clickEvt);
+			document.getElementById('rel-ent-submit').dispatchEvent(clickEvt);
 			
 			var nodeC = test_draw.circles[1];
 			expect(test_draw.circles.length).toEqual(2);
@@ -798,8 +794,7 @@ describe('To test the target event definition widget', function(){
 			$('.ent2').val('e');
 			$('.relate').val('d');
 			
-			document.getElementsByClassName('rel-ent-submit')[0]
-				.dispatchEvent(clickEvt);
+			document.getElementById('rel-ent-submit').dispatchEvent(clickEvt);
 			
 			var nodeE = test_draw.circles[2];
 			expect(test_draw.circles.length).toEqual(3);
@@ -821,22 +816,22 @@ describe('To test the target event definition widget', function(){
 			//add node a			
 			document.getElementsByClassName('csvg')[0].dispatchEvent(clickEvt);
 			$('.ent1').val('a');
-			document.getElementsByClassName('ent-submit')[0].dispatchEvent(clickEvt);
+			document.getElementById('ent-submit').dispatchEvent(clickEvt);
 				
 			//add node b
 			document.getElementsByClassName('csvg')[0].dispatchEvent(clickEvt);
 			$('.ent1').val('b');
-			document.getElementsByClassName('ent-submit')[0].dispatchEvent(clickEvt);
+			document.getElementById('ent-submit').dispatchEvent(clickEvt);
 			
 			//add node c
 			document.getElementsByClassName('csvg')[0].dispatchEvent(clickEvt);
 			$('.ent1').val('c');
-			document.getElementsByClassName('ent-submit')[0].dispatchEvent(clickEvt);
+			document.getElementById('ent-submit').dispatchEvent(clickEvt);
 			
 			//add node d
 			document.getElementsByClassName('csvg')[0].dispatchEvent(clickEvt);
 			$('.ent1').val('d');
-			document.getElementsByClassName('ent-submit')[0].dispatchEvent(clickEvt);
+			document.getElementById('ent-submit').dispatchEvent(clickEvt);
 				
 			expect(test_draw.addCircle).toHaveBeenCalled();
 			expect(test_draw.circles.length).toEqual(4);
@@ -853,26 +848,26 @@ describe('To test the target event definition widget', function(){
 			document.getElementsByClassName(nodeA.class)[0].dispatchEvent(clickEvt);
 			document.getElementsByClassName(nodeB.class)[0].dispatchEvent(clickEvt);			
 			$('.rel-only').val('AB');
-			document.getElementsByClassName('rel-submit')[0].dispatchEvent(clickEvt);
+			document.getElementById('rel-submit').dispatchEvent(clickEvt);
 				
 			//add link B-D
 			document.getElementsByClassName(nodeB.class)[0].dispatchEvent(clickEvt);
 			document.getElementsByClassName(nodeD.class)[0].dispatchEvent(clickEvt);
 			$('.rel-only').val('BD');
-			document.getElementsByClassName('rel-submit')[0].dispatchEvent(clickEvt);
+			document.getElementById('rel-submit').dispatchEvent(clickEvt);
 				
 			//add link C-D
 			document.getElementsByClassName(nodeC.class)[0].dispatchEvent(clickEvt);
 			document.getElementsByClassName(nodeD.class)[0].dispatchEvent(clickEvt);
 			$('.rel-only').val('CD');
-			document.getElementsByClassName('rel-submit')[0].dispatchEvent(clickEvt);
+			document.getElementById('rel-submit').dispatchEvent(clickEvt);
 			
 			test_draw.saveTargetAssertions();
 			//add link C-A
 			document.getElementsByClassName(nodeC.class)[0].dispatchEvent(clickEvt);
 			document.getElementsByClassName(nodeA.class)[0].dispatchEvent(clickEvt);
 			$('.rel-only').val('CA');
-			document.getElementsByClassName('rel-submit')[0].dispatchEvent(clickEvt);
+			document.getElementById('rel-submit').dispatchEvent(clickEvt);
 			
 			expect(test_draw.lines.length).toEqual(4);
 			expect(nodeA.color).toEqual(bothColor);

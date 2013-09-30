@@ -120,14 +120,14 @@ var draw = function(){
 	};		
 
 	me.setUpToolbars = function(){
-		me.t_mode = new toolbar('.toolbar_modes');
+		me.t_mode = new toolbar('#toolbar_modes');
 		me.t_mode.createSelection('node_hold', images.node);
 		me.t_mode.createSelection('rel_hold', images.link);
 		me.t_mode.createSelection('mover_hold', images.move);
 		me.t_mode.createSelection('delete_hold', images.deleteM);	
 		me.t_mode.createSelection('select_hold', images.select);
 	
-		me.t_button = new toolbar('.toolbar_buttons');
+		me.t_button = new toolbar('#toolbar_buttons');
 		me.t_button.createSelection('resetB', images.reset, me.resetCanvas);		
 		me.t_button.createSelection('submitB', images.submit,
 			 me.saveTargetAssertions);
@@ -212,29 +212,40 @@ var draw = function(){
 	@function	selects all of the cancel buttons in each of the hidden forms 
 				and adds a hide function to them for when they are clicked
 	*/
-	me.createCancelClickers = function(){
-		d3.select('.ent-cancel').on('click', function(){
+	me.createClickers = function(){
+		d3.select('#ent-cancel').on('click', function(){
 			$('.ent1').val('');
 			$('.ent1-form').animate({
-				top: '-'+ 3*$('.ent1-form').height()
+				height: '0',
+				opacity: '0'
 			}, 750);
 		});
 		
-		d3.select('.rel-cancel').on('click', function(){
+		d3.select('#rel-cancel').on('click', function(){
 			me.lastNodeClicked = null;
 			$('.rel-only').val('');
 			$('.rel-form').animate({
-				top: '-'+ 3*$('.rel-form').height()
+				height: '0',
+				opacity: '0'
 			}, 750);
 		});
 		
-		d3.select('.rel-ent-cancel').on('click', function(){
+		d3.select('#rel-ent-cancel').on('click', function(){
 			$('.relate').val('');
 			$('.ent2').val('');
 			$('.rel-ent2-form').animate({
-				top: '-'+ 3*$('.rel-ent2-form').height()
+				height: '0',
+				opacity: '0'
 			}, 750);
 		});
+		
+		d3.select('#save_target').on('click', me.saveTargetEventToTitan);
+		
+		d3.select('#save_nodes').on('click', function(){
+			me.saveCirclesToTitan(me.target_event._titan_id);
+		});
+		
+		d3.select('#save_edges').on('click', me.saveLinesToTitan);
 	};
 
 	/**
@@ -245,7 +256,7 @@ var draw = function(){
 				elements if the mode is select_hold
 	*/
 	me.createCanvas = function(){
-		var canvas = d3.select('.canvas');
+		var canvas = d3.select('#canvas');
 		var svg = canvas.append('svg').attr('class', 'csvg')
 			.on('click', function(){
 				if ( me.t_mode.getMode() === 'node_hold' ) {
@@ -304,19 +315,21 @@ var draw = function(){
 		if ( !e[1] ){ e[1] = 0; }
 		
 		$('.ent1-form').animate({
-			top:( $('.canvas').height() / 2 ) - ( $('.ent1-form').height() / 2 )
+			height: '30%',
+			opacity: '1'
 		}, 750);
 		$('.ent1').focus();
 		
-		d3.select('.ent-submit').on('click', function(){
+		d3.select('#ent-submit').on('click', function(){
 			if (getObj(me.circles, $('.ent1').val(), 'd') === null){
 				me.addCircle(e[0], e[1], $('.ent1').val());
 			}
-			
-			$('.ent1').val('');
+
 			$('.ent1-form').animate({
-				top: '-'+ 2*$('.ent1-form').height()
+				height: '0',
+				opacity: '0'
 			}, 750);
+			$('.ent1').val('');
 		});
 	};
 	
@@ -463,7 +476,7 @@ var draw = function(){
 			}
 		} else if ( me.t_mode.getMode() === 'select_hold' ) {
 			if ( d3.select(item).style('fill') === me.selectColor ) {
-				d3.selectAll('.canvas circle').each(function(){
+				d3.selectAll('#canvas circle').each(function(){
 					var c = d3.select(this);
 					if (c.style('fill') === me.selectColor){
 						me.dragGroup(this);
@@ -499,7 +512,7 @@ var draw = function(){
 		});
 
 		d3.selectAll('.arrow').remove();
-		d3.selectAll('.canvas line').each(function(){
+		d3.selectAll('#canvas line').each(function(){
 			var lSvg = d3.select(this);
 			var lObj = getObj(me.lines, lSvg.attr('class'), 'class');
 					
@@ -542,7 +555,7 @@ var draw = function(){
 		if ( me.t_mode.getMode() === 'select_hold' ) {
 			d3.select('.csvg').append('rect')
 				.attr('class', 'selection')
-				.style('opacity', 0.25);
+				.style('opacity', 0.15);
 		}
 	};
 	
@@ -569,7 +582,7 @@ var draw = function(){
 			var right = left + parseInt(rect.attr('width'), 10);
 			var bottom = top + parseInt(rect.attr('height'), 10);
 				
-			d3.selectAll('.canvas circle').each(function(){
+			d3.selectAll('#canvas circle').each(function(){
 				var cSvg = d3.select(this);
 				
 				if (cSvg.attr('cx') < right && cSvg.attr('cx') > left){
@@ -585,7 +598,7 @@ var draw = function(){
 				}
 			});
 			
-			d3.selectAll('.canvas line').each(function(){
+			d3.selectAll('#canvas line').each(function(){
 				var lSvg = d3.select(this);
 				var path = d3.select(this.parentNode).select('path');
 				
@@ -653,14 +666,15 @@ var draw = function(){
 				return;
 			} else {  //if this is the second unique entity chosen, draw a line
 				$('.rel-form').animate({
-					top: ( $('.canvas').height() / 2 ) - ( $('.rel-form').height() / 2 )
+					opacity: '1',
+					height: '30%'
 				}, 750);
 				$('.rel-only').focus();		//apparently errors in IE if focus before visible
 				
 				var c2Html = this;
 				
 				//creates on click event for relationship form submit button 
-				d3.select('.rel-submit').on('click', function(){
+				d3.select('#rel-submit').on('click', function(){
 					if ( $('.rel-only').val() === '') {
 						alert('Please enter values for all form locations');
 						return;
@@ -706,7 +720,8 @@ var draw = function(){
 					//hide the relationship form
 					$('.rel-only').val('');
 					$('.rel-form').animate({
-						top: '-'+ 2*$('.rel-form').height()
+						opacity: '0',
+						height: '0'
 					}, 750);
 				});	
 			}
@@ -726,13 +741,14 @@ var draw = function(){
 	me.doubleClickNode = function(){
 		if (me.t_mode.getMode() === ''){
 			$('.rel-ent2-form').animate({
-				top: ( $('.canvas').height() / 2 ) - ( $('.rel-ent2-form').height() / 2 )
+				opacity: 1,
+				height: '30%'
 			}, 750);
 			$('.relate').focus();		//apparently errors in IE if focus before visible
 			
 			var c1Html = this;
 			//creates on click event for rel - entity 2 form submit button 
-			d3.select('.rel-ent-submit').on('click', function(){
+			d3.select('#rel-ent-submit').on('click', function(){
 				if ( $('.ent2').val() === ''  ||  $('.relate').val() === '' ) {
 					alert('Please enter values for all form locations');
 					return;
@@ -814,7 +830,8 @@ var draw = function(){
 				$('.relate').val('');
 				$('.ent2').val('');
 				$('.rel-ent2-form').animate({
-					top: '-'+ 2*$('.rel-ent2-form').height()
+					opacity: '0',
+					height: '0'
 				}, 750);
 			});	
 		}
@@ -856,7 +873,7 @@ var draw = function(){
 	*/
 	me.mouseout = function(){
 		if ( !me.labelsShown ) {
-			d3.selectAll('.canvas text').remove();
+			d3.selectAll('#canvas text').remove();
 			if ( this.localName === 'circle' ) {
 				d3.select(this).transition()
 					.duration(750)
@@ -880,7 +897,7 @@ var draw = function(){
 			var index = indexOfObj(me.circles, 
 				d3.select(itemHtml).attr('class'), 'class');
 			group = me.circles[index].group;
-			d3.selectAll('.canvas line').each(function(){
+			d3.selectAll('#canvas line').each(function(){
 				var line_ind = indexOfObj(me.lines, 
 					d3.select(this).attr('class'), 'class');
 				var lObj = me.lines[line_ind];
@@ -909,7 +926,7 @@ var draw = function(){
 		var cIndicies = me.extractCircles(group);
 		me.separateGroups(cIndicies);
 		
-		d3.selectAll('.canvas line').each(function(){
+		d3.selectAll('#canvas line').each(function(){
 			var lObj = getObj(me.lines, d3.select(this).attr('class'), 'class');
 			var cSvg1 = d3.select(lObj.source);
 			var cSvg2 = d3.select(lObj.target);
@@ -955,7 +972,7 @@ var draw = function(){
 				//compare to those who have already been allocated a new group
 				for ( var j = 0; j < i; j++ ) {
 					var cObj2 = me.circles[circleGroup[j]];
-					d3.selectAll('.canvas line').each(function(){
+					d3.selectAll('#canvas line').each(function(){
 						var l = getObj(me.lines, d3.select(this).attr('class'), 'class');
 						if (l.source === cObj.html && l.target === cObj2.html){
 							thisGroup.push(me.circles[circleGroup[j]]);	
@@ -994,14 +1011,14 @@ var draw = function(){
 				and resets line/path colors
 	*/
 	me.resetColors = function(){
-		d3.selectAll('.canvas circle').each(function(){
+		d3.selectAll('#canvas circle').each(function(){
 			var cSvg = d3.select(this);
 			var cObj = getObj(me.circles, cSvg.attr('class'), 'class');
 			cSvg.style('fill', cObj.color);
 		});
 		
-		d3.selectAll('.canvas line').style('stroke', me.lineColor);
-		d3.selectAll('.canvas path').style('stroke', me.lineColor);
+		d3.selectAll('#canvas line').style('stroke', me.lineColor);
+		d3.selectAll('#canvas path').style('stroke', me.lineColor);
 	};
 	
 	/**
@@ -1016,16 +1033,13 @@ var draw = function(){
 			tempURL += me.event.id;
 		}
 		var date = new Date();
-		console.log(date);
 		me.event = {
 			name: date.getTime(),
 			event_horizon: [],
 			location: [],
 			assertions: []
 		};
-		
-		console.log(me.event);
-		
+				
 		for ( var i = 0; i < me.circles; i++ ) {
 			var cObj = me.circles[i];
 			if ( me.isAlone(cObj) ) {
@@ -1139,7 +1153,7 @@ var draw = function(){
 	me.resetCanvas = function(){
 		d3.select('.node-link-container').remove();
 		d3.select('.csvg').append('g').attr('class', 'node-link-container');
-		
+		me.target_event = { name: 'target event' };
 		me.circles = [];
 		me.lines = [];
 		me.count = 0;		
@@ -1296,7 +1310,7 @@ var draw = function(){
 		var nodesToRemove = [];
 		var linksToRemove = [];
 		
-		d3.selectAll('.canvas circle').each(function(){
+		d3.selectAll('#canvas circle').each(function(){
 			var c = d3.select(this);
 			if(c.style('fill') === me.selectColor){
 				nodesToRemove.push(this);
@@ -1307,7 +1321,7 @@ var draw = function(){
 			me.deleteItem(nodesToRemove[i]);
 		}
 		
-		d3.selectAll('.canvas line').each(function(){
+		d3.selectAll('#canvas line').each(function(){
 			var l = d3.select(this);
 			if ( l.style('stroke') === me.selectColor ) {
 				linksToRemove.push(this);
@@ -1328,16 +1342,16 @@ var draw = function(){
 		if ( !me.labelsShown ) {
 			me.labelsShown = true;
 			var x = 0, y = 0;
-			d3.selectAll('.canvas circle').each(function(){
+			d3.selectAll('#canvas circle').each(function(){
 				var circle = d3.select(this);
 				x = parseInt(circle.attr('cx'), 10) + 15;
 				y = parseInt(circle.attr('cy'), 10) - 15;
-				d3.select('.canvas svg').append('text')
+				d3.select('#canvas svg').append('text')
 					.attr('x', x).attr('y', y)
 					.text(circle.attr('d'));
 			});
 			
-			d3.selectAll('.canvas line').each(function(){
+			d3.selectAll('#canvas line').each(function(){
 				var line = d3.select(this);
 				x = ((parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2) + 15;
 				y = ((parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2) - 15;
@@ -1346,7 +1360,7 @@ var draw = function(){
 					.text(line.attr('d'));
 			});
 		} else {
-			d3.selectAll('.canvas text').remove();
+			d3.selectAll('#canvas text').remove();
 			me.labelsShown = false;
 		}
 	};
