@@ -117,9 +117,7 @@ var confirmer = function(){
 			success: function(r){ 
 				console.log('success');
 			},
-			error: function(e){
-				console.log('error');
-				
+			error: function(e){				
 				var data = JSON.parse(e.responseText).results;
 				if ( data.length > 0 ){
 					data.forEach(function(ar){
@@ -146,8 +144,6 @@ var confirmer = function(){
 				console.log('success');
 			},
 			error: function(e){
-				console.log('error');
-				
 				var data = JSON.parse(e.responseText).results;
 				if ( data.length > 0 ){
 					me.target_events = data;
@@ -176,14 +172,12 @@ var confirmer = function(){
 				console.log('success');
 			},
 			error: function(e){
-				console.log('error');
 				var data = JSON.parse(e.responseText).results;
 				
 				data.forEach(function(first){
 		            buildLinksNodes(first, nodes, edges, nodesById, edgesById);
 		        });
 		
-		        //Try and clean up some
 		        nodesById = null;
 		        edgesById = null;
 				
@@ -218,14 +212,12 @@ var confirmer = function(){
 				console.log('success');
 			},
 			error: function(e){
-				console.log('error');
 				var data = JSON.parse(e.responseText).results;
 				
 				data.forEach(function(first){
 		            buildLinksNodes(first, nodes, edges, nodesById, edgesById);
 		        });
 		
-		        //Try and clean up some
 		        nodesById = null;
 		        edgesById = null;
 				
@@ -265,11 +257,75 @@ var confirmer = function(){
 			var ar_id = alphas.options[alphas.selectedIndex].text;
 			var te_id = targets.options[targets.selectedIndex].text;
 			
-			compareVertexAmount(ar_id, te_id);
-			compareEdgeAmount(ar_id, te_id);
-			compareVertices(ar_id, te_id);
-			compareEdges(ar_id, te_id);
-			compareOrientation(ar_id, te_id);
+			$.ajax({
+				type: 'GET',
+				dataType: 'application/json',
+				url: getVertexById(ar_id),
+				success: function(r){
+					console.log('success');
+				},
+				error: function(e){
+					var vertex = JSON.parse(e.responseText).results;
+					console.log(vertex);
+					if ( vertex.comparedTo === undefined ){
+						console.log("This alpha report has not been compared to any target events");
+						var comparedTo = [];
+						compareVertexAmount(ar_id, te_id);
+						compareEdgeAmount(ar_id, te_id);
+						compareVertices(ar_id, te_id);
+						compareEdges(ar_id, te_id);
+						compareOrientation(ar_id, te_id);
+						
+						setTimeout(function(){
+							comparedTo.push({
+								target_event_id: te_id,
+								score: d3.selectAll('#true li')[0].length
+							});
+							console.log(comparedTo);
+							updateVertex(ar_id, { array:comparedTo });
+						}, 2000);
+					} else {						
+						var found = { 
+							target_event_id: -1,
+							score: -1
+						};
+						
+						vertex.comparedTo.array.forEach(function(d){
+							console.log(d.target_event_id);
+							console.log(te_id);
+							if (d.target_event_id === te_id){
+								found.target_event_id = d.target_event_id;
+								found.score = d.score;
+							}
+						});
+						
+						console.log(found);
+						
+						if ( found.target_event_id !== -1 ){
+							console.log("Already compared to target event " + found.target_event_id);
+							console.log(found.score);
+						} else {
+							console.log("Not found in non-empty comparedTo array");
+							
+							var comparedTo = vertex.comparedTo.array;
+							compareVertexAmount(ar_id, te_id);
+							compareEdgeAmount(ar_id, te_id);
+							compareVertices(ar_id, te_id);
+							compareEdges(ar_id, te_id);
+							compareOrientation(ar_id, te_id);
+							
+							setTimeout(function(){
+								comparedTo.push({
+									target_event_id: te_id,
+									score: d3.selectAll('#true li')[0].length
+								});
+								console.log(comparedTo);
+								updateVertex(ar_id, { array:comparedTo });
+							}, 2000);
+						}
+					}
+				}
+			});
 		});
 		
 		d3.select('#patterns').on('change', function(){
@@ -282,6 +338,13 @@ var confirmer = function(){
 			var elem = $(this)[0];
 			var elem_id = elem.options[elem.selectedIndex].text;
 			me.getTitanAlphaReport(elem_id);
+		});
+		
+		d3.select('#compare_all').on('click', function(){
+			
+			
+			
+			
 		});
 	};
 	

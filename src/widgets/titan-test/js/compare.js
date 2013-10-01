@@ -34,19 +34,22 @@ var compareVertexAmount = function(ar, te){
 		url: getGroupVertexCountById(ar),
 		dataType: 'application/json',
 		success: function(r){ 
-			console.log('success');
+			//console.log('success');
 		},
 		error: function(e){
-			var ar_length = JSON.parse(e.responseText).results[0];				
+			var ar_length = JSON.parse(e.responseText).results[0];	
+			//console.log("Alpha Report vertex length: " + ar_length);				
 			$.ajax({
 				type: 'GET',
 				url: getGroupVertexCountById(te),
 				dataType: 'application/json',
 				success: function(r){ 
-					console.log('success');
+					//console.log('success');
 				},
 				error: function(e){
 					var te_length = JSON.parse(e.responseText).results[0];
+					//console.log("Target Event vertex length: " + te_length);
+					
 					if (te_length === ar_length){
 						$('#true').append('<li>There are the same number of vertices</li>');
 					} else {
@@ -64,19 +67,21 @@ var compareEdgeAmount = function(ar, te){
 		url: getGroupEdgeCountById(ar),
 		dataType: 'application/json',
 		success: function(r1){ 
-			console.log('success');
+			//console.log('success');
 		},
 		error: function(e){
-			var ar_length = JSON.parse(e.responseText).results[0];				
+			var ar_length = JSON.parse(e.responseText).results[0];	
+			//console.log("Alpha Report edge length: " + ar_length);			
 			$.ajax({
 				type: 'GET',
 				url: getGroupEdgeCountById(te),
 				dataType: 'application/json',
 				success: function(r){ 
-					console.log('success');
+					//console.log('success');
 				},
 				error: function(e){
 					var te_length = JSON.parse(e.responseText).results[0];
+					//console.log("Target Event edge length: " + te_length);
 					if (te_length === ar_length){
 						$('#true').append('<li>There are the same number of edges</li>');
 					} else {
@@ -95,21 +100,26 @@ var compareVertices = function(ar, te){
 		url: getVertexNamesById(ar),
 		dataType: 'application/json',
 		success: function(r1){ 
-			console.log('success');
+			//console.log('success');
 		},
 		error: function(e){
 			var ar_names = JSON.parse(e.responseText).results;
 			var unique_ar = getUnique(ar_names);
+			
+			//console.log("Alpha Report vertex names: ");
+			//console.log(ar_names);
 			$.ajax({
 				type: 'GET',
 				url: getMatchingVertices(te, ar_names),
 				dataType: 'application/json',
 				success: function(r){ 
-					console.log('success');
+					//console.log('success');
 				},
 				error: function(e){
 					var te_matches = JSON.parse(e.responseText).results;
 					var unique_te = getUniqueObjectArray(te_matches);
+					//console.log("Target Event vertex matches: ");
+					//console.log(te_matches);
 					if (unique_te.length === unique_ar.length){
 						$('#true').append('<li>Alpha Report vertices are subset of Target Event</li>');
 					} else {
@@ -125,24 +135,26 @@ var compareVertices = function(ar, te){
 		url: getVertexNamesById(te),
 		dataType: 'application/json',
 		success: function(r1){ 
-			console.log('success');
+			//console.log('success');
 		},
 		error: function(e){
 			var te_names = JSON.parse(e.responseText).results;
 			var unique_te = getUnique(te_names);
-			console.log(unique_te);
+			//console.log("Target Event vertex names: ");
+			//console.log(te_names);
 			
 			$.ajax({
 				type: 'GET',
 				url: getMatchingVertices(ar, te_names),
 				dataType: 'application/json',
 				success: function(r){ 
-					console.log('success');
+					//console.log('success');
 				},
 				error: function(e){
 					var ar_matches = JSON.parse(e.responseText).results;
 					var unique_ar = getUniqueObjectArray(ar_matches);
-					console.log(unique_ar);
+					//console.log("Alpha Report vertex matches: ");
+					//console.log(ar_matches);
 					if (unique_ar.length === unique_te.length){
 						$('#true').append('<li>Target Event vertices are subset of Alpha Report</li>');
 					} else {
@@ -161,19 +173,23 @@ var compareEdges = function(ar, te){
 		url: getEdgeLabelsById(ar),
 		dataType: 'application/json',
 		success: function(r1){ 
-			console.log('success');
+			//console.log('success');
 		},
 		error: function(e){
 			var ar_labels = JSON.parse(e.responseText).results;
+			//console.log("Alpha Report edge labels: ");
+			//console.log(ar_labels);
 			$.ajax({
 				type: 'GET',
 				url: getMatchingEdges(te, ar_labels),
 				dataType: 'application/json',
 				success: function(r){ 
-					console.log('success');
+					//console.log('success');
 				},
 				error: function(e){
 					var te_matches = JSON.parse(e.responseText).results;
+					//console.log("Target Event edge matches: ");
+					//console.log(te_matches);
 					if (te_matches.length === ar_labels.length){
 						$('#true').append('<li>Alpha Report egdes are subset of Target Event</li>');
 					} else {
@@ -189,19 +205,23 @@ var compareEdges = function(ar, te){
 		url: getEdgeLabelsById(te),
 		dataType: 'application/json',
 		success: function(r1){ 
-			console.log('success');
+			//console.log('success');
 		},
 		error: function(e){
 			var te_labels = JSON.parse(e.responseText).results;
+			//console.log("Target Event edge labels: ");
+			//console.log(te_labels);
 			$.ajax({
 				type: 'GET',
 				url: getMatchingEdges(ar, te_labels),
 				dataType: 'application/json',
 				success: function(r){ 
-					console.log('success');
+					//console.log('success');
 				},
 				error: function(e){
 					var ar_matches = JSON.parse(e.responseText).results;
+					//console.log("Alpha Report edge matches: ");
+					//console.log(ar_matches);
 					if (ar_matches.length === te_labels.length){
 						$('#true').append('<li>Target Event edges are subset of Alpha Report</li>');
 					} else {
@@ -219,7 +239,7 @@ var compareOrientation = function(ar, te){
 		url: getAssertionsById(ar),
 		dataType: 'application/json',
 		success: function(r1){ 
-			console.log('success');
+			//console.log('success');
 		},
 		error: function(e){
 			var assertions = JSON.parse(e.responseText).results;
@@ -227,17 +247,20 @@ var compareOrientation = function(ar, te){
 			for (var i = 0; i < assertions.length; i++){
 				assertions[i] = assertions[i].slice(2, assertions[i].length);
 			}
-			console.log(assertions);
+			//console.log("Alpha Report assertions: ");
+			//console.log(assertions);
 			
 			$.ajax({
 				type: 'GET',
 				url: getMatchingOrientation(te, assertions),
 				dataType: 'application/json',
 				success: function(r){
-					console.log('success');
+					//console.log('success');
 				},
 				error: function(e){
 					var te_matches = JSON.parse(e.responseText).results;
+					//console.log("Target Event matches: ");
+					//console.log(te_matches);
 					if (assertions.length === te_matches.length) {
 						$('#true').append('<li>Alpha Report is a subset of Target Event</li>');
 					} else {
@@ -253,7 +276,7 @@ var compareOrientation = function(ar, te){
 		url: getAssertionsById(te),
 		dataType: 'application/json',
 		success: function(r1){ 
-			console.log('success');
+			//console.log('success');
 		},
 		error: function(e){
 			var assertions = JSON.parse(e.responseText).results;
@@ -261,18 +284,22 @@ var compareOrientation = function(ar, te){
 			for (var i = 0; i < assertions.length; i++){
 				assertions[i] = assertions[i].slice(2, assertions[i].length);
 			}
-			console.log(assertions);
+			
+			//console.log("Target Event Assertions: ");
+			//console.log(assertions);
 			
 			$.ajax({
 				type: 'GET',
 				url: getMatchingOrientation(ar, assertions),
 				dataType: 'application/json',
 				success: function(r){
-					console.log('success');
+					//console.log('success');
 				},
 				error: function(e){
 					var ar_matches = JSON.parse(e.responseText).results;
 					
+					//console.log("Alpha Report matches: ");
+					//console.log(ar_matches);
 					if (assertions.length === ar_matches.length){
 						$('#true').append('<li>Target Event is a subset of Alpha Report</li>');
 					} else {
@@ -280,6 +307,22 @@ var compareOrientation = function(ar, te){
 					}
 				}
 			});
+		}
+	});
+};
+
+var updateVertex = function(id, obj){
+	$.ajax({
+		type: 'POST',
+		url: getVertexById(id),
+		dataType: 'application/json',
+		data: JSON.stringify(obj),
+		success: function(r){
+			console.log('success');
+		},
+		error: function(e){
+			var data = JSON.parse(e.responseText).results;
+			console.log(data);
 		}
 	});
 };
