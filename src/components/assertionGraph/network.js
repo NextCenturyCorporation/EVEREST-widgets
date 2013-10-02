@@ -10,7 +10,12 @@ function midpoint(p1, p2){
 
 var network = function(svg, data, disjoint){
 	var me = this;
-	me.svg = svg;		
+	me.svg = svg;
+	me.svg.append('g')
+		.attr('class', 'node-link-container');
+		
+	me.container = svg.select('.node-link-container');
+			
 	me.svg.append('defs').append('marker')
 		.attr('id', 'Triangle')
 		.attr('refX', 0).attr('refY', 3)
@@ -29,8 +34,8 @@ var network = function(svg, data, disjoint){
 		me.links = me.arrays[1];
 	}
 	
-	me.link = svg.selectAll('.link');
-	me.node = svg.selectAll('.node');
+	me.link = me.container.selectAll('.link');
+	me.node = me.container.selectAll('.node');
 	me.color = d3.scale.category10();
 	me.linktext;
 	me.radius = 8;
@@ -77,7 +82,7 @@ var network = function(svg, data, disjoint){
 			})
 			.call(me.force.drag);
 				
-		me.linktext = me.svg.selectAll(".linklabel").data(me.force.links());
+		me.linktext = me.container.selectAll('.linklabel').data(me.force.links());
 		me.linktext.enter()
 			.append("text")
 			.attr("class", "linklabel")
