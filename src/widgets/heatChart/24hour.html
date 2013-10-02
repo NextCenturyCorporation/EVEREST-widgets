@@ -3,13 +3,12 @@
 	<head>
 		<meta charset="utf-8">
 
-		<script src="http://d3js.org/d3.v3.min.js"></script>
+		<script src="../../../lib/d3.v3.min.js"></script>
+		<script src="../../../lib/jquery-2.0.2.min.js"></script>
+		<script src="../../../lib/underscore-min.js"></script>
 		<script src="base/js/circularHeatChart.js"></script>
 		<script src="http://everest-build/owf-sample-html/js/owf-widget-debug.js"></script>
 		<script src="js/24hour.js"></script>
-		<script src="js/week.js"></script>
-		<script src="js/month.js"></script>
-		<script src="http://code.jquery.com/jquery-latest.js"></script>
 
 		<link rel="stylesheet" href="base/css/style.css">
 		<link rel="stylesheet" href="base/css/svg.css">
@@ -19,80 +18,49 @@
 		<script type="text/javascript">
 			$(document).ready(function() {
 
-					// Only show heat chart for day on load
-					$('#weekChart').hide(0);
-					$('#weekInfo').hide(0);
-					$('#monthChart').hide(0);
-					$('#monthInfo').hide(0);
-					$('#hourChart').show(0);
-					$('#hourInfo').show(0);
-					legend.execute(230, 230, 1);
-					day_heatChart_widget.execute();
+					$('#chart').show();
+					$('#dateNow').show();
+					heatChart_widget.execute("month");
 
 					$('#updateButton').click(function() {
-						$('#weekChart').hide();
-						$('#weekInfo').hide();
-						$('#monthChart').hide();
-						$('#monthInfo').hide();
-						$('#hourChart').show();
-						$('#hourInfo').show();
-						legend.execute(230, 230,1);
-						day_heatChart_widget.update();
+						heatChart_widget.update();
 					});
 
 					$('#hourButton').click(function() {
-						$('#weekChart').hide();
-						$('#weekInfo').hide();
-						$('#monthChart').hide();
-						$('#monthInfo').hide();
-						$('#hourChart').show();
-						$('#hourInfo').show();
-						legend.execute(230, 230,1);
-						day_heatChart_widget.execute();
+						heatChart_widget.execute("hour");
+					});
+					$('#dayButton').click(function() {
+						heatChart_widget.execute("day");
 					});
 					$('#weekButton').click(function() {
-						$('#weekChart').show();
-						$('#weekInfo').show();
-						$('#monthChart').hide();
-						$('#monthInfo').hide();
-						$('#hourChart').hide();
-						$('#hourInfo').hide();
-						legend.execute(120, 120, 0.4);
-						week_heatChart_widget.execute();
+						heatChart_widget.execute("week");
 					});
 					$('#monthButton').click(function() {
-						$('#weekChart').hide();
-						$('#weekInfo').hide();
-						$('#monthChart').show();
-						$('#monthInfo').show();
-						$('#hourChart').hide();
-						$('#hourInfo').hide();
-						legend.execute(0, 0, 1);
-						month_heatChart_widget.execute();
+						heatChart_widget.execute("month");
+					});
+					$('#yearButton').click(function() {
+						heatChart_widget.execute("year");
+					});
+					$('#year5Button').click(function() {
+						heatChart_widget.execute("year5");
 					});
 			});
 		</script>
 	</head>
 	<body>
 
-		<button id="hourButton" type="button">Day</button>
+		<button id="hourButton" type="button">Hour</button>
+		<button id="dayButton" type="button">Day</button>
 		<button id="weekButton" type="button">Week</button>
 		<button id="monthButton" type="button">Month</button>
+		<button id="yearButton" type="button">Year</button>
+		<button id="year5Button" type="button">5-Year</button>
 
 		<button id="updateButton" type="button">Update</button>
-
-		<div id="theBar"></div>
-
-		<div id="hourChart"></div>
-		<div id="hourInfo"></div>
-
-		<div id="weekChart"></div>
-		<div id="weekInfo"></div>
-
-		<div id="monthChart"></div>
-		<div id="monthInfo"></div>
-
+		<div id="info"></div>
+		
+		<div id="baseDate"></div>
+		<div id="chart"></div>
 
 	</body>
-	<script src="js/legend.js"></script>
 </html>
