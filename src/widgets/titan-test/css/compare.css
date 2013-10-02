@@ -6,6 +6,9 @@ line, path {
 
 select {
 	width: 100px;
+	position: absolute;
+	right: 5px;
+	top: 5px;
 }
 
 input {
@@ -43,12 +46,6 @@ li {
 	display:block;
 	height:450px;
 	font: 14px sans-serif;
-}
-
-#alphas, #betas {
-	position: absolute;
-	right: 5px;
-	top: 5px;
 }
 
 #alpha-info, #event-info {

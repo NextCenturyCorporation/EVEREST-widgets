@@ -55,9 +55,9 @@ var buildLinksNodes = function(input, nodes, edges, nodesById, edgesById){
 var confirmer = function(){
 	var me = this;
 	var url = 'http://everest-build:8081/';
-	me.alpha_reports = [];
-	me.target_events = [];
-		
+	me.pane_one_items = [];
+	me.pane_two_items = [];
+
 	me.width = d3.select('#asserts').style('width').split('p')[0];
 	me.height = d3.select('#asserts').style('height').split('p')[0];
 	
@@ -75,6 +75,18 @@ var confirmer = function(){
 		.attr('width', me.width)
 		.attr('height', me.height);
 		
+	me.net1 = {
+		network : null,
+		id: '#panel-one-svg',
+		svg: me.svg_asserts
+	};
+	
+	me.net2 = {
+		network : null,
+		id: '#panel-two-svg',
+		svg: me.svg_target
+	};
+		
 	me.getTitanItemCount = function(name, pane){
 		$.ajax({
 			type: 'GET',
@@ -86,10 +98,10 @@ var confirmer = function(){
 			error: function(e){
 				var data = JSON.parse(e.responseText).results;
 				if (pane === 1){
-					var options = d3.selectAll('#alphas option')[0].length;			
+					var options = d3.selectAll('#panel-one-select option')[0].length;			
 					$('#panel-one-info').text('Displaying ' + options + ' of ' + data + ' ' + name + 's');
 				} else {
-					var options = d3.selectAll('#betas option')[0].length;		
+					var options = d3.selectAll('#panel-two-select option')[0].length;		
 					$('#panel-two-info').text('Displaying ' + options + ' of ' + data + ' ' + name + 's');
 				}
 			}
@@ -113,13 +125,13 @@ var confirmer = function(){
 				var data = JSON.parse(e.responseText).results;
 				if ( data.length > 0 ){
 					data.forEach(function(ar){
-						d3.select('#alphas').append('option').text(ar._id);
+						d3.select('#panel-one-select').append('option').text(ar._id);
 					});
 					
-					me.alpha_reports = data;
+					me.pane_one_items = data;
 					me.getTitanItemCount(name, 1);
-					var ar = me.alpha_reports[0];
-					me.getTitanAlphaReport(ar._id);
+					var ar = me.pane_one_items[0];
+					me.getTitanItem(ar._id, me.net1);
 				}
 			}
 		});
@@ -141,27 +153,27 @@ var confirmer = function(){
 			error: function(e){
 				var data = JSON.parse(e.responseText).results;
 				if ( data.length > 0 ){
-					me.target_events = data;
+					me.pane_two_items = data;
 					data.forEach(function(te){
-						d3.select('#betas').append('option').text(te._id);
+						d3.select('#panel-two-select').append('option').text(te._id);
 					});
 					
 					me.getTitanItemCount(name, 2);
-					var te = me.target_events[0];
-					me.getTitanTargetEvent(te._id);
+					var te = me.pane_two_items[0];
+					me.getTitanItem(te._id, me.net2);
 				}
 			}
 		});
 	};
 	
-	me.getTitanAlphaReport = function(ar_id){
+	me.getTitanItem = function(id, net){
 		var nodesById = [];
 	    var nodes = [];
 	    var edges = [];
 	    var edgesById = [];
 		$.ajax({
 			type: 'GET',
-			url: getGroupPathById(ar_id),
+			url: getGroupPathById(id),
 			dataType: 'application/json',
 			success: function(r){ 
 				console.log('success');
@@ -176,79 +188,33 @@ var confirmer = function(){
 		        nodesById = null;
 		        edgesById = null;
 				
-				me.svg_asserts.remove();
-				me.svg_asserts = d3.select('#asserts')
-					.append('svg')
-					.attr('width', me.width)
-					.attr('height', me.height);
-				
-				me.svg_asserts.append('g')
-					.attr('class', 'node-link-container');
+				net.svg.select('.node-link-container').remove();
 						
-				var net1 = new network(me.svg_asserts, [], false);
-				net1.setNodes(nodes);
-				net1.setLinks(edges);
-				net1.draw();		
+				net.network = new network(net.svg, [], false);
+				net.network.setNodes(nodes);
+				net.network.setLinks(edges);
+				net.network.draw();		
 			}
 		});
 	
-	};
-	
-	me.getTitanTargetEvent = function(te_id){
-		var nodesById = [];
-	    var nodes = [];
-	    var edges = [];
-	    var edgesById = [];
-		$.ajax({
-			type: 'GET',
-			url: getGroupPathById(te_id),
-			dataType: 'application/json',
-			success: function(r){ 
-				console.log('success');
-			},
-			error: function(e){
-				var data = JSON.parse(e.responseText).results;
-				
-				data.forEach(function(first){
-		            buildLinksNodes(first, nodes, edges, nodesById, edgesById);
-		        });
-		
-		        nodesById = null;
-		        edgesById = null;
-				
-				me.svg_target.remove();
-				me.svg_target = d3.select('#target-pattern')
-					.append('svg')
-					.attr('width', me.width)
-					.attr('height', me.height);
-				
-				me.svg_target.append('g')
-					.attr('class', 'node-link-container');
-						
-				var net = new network(me.svg_target, [], false);
-				net.setNodes(nodes);
-				net.setLinks(edges);
-				net.draw();	
-			}
-		});
 	};
 
 	me.createListeners = function(){  
 		d3.select('#get_pane1').on('click', function(){
-			d3.selectAll('#alphas option').remove();
+			d3.selectAll('#panel-one-select option').remove();
 			me.getAllTitanPaneOne();
 		});
 		
 		d3.select('#get_pane2').on('click', function(){
-			d3.selectAll('#betas option').remove();
+			d3.selectAll('#panel-two-select option').remove();
 			me.getAllTitanPaneTwo();
 		});
 	
 		d3.select('#compare').on('click', function(){
 			d3.selectAll('#information li').remove();
 		
-			var alphas = d3.select('#alphas')[0][0];
-			var targets = d3.select('#betas')[0][0];
+			var alphas = d3.select('#panel-one-select')[0][0];
+			var targets = d3.select('#panel-two-select')[0][0];
 			var ar_id = alphas.options[alphas.selectedIndex].text;
 			var te_id = targets.options[targets.selectedIndex].text;
 			
@@ -271,16 +237,16 @@ var confirmer = function(){
 			});
 		});
 		
-		d3.select('#betas').on('change', function(){
+		d3.select('#panel-two-select').on('change', function(){
 			var elem = $(this)[0];
 			var elem_id = elem.options[elem.selectedIndex].text;
-			me.getTitanTargetEvent(elem_id);
+			me.getTitanItem(elem_id, me.net2);
 		});
 		
-		d3.select('#alphas').on('change', function(){
+		d3.select('#panel-one-select').on('change', function(){
 			var elem = $(this)[0];
 			var elem_id = elem.options[elem.selectedIndex].text;
-			me.getTitanAlphaReport(elem_id);
+			me.getTitanItem(elem_id, me.net1);
 		});
 		
 		d3.select('#compare_all').on('click', function(){

@@ -38,7 +38,7 @@ var compareVertexAmount = function(ar, te){
 		},
 		error: function(e){
 			var ar_length = JSON.parse(e.responseText).results[0];	
-			//console.log("Alpha Report vertex length: " + ar_length);				
+			//console.log("The Left Graph vertex length: " + ar_length);				
 			$.ajax({
 				type: 'GET',
 				url: getGroupVertexCountById(te),
@@ -48,7 +48,7 @@ var compareVertexAmount = function(ar, te){
 				},
 				error: function(e){
 					var te_length = JSON.parse(e.responseText).results[0];
-					//console.log("Target Event vertex length: " + te_length);
+					//console.log("The Right Graph vertex length: " + te_length);
 					
 					if (te_length === ar_length){
 						$('#true').append('<li>There are the same number of vertices</li>');
@@ -71,7 +71,7 @@ var compareEdgeAmount = function(ar, te){
 		},
 		error: function(e){
 			var ar_length = JSON.parse(e.responseText).results[0];	
-			//console.log("Alpha Report edge length: " + ar_length);			
+			//console.log("The Left Graph edge length: " + ar_length);			
 			$.ajax({
 				type: 'GET',
 				url: getGroupEdgeCountById(te),
@@ -81,7 +81,7 @@ var compareEdgeAmount = function(ar, te){
 				},
 				error: function(e){
 					var te_length = JSON.parse(e.responseText).results[0];
-					//console.log("Target Event edge length: " + te_length);
+					//console.log("The Right Graph edge length: " + te_length);
 					if (te_length === ar_length){
 						$('#true').append('<li>There are the same number of edges</li>');
 					} else {
@@ -106,7 +106,7 @@ var compareVertices = function(ar, te){
 			var ar_names = JSON.parse(e.responseText).results;
 			var unique_ar = getUnique(ar_names);
 			
-			//console.log("Alpha Report vertex names: ");
+			//console.log("The Left Graph vertex names: ");
 			//console.log(ar_names);
 			$.ajax({
 				type: 'GET',
@@ -118,12 +118,12 @@ var compareVertices = function(ar, te){
 				error: function(e){
 					var te_matches = JSON.parse(e.responseText).results;
 					var unique_te = getUniqueObjectArray(te_matches);
-					//console.log("Target Event vertex matches: ");
+					//console.log("The Right Graph vertex matches: ");
 					//console.log(te_matches);
 					if (unique_te.length === unique_ar.length){
-						$('#true').append('<li>Alpha Report vertices are subset of Target Event</li>');
+						$('#true').append('<li>The Left Graph vertices are subset of The Right Graph</li>');
 					} else {
-						$('#false').append('<li>Alpha Report vertices are not subset of Target Event</li>');
+						$('#false').append('<li>The Left Graph vertices are not subset of The Right Graph</li>');
 					}
 				}
 			});
@@ -140,7 +140,7 @@ var compareVertices = function(ar, te){
 		error: function(e){
 			var te_names = JSON.parse(e.responseText).results;
 			var unique_te = getUnique(te_names);
-			//console.log("Target Event vertex names: ");
+			//console.log("The Right Graph vertex names: ");
 			//console.log(te_names);
 			
 			$.ajax({
@@ -153,12 +153,12 @@ var compareVertices = function(ar, te){
 				error: function(e){
 					var ar_matches = JSON.parse(e.responseText).results;
 					var unique_ar = getUniqueObjectArray(ar_matches);
-					//console.log("Alpha Report vertex matches: ");
+					//console.log("The Left Graph vertex matches: ");
 					//console.log(ar_matches);
 					if (unique_ar.length === unique_te.length){
-						$('#true').append('<li>Target Event vertices are subset of Alpha Report</li>');
+						$('#true').append('<li>The Right Graph vertices are subset of The Left Graph</li>');
 					} else {
-						$('#false').append('<li>Target Event vertices are not subset of Alpha Report</li>');
+						$('#false').append('<li>The Right Graph vertices are not subset of The Left Graph</li>');
 					}
 				}
 			});
@@ -177,7 +177,7 @@ var compareEdges = function(ar, te){
 		},
 		error: function(e){
 			var ar_labels = JSON.parse(e.responseText).results;
-			//console.log("Alpha Report edge labels: ");
+			//console.log("The Left Graph edge labels: ");
 			//console.log(ar_labels);
 			$.ajax({
 				type: 'GET',
@@ -188,12 +188,12 @@ var compareEdges = function(ar, te){
 				},
 				error: function(e){
 					var te_matches = JSON.parse(e.responseText).results;
-					//console.log("Target Event edge matches: ");
+					//console.log("The Right Graph edge matches: ");
 					//console.log(te_matches);
 					if (te_matches.length === ar_labels.length){
-						$('#true').append('<li>Alpha Report egdes are subset of Target Event</li>');
+						$('#true').append('<li>The Left Graph egdes are subset of The Right Graph</li>');
 					} else {
-						$('#false').append('<li>Alpha Report egdes are not subset of Target Event</li>');
+						$('#false').append('<li>The Left Graph egdes are not subset of The Right Graph</li>');
 					}
 				}
 			});
@@ -209,7 +209,7 @@ var compareEdges = function(ar, te){
 		},
 		error: function(e){
 			var te_labels = JSON.parse(e.responseText).results;
-			//console.log("Target Event edge labels: ");
+			//console.log("The Right Graph edge labels: ");
 			//console.log(te_labels);
 			$.ajax({
 				type: 'GET',
@@ -220,12 +220,12 @@ var compareEdges = function(ar, te){
 				},
 				error: function(e){
 					var ar_matches = JSON.parse(e.responseText).results;
-					//console.log("Alpha Report edge matches: ");
+					//console.log("The Left Graph edge matches: ");
 					//console.log(ar_matches);
 					if (ar_matches.length === te_labels.length){
-						$('#true').append('<li>Target Event edges are subset of Alpha Report</li>');
+						$('#true').append('<li>The Right Graph edges are subset of The Left Graph</li>');
 					} else {
-						$('#false').append('<li>Target Event edges are not subset of Alpha Report</li>');
+						$('#false').append('<li>The Right Graph edges are not subset of The Left Graph</li>');
 					}
 				}
 			});
@@ -247,7 +247,7 @@ var compareOrientation = function(ar, te){
 			for (var i = 0; i < assertions.length; i++){
 				assertions[i] = assertions[i].slice(2, assertions[i].length);
 			}
-			//console.log("Alpha Report assertions: ");
+			//console.log("The Left Graph assertions: ");
 			//console.log(assertions);
 			
 			$.ajax({
@@ -259,12 +259,12 @@ var compareOrientation = function(ar, te){
 				},
 				error: function(e){
 					var te_matches = JSON.parse(e.responseText).results;
-					//console.log("Target Event matches: ");
+					//console.log("The Right Graph matches: ");
 					//console.log(te_matches);
 					if (assertions.length === te_matches.length) {
-						$('#true').append('<li>Alpha Report is a subset of Target Event</li>');
+						$('#true').append('<li>The Left Graph is a subset of The Right Graph</li>');
 					} else {
-						$('#false').append('<li>Alpha Report is not a subset of Target Event</li>');
+						$('#false').append('<li>The Left Graph is not a subset of The Right Graph</li>');
 					}
 				}
 			});
@@ -285,9 +285,6 @@ var compareOrientation = function(ar, te){
 				assertions[i] = assertions[i].slice(2, assertions[i].length);
 			}
 			
-			//console.log("Target Event Assertions: ");
-			//console.log(assertions);
-			
 			$.ajax({
 				type: 'GET',
 				url: getMatchingOrientation(ar, assertions),
@@ -298,12 +295,12 @@ var compareOrientation = function(ar, te){
 				error: function(e){
 					var ar_matches = JSON.parse(e.responseText).results;
 					
-					//console.log("Alpha Report matches: ");
+					//console.log("The Left Graph matches: ");
 					//console.log(ar_matches);
 					if (assertions.length === ar_matches.length){
-						$('#true').append('<li>Target Event is a subset of Alpha Report</li>');
+						$('#true').append('<li>The Right Graph is a subset of The Left Graph</li>');
 					} else {
-						$('#false').append('<li>Target Event is not a subset of Alpha Report</li>');
+						$('#false').append('<li>The Right Graph is not a subset of The Left Graph</li>');
 					}
 				}
 			});
