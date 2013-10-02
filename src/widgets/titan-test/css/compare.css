@@ -12,10 +12,13 @@ input {
 	width: 75px;
 }
 
-
 li {
 	list-style-type: circle;
 	padding-left: 10px;
+}
+
+#name-one, #name-two {
+	width: 90px;
 }
 
 #app {
@@ -42,7 +45,7 @@ li {
 	font: 14px sans-serif;
 }
 
-#alphas, #patterns {
+#alphas, #betas {
 	position: absolute;
 	right: 5px;
 	top: 5px;

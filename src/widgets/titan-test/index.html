@@ -21,17 +21,19 @@
 		<div class='panel panel-default' id='alpha'>
 			<div class='panel panel-default' id='alpha_report'>
 				<div class='panel-heading'>
-					<h3 class='panel-title'>Alpha Report</h3>
-					<div id='alpha-info'></div>
+					<h3 class='panel-title' id='title-one'>Alpha Report</h3>
+					<div id='panel-one-info'></div>
 					<select id='alphas'></select>
 				</div>
 				<div class='panel-body'>
 					<div class='alpha-range' id='range'>
+						<label> Name: </label>
+						<input type='text' id='name-one' placeholder='Name' value='alpha report'>
 						<label> Start: </label>
-						<input type='text' id='start-alpha' placeholder='Start' value='0'>
+						<input type='text' id='start-one' placeholder='Start' value='0'>
 						<label> End: </label>
-						<input type='text' id='end-alpha' placeholder='End' value='9'>
-						<button id='get_ars'>Get Alpha Reports</button>
+						<input type='text' id='end-one' placeholder='End' value='9'>
+						<button id='get_pane1'>Get Items</button>
 					</div>
 				</div>
 			</div>
@@ -41,17 +43,19 @@
 		<div class='panel panel-default' id='matcher'>
 			<div class='panel panel-default' id='confirmer'>
 				<div class='panel-heading'>
-					<h3 class='panel-title'>Target Event</h3>
-					<div id='target-info'></div>
-					<select id='patterns'></select>
+					<h3 class='panel-title' id='title-two'>Target Event</h3>
+					<div id='panel-two-info'></div>
+					<select id='betas'></select>
 				</div>
 				<div class='panel-body'>	
 					<div class='target-range' id='range'>
+						<label> Name: </label>
+						<input type='text' id='name-two' placeholder='Name' value='target event'>
 						<label> Start: </label>
-						<input type='text' id='start-target' placeholder='Start' value='0'>
+						<input type='text' id='start-two' placeholder='Start' value='0'>
 						<label> End: </label>
-						<input type='text' id='end-target' placeholder='End' value='10'>
-						<button id='get_tes'>Get Target Events</button>
+						<input type='text' id='end-two' placeholder='End' value='9'>
+						<button id='get_pane2'>Get Items</button>
 					</div>
 				</div>
 			</div>

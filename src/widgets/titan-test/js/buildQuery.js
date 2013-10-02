@@ -101,7 +101,6 @@ var buildEdge = function(lObj){
 			query += '&';
 		}
 	});
-	//console.log(query.replace('#', ''));
 	query = query.replace('#', '');
 	query = query.replace('+', 'plus');
 	return query;

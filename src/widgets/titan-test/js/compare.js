@@ -314,9 +314,8 @@ var compareOrientation = function(ar, te){
 var updateVertex = function(id, obj){
 	$.ajax({
 		type: 'POST',
-		url: getVertexById(id),
+		url: updateVertexQuery(id, obj),
 		dataType: 'application/json',
-		data: JSON.stringify(obj),
 		success: function(r){
 			console.log('success');
 		},

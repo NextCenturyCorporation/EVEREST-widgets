@@ -75,44 +75,36 @@ var confirmer = function(){
 		.attr('width', me.width)
 		.attr('height', me.height);
 		
-	me.getTitanAlphaReportCount = function(){
+	me.getTitanItemCount = function(name, pane){
 		$.ajax({
 			type: 'GET',
-			url: buildKeyValueCountQuery('name', 'alpha report'),
+			url: buildKeyValueCountQuery('name', name),
 			dataType: 'application/json',
 			success: function(r){ 
 				console.log('success');
 			},
 			error: function(e){
 				var data = JSON.parse(e.responseText).results;
-				var options = d3.selectAll('#alphas option')[0].length;			
-				$('#alpha-info').text('Displaying ' + options + ' of ' + data + ' Alpha Reports');
-			}
-		});
-	};
-	
-	me.getTitanTargetEventCount = function(){
-		$.ajax({
-			type: 'GET',
-			url: buildKeyValueCountQuery('name', 'target event'),
-			dataType: 'application/json',
-			success: function(r){ 
-				console.log('success');
-			},
-			error: function(e){
-				var data = JSON.parse(e.responseText).results;
-				var options = d3.selectAll('#patterns option')[0].length;		
-				$('#target-info').text('Displaying ' + options + ' of ' + data + ' Target Events');
+				if (pane === 1){
+					var options = d3.selectAll('#alphas option')[0].length;			
+					$('#panel-one-info').text('Displaying ' + options + ' of ' + data + ' ' + name + 's');
+				} else {
+					var options = d3.selectAll('#betas option')[0].length;		
+					$('#panel-two-info').text('Displaying ' + options + ' of ' + data + ' ' + name + 's');
+				}
 			}
 		});
 	};
 			
-	me.getAllTitanAlphaReports = function(){
-		var start = $('#start-alpha').val();
-		var end = $('#end-alpha').val();
+	me.getAllTitanPaneOne = function(){
+		var name = $('#name-one').val();
+		var start = $('#start-one').val();
+		var end = $('#end-one').val();
+		
+		$('#title-one').text(name);
 		$.ajax({
 			type: 'GET',
-			url: buildKeyValueQuery('name', 'alpha report', start, end),
+			url: buildKeyValueQuery('name', name, start, end),
 			dataType: 'application/json',
 			success: function(r){ 
 				console.log('success');
@@ -125,7 +117,7 @@ var confirmer = function(){
 					});
 					
 					me.alpha_reports = data;
-					me.getTitanAlphaReportCount();
+					me.getTitanItemCount(name, 1);
 					var ar = me.alpha_reports[0];
 					me.getTitanAlphaReport(ar._id);
 				}
@@ -133,12 +125,15 @@ var confirmer = function(){
 		});
 	};
 	
-	me.getAllTitanTargetEvents = function(){
-		var start = $('#start-target').val();
-		var end = $('#end-target').val();
+	me.getAllTitanPaneTwo = function(){
+		var name = $('#name-two').val();
+		var start = $('#start-two').val();
+		var end = $('#end-two').val();
+		
+		$('#title-two').text(name);
 		$.ajax({
 			type: 'GET',
-			url: buildKeyValueQuery('name', 'target event', start, end),
+			url: buildKeyValueQuery('name', name, start, end),
 			dataType: 'application/json',
 			success: function(r){ 
 				console.log('success');
@@ -148,10 +143,10 @@ var confirmer = function(){
 				if ( data.length > 0 ){
 					me.target_events = data;
 					data.forEach(function(te){
-						d3.select('#patterns').append('option').text(te._id);
+						d3.select('#betas').append('option').text(te._id);
 					});
 					
-					me.getTitanTargetEventCount();
+					me.getTitanItemCount(name, 2);
 					var te = me.target_events[0];
 					me.getTitanTargetEvent(te._id);
 				}
@@ -238,22 +233,22 @@ var confirmer = function(){
 		});
 	};
 
-	me.createListeners = function(){
-		d3.select('#get_ars').on('click', function(){
+	me.createListeners = function(){  
+		d3.select('#get_pane1').on('click', function(){
 			d3.selectAll('#alphas option').remove();
-			me.getAllTitanAlphaReports();
+			me.getAllTitanPaneOne();
 		});
 		
-		d3.select('#get_tes').on('click', function(){
-			d3.selectAll('#patterns option').remove();
-			me.getAllTitanTargetEvents();
+		d3.select('#get_pane2').on('click', function(){
+			d3.selectAll('#betas option').remove();
+			me.getAllTitanPaneTwo();
 		});
 	
 		d3.select('#compare').on('click', function(){
 			d3.selectAll('#information li').remove();
 		
 			var alphas = d3.select('#alphas')[0][0];
-			var targets = d3.select('#patterns')[0][0];
+			var targets = d3.select('#betas')[0][0];
 			var ar_id = alphas.options[alphas.selectedIndex].text;
 			var te_id = targets.options[targets.selectedIndex].text;
 			
@@ -266,69 +261,17 @@ var confirmer = function(){
 				},
 				error: function(e){
 					var vertex = JSON.parse(e.responseText).results;
-					console.log(vertex);
-					if ( vertex.comparedTo === undefined ){
-						console.log("This alpha report has not been compared to any target events");
-						var comparedTo = [];
-						compareVertexAmount(ar_id, te_id);
-						compareEdgeAmount(ar_id, te_id);
-						compareVertices(ar_id, te_id);
-						compareEdges(ar_id, te_id);
-						compareOrientation(ar_id, te_id);
-						
-						setTimeout(function(){
-							comparedTo.push({
-								target_event_id: te_id,
-								score: d3.selectAll('#true li')[0].length
-							});
-							console.log(comparedTo);
-							updateVertex(ar_id, { array:comparedTo });
-						}, 2000);
-					} else {						
-						var found = { 
-							target_event_id: -1,
-							score: -1
-						};
-						
-						vertex.comparedTo.array.forEach(function(d){
-							console.log(d.target_event_id);
-							console.log(te_id);
-							if (d.target_event_id === te_id){
-								found.target_event_id = d.target_event_id;
-								found.score = d.score;
-							}
-						});
-						
-						console.log(found);
-						
-						if ( found.target_event_id !== -1 ){
-							console.log("Already compared to target event " + found.target_event_id);
-							console.log(found.score);
-						} else {
-							console.log("Not found in non-empty comparedTo array");
-							
-							var comparedTo = vertex.comparedTo.array;
-							compareVertexAmount(ar_id, te_id);
-							compareEdgeAmount(ar_id, te_id);
-							compareVertices(ar_id, te_id);
-							compareEdges(ar_id, te_id);
-							compareOrientation(ar_id, te_id);
-							
-							setTimeout(function(){
-								comparedTo.push({
-									target_event_id: te_id,
-									score: d3.selectAll('#true li')[0].length
-								});
-								console.log(comparedTo);
-								updateVertex(ar_id, { array:comparedTo });
-							}, 2000);
-						}
-					}
+					var comparedTo = [];
+					compareVertexAmount(ar_id, te_id);
+					compareEdgeAmount(ar_id, te_id);
+					compareVertices(ar_id, te_id);
+					compareEdges(ar_id, te_id);
+					compareOrientation(ar_id, te_id);					
 				}
 			});
 		});
 		
-		d3.select('#patterns').on('change', function(){
+		d3.select('#betas').on('change', function(){
 			var elem = $(this)[0];
 			var elem_id = elem.options[elem.selectedIndex].text;
 			me.getTitanTargetEvent(elem_id);
@@ -342,14 +285,11 @@ var confirmer = function(){
 		
 		d3.select('#compare_all').on('click', function(){
 			
-			
-			
-			
 		});
 	};
 	
 	me.display = function(){
-		me.getAllTitanAlphaReports();
-		me.getAllTitanTargetEvents();
+		me.getAllTitanPaneOne();
+		me.getAllTitanPaneTwo();
 	};
 };
