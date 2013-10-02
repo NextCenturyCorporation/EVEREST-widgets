@@ -79,7 +79,7 @@ var confirmer = function(){
 	};
 	
 	me.getTargetEvents = function(){
-		$.getJSON(url + 'target_event/?callback=?', function(data){
+		$.getJSON(url + 'target-event/?callback=?', function(data){
 			me.target_events = data;
 			for (var i = 0; i < data.length; i++){
 				d3.select('.patterns')
