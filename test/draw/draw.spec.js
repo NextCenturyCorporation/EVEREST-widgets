@@ -361,6 +361,9 @@ describe('To test the target event definition widget', function(){
 			});
 			
 			it('in delete_hold mode', function(){
+			
+				d3.selectAll('.node-link-container').remove();
+				test_draw.resetCanvas();
 				var aSvg = test_draw.addCircle(9, 10, 'hello');
 				var bSvg = test_draw.addCircle(11, 12, 'goodbye');				
 				
@@ -565,6 +568,8 @@ describe('To test the target event definition widget', function(){
 			test_draw.lines = [];
 			d3.selectAll('circle').remove();
 			d3.selectAll('line').remove();
+			d3.selectAll('.node-link-container').remove();
+			test_draw.resetCanvas();
 			
 			for (var i = 0; i < 4; i++){
 				var temp = test_draw.addCircle(i, i, 'a'+i);
