@@ -78,13 +78,15 @@ var confirmer = function(){
 	me.net1 = {
 		network : null,
 		id: '#panel-one-svg',
-		svg: me.svg_asserts
+		svg: me.svg_asserts,
+		name: 'alpha report'
 	};
 	
 	me.net2 = {
 		network : null,
 		id: '#panel-two-svg',
-		svg: me.svg_target
+		svg: me.svg_target,
+		name: 'target event'
 	};
 		
 	me.getTitanItemCount = function(name, pane){
@@ -114,6 +116,7 @@ var confirmer = function(){
 		var end = $('#end-one').val();
 		
 		$('#title-one').text(name);
+		me.net1.name = name;
 		$.ajax({
 			type: 'GET',
 			url: buildKeyValueQuery('name', name, start, end),
@@ -143,6 +146,7 @@ var confirmer = function(){
 		var end = $('#end-two').val();
 		
 		$('#title-two').text(name);
+		me.net2.name = name;
 		$.ajax({
 			type: 'GET',
 			url: buildKeyValueQuery('name', name, start, end),
@@ -173,7 +177,7 @@ var confirmer = function(){
 	    var edgesById = [];
 		$.ajax({
 			type: 'GET',
-			url: getGroupPathById(id),
+			url: getGroupPathById(id, net.name),
 			dataType: 'application/json',
 			success: function(r){ 
 				console.log('success');

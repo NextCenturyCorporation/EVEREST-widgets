@@ -31,8 +31,12 @@ var getEdgeLabelsById = function(id){
 	return titanAddress+'/tp/gremlin?script=g.v(' + id + ').inE.outV.inE.label';
 };
 
-var getGroupPathById = function(id){
-	return titanAddress+'/tp/gremlin?script=g.v(' + id + ').inE.outV.outE.inV.path';
+var getGroupPathById = function(id, name){
+	if (name === 'alpha report' || name === 'target event'){
+		return titanAddress+'/tp/gremlin?script=g.v(' + id + ').inE.outV.outE.inV.path';
+	} else {
+		return titanAddress+'/tp/gremlin?script=g.v(' + id + ').out.in.outE.inV.path';
+	}
 };
 
 var getGroupVertexCountById = function(id){
