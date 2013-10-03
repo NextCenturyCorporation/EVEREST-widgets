@@ -62,7 +62,6 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				var str = d.toString();
 				return str.length > MAX_CHARS ? str.substring(0, MAX_CHARS) + '...' : str;
 			}).on('click', function(d){
-				var coord = d3.mouse(this);
 				d3.selectAll('.data_table_descr').remove();
 				d3.select('.data_table_text')
 					.append('text')
@@ -222,16 +221,16 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			var elements = d3.selectAll('th');
 			
 			if (elem.classed('up')){
-				elements.classed('up', false)
-				elements.classed('down', false)
+				elements.classed('up', false);
+				elements.classed('down', false);
 				elements.classed('unsorted', true);
 			
 				elem.classed('unsorted', false);
 				elem.classed('down', true);
 				me.datas.sort( function (a, b){ return a[colId] < b[colId] ? 1 : -1; });
 			} else {
-				elements.classed('up', false)
-				elements.classed('down', false)
+				elements.classed('up', false);
+				elements.classed('down', false);
 				elements.classed('unsorted', true);
 				
 				elem.classed('unsorted', false);
@@ -260,16 +259,17 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		time = $.inArray(TYPE_OF_DATE, arr) !== -1 ? TYPE_OF_DATE : arr[0];
 		me.headers = arr;
 	
-		var header = d3.select('.data_table_data').append('thead');
-		//var header = d3.select('.data_table_header').append('thead');   //for fixed header
-		header.selectAll('th').remove();
+		//var header = d3.select('.data_table_data').append('thead');
+		//header.selectAll('th').remove();
+		var header = d3.select('thead');
+		
 		for (var i = arr.length - 1; i >= 0; i--){
 			header.insert('th',':first-child')
-					.text(arr[i])
-					.attr('id', i)
-					.attr('class', 'unsorted');
+				.text(arr[i])
+				.attr('id', i)
+				.attr('class', 'unsorted');
 		}
-	}
+	};
 	
 	me.resetAndSend = function(){
 		var headers = d3.selectAll('th');
@@ -277,10 +277,10 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		headers.classed('down', false);
 		headers.classed('unsorted', true);
 			
-		time_data = table.getTimes();
+		var time_data = table.getTimes();
 		
 		if (Date.parse(time_data[0])){
-			for (i = 0; i < time_data.length; i++){ time_data[i] = Date.parse(time_data[i]); }
+			for (var i = 0; i < time_data.length; i++){ time_data[i] = Date.parse(time_data[i]); }
 		
 			me.announce(JSON.stringify(time_data));
 		}
@@ -331,24 +331,24 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	};
 	
 	me.getPageNumbers = function(current, last){
-		var maxNumPages = 8; 		
-		var nums = [];
-		var j = 0;
+    var maxNumPages = 8;
+    var nums = [];
+    var j = 0;
 			
-		//if there are less pages than the max number of pages to show
-		if (last <= maxNumPages){
-			for (var i = 0; i < last; i++){ 
-				nums[i] = i+1; 
-			}
-			return nums;
-		}
-		
-		if (current <= maxNumPages / 2){
-			for (var i = 1; i <= maxNumPages; i++){
-				nums[j++] = i;
-			}
-			return nums;
-		}
+    //if there are less pages than the max number of pages to show
+    if (last <= maxNumPages){
+      for (var i = 0; i < last; i++){ 
+        nums[i] = i+1; 
+      }
+      return nums;
+    }
+    
+    if (current <= maxNumPages / 2){
+      for (var i = 1; i <= maxNumPages; i++){
+        nums[j++] = i;
+      }
+      return nums;
+    }
 		
 		if (current >= last - maxNumPages / 2){
 			for (var i = last - maxNumPages + 1; i <= last; i++){
@@ -357,7 +357,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			return nums;
 		}
 		var first = Math.max(1, current - maxNumPages / 2);
-		var last = Math.min(last, current + maxNumPages / 2);
+		last = Math.min(last, current + maxNumPages / 2);
 		for (var i = first; i < last; i++){
 			nums[j++] = i;
 		}
@@ -402,4 +402,4 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				});
 		}
 	};
-}
+};
