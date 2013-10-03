@@ -451,7 +451,7 @@ var draw = function(){
 				select color. if the mode is '' and is a circle just drag item
 	*/
 	me.move = function(){
-		var item;
+		var item = null;
 		if ( this.localName === 'line' ) {
 			var lSvg = d3.select(this);
 			var lObj = getObj(me.lines, lSvg.attr('class'), 'class');
@@ -460,25 +460,27 @@ var draw = function(){
 			item = this;
 		}
 	
-		if ( me.t_mode.getMode() === 'mover_hold' ||
-				this.localName === 'line') {
-			var cObj = getObj(me.circles, d3.select(item).attr('class'), 'class');
-			var cIndicies = me.extractCircles(cObj.group);
-			
-			cIndicies.forEach(function(d){
-				me.dragGroup(me.circles[d].html);
-			});
-		} else if ( me.t_mode.getMode() === 'select_hold' ) {
-			if ( d3.select(item).style('fill') === me.selectColor ) {
-				d3.selectAll('#canvas circle').each(function(){
-					var c = d3.select(this);
-					if (c.style('fill') === me.selectColor){
-						me.dragGroup(this);
-					}
+		if ( item !== null ){
+			if ( me.t_mode.getMode() === 'mover_hold' ||
+					this.localName === 'line') {
+				var cObj = getObj(me.circles, d3.select(item).attr('class'), 'class');
+				var cIndicies = me.extractCircles(cObj.group);
+				
+				cIndicies.forEach(function(d){
+					me.dragGroup(me.circles[d].html);
 				});
+			} else if ( me.t_mode.getMode() === 'select_hold' ) {
+				if ( d3.select(item).style('fill') === me.selectColor ) {
+					d3.selectAll('#canvas circle').each(function(){
+						var c = d3.select(this);
+						if (c.style('fill') === me.selectColor){
+							me.dragGroup(this);
+						}
+					});
+				}
+			} else if (me.t_mode.getMode() === ''){
+				me.dragGroup(item);
 			}
-		} else if (me.t_mode.getMode() === ''){
-			me.dragGroup(item);
 		}
 	};
 	
@@ -882,9 +884,9 @@ var draw = function(){
 				
 	*/
 	me.deleteItem = function(itemHtml){
-		var group, index;
+		var group = -1;
 		if ( itemHtml.localName === 'circle' ){
-			index = indexOfObj(me.circles, 
+			var index = indexOfObj(me.circles,
 				d3.select(itemHtml).attr('class'), 'class');
 			group = me.circles[index].group;
 			d3.selectAll('#canvas line').each(function(){
@@ -901,7 +903,8 @@ var draw = function(){
 			me.circles.splice(index, 1);
 			d3.select(itemHtml).remove();
 		} else if ( itemHtml.localName === 'line' ){
-			index = indexOfObj(me.lines, d3.select(itemHtml).attr('class'), 'class');
+			var index = indexOfObj(me.lines,
+				d3.select(itemHtml).attr('class'), 'class');
 			me.circles.forEach(function(d){
 				if (d.html === me.lines[index].source){
 					group = d.group;
@@ -912,23 +915,25 @@ var draw = function(){
 			d3.select(itemHtml.parentNode).remove();
 		}
 		
-		var cIndicies = me.extractCircles(group);
-		me.separateGroups(cIndicies);
-		
-		d3.selectAll('#canvas line').each(function(){
-			var lObj = getObj(me.lines, d3.select(this).attr('class'), 'class');
-			var cSvg1 = d3.select(lObj.source);
-			var cSvg2 = d3.select(lObj.target);
+		if (group !== -1){
+			var cIndicies = me.extractCircles(group);
+			me.separateGroups(cIndicies);
 			
-			var cObj1 = getObj(me.circles, cSvg1.attr('class'), 'class');
-			var cObj2 = getObj(me.circles, cSvg2.attr('class'), 'class');
-			
-			me.alterNodeColor('entity1', cObj1);
-			cSvg1.style('fill', cObj1.color);
-			
-			me.alterNodeColor('entity2', cObj2);
-			cSvg2.style('fill', cObj2.color);
-		});
+			d3.selectAll('#canvas line').each(function(){
+				var lObj = getObj(me.lines, d3.select(this).attr('class'), 'class');
+				var cSvg1 = d3.select(lObj.source);
+				var cSvg2 = d3.select(lObj.target);
+				
+				var cObj1 = getObj(me.circles, cSvg1.attr('class'), 'class');
+				var cObj2 = getObj(me.circles, cSvg2.attr('class'), 'class');
+				
+				me.alterNodeColor('entity1', cObj1);
+				cSvg1.style('fill', cObj1.color);
+				
+				me.alterNodeColor('entity2', cObj2);
+				cSvg2.style('fill', cObj2.color);
+			});
+		}
 	};
 	
 	/**
@@ -1061,7 +1066,7 @@ var draw = function(){
 	me.redraw = function(json){
 		var assertions = json.assertions;
 		var singletons = json.singletons;
-			 	
+	
 		for ( var i = 0; i < assertions.length; i++ ) {
 			var c1 = assertions[i].entity1[0];
 			var c2 = assertions[i].entity2[0];
@@ -1110,7 +1115,7 @@ var draw = function(){
 	};
 	
 	/**
-	@param 		type either 'entity1', 'entity2' or 'both'
+	@param		type either 'entity1', 'entity2' or 'both'
 				obj the object version of the circle to alter
 	@function	changes the node color to correspond to what kind of entity 
 				it now is. if type is entity1 but obj is entity2 or type is 
@@ -1160,7 +1165,8 @@ var draw = function(){
 		for (var i = 0; i < me.lines.length; i++){
 			var tempUrl = assert_url;
 			var line = me.lines[i];
-			var cObj1, cObj2;
+			var cObj1 = null;
+			var cObj2 = null;
 			for ( var j = 0; j < me.circles.length; j++ ) {
 				if ( me.circles[j].html === line.source ) {
 					cObj1 = me.circles[j];
@@ -1171,63 +1177,67 @@ var draw = function(){
 				}
 			}
 			
-			var entity1 = {
-				name: "entity1",
-				value: cObj1.d,
-				x: parseInt(cObj1.x, 10),
-				y: parseInt(cObj1.y, 10),
-				color: cObj1.color,
-				class: cObj1.class,
-				group: cObj1.group
-			};
-			var relationship = {
-				name: "relationship",
-				value: line.d,
-				color: 0,
-				class: line.class
-			};
-			var entity2 = {
-				name: "entity2",
-				value: cObj2.d,
-				x: parseInt(cObj2.x, 10),
-				y: parseInt(cObj2.y, 10),
-				color: cObj2.color,
-				class: cObj2.class,
-				group: cObj2.group
-			};
-						
-			var postData = {
-				name: cObj1.d + ' ' + line.d + ' ' + cObj2.d,
-				description:"",
-				entity1: [entity1],
-				relationship: [relationship],
-				entity2: [entity2]
-			};
-			
-			//update if already exists in database
-				if ( line.id !== undefined ){
-					tempUrl += line.id;
-				}
-			
-			me.assertions.assertions.push(postData);
-			
-			/*$.ajax({
-				type: "POST",
-				url: "../../../lib/post_relay.php",
-				data: JSON.stringify({url: assert_url, data: postData}),
-				success: function(){console.log('success');},
-				error: function(){console.log('error');}
-			});
-			
-			$.ajax({
-				type: "POST",
-				url: assert_url,
-				dataType: 'application/json',
-				data: postData,
-				success: function(r){
-					console.log(r);
-				}
-			});*/
+			if ( cObj1 !== null && cObj2 !== null ){
+				var entity1 = {
+					name: "entity1",
+					value: cObj1.d,
+					x: parseInt(cObj1.x, 10),
+					y: parseInt(cObj1.y, 10),
+					color: cObj1.color,
+					class: cObj1.class,
+					group: cObj1.group
+				};
+				
+				var relationship = {
+					name: "relationship",
+					value: line.d,
+					color: 0,
+					class: line.class
+				};
+				
+				var entity2 = {
+					name: "entity2",
+					value: cObj2.d,
+					x: parseInt(cObj2.x, 10),
+					y: parseInt(cObj2.y, 10),
+					color: cObj2.color,
+					class: cObj2.class,
+					group: cObj2.group
+				};
+							
+				var postData = {
+					name: cObj1.d + ' ' + line.d + ' ' + cObj2.d,
+					description:"",
+					entity1: [entity1],
+					relationship: [relationship],
+					entity2: [entity2]
+				};
+				
+				//update if already exists in database
+					if ( line.id !== undefined ){
+						tempUrl += line.id;
+					}
+				
+				me.assertions.assertions.push(postData);
+				
+				/*$.ajax({
+					type: "POST",
+					url: "../../../lib/post_relay.php",
+					data: JSON.stringify({url: assert_url, data: postData}),
+					success: function(){console.log('success');},
+					error: function(){console.log('error');}
+				});*/
+				
+				$.ajax({
+					type: "POST",
+					url: assert_url,
+					dataType: 'application/json',
+					data: postData,
+					success: function(r){
+						console.log(r);
+					}
+				});
+			}
 		}
 				
 		for ( var i = 0; i < me.circles.length; i++ ) {
@@ -1262,7 +1272,7 @@ var draw = function(){
 					data: JSON.stringify({url: assert_url, data: postData}),
 					success: function(){console.log('success');},
 					error: function(){console.log('error');}
-				});
+				});*/
 				
 				$.ajax({
 					type: "POST",
@@ -1272,12 +1282,11 @@ var draw = function(){
 					success: function(r){
 						console.log(r);
 					}
-				});*/
+				});
 			}
 		}
 		me.saveState(JSON.stringify(me.assertions));
 		//me.saveTargetEvent();
-		
 	};
 	
 	/**
