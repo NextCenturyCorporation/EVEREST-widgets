@@ -88,16 +88,19 @@ function circularHeatChart() {
     /* Arc functions */
     ir = function(d, i) {
         return innerRadius + Math.floor(i/numSegments) * segmentHeight;
-    }
+    };
+    
     or = function(d, i) {
         return innerRadius + segmentHeight + Math.floor(i/numSegments) * segmentHeight;
-    }
+    };
+    
     sa = function(d, i) {
         return (i * 2 * Math.PI) / numSegments;
-    }
+    };
+    
     ea = function(d, i) {
         return ((i + 1) * 2 * Math.PI) / numSegments;
-    }
+    };
 
     /* Configuration getters/setters */
     chart.margin = function(_) {
