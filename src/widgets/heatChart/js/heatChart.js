@@ -184,6 +184,9 @@ var getTimeChunks = function(mode, time_list){
 		var baseDay = baseDate.getDate();
 		var baseDayofweek = baseDate.getDay();
 		var baseHour = baseDate.getHours();
+
+		d3.select("#yearButton").text(baseYear);
+		d3.select("#monthButton").text(baseMonth);
 		
 		var wsd = baseDay - baseDayofweek;
 		var weekStartDate = new Date(baseDate);
@@ -334,11 +337,12 @@ var createHeatchart = function(time_chunks) {
 			break;
 			
 		case "year5":
-			col_labels.push('2011');  // TODO: fix labels to be data driven
-			col_labels.push('2012');
-			col_labels.push('2013');
-			col_labels.push('2014');
-			col_labels.push('2015');
+			var baseYear = baseDate.getFullYear();
+			col_labels.push(baseYear-2);
+			col_labels.push(baseYear-1);
+			col_labels.push(baseYear);
+			col_labels.push(baseYear+1);
+			col_labels.push(baseYear+2);
 			
 			row_labels.push('JAN');
 			row_labels.push('FEB');
