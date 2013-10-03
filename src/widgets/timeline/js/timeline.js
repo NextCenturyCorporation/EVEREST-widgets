@@ -63,9 +63,8 @@ var add = function add(sender, msg){
 	}
 	
 	// Sort the bars by date and add them to the timeline
-	bars.sort(function(a,b) {return a.id - b.id});
+	bars.sort(function(a,b) {return a.id - b.id;});
 	var container = document.getElementById("container");
-	var current = container.childNodes;
 	
 	// Add bar in the right location
 	for(var i = 0; i < bars.length; i++){
