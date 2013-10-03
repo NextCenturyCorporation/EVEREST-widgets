@@ -13,8 +13,6 @@ var toolbar = function(div_class){
 	me.num_tools = 0;
 	me.mode = "";
 	
-	var selectColor = '#ff0000';
-
 	me.createSelection = function(class_name, image, callback){
 		var clickFunction;
 		if ( callback !== undefined ){
