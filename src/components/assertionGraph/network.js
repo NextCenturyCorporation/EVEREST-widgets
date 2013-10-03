@@ -65,7 +65,7 @@ var network = function(svg, data, disjoint){
 			.attr("class", "link")
 			.attr('marker-mid', 'url(#Triangle)');
 		
-		me.node = me.node.data(me.nodes)
+		me.node = me.node.data(me.nodes);
 		me.node.exit().remove();
 		
 		var nodeEnter = me.node.enter().append("g")

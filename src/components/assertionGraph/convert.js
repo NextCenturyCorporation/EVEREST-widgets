@@ -89,7 +89,6 @@ function indexOfMessage(item, links, circles){
 function addNewAssertion(nodes, links, msg, disjoint){
 	var ent1 = {};
 	var ent2 = {};
-	var nodes1, nodes2;
 	if(indexOfMessage(msg, links, nodes) === -1){
 		ent1 = { 
 			value: msg.entity1.toLowerCase(),
