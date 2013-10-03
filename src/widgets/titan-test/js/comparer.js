@@ -49,12 +49,12 @@ var buildLinksNodes = function(input, nodes, edges, nodesById, edgesById){
             edges.push(input);
         }
     }
-}  
+}; 
 	
 
 var confirmer = function(){
 	var me = this;
-	var url = 'http://everest-build:8081/';
+//	var url = 'http://everest-build:8081/';   //TODO:  is never used, needed?
 	me.pane_one_items = [];
 	me.pane_two_items = [];
 
@@ -230,8 +230,8 @@ var confirmer = function(){
 					console.log('success');
 				},
 				error: function(e){
-					var vertex = JSON.parse(e.responseText).results;
-					var comparedTo = [];
+//					var vertex = JSON.parse(e.responseText).results;  //TODO: is never used,  needed?
+//					var comparedTo = [];     //TODO:  is never used, needed?
 					compareVertexAmount(ar_id, te_id);
 					compareEdgeAmount(ar_id, te_id);
 					compareVertices(ar_id, te_id);

@@ -134,7 +134,7 @@ var target_event_view = function(svg){
 			.on('mouseover', me.mouseover)
 			.on('mouseout', me.mouseout);
 
-		var path = me.createArrow(line);
+//		var path = me.createArrow(line);   //TODO: is never used, needed?
 		
 		if(indexOfObj(me.lines, l._id, '_id') === -1){
 			var lObj = {
