@@ -19,7 +19,7 @@ function initTable(data){
 };
 
 raw_data_widget.execute = function() {
-
+	$('selector').fixedHeaderTable('show');
 	$.getJSON(url + "?callback=?", function(data){
 		if (data !== []){
 			datas_to_use = data;
