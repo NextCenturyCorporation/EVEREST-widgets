@@ -9,13 +9,6 @@ $(function() {
 var rssAtomAdmin = function() {
 	var self =this;
 
-	//Strings used to dynamically generate certain fields.
-	var defaultMessage = '<div class="alert alert-info">Enter the URL for each RSS stream you want to collect below.</div>';
-
-	var alertSuccess = '<div class="alert alert-success">Feed Sucessfully Started.</div>';
-
-	var alertStopped = '<div class="alert alert-warning">Feed Has Been Stopped.</div>';
-
 	self.execute = function() {
 
 		$("#add-feed").on("click", function () {
@@ -178,7 +171,7 @@ var rssAtomAdmin = function() {
 			$("#info-alert").show();
 			$("#error-alert").hide();
 		}
-	}
+	};
 
 	var checkLastRow = function() {
 		if(numFields() <= 1) {
@@ -210,7 +203,7 @@ var rssAtomAdmin = function() {
 				row.attr("id", createdItemID);
 			});
 		});
-	}
+	};
 
 	var removeFeed = function(id) {
 		$.ajax({
