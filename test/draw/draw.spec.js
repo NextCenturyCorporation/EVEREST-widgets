@@ -226,7 +226,8 @@ describe('To test the target event definition widget', function(){
 	describe('the circle functions' , function(){
 		it('the addCircle function', function(){
 			spyOn(d3, 'select').andCallThrough();
-			d3.selectAll('circle').remove();
+			
+			test_draw.resetCanvas();
 			var c1 = test_draw.addCircle(50, 100, 'hi');
 			
 			expect(d3.select).toHaveBeenCalledWith('.node-link-container');
@@ -247,7 +248,7 @@ describe('To test the target event definition widget', function(){
 			spyOn(test_draw, 'addCircle').andCallThrough();
 			spyOn(window, '$').andCallThrough();
 			
-			test_draw.circles = [];
+			test_draw.resetCanvas();
 			test_draw.createCircle([49, 20]);
 			
 			expect(d3.select).toHaveBeenCalledWith('#ent-submit');

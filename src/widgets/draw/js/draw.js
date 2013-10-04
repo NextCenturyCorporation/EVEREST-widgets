@@ -47,7 +47,7 @@ var indexOfObj = function(array, value, attribute){
 	return -1;
 };
 
-var getObj = function (array, value, attribute) {
+var getObject = function (array, value, attribute) {
 	for (var i = 0; i < array.length; i++){
 		if (value.toLowerCase() === array[i][attribute].toLowerCase()){
 			return array[i];
@@ -315,7 +315,8 @@ var draw = function(){
 		$('.ent1').focus();
 		
 		d3.select('#ent-submit').on('click', function(){
-			if (getObj(me.circles, $('.ent1').val(), 'd') === null){
+			
+			if (getObject(me.circles, $('.ent1').val(), 'd') === null){
 				me.addCircle(e[0], e[1], $('.ent1').val());
 			}
 
@@ -454,7 +455,7 @@ var draw = function(){
 		var item = null;
 		if ( this.localName === 'line' ) {
 			var lSvg = d3.select(this);
-			var lObj = getObj(me.lines, lSvg.attr('class'), 'class');
+			var lObj = getObject(me.lines, lSvg.attr('class'), 'class');
 			item = lObj.source;
 		} else if ( this.localName === 'circle' ) {
 			item = this;
@@ -463,7 +464,7 @@ var draw = function(){
 		if ( item !== null ){
 			if ( me.t_mode.getMode() === 'mover_hold' ||
 					this.localName === 'line') {
-				var cObj = getObj(me.circles, d3.select(item).attr('class'), 'class');
+				var cObj = getObject(me.circles, d3.select(item).attr('class'), 'class');
 				var cIndicies = me.extractCircles(cObj.group);
 				
 				cIndicies.forEach(function(d){
@@ -493,7 +494,7 @@ var draw = function(){
 	*/
 	me.dragGroup = function(cHtml){
 		var cSvg = d3.select(cHtml);
-		var cObj = getObj(me.circles, cSvg.attr('class'), 'class');
+		var cObj = getObject(me.circles, cSvg.attr('class'), 'class');
 		var dx = d3.event.dx, dy = d3.event.dy;
 			
 		//move the circle based on the d3 event that occured
@@ -511,7 +512,7 @@ var draw = function(){
 		d3.selectAll('#canvas line').each(function(){
 			var x, y;
 			var lSvg = d3.select(this);
-			var lObj = getObj(me.lines, lSvg.attr('class'), 'class');
+			var lObj = getObject(me.lines, lSvg.attr('class'), 'class');
 					
 			if ( lObj.source === cObj.html ) {
 				x = 'x1';
@@ -587,11 +588,11 @@ var draw = function(){
 					if (cSvg.attr('cy') < bottom && cSvg.attr('cy') > top){
 						cSvg.style('fill', me.selectColor);
 					} else {
-						cObj = getObj(me.circles, cSvg.attr('class'), 'class');
+						cObj = getObject(me.circles, cSvg.attr('class'), 'class');
 						cSvg.style('fill', cObj.color);
 					}
 				} else {
-					cObj = getObj(me.circles, cSvg.attr('class'), 'class');
+					cObj = getObject(me.circles, cSvg.attr('class'), 'class');
 					cSvg.style('fill', cObj.color);
 				}
 			});
@@ -681,11 +682,11 @@ var draw = function(){
 					var cSvg1 = d3.select(me.lastNodeClicked);
 					var cSvg2 = d3.select(c2Html);
 					
-					var cObj1 = getObj(me.circles, cSvg1.attr('class'),  'class');
+					var cObj1 = getObject(me.circles, cSvg1.attr('class'),  'class');
 					me.alterNodeColor('entity1', cObj1);
 					cSvg1.style('fill', cObj1.color);
 					
-					var cObj2 = getObj(me.circles, cSvg2.attr('class'),  'class');
+					var cObj2 = getObject(me.circles, cSvg2.attr('class'),  'class');
 					me.alterNodeColor('entity2', cObj2);
 					cSvg2.style('fill', cObj2.color);
 					
@@ -752,7 +753,7 @@ var draw = function(){
 			
 				var cSvg1 = d3.select(c1Html);
 				var r = cSvg1.attr('r');
-				var cObj1 = getObj(me.circles, cSvg1.attr('class'), 'class');
+				var cObj1 = getObject(me.circles, cSvg1.attr('class'), 'class');
 							
 				me.alterNodeColor('entity1', cObj1);
 				cSvg1.style('fill', cObj1.color);
@@ -774,7 +775,7 @@ var draw = function(){
 					y:p1.y + dy
 				};
 				
-				var cObj2 = getObj(me.circles, $('.ent2').val(), 'd');
+				var cObj2 = getObject(me.circles, $('.ent2').val(), 'd');
 				var lInds = getAllIndicies(me.lines, $('.relate').val(), 'd');
 
 				var cSvg2, toAttach;
@@ -920,12 +921,12 @@ var draw = function(){
 			me.separateGroups(cIndicies);
 			
 			d3.selectAll('#canvas line').each(function(){
-				var lObj = getObj(me.lines, d3.select(this).attr('class'), 'class');
+				var lObj = getObject(me.lines, d3.select(this).attr('class'), 'class');
 				var cSvg1 = d3.select(lObj.source);
 				var cSvg2 = d3.select(lObj.target);
 				
-				var cObj1 = getObj(me.circles, cSvg1.attr('class'), 'class');
-				var cObj2 = getObj(me.circles, cSvg2.attr('class'), 'class');
+				var cObj1 = getObject(me.circles, cSvg1.attr('class'), 'class');
+				var cObj2 = getObject(me.circles, cSvg2.attr('class'), 'class');
 				
 				me.alterNodeColor('entity1', cObj1);
 				cSvg1.style('fill', cObj1.color);
@@ -967,7 +968,7 @@ var draw = function(){
 				for ( var j = 0; j < i; j++ ) {
 					var cObj2 = me.circles[circleGroup[j]];
 					d3.selectAll('#canvas line').each(function(){
-						var l = getObj(me.lines, d3.select(this).attr('class'), 'class');
+						var l = getObject(me.lines, d3.select(this).attr('class'), 'class');
 						if (l.source === cObj.html && l.target === cObj2.html){
 							thisGroup.push(me.circles[circleGroup[j]]);	
 						} else if (l.source === cObj2.html && l.target === cObj.html){
@@ -1007,7 +1008,7 @@ var draw = function(){
 	me.resetColors = function(){
 		d3.selectAll('#canvas circle').each(function(){
 			var cSvg = d3.select(this);
-			var cObj = getObj(me.circles, cSvg.attr('class'), 'class');
+			var cObj = getObject(me.circles, cSvg.attr('class'), 'class');
 			cSvg.style('fill', cObj.color);
 		});
 		
@@ -1072,8 +1073,8 @@ var draw = function(){
 			var c2 = assertions[i].entity2[0];
 			var l = assertions[i].relationship[0];
 			
-			var cObj1 = getObj(me.circles, c1.class, 'class');
-			var cObj2 = getObj(me.circles, c2.class, 'class');
+			var cObj1 = getObject(me.circles, c1.class, 'class');
+			var cObj2 = getObject(me.circles, c2.class, 'class');
 			
 			var cSvg1, cSvg2;
 			if (cObj1 === null){
@@ -1095,7 +1096,7 @@ var draw = function(){
 		
 		for (var i = 0; i < singletons.length; i++){
 			var c = singletons[i].entity1[0];
-			if ( getObj(me.circles, c.class,'class') === null ){
+			if ( getObject(me.circles, c.class,'class') === null ){
 				me.addCircle(c.x, c.y, c.value, c);
 			}
 		}
