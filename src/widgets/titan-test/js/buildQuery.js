@@ -32,11 +32,7 @@ var getEdgeLabelsById = function(id){
 };
 
 var getGroupPathById = function(id, name){
-	if (name === 'alpha report' || name === 'target event'){
-		return titanAddress+'/tp/gremlin?script=g.v(' + id + ').inE.outV.outE.inV.path';
-	} else {
-		return titanAddress+'/tp/gremlin?script=g.v(' + id + ').out.in.outE.inV.path';
-	}
+	return titanAddress+'/tp/gremlin?script=g.v(' + id + ').inE.outV.outE.inV.path';
 };
 
 var getGroupVertexCountById = function(id){
@@ -78,6 +74,24 @@ var getMatchingOrientation = function(id, array){
 			'").outV.has("name","' + d[2].name + '"),';
 	});
 	return query.substr(0, query.length - 1) + ')';
+};
+
+var buildKeyValueCountQuery = function(key, value){
+	return titanAddress+'/tp/gremlin?script=g.V.has("' + key + '","' + value + '").count()';
+};
+
+var buildKeyValueQuery = function(key, value, start, end){
+	start = start === undefined ? 0 : start;
+	end = end === undefined ? start + 9 : end;
+	if ( value === 'alpha report' || value === 'target event'){
+		return titanAddress+'/tp/gremlin?script=g.V.has("' + key + '","' + value + '")[' + start + '..' + end + ']';
+	} else {
+		return titanAddress+'/tp/gremlin?script=g.V.has("' + key + '","' + value + '")[' + start + '..' + end + '].outE.has("label","metadata of").inV';
+	}
+};
+
+var getMetadataVertex = function(id){
+	return titanAddress+'/tp/gremlin?script=g.v(' + id + ').outE.has("label","metadata of").inV';
 };
 
 
@@ -132,16 +146,6 @@ var buildNode = function(cObj){
 	query = query.replace('#', '');
 	query = query.replace('+', 'plus');
 	return query;
-};
-
-var buildKeyValueCountQuery = function(key, value){
-	return titanAddress+'/tp/gremlin?script=g.V.has("' + key + '","' + value + '").count()';
-};
-
-var buildKeyValueQuery = function(key, value, start, end){
-	start = start === undefined ? 0 : start;
-	end = end === undefined ? start + 9 : end;
-	return titanAddress+'/tp/gremlin?script=g.V.has("' + key + '","' + value + '")[' + start + '..' + end + ']';
 };
 
 /**

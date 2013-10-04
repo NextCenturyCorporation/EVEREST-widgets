@@ -102,10 +102,10 @@ var confirmer = function(){
 				var options;
 				if (pane === 1){
 					options = d3.selectAll('#panel-one-select option')[0].length;			
-					$('#panel-one-info').text('Displaying ' + options + ' of ' + data + ' ' + name + 's');
+					$('#panel-one-info').text('Displaying ' + options + ' of ' + data + ' items');
 				} else {
 					options = d3.selectAll('#panel-two-select option')[0].length;		
-					$('#panel-two-info').text('Displaying ' + options + ' of ' + data + ' ' + name + 's');
+					$('#panel-two-info').text('Displaying ' + options + ' of ' + data + ' items');
 				}
 			}
 		});
@@ -159,13 +159,13 @@ var confirmer = function(){
 				var data = JSON.parse(e.responseText).results;
 				if ( data.length > 0 ){
 					me.pane_two_items = data;
-					data.forEach(function(te){
-						d3.select('#panel-two-select').append('option').text(te._id);
+					data.forEach(function(d){
+						d3.select('#panel-two-select').append('option').text(d._id);
 					});
 					
 					me.getTitanItemCount(name, 2);
-					var te = me.pane_two_items[0];
-					me.getTitanItem(te._id, me.net2);
+					var item = me.pane_two_items[0];
+					me.getTitanItem(item._id, me.net2);
 				}
 			}
 		});
@@ -175,7 +175,7 @@ var confirmer = function(){
 		var nodesById = [];
 		var nodes = [];
 		var edges = [];
-		var edgesById = [];
+		var edgesById = [];		
 		$.ajax({
 			type: 'GET',
 			url: getGroupPathById(id, net.name),
@@ -250,10 +250,6 @@ var confirmer = function(){
 			var elem = $(this)[0];
 			var elem_id = elem.options[elem.selectedIndex].text;
 			me.getTitanItem(elem_id, me.net1);
-		});
-		
-		d3.select('#compare_all').on('click', function(){
-			
 		});
 	};
 	

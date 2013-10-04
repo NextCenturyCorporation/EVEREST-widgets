@@ -20,6 +20,10 @@ li {
 	padding-left: 10px;
 }
 
+.perfect {
+	background-color: #99ff99;
+}
+
 #name-one, #name-two {
 	width: 90px;
 }
@@ -56,7 +60,6 @@ li {
 
 #information {
 	width: 75%;
-	height: 200px;
 	margin-left: auto;
 	margin-right: auto;
 }

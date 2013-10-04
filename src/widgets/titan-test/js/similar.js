@@ -160,7 +160,16 @@ var confirmer = function(){
 		
 		var comparedTo = item.comparedTo;
 		comparedTo.forEach(function(d){
-			if ( d.score > 3 ){
+			if (d.score === 8){
+				if ( d.alpha_report_id !== null ){
+					d3.select('#panel-two-select').append('option').attr('class', 'perfect').text(d.alpha_report_id);
+					me.pane_two_items.push(d.alpha_report_id);
+				} else if ( d.target_event_id !== null ){
+					d3.select('#panel-two-select').append('option').attr('class', 'perfect').text(d.target_event_id);
+					me.pane_two_items.push(d.target_event_id);
+				}
+			}
+			else if ( d.score > 3 ){
 				if ( d.alpha_report_id !== null ){
 					d3.select('#panel-two-select').append('option').text(d.alpha_report_id);
 					me.pane_two_items.push(d.alpha_report_id);
