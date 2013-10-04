@@ -215,7 +215,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 
 	me.sorter = function(elem, colId){
 		//don't bother sorting if temp is empty
-		if (me.temp_datas.length !== 0){
+		if (me.range_datas.length !== 0){
 			elem = d3.select(elem);
 
 			var elements = d3.selectAll('th');
@@ -227,7 +227,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			
 				elem.classed('unsorted', false);
 				elem.classed('down', true);
-				me.datas.sort( function (a, b){ return a[colId] < b[colId] ? 1 : -1; });
+				me.range_datas.sort( function (a, b){ return a[colId] < b[colId] ? 1 : -1; });
 			} else {
 				elements.classed('up', false);
 				elements.classed('down', false);
@@ -235,7 +235,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				
 				elem.classed('unsorted', false);
 				elem.classed('up', true);
-				me.datas.sort( function (a, b){ return a[colId] > b[colId] ? 1 : -1; });
+				me.range_datas.sort( function (a, b){ return a[colId] > b[colId] ? 1 : -1; });
 			}
 		}
 	};
@@ -259,9 +259,8 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		time = $.inArray(TYPE_OF_DATE, arr) !== -1 ? TYPE_OF_DATE : arr[0];
 		me.headers = arr;
 	
-		//var header = d3.select('.data_table_data').append('thead');
-		//header.selectAll('th').remove();
-		var header = d3.select('thead');
+		var header = d3.select('.data_table_data').append('thead');
+		header.selectAll('th').remove();
 		
 		for (var i = arr.length - 1; i >= 0; i--){
 			header.insert('th',':first-child')
@@ -331,24 +330,24 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	};
 	
 	me.getPageNumbers = function(current, last){
-    var maxNumPages = 8;
-    var nums = [];
-    var j = 0;
-			
-    //if there are less pages than the max number of pages to show
-    if (last <= maxNumPages){
-      for (var i = 0; i < last; i++){ 
-        nums[i] = i+1; 
-      }
-      return nums;
-    }
-    
-    if (current <= maxNumPages / 2){
-      for (var i = 1; i <= maxNumPages; i++){
-        nums[j++] = i;
-      }
-      return nums;
-    }
+		var maxNumPages = 8;
+		var nums = [];
+		var j = 0;
+		
+		//if there are less pages than the max number of pages to show
+		if (last <= maxNumPages){
+			for (var i = 0; i < last; i++){ 
+				nums[i] = i+1; 
+			}
+				return nums;
+		}
+		
+		if (current <= maxNumPages / 2){
+			for (var i = 1; i <= maxNumPages; i++){
+				nums[j++] = i;
+			}
+			return nums;
+		}
 		
 		if (current >= last - maxNumPages / 2){
 			for (var i = last - maxNumPages + 1; i <= last; i++){
@@ -356,8 +355,10 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			}
 			return nums;
 		}
+		
 		var first = Math.max(1, current - maxNumPages / 2);
 		last = Math.min(last, current + maxNumPages / 2);
+		
 		for (var i = first; i < last; i++){
 			nums[j++] = i;
 		}

@@ -280,10 +280,10 @@ describe('To test src/components/data_table/data_table.js', function(){
 			spyOn(Math, 'min').andCallThrough();
 			spyOn(Math, 'max').andCallThrough();
 			
-			test_data_table.getPageNumbers(0, 100);
+			test_data_table.getPageNumbers(50, 100);
 			
-			expect(Math.min).toHaveBeenCalledWith(100, 10);
-			expect(Math.max).toHaveBeenCalledWith(1, -5);
+			expect(Math.min).toHaveBeenCalledWith(100, 54);
+			expect(Math.max).toHaveBeenCalledWith(1, 46);
 		});
 		
 		it('for proper method call logic with less than the max number of pages', function(){
@@ -303,24 +303,6 @@ describe('To test src/components/data_table/data_table.js', function(){
 			ns = test_data_table.getPageNumbers(0, 1);
 			expect(ns.length).toEqual(1);
 		});
-		
-		it('to contain ellipses when on a page too far from beginning and end', function(){
-			var ns = test_data_table.getPageNumbers(4, 10);
-			expect(ns.indexOf("...")).toEqual(-1);
-			
-			//too far from beginning
-			ns = test_data_table.getPageNumbers(7, 11);
-			expect(ns.indexOf("...")).toEqual(1);
-			
-			//too far from end
-			ns = test_data_table.getPageNumbers(2, 20);
-			expect(ns.indexOf("...")).toEqual(10);
-			
-			//too far from both
-			ns = test_data_table.getPageNumbers(10, 100);
-			expect(ns.indexOf("...")).toEqual(1);
-			expect(ns.lastIndexOf("...")).toEqual(12);
-		});
 	});
 	
 	describe('Tests the showPageNumbers function ', function(){
@@ -335,8 +317,8 @@ describe('To test src/components/data_table/data_table.js', function(){
 			
 			test_data_table.showPageNumbers();
 			
-			expect(d3.selectAll).toHaveBeenCalledWith('a');
-			expect(d3.select).toHaveBeenCalledWith('.data_table_pages');
+			expect(d3.selectAll).toHaveBeenCalledWith('.pagination li');
+			expect(d3.select).toHaveBeenCalledWith('.pagination');
 			expect(test_data_table.getPageNumbers).toHaveBeenCalledWith(1, 16);
 		
 		});
@@ -381,44 +363,6 @@ describe('To test src/components/data_table/data_table.js', function(){
 			
 			expect(f.id).toEqual('1');
 			expect(f.class).toEqual('down');
-		});
-	});
-	
-	describe('Tests the adjustDataWidths function ', function(){
-		
-		it('for proper method call logic ', function(){
-			spyOn(d3, 'selectAll').andCallThrough();
-			spyOn(d3, 'select').andCallThrough();
-			
-			test_data_table.adjustDataWidths();
-			
-			expect(d3.select).toHaveBeenCalledWith('tr');
-			expect(d3.selectAll).toHaveBeenCalledWith('th');
-		});
-		
-	});
-	
-	describe('Tests the setLocations function ', function(){
-		
-		it('for proper method call logic ', function(){
-			d3.select('.data_table_data')
-				.append('div').attr('class', 'data_table_hold')
-				.append('div').attr('class', 'data_table_text')
-				.append('div').attr('class', 'data_table_inputs');
-				
-			spyOn(test_data_table, 'getCenter').andCallThrough();
-			spyOn(d3, 'select').andCallThrough();
-			
-			test_data_table.setLocations();
-			
-			expect(test_data_table.getCenter).toHaveBeenCalledWith('.data_table_hold');
-			expect(test_data_table.getCenter).toHaveBeenCalledWith('.data_table_text');
-			expect(test_data_table.getCenter).toHaveBeenCalledWith('.data_table_inputs');
-			
-			expect(d3.select).toHaveBeenCalledWith('.data_table_text');
-			expect(d3.select).toHaveBeenCalledWith('.data_table_inputs');
-			expect(d3.select).toHaveBeenCalledWith('.data_table_container');
-			expect(d3.select).toHaveBeenCalledWith('.data_table_data');
 		});
 	});
 	

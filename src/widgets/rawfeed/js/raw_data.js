@@ -13,15 +13,17 @@ function initTable(data){
 		OWF.Eventing.publish("com.nextcentury.everest.data_table_announcing.raw_data", announcement);
 	}, max_rows);
 	
-	raw_data_table.createHeaders(Object.keys(raw_data_table.datas[0]));
-	table = raw_data_table.createTable(raw_data_table.MIN,raw_data_table.MAX);
-	raw_data_table.createClickers();
-};
+	if (raw_data_table.datas.length > 0){
+		raw_data_table.createHeaders(Object.keys(raw_data_table.datas[0]));
+		table = raw_data_table.createTable(raw_data_table.MIN,raw_data_table.MAX);
+		raw_data_table.createClickers();
+	}
+}
 
 raw_data_widget.execute = function() {
 	$.getJSON(url + "?callback=?", function(data){
 		if (data !== []){
-			datas_to_use = data;
+			datas_to_use = data.slice(0,1000);
 					
 			initTable(datas_to_use);
 
@@ -44,7 +46,7 @@ raw_data_widget.execute = function() {
 	});
 	
 	//look for changes and add them to table, no new table creations
-	setInterval(function(){
+	/*setInterval(function(){
 		$.getJSON(url + "?callback=?", function(data){
 			
 			if (data !== []){
@@ -80,5 +82,5 @@ raw_data_widget.execute = function() {
 				}
 			}
 		});
-	}, 1000);
+	}, 1000);*/
 };
