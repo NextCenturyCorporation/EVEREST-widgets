@@ -50,7 +50,14 @@ var buildLinksNodes = function(input, nodes, edges, nodesById, edgesById){
         }
     }
 }; 
-	
+
+var getObj = function(array, value, attribute){
+	for (var i = 0; i < array.length; i++){
+		if ( value === array[i][attribute] ){
+			return array[i];
+		}
+	}
+};
 
 var comparer = function(){
 	var me = this;
@@ -111,7 +118,7 @@ var comparer = function(){
 		});
 	};
 			
-	me.getAllTitanPaneOne = function(){
+	me.getTitanPaneOne = function(){
 		var name = $('#name-one').val();
 		var start = $('#start-one').val();
 		var end = $('#end-one').val();
@@ -125,63 +132,75 @@ var comparer = function(){
 			success: function(){ 
 				console.log('success');
 			},
-			error: function(e){
-				d3.selectAll('#information li').remove();				
-				me.pane_one_items = JSON.parse(e.responseText).results;
+			error: function(e){				
+				var data = JSON.parse(e.responseText).results;
+				d3.selectAll('#information li').remove();
+				me.pane_one_items = data;
 				me.getTitanItemCount(name, 1);
-				if ( me.pane_one_items.length > 0 ){
-					me.pane_one_items.forEach(function(ar){
+				if ( data.length > 0 ){
+					data.forEach(function(ar){
 						d3.select('#panel-one-select').append('option').text(ar._id);
 					});
-
+					
 					var ar = me.pane_one_items[0];
 					me.getTitanItem(ar._id, me.net1);
+					me.getTitanPaneTwo(ar);
 				} else {
-					me.net1.svg.select('.node-link-container').remove();
 					d3.selectAll('#panel-one-select option').remove();
+					me.net1.svg.select('.node-link-container').remove();
 				}
 			}
 		});
 	};
 	
-	me.getAllTitanPaneTwo = function(){
-		var name = $('#name-two').val();
-		var start = $('#start-two').val();
-		var end = $('#end-two').val();
+	me.getTitanPaneTwo = function(item){
+		d3.selectAll('#information li').remove();
+		d3.selectAll('#panel-two-select option').remove();
+		$('#panel-two-info').text('');
+		me.pane_two_items = [];
+		me.net2.svg.select('.node-link-container').remove();
 		
-		$('#title-two').text(name);
-		me.net2.name = name;
-		$.ajax({
-			type: 'GET',
-			url: buildKeyValueQuery('name', name, start, end),
-			dataType: 'application/json',
-			success: function(){ 
-				console.log('success');
-			},
-			error: function(e){
-				d3.selectAll('#information li').remove();
-				me.pane_two_items = JSON.parse(e.responseText).results;
-				me.getTitanItemCount(name, 2);
-				if ( me.pane_two_items.length > 0 ){
-					me.pane_two_items.forEach(function(d){
-						d3.select('#panel-two-select').append('option').text(d._id);
-					});
-					
-					var item = me.pane_two_items[0];
-					me.getTitanItem(item._id, me.net2);
-				} else {
-					d3.selectAll('#panel-two-select option').remove();
-					me.net2.svg.select('.node-link-container').remove();
+		var comparedTo = item.comparedTo;
+		comparedTo.forEach(function(d){
+			if (d.score === 8){
+				if ( d.alpha_report_id !== null ){
+					d3.select('#panel-two-select').append('option').attr('class', 'perfect').text(d.alpha_report_id);
+					me.pane_two_items.push(d.alpha_report_id);
+				} else if ( d.target_event_id !== null ){
+					d3.select('#panel-two-select').append('option').attr('class', 'perfect').text(d.target_event_id);
+					me.pane_two_items.push(d.target_event_id);
+				}
+			}
+			
+			else if ( d.score > 3 ){
+				//TODO - groovy script switched from alpha_id and target__id to
+				// just item_id, will need to be changed when database updates
+				if ( d.alpha_report_id !== null ){
+					d3.select('#panel-two-select').append('option').text(d.alpha_report_id);
+					me.pane_two_items.push(d.alpha_report_id);
+				} else if ( d.target_event_id !== null ){
+					d3.select('#panel-two-select').append('option').text(d.target_event_id);
+					me.pane_two_items.push(d.target_event_id);
 				}
 			}
 		});
+		
+		if (me.pane_two_items.length !== 0){
+			me.getTitanItem(me.pane_two_items[0], me.net2);
+			
+			if (me.pane_two_items.length === 1){
+				$('#panel-two-info').text('There is ' + me.pane_two_items.length + ' similar item');
+			} else {
+				$('#panel-two-info').text('There are ' + me.pane_two_items.length + ' similar items');
+			}
+		}
 	};
 	
 	me.getTitanItem = function(id, net){
 		var nodesById = [];
 		var nodes = [];
 		var edges = [];
-		var edgesById = [];		
+		var edgesById = [];
 		$.ajax({
 			type: 'GET',
 			url: getGroupPathById(id, net.name),
@@ -213,37 +232,35 @@ var comparer = function(){
 	me.createListeners = function(){  
 		d3.select('#get_pane1').on('click', function(){
 			d3.selectAll('#panel-one-select option').remove();
-			me.getAllTitanPaneOne();
+			d3.selectAll('#panel-two-select option').remove();
+			me.getTitanPaneOne();
 		});
 		
-		d3.select('#get_pane2').on('click', function(){
-			d3.selectAll('#panel-two-select option').remove();
-			me.getAllTitanPaneTwo();
-		});
-	
 		d3.select('#compare').on('click', function(){
 			d3.selectAll('#information li').remove();
 		
 			var alphas = d3.select('#panel-one-select')[0][0];
 			var targets = d3.select('#panel-two-select')[0][0];
-			var ar_id = alphas.options[alphas.selectedIndex].text;
-			var te_id = targets.options[targets.selectedIndex].text;
-			
-			$.ajax({
-				type: 'GET',
-				dataType: 'application/json',
-				url: getVertexById(ar_id),
-				success: function(){
-					console.log('success');
-				},
-				error: function(){
-					compareVertexAmount(ar_id, te_id);
-					compareEdgeAmount(ar_id, te_id);
-					compareVertices(ar_id, te_id);
-					compareEdges(ar_id, te_id);
-					compareOrientation(ar_id, te_id);					
-				}
-			});
+			if ( targets.options.length !== 0){
+				var ar_id = alphas.options[alphas.selectedIndex].text;
+				var te_id = targets.options[targets.selectedIndex].text;
+				
+				$.ajax({
+					type: 'GET',
+					dataType: 'application/json',
+					url: getVertexById(ar_id),
+					success: function(){
+						console.log('success');
+					},
+					error: function(){
+						compareVertexAmount(ar_id, te_id);
+						compareEdgeAmount(ar_id, te_id);
+						compareVertices(ar_id, te_id);
+						compareEdges(ar_id, te_id);
+						compareOrientation(ar_id, te_id);					
+					}
+				});
+			}
 		});
 		
 		d3.select('#panel-two-select').on('change', function(){
@@ -256,11 +273,13 @@ var comparer = function(){
 			var elem = $(this)[0];
 			var elem_id = elem.options[elem.selectedIndex].text;
 			me.getTitanItem(elem_id, me.net1);
+
+			var ar = getObj(me.pane_one_items, parseInt(elem_id, 10), '_id');
+			me.getTitanPaneTwo(ar);
 		});
 	};
 	
 	me.display = function(){
-		me.getAllTitanPaneOne();
-		me.getAllTitanPaneTwo();
+		me.getTitanPaneOne();
 	};
 };

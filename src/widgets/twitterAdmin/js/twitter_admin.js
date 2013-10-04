@@ -149,7 +149,7 @@ var twitter_admin = function() {
 		$(".add_more_filters_button_"+id).on('click', function() {
 			me.onAddFilters(id);
 		});
-	}
+	};
 
 	me.onAddFilters = function(id) {
 		$(".add_more_filters_button_"+id).remove();
@@ -206,7 +206,7 @@ var twitter_admin = function() {
 		$(".twitter_admin_new_key").show();
 		$(".twitter_admin_save_button").hide();
 		$(".twitter_admin_cancel_button").hide();
-	}
+	};
 
 	me.onSaveButtonClick = function() {
 
@@ -255,10 +255,10 @@ var twitter_admin = function() {
 			url: "./post_relay.php",
 			data: JSON.stringify({url: url, data: null, method: "DELETE"}),
 			success: function() {
-				me.handleDeleteSuccess(id)
+				me.handleDeleteSuccess(id);
 			},
 			error: function() {
-				me.handleDeleteError(id)
+				me.handleDeleteError(id);
 			}
 		});
 	};
@@ -311,7 +311,7 @@ var twitter_admin = function() {
 				</div> \
 			</div>';
 
-		return filter_html
-	}
+		return filter_html;
+	};
 };
 

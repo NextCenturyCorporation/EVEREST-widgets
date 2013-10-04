@@ -135,7 +135,7 @@ describe('To test src/components/data_table/data_table.js', function(){
 	
 			var result = test_data_table.extractData(startDate, endDate);
 			
-			expect(result.length).toBe(3)
+			expect(result.length).toBe(3);
 		});
 	
 		it('for correct upper limiting', function() {

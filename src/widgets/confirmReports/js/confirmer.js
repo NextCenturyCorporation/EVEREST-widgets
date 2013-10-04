@@ -10,7 +10,8 @@ var confirmer = function(){
 	me.height = d3.select('.asserts').style('height').split('p')[0];
 	
 	me.confirmed = {};
-	me.curr_ar_id, me.curr_te_id;
+	me.curr_ar_id = null;
+	me.curr_te_id = null;
 	me.curr_assert_ids = [];
 	
 	me.svg_target = d3.select('.target-pattern')
@@ -137,43 +138,48 @@ var confirmer = function(){
 	};
 	
 	me.getTargetAssertions = function(event_id){
-		var event;
+		var event = null;
 		var maxX = -1;
 		var maxY = -1;
 		me.target_assertions = [];
 		me.curr_te_id = event_id;
 		
+		//TODO: Can optimize the loop and ending condition
+		//      as is, the loop will keep going after it has found
+		//      a match.
 		for ( var i = 0; i < me.target_events.length; i++){
 			if ( me.target_events[i]._id === event_id ) {
 				event = me.target_events[i];
 			}
 		}
 		
-		$.ajax({
-			type: 'POST',
-			url: "../../../lib/post_relay.php",
-			data: JSON.stringify({url: url+'target_assertion/', data: null, method: 'GET'}),
-			success: function(data){
-				console.log('success');
-				data.forEach(function(ta){
-					if ( event.assertions.indexOf(ta._id.toString()) !== -1 ) {
-						me.target_assertions.push(ta);
-						
-						maxX = Math.max(maxX, ta.entity1[0].x);
-						maxY = Math.max(maxY, ta.entity1[0].y);
-						
-						if (a.entity2[0] !== undefined){
-							maxX = Math.max(maxX, ta.entity2[0].x);
-							maxY = Math.max(maxY, ta.entity2[0].y);
+		if (null !== event) {
+			$.ajax({
+				type: 'POST',
+				url: "../../../lib/post_relay.php",
+				data: JSON.stringify({url: url+'target_assertion/', data: null, method: 'GET'}),
+				success: function(data){
+					console.log('success');
+					data.forEach(function(ta){
+						if ( event.assertions.indexOf(ta._id.toString()) !== -1 ) {
+							me.target_assertions.push(ta);
+							
+							maxX = Math.max(maxX, ta.entity1[0].x);
+							maxY = Math.max(maxY, ta.entity1[0].y);
+							
+							if (a.entity2[0] !== undefined){
+								maxX = Math.max(maxX, ta.entity2[0].x);
+								maxY = Math.max(maxY, ta.entity2[0].y);
+							}
 						}
-					}
-					
-					me.displayTargetEventInfo(event);
-					me.te_view.draw(me.target_assertions, maxX, maxY);
-				});
-			},
-			error: function(){console.log('error');}
-		});
+						
+						me.displayTargetEventInfo(event);
+						me.te_view.draw(me.target_assertions, maxX, maxY);
+					});
+				},
+				error: function(){console.log('error');}
+			});
+		}
 	};
 	
 	me.display = function(){

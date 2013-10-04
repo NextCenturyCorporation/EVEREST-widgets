@@ -122,8 +122,11 @@ var compareVertices = function(ar, te){
 					//console.log(te_matches);
 					if (unique_te.length === unique_ar.length){
 						$('#true').append('<li>The Left Graph vertices are subset of The Right Graph</li>');
+					} else if (te_matches.length > 0) {
+						$('#true').append('<li>Some of The Left Graph vertices match those of The Right Graph</li>');
 					} else {
 						$('#false').append('<li>The Left Graph vertices are not subset of The Right Graph</li>');
+						$('#false').append('<li>None of The Left Graph vertices match those of The Right Graph</li>');
 					}
 				}
 			});
@@ -157,8 +160,11 @@ var compareVertices = function(ar, te){
 					//console.log(ar_matches);
 					if (unique_ar.length === unique_te.length){
 						$('#true').append('<li>The Right Graph vertices are subset of The Left Graph</li>');
+					} else if (ar_matches.length > 0 ){
+						$('#true').append('<li>Some of The Right Graph vertices match those of The Left Graph</li>');
 					} else {
 						$('#false').append('<li>The Right Graph vertices are not subset of The Left Graph</li>');
+						$('#false').append('<li>None of The Right Graph vertices match those of The Left Graph</li>');
 					}
 				}
 			});
@@ -177,8 +183,8 @@ var compareEdges = function(ar, te){
 		},
 		error: function(e){
 			var ar_labels = JSON.parse(e.responseText).results;
-			//console.log("The Left Graph edge labels: ");
-			//console.log(ar_labels);
+			console.log("The Left Graph edge labels: ");
+			console.log(ar_labels);
 			$.ajax({
 				type: 'GET',
 				url: getMatchingEdges(te, ar_labels),
@@ -192,8 +198,11 @@ var compareEdges = function(ar, te){
 					//console.log(te_matches);
 					if (te_matches.length === ar_labels.length){
 						$('#true').append('<li>The Left Graph egdes are subset of The Right Graph</li>');
+					} else if (te_matches.length > 0) {
+						$('#true').append('<li>Some of The Left Graph egdes match those of The Right Graph</li>');
 					} else {
 						$('#false').append('<li>The Left Graph egdes are not subset of The Right Graph</li>');
+						$('#false').append('<li>None of The Left Graph egdes match those of The Right Graph</li>');
 					}
 				}
 			});
@@ -209,8 +218,8 @@ var compareEdges = function(ar, te){
 		},
 		error: function(e){
 			var te_labels = JSON.parse(e.responseText).results;
-			//console.log("The Right Graph edge labels: ");
-			//console.log(te_labels);
+			console.log("The Right Graph edge labels: ");
+			console.log(te_labels);
 			$.ajax({
 				type: 'GET',
 				url: getMatchingEdges(ar, te_labels),
@@ -224,8 +233,11 @@ var compareEdges = function(ar, te){
 					//console.log(ar_matches);
 					if (ar_matches.length === te_labels.length){
 						$('#true').append('<li>The Right Graph edges are subset of The Left Graph</li>');
+					} else if (ar_matches.length > 0){
+						$('#true').append('<li>Some of The Right Graph egdes match those of The Left Graph</li>');
 					} else {
 						$('#false').append('<li>The Right Graph edges are not subset of The Left Graph</li>');
+						$('#false').append('<li>None of The Right Graph egdes match those of The Left Graph</li>');
 					}
 				}
 			});

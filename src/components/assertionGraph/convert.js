@@ -1,28 +1,28 @@
 /** Converts a json objedt which contains the following key/value pairs:
- * {
- * 		"entity1": "false claims",
- * 		"relationship": "aggravate",
- * 		"entity2": "identity theft"
- * }
- *
- * into two arrays, nodes and links, the proper format to use the force d3
- * example:
- * 
- * nodes = [
- * 		{"name": "false claims", "group":0},
- * 		{"name": "identity theft", "group":1},
- * 		{"name": "the core group of defendants", "group":1}
- * ];
- *
- * links = [
- * 		{"source":0, "target":1, "value":"aggravate"},
- *		{"source":2, "target":3, "value":"file"},
- *		{"source":4, "target":5, "value":"expand"},
- * ];
- *
- * where the number after source and target point to the index location in
- * the nodes array of the node to point to for this link
- */
+*	{
+*		"entity1": "false claims",
+*		"relationship": "aggravate",
+*		"entity2": "identity theft"
+	}
+*
+* into two arrays, nodes and links, the proper format to use the force d3
+* example:
+* 
+* nodes = [
+*		{"name": "false claims", "group":0},
+*		{"name": "identity theft", "group":1},
+*		{"name": "the core group of defendants", "group":1}
+* ];
+*
+* links = [
+*		{"source":0, "target":1, "value":"aggravate"},
+*		{"source":2, "target":3, "value":"file"},
+*		{"source":4, "target":5, "value":"expand"},
+* ];
+*
+* where the number after source and target point to the index location in
+* the nodes array of the node to point to for this link
+*/
 var count = 0;
 var entity1Color = '#333399';
 var entity2Color = '#339966';
@@ -41,14 +41,14 @@ function getCircle(item, array){
 function indexOfCircle(item, array, disjoint){
 	for (var i = 0; i < array.length; i++){
 		if (disjoint){
-			if (item.value === array[i].value 
-					&& item.ent === array[i].ent
-					&& item.group === array[i].group){
+			if (item.value === array[i].value && 
+					item.ent === array[i].ent && 
+					item.group === array[i].group){
 				return i;
 			}
 		} else {
-			if (item.value === array[i].value 
-					&& item.ent === array[i].ent){
+			if (item.value === array[i].value && 
+					item.ent === array[i].ent){
 				return i;
 			}
 		}
@@ -58,8 +58,9 @@ function indexOfCircle(item, array, disjoint){
 
 function indexOfLink(item, array){
 	for (var i = 0; i < array.length; i++){
-		if (item.value === array[i].value && item.source === array[i].source.index
-				&& item.target === array[i].target.index){
+		if (item.value === array[i].value && 
+				item.source === array[i].source.index && 
+				item.target === array[i].target.index){
 			return i;
 		}
 	}
@@ -70,15 +71,15 @@ function indexOfMessage(item, links, circles){
 	for (var i = 0; i < links.length; i++){
 		var a = links[i];
 		if (typeof(a.source) === 'object'){
-			if (a.source.value === item.entity1.toLowerCase() 
-					&& a.target.value == item.entity2.toLowerCase()
-					&& a.value === item.relationship.toLowerCase()){
+			if (a.source.value === item.entity1.toLowerCase() && 
+					a.target.value == item.entity2.toLowerCase() && 
+					a.value === item.relationship.toLowerCase()){
 				return i;
 			}
 		} else {
-			if (circles[a.source].value === item.entity1.toLowerCase()
-				 	&& circles[a.target].value === item.entity2.toLowerCase()
-				 	&& a.value === item.relationship.toLowerCase()){
+			if (circles[a.source].value === item.entity1.toLowerCase() && 
+					circles[a.target].value === item.entity2.toLowerCase() &&
+					a.value === item.relationship.toLowerCase()){
 				return i;
 			}
 		}
