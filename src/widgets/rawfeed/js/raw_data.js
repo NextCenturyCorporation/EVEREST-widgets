@@ -23,7 +23,7 @@ function initTable(data){
 raw_data_widget.execute = function() {
 	$.getJSON(url + "?callback=?", function(data){
 		if (data !== []){
-			datas_to_use = data.slice(0,1000);
+			datas_to_use = data.slice(0,1001);
 					
 			initTable(datas_to_use);
 

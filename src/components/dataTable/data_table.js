@@ -17,7 +17,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	
 	me.datas = datas_to_set;
 	me.max_rows = (rows ? rows : 10);
-	me.max_pages = Math.floor(me.datas.length / me.max_rows);
+	me.max_pages = Math.ceil(me.datas.length / me.max_rows);
 	me.count = me.page * me.max_rows;
 	me.range_datas = me.datas;
 	me.temp_datas = me.datas.slice(0, me.max_rows);
@@ -134,7 +134,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 				me.addRow(item, this);
 				
 				//pages @ top, if data becomes large enough to add another page,
-				var expectedPages = Math.floor(me.datas.length / me.max_rows);
+				var expectedPages = Math.ceil(me.datas.length / me.max_rows);
 				if (expectedPages > me.max_pages){
 					var that = this;
 					me.max_pages = expectedPages;
@@ -150,7 +150,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	me.createTable = function(s, e){
 		me.page = 0;
 		me.range_datas = me.extractData(s, e);
-		me.max_pages = Math.floor(me.range_datas.length / me.max_rows);	
+		me.max_pages = Math.ceil(me.range_datas.length / me.max_rows);	
 		table = new me.tableView(me.range_datas);									
 		return table;
 	};
@@ -289,7 +289,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		if( r > 0 && r < MAX_ROWS){
 			me.max_rows = r;
 			me.temp_datas = me.range_datas.slice(0, me.max_rows);
-			me.max_pages = Math.floor( me.range_datas.length / me.max_rows );
+			me.max_pages = Math.ceil( me.range_datas.length / me.max_rows );
 		}
 	};
 	
@@ -369,7 +369,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	me.showPageNumbers = function(that){
 		d3.selectAll('.pagination li').remove();
 		var pages = d3.select('.pagination');
-		var nums = me.getPageNumbers(me.page + 1, me.max_pages + 1);
+		var nums = me.getPageNumbers(me.page + 1, me.max_pages);
 
 		var li = pages.append('li');
 		if (nums[0] === 1){
@@ -398,7 +398,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		} else {
 			li.append('a').attr('class', '#')
 				.text('>>').on('click', function(){
-					me.page = me.max_pages;
+					me.page = me.max_pages - 1;
 					that.render();
 				});
 		}

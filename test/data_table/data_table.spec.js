@@ -319,7 +319,7 @@ describe('To test src/components/data_table/data_table.js', function(){
 			
 			expect(d3.selectAll).toHaveBeenCalledWith('.pagination li');
 			expect(d3.select).toHaveBeenCalledWith('.pagination');
-			expect(test_data_table.getPageNumbers).toHaveBeenCalledWith(1, 16);
+			expect(test_data_table.getPageNumbers).toHaveBeenCalledWith(1, 15);
 		
 		});
 	});
@@ -372,12 +372,12 @@ describe('To test src/components/data_table/data_table.js', function(){
 			d3.select('body').attr('class', 'data_table_data');
 		
 			spyOn(test_data_table.datas, 'slice').andCallThrough();
-			spyOn(Math, 'floor').andCallThrough();
+			spyOn(Math, 'ceil').andCallThrough();
 			
 			test_data_table.setMaxRows(10);
 			
 			expect(test_data_table.datas.slice).toHaveBeenCalledWith(0, 10);
-			expect(Math.floor).toHaveBeenCalled();
+			expect(Math.ceil).toHaveBeenCalled();
 		});
 		
 		it('for proper input validation ', function(){
