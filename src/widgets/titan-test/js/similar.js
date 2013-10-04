@@ -50,7 +50,14 @@ var buildLinksNodes = function(input, nodes, edges, nodesById, edgesById){
         }
     }
 }; 
-	
+
+var getObj = function(array, value, attribute){
+	for (var i = 0; i < array.length; i++){
+		if ( value === array[i][attribute] ){
+			return array[i];
+		}
+	}
+};
 
 var confirmer = function(){
 	var me = this;
@@ -112,6 +119,8 @@ var confirmer = function(){
 	};
 			
 	me.getAllTitanPaneOne = function(){
+		d3.selectAll('#information li').remove();
+	
 		var name = $('#name-one').val();
 		var start = $('#start-one').val();
 		var end = $('#end-one').val();
@@ -136,39 +145,41 @@ var confirmer = function(){
 					me.getTitanItemCount(name, 1);
 					var ar = me.pane_one_items[0];
 					me.getTitanItem(ar._id, me.net1);
+					me.getTitanPaneTwo(ar._id, ar);
 				}
 			}
 		});
 	};
 	
-	me.getAllTitanPaneTwo = function(){
-		var name = $('#name-two').val();
-		var start = $('#start-two').val();
-		var end = $('#end-two').val();
+	me.getTitanPaneTwo = function(id, item){
+		d3.selectAll('#information li').remove();
+		d3.selectAll('#panel-two-select option').remove();
+		$('#panel-two-info').text('');
+		me.pane_two_items = [];
+		me.net2.svg.select('.node-link-container').remove();
 		
-		$('#title-two').text(name);
-		me.net2.name = name;
-		$.ajax({
-			type: 'GET',
-			url: buildKeyValueQuery('name', name, start, end),
-			dataType: 'application/json',
-			success: function(r){ 
-				console.log('success');
-			},
-			error: function(e){
-				var data = JSON.parse(e.responseText).results;
-				if ( data.length > 0 ){
-					me.pane_two_items = data;
-					data.forEach(function(te){
-						d3.select('#panel-two-select').append('option').text(te._id);
-					});
-					
-					me.getTitanItemCount(name, 2);
-					var te = me.pane_two_items[0];
-					me.getTitanItem(te._id, me.net2);
+		var comparedTo = item.comparedTo;
+		comparedTo.forEach(function(d){
+			if ( d.score > 3 ){
+				if ( d.alpha_report_id !== null ){
+					d3.select('#panel-two-select').append('option').text(d.alpha_report_id);
+					me.pane_two_items.push(d.alpha_report_id);
+				} else if ( d.target_event_id !== null ){
+					d3.select('#panel-two-select').append('option').text(d.target_event_id);
+					me.pane_two_items.push(d.target_event_id);
 				}
 			}
 		});
+		
+		if (me.pane_two_items.length !== 0){
+			me.getTitanItem(me.pane_two_items[0], me.net2);
+			
+			if (me.pane_two_items.length === 1){
+				$('#panel-two-info').text('There is ' + me.pane_two_items.length + ' similar item');
+			} else {
+				$('#panel-two-info').text('There are ' + me.pane_two_items.length + ' similar items');
+			}
+		}
 	};
 	
 	me.getTitanItem = function(id, net){
@@ -207,37 +218,35 @@ var confirmer = function(){
 	me.createListeners = function(){  
 		d3.select('#get_pane1').on('click', function(){
 			d3.selectAll('#panel-one-select option').remove();
+			d3.selectAll('#panel-two-select option').remove();
 			me.getAllTitanPaneOne();
 		});
 		
-		d3.select('#get_pane2').on('click', function(){
-			d3.selectAll('#panel-two-select option').remove();
-			me.getAllTitanPaneTwo();
-		});
-	
 		d3.select('#compare').on('click', function(){
 			d3.selectAll('#information li').remove();
 		
 			var alphas = d3.select('#panel-one-select')[0][0];
 			var targets = d3.select('#panel-two-select')[0][0];
-			var ar_id = alphas.options[alphas.selectedIndex].text;
-			var te_id = targets.options[targets.selectedIndex].text;
-			
-			$.ajax({
-				type: 'GET',
-				dataType: 'application/json',
-				url: getVertexById(ar_id),
-				success: function(r){
-					console.log('success');
-				},
-				error: function(e){
-					compareVertexAmount(ar_id, te_id);
-					compareEdgeAmount(ar_id, te_id);
-					compareVertices(ar_id, te_id);
-					compareEdges(ar_id, te_id);
-					compareOrientation(ar_id, te_id);					
-				}
-			});
+			if ( targets.options.length !== 0){
+				var ar_id = alphas.options[alphas.selectedIndex].text;
+				var te_id = targets.options[targets.selectedIndex].text;
+				
+				$.ajax({
+					type: 'GET',
+					dataType: 'application/json',
+					url: getVertexById(ar_id),
+					success: function(r){
+						console.log('success');
+					},
+					error: function(e){
+						compareVertexAmount(ar_id, te_id);
+						compareEdgeAmount(ar_id, te_id);
+						compareVertices(ar_id, te_id);
+						compareEdges(ar_id, te_id);
+						compareOrientation(ar_id, te_id);					
+					}
+				});
+			}
 		});
 		
 		d3.select('#panel-two-select').on('change', function(){
@@ -247,18 +256,17 @@ var confirmer = function(){
 		});
 		
 		d3.select('#panel-one-select').on('change', function(){
+		
 			var elem = $(this)[0];
 			var elem_id = elem.options[elem.selectedIndex].text;
 			me.getTitanItem(elem_id, me.net1);
-		});
-		
-		d3.select('#compare_all').on('click', function(){
-			
+
+			var ar = getObj(me.pane_one_items, parseInt(elem_id, 10), '_id');
+			me.getTitanPaneTwo(elem_id, ar);
 		});
 	};
 	
 	me.display = function(){
 		me.getAllTitanPaneOne();
-		me.getAllTitanPaneTwo();
 	};
 };

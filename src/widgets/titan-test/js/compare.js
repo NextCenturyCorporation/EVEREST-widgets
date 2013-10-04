@@ -177,8 +177,8 @@ var compareEdges = function(ar, te){
 		},
 		error: function(e){
 			var ar_labels = JSON.parse(e.responseText).results;
-			//console.log("The Left Graph edge labels: ");
-			//console.log(ar_labels);
+			console.log("The Left Graph edge labels: ");
+			console.log(ar_labels);
 			$.ajax({
 				type: 'GET',
 				url: getMatchingEdges(te, ar_labels),
@@ -209,8 +209,8 @@ var compareEdges = function(ar, te){
 		},
 		error: function(e){
 			var te_labels = JSON.parse(e.responseText).results;
-			//console.log("The Right Graph edge labels: ");
-			//console.log(te_labels);
+			console.log("The Right Graph edge labels: ");
+			console.log(te_labels);
 			$.ajax({
 				type: 'GET',
 				url: getMatchingEdges(ar, te_labels),
