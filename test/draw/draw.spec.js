@@ -209,17 +209,17 @@ describe('To test the target event definition widget', function(){
 			
 			var r = d3.select('.csvg rect');
 			expect(r.attr('class')).toEqual('background');
-			expect(parseInt(r.attr('x'))).toEqual(0);
-			expect(parseInt(r.attr('y'))).toEqual(0);
-			expect(parseInt(r.style('opacity'))).toEqual(0);
+			expect(parseInt(r.attr('x'), 10)).toEqual(0);
+			expect(parseInt(r.attr('y'), 10)).toEqual(0);
+			expect(parseInt(r.style('opacity'), 10)).toEqual(0);
 			
 			var g = d3.select('.csvg g');
 			expect(g.attr('class')).toEqual('node-link-container');
 			
 			var m = d3.select('marker');
 			expect(m.attr('id')).toEqual('Triangle');
-			expect(parseInt(m.attr('refX'))).toEqual(0);
-			expect(parseInt(m.attr('refY'))).toEqual(3);
+			expect(parseInt(m.attr('refX'),10)).toEqual(0);
+			expect(parseInt(m.attr('refY'),10)).toEqual(3);
 		});
 	});
 
@@ -231,9 +231,9 @@ describe('To test the target event definition widget', function(){
 			
 			expect(d3.select).toHaveBeenCalledWith('.node-link-container');
 			expect(c1.attr('d')).toEqual('hi');
-			expect(parseInt(c1.attr('cx'))).toEqual(50);
-			expect(parseInt(c1.attr('cy'))).toEqual(100);
-			expect(parseInt(c1.attr('r'))).toEqual(test_draw.radius);
+			expect(parseInt(c1.attr('cx'),10)).toEqual(50);
+			expect(parseInt(c1.attr('cy'),10)).toEqual(100);
+			expect(parseInt(c1.attr('r'),10)).toEqual(test_draw.radius);
 			expect(c1.style('fill')).toEqual('#ffffff');
 			
 			test_draw.addCircle(112, 135, 'hiya');
@@ -624,11 +624,11 @@ describe('To test the target event definition widget', function(){
 			expect(test_draw.circles.length).toEqual(2);
 			expect(test_draw.lines.length).toEqual(0);
 			
-			var cT1 = test_draw.circles[0];
+			cT1 = test_draw.circles[0];
 			expect(cT1.color).toEqual('#ffffff');
 			expect(d3.select(cT1.html).style('fill')).toEqual('#ffffff');
 			
-			var cT2 = test_draw.circles[1];
+			cT2 = test_draw.circles[1];
 			expect(cT2.color).toEqual('#ffffff');
 			expect(d3.select(cT2.html).style('fill')).toEqual('#ffffff');
 		});
@@ -725,7 +725,7 @@ describe('To test the target event definition widget', function(){
 			
 			center.remove();
 			var c = test_draw.circles.shift();
-			var cIndicies = test_draw.extractCircles(c.group);
+			cIndicies = test_draw.extractCircles(c.group);
 			
 			test_draw.separateGroups(cIndicies);
 			

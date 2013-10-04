@@ -10,7 +10,8 @@ var confirmer = function(){
 	me.height = d3.select('.asserts').style('height').split('p')[0];
 	
 	me.confirmed = {};
-	me.curr_ar_id, me.curr_te_id;
+	me.curr_ar_id = null;
+	me.curr_te_id = null;
 	me.curr_assert_ids = [];
 	
 	me.svg_target = d3.select('.target-pattern')

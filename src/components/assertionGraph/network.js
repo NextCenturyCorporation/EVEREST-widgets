@@ -6,7 +6,7 @@ function midpoint(p1, p2){
 		x: (p1.x + p2.x) / 2,
 		y: (p1.y + p2.y) / 2
 	};
-};
+}
 
 var network = function(svg, data, disjoint){
 	var me = this;
@@ -37,7 +37,7 @@ var network = function(svg, data, disjoint){
 	me.link = me.container.selectAll('.link');
 	me.node = me.container.selectAll('.node');
 	me.color = d3.scale.category10();
-	me.linktext;
+	me.linktext = null;
 	me.radius = 8;
 	
 	me.force = d3.layout.force()
@@ -135,8 +135,8 @@ var network = function(svg, data, disjoint){
 		me.node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 	
 		me.linktext.attr("transform", function(d) {
-			return "translate(" + (d.source.x + d.target.x) / 2 + "," 
-					+ (d.source.y + d.target.y) / 2 + ")"; 
+			return "translate(" + (d.source.x + d.target.x) / 2 + "," + 
+				(d.source.y + d.target.y) / 2 + ")"; 
 		});
 	};
 	
