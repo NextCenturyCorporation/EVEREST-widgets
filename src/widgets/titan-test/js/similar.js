@@ -109,18 +109,16 @@ var confirmer = function(){
 				var options;
 				if (pane === 1){
 					options = d3.selectAll('#panel-one-select option')[0].length;			
-					$('#panel-one-info').text('Displaying ' + options + ' of ' + data + ' ' + name + 's');
+					$('#panel-one-info').text('Displaying ' + options + ' of ' + data + ' items');
 				} else {
 					options = d3.selectAll('#panel-two-select option')[0].length;		
-					$('#panel-two-info').text('Displaying ' + options + ' of ' + data + ' ' + name + 's');
+					$('#panel-two-info').text('Displaying ' + options + ' of ' + data + ' items');
 				}
 			}
 		});
 	};
 			
-	me.getAllTitanPaneOne = function(){
-		d3.selectAll('#information li').remove();
-	
+	me.getTitanPaneOne = function(){
 		var name = $('#name-one').val();
 		var start = $('#start-one').val();
 		var end = $('#end-one').val();
@@ -136,16 +134,20 @@ var confirmer = function(){
 			},
 			error: function(e){				
 				var data = JSON.parse(e.responseText).results;
+				d3.selectAll('#information li').remove();
+				me.pane_one_items = data;
+				me.getTitanItemCount(name, 1);
 				if ( data.length > 0 ){
 					data.forEach(function(ar){
 						d3.select('#panel-one-select').append('option').text(ar._id);
 					});
 					
-					me.pane_one_items = data;
-					me.getTitanItemCount(name, 1);
 					var ar = me.pane_one_items[0];
 					me.getTitanItem(ar._id, me.net1);
 					me.getTitanPaneTwo(ar._id, ar);
+				} else {
+					d3.selectAll('#panel-one-select option').remove();
+					me.net1.svg.select('.node-link-container').remove();
 				}
 			}
 		});
@@ -169,7 +171,11 @@ var confirmer = function(){
 					me.pane_two_items.push(d.target_event_id);
 				}
 			}
+			
 			else if ( d.score > 3 ){
+				var newOption = null;
+				//TODO - groovy script switched from alpha_id and target__id to
+				// just item_id, will need to be changed when database updates
 				if ( d.alpha_report_id !== null ){
 					d3.select('#panel-two-select').append('option').text(d.alpha_report_id);
 					me.pane_two_items.push(d.alpha_report_id);
@@ -228,7 +234,7 @@ var confirmer = function(){
 		d3.select('#get_pane1').on('click', function(){
 			d3.selectAll('#panel-one-select option').remove();
 			d3.selectAll('#panel-two-select option').remove();
-			me.getAllTitanPaneOne();
+			me.getTitanPaneOne();
 		});
 		
 		d3.select('#compare').on('click', function(){
@@ -265,7 +271,6 @@ var confirmer = function(){
 		});
 		
 		d3.select('#panel-one-select').on('change', function(){
-		
 			var elem = $(this)[0];
 			var elem_id = elem.options[elem.selectedIndex].text;
 			me.getTitanItem(elem_id, me.net1);
@@ -276,6 +281,6 @@ var confirmer = function(){
 	};
 	
 	me.display = function(){
-		me.getAllTitanPaneOne();
+		me.getTitanPaneOne();
 	};
 };

@@ -125,17 +125,20 @@ var confirmer = function(){
 			success: function(r){ 
 				console.log('success');
 			},
-			error: function(e){				
-				var data = JSON.parse(e.responseText).results;
-				if ( data.length > 0 ){
-					data.forEach(function(ar){
+			error: function(e){
+				d3.selectAll('#information li').remove();				
+				me.pane_one_items = JSON.parse(e.responseText).results;
+				me.getTitanItemCount(name, 1);
+				if ( me.pane_one_items.length > 0 ){
+					me.pane_one_items.forEach(function(ar){
 						d3.select('#panel-one-select').append('option').text(ar._id);
 					});
-					
-					me.pane_one_items = data;
-					me.getTitanItemCount(name, 1);
+
 					var ar = me.pane_one_items[0];
 					me.getTitanItem(ar._id, me.net1);
+				} else {
+					me.net1.svg.select('.node-link-container').remove();
+					d3.selectAll('#panel-one-select option').remove();
 				}
 			}
 		});
@@ -156,16 +159,19 @@ var confirmer = function(){
 				console.log('success');
 			},
 			error: function(e){
-				var data = JSON.parse(e.responseText).results;
-				if ( data.length > 0 ){
-					me.pane_two_items = data;
-					data.forEach(function(d){
+				d3.selectAll('#information li').remove();
+				me.pane_two_items = JSON.parse(e.responseText).results;
+				me.getTitanItemCount(name, 2);
+				if ( me.pane_two_items.length > 0 ){
+					me.pane_two_items.forEach(function(d){
 						d3.select('#panel-two-select').append('option').text(d._id);
 					});
 					
-					me.getTitanItemCount(name, 2);
 					var item = me.pane_two_items[0];
 					me.getTitanItem(item._id, me.net2);
+				} else {
+					d3.selectAll('#panel-two-select option').remove();
+					me.net2.svg.select('.node-link-container').remove();
 				}
 			}
 		});
