@@ -9,11 +9,10 @@
 <body>
 	<nav class="navbar navbar-default navbar-static-top" role="navigation">
  			<div class="navbar-header">
-   			<a class="navbar-brand" href="#">Compare Target Events and Alpha Reports</a>
+   			<a class="navbar-brand" href="#">Compare Reports</a>
 			</div>
    		<ul class="nav navbar-nav navbar-right">
 	    	<li id="compare" class="active"><a href="#">Compare</a></li>
-	    	<li id="compare_all" class="active"><a href="#">Compare All</a></li>
 	    </ul>
 	</nav>
 	
@@ -21,7 +20,7 @@
 		<div class='panel panel-default' id='alpha'>
 			<div class='panel panel-default' id='alpha_report'>
 				<div class='panel-heading'>
-					<h3 class='panel-title' id='title-one'>Alpha Report</h3>
+					<h3 class='panel-title' id='title-one'></h3>
 					<div id='panel-one-info'></div>
 					<select id='panel-one-select'></select>
 				</div>
@@ -43,7 +42,7 @@
 		<div class='panel panel-default' id='matcher'>
 			<div class='panel panel-default' id='confirmer'>
 				<div class='panel-heading'>
-					<h3 class='panel-title' id='title-two'>Target Event</h3>
+					<h3 class='panel-title' id='title-two'></h3>
 					<div id='panel-two-info'></div>
 					<select id='panel-two-select'></select>
 				</div>
@@ -80,7 +79,7 @@
 	<script src='../../components/assertionGraph/network.js'></script>
 	
 	<script type="text/javascript">
-		var c = new confirmer();
+		var c = new comparer();
 		c.createListeners();
 		c.display();
 	</script>

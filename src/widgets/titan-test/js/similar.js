@@ -13,7 +13,7 @@ var buildLinksNodes = function(input, nodes, edges, nodesById, edgesById){
             //Nested arrays, do this again
             if($.isArray(d)){
                 d.forEach(function(e){
-                    $scope.buildLinksNodes(e, nodes, edges, nodesById, edgesById);
+                    buildLinksNodes(e, nodes, edges, nodesById, edgesById);
                 });
             } else {
                 //Check if its a known vertex or not
@@ -59,7 +59,7 @@ var getObj = function(array, value, attribute){
 	}
 };
 
-var confirmer = function(){
+var comparer = function(){
 	var me = this;
 	me.pane_one_items = [];
 	me.pane_two_items = [];
@@ -101,7 +101,7 @@ var confirmer = function(){
 			type: 'GET',
 			url: buildKeyValueCountQuery('name', name),
 			dataType: 'application/json',
-			success: function(r){ 
+			success: function(){ 
 				console.log('success');
 			},
 			error: function(e){
@@ -129,7 +129,7 @@ var confirmer = function(){
 			type: 'GET',
 			url: buildKeyValueQuery('name', name, start, end),
 			dataType: 'application/json',
-			success: function(r){ 
+			success: function(){ 
 				console.log('success');
 			},
 			error: function(e){				
@@ -144,7 +144,7 @@ var confirmer = function(){
 					
 					var ar = me.pane_one_items[0];
 					me.getTitanItem(ar._id, me.net1);
-					me.getTitanPaneTwo(ar._id, ar);
+					me.getTitanPaneTwo(ar);
 				} else {
 					d3.selectAll('#panel-one-select option').remove();
 					me.net1.svg.select('.node-link-container').remove();
@@ -153,7 +153,7 @@ var confirmer = function(){
 		});
 	};
 	
-	me.getTitanPaneTwo = function(id, item){
+	me.getTitanPaneTwo = function(item){
 		d3.selectAll('#information li').remove();
 		d3.selectAll('#panel-two-select option').remove();
 		$('#panel-two-info').text('');
@@ -173,7 +173,6 @@ var confirmer = function(){
 			}
 			
 			else if ( d.score > 3 ){
-				var newOption = null;
 				//TODO - groovy script switched from alpha_id and target__id to
 				// just item_id, will need to be changed when database updates
 				if ( d.alpha_report_id !== null ){
@@ -206,7 +205,7 @@ var confirmer = function(){
 			type: 'GET',
 			url: getGroupPathById(id, net.name),
 			dataType: 'application/json',
-			success: function(r){ 
+			success: function(){ 
 				console.log('success');
 			},
 			error: function(e){
@@ -250,10 +249,10 @@ var confirmer = function(){
 					type: 'GET',
 					dataType: 'application/json',
 					url: getVertexById(ar_id),
-					success: function(r){
+					success: function(){
 						console.log('success');
 					},
-					error: function(e){
+					error: function(){
 						compareVertexAmount(ar_id, te_id);
 						compareEdgeAmount(ar_id, te_id);
 						compareVertices(ar_id, te_id);
@@ -276,7 +275,7 @@ var confirmer = function(){
 			me.getTitanItem(elem_id, me.net1);
 
 			var ar = getObj(me.pane_one_items, parseInt(elem_id, 10), '_id');
-			me.getTitanPaneTwo(elem_id, ar);
+			me.getTitanPaneTwo(ar);
 		});
 	};
 	

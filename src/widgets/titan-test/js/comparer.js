@@ -13,7 +13,7 @@ var buildLinksNodes = function(input, nodes, edges, nodesById, edgesById){
             //Nested arrays, do this again
             if($.isArray(d)){
                 d.forEach(function(e){
-                    $scope.buildLinksNodes(e, nodes, edges, nodesById, edgesById);
+                    buildLinksNodes(e, nodes, edges, nodesById, edgesById);
                 });
             } else {
                 //Check if its a known vertex or not
@@ -52,7 +52,7 @@ var buildLinksNodes = function(input, nodes, edges, nodesById, edgesById){
 }; 
 	
 
-var confirmer = function(){
+var comparer = function(){
 	var me = this;
 	me.pane_one_items = [];
 	me.pane_two_items = [];
@@ -94,7 +94,7 @@ var confirmer = function(){
 			type: 'GET',
 			url: buildKeyValueCountQuery('name', name),
 			dataType: 'application/json',
-			success: function(r){ 
+			success: function(){ 
 				console.log('success');
 			},
 			error: function(e){
@@ -122,7 +122,7 @@ var confirmer = function(){
 			type: 'GET',
 			url: buildKeyValueQuery('name', name, start, end),
 			dataType: 'application/json',
-			success: function(r){ 
+			success: function(){ 
 				console.log('success');
 			},
 			error: function(e){
@@ -155,7 +155,7 @@ var confirmer = function(){
 			type: 'GET',
 			url: buildKeyValueQuery('name', name, start, end),
 			dataType: 'application/json',
-			success: function(r){ 
+			success: function(){ 
 				console.log('success');
 			},
 			error: function(e){
@@ -186,7 +186,7 @@ var confirmer = function(){
 			type: 'GET',
 			url: getGroupPathById(id, net.name),
 			dataType: 'application/json',
-			success: function(r){ 
+			success: function(){ 
 				console.log('success');
 			},
 			error: function(e){
@@ -233,10 +233,10 @@ var confirmer = function(){
 				type: 'GET',
 				dataType: 'application/json',
 				url: getVertexById(ar_id),
-				success: function(r){
+				success: function(){
 					console.log('success');
 				},
-				error: function(e){
+				error: function(){
 					compareVertexAmount(ar_id, te_id);
 					compareEdgeAmount(ar_id, te_id);
 					compareVertices(ar_id, te_id);

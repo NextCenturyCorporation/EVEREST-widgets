@@ -31,7 +31,7 @@ var getEdgeLabelsById = function(id){
 	return titanAddress+'/tp/gremlin?script=g.v(' + id + ').inE.outV.inE.label';
 };
 
-var getGroupPathById = function(id, name){
+var getGroupPathById = function(id){
 	return titanAddress+'/tp/gremlin?script=g.v(' + id + ').inE.outV.outE.inV.path';
 };
 
@@ -108,7 +108,7 @@ var buildEdge = function(lObj){
 	
 	query += '?_outV=' + outV + '&_inV=' + inV + '&';
 	var keys = Object.keys(lObj);
-	keys.forEach(function(key, i){
+	keys.forEach(function(key){
 		if (key !== 'html' && key !== '_titan_id' && key !== 'source' && key !== 'target'){
 			if (key === 'd'){
 				query += '_label=' + lObj[key];
@@ -132,7 +132,7 @@ var buildNode = function(cObj){
 	}
 	query += '?';
 	var keys = Object.keys(cObj);
-	keys.forEach(function(key, i){
+	keys.forEach(function(key){
 		if (key !== 'html' && key !== '_titan_id' && key !== 'x' && key !== 'y'){
 			if (key === 'd'){
 				query += 'name=' + cObj[key];
