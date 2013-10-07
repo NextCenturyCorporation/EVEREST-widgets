@@ -33,9 +33,9 @@ function retrieveData(count, offset, sort){
 	console.log(urlParams);
 	
 	$.ajax({
-		type: 'POST',
-		url: '../../../lib/post_relay.php',
-		data: JSON.stringify({url: url + '?count=' + count, data: {}, method: 'GET'}),
+		type: "POST",
+		url: "../../../lib/post_relay.php",
+		data: JSON.stringify({url: url + "?count=" + count, data: {}, method: "GET"}),
 		success: function(){
 			console.log('success');
 		},
@@ -73,15 +73,17 @@ raw_data_widget.execute = function() {
 	console.log(JSON.stringify({url: url + '?count=10', data: {}, method: 'GET'}));
 	
 	//rawfeed not configured to handle count parameter atm
+
 	$.ajax({
-		type: 'POST',
-		url: '../../../lib/post_relay.php',
-		data: JSON.stringify({url: url, data: {}, method: 'GET'}),
-		success: function(){
+		type: "POST",
+		url: 'http://everest-build:8081/rawfeed?count=10',
+		dataType: 'jsonp',
+		jsonpCallback: 'callback',
+		success: function(r){
 			console.log('success');
 		},
 		error: function(){
-			console.log('error');
+			console.log('error')
 		}
 	});
 	
