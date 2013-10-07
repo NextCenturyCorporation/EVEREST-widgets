@@ -69,7 +69,6 @@ describe('test network.js function', function(){
 				var n = net.nodes[i];
 				d3.selectAll('.test circle').each(function(){
 					if (n.value === d3.select(this).attr('class')){
-						var color = d3.select(this).style('fill');
 						var color = n.color;
 						if (color === entity1Color){
 							expect(color).toEqual(entity1Color);

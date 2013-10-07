@@ -1,7 +1,7 @@
 var raw_data_widget = {};
 
 var max_rows = 10;
-var url = 'http://everest-build:8081/rawfeed/';
+var url = 'http://everest-build:8081/rawfeed';
 var raw_data_table;
 var datas_to_use = [];
 var table = null;
@@ -20,8 +20,33 @@ function initTable(data){
 	}
 }
 
+function retrieveData(count, offset, sort){
+	var urlParams = url + '?count=' + count;
+	if ( offset !== null ){
+		urlParams += '&offset=' + offset;
+	}
+	
+	if ( sort !== null ){
+		urlParams += '&sort=' + sort;
+	}
+	
+	console.log(urlParams);
+	
+	$.ajax({
+		type: 'POST',
+		url: '../../../lib/post_relay.php',
+		data: JSON.stringify({url: url + '?count=' + count, data: {}, method: 'GET'}),
+		success: function(){
+			console.log('success');
+		},
+		error: function(){
+			console.log('error');
+		}
+	});
+}
+
 raw_data_widget.execute = function() {
-	$.getJSON(url + "?callback=?", function(data){
+	/*$.getJSON(url + "?callback=?", function(data){
 		if (data !== []){
 			datas_to_use = data.slice(0,1001);
 					
@@ -42,6 +67,21 @@ raw_data_widget.execute = function() {
 					});
 				});
 			});
+		}
+	});*/
+	
+	console.log(JSON.stringify({url: url + '?count=10', data: {}, method: 'GET'}));
+	
+	//rawfeed not configured to handle count parameter atm
+	$.ajax({
+		type: 'POST',
+		url: '../../../lib/post_relay.php',
+		data: JSON.stringify({url: url, data: {}, method: 'GET'}),
+		success: function(){
+			console.log('success');
+		},
+		error: function(){
+			console.log('error');
 		}
 	});
 	

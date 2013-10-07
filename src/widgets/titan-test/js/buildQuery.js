@@ -1,4 +1,4 @@
-var titanAddress = 'http://everest-build:8182/graphs/graph';
+var titanAddress = 'http://localhost:8182/graphs/graph';
 
 /**
 	GET
