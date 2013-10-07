@@ -6,12 +6,14 @@ var raw_data_table;
 var datas_to_use = [];
 var table = null;
 
+var announceCallback = function(announcement){
+	OWF.Eventing.publish("com.nextcentury.everest.data_table_announcing.raw_data", announcement);
+};
+
 function initTable(data){
 	datas_to_use = (data === [] ? {} : data);
 		
-	raw_data_table = new data_table(datas_to_use, function(announcement) {
-		OWF.Eventing.publish("com.nextcentury.everest.data_table_announcing.raw_data", announcement);
-	}, max_rows);
+	raw_data_table = new data_table(datas_to_use, announceCallback, max_rows);
 	
 	if (raw_data_table.datas.length > 0){
 		raw_data_table.createHeaders(Object.keys(raw_data_table.datas[0]));
@@ -20,70 +22,38 @@ function initTable(data){
 	}
 }
 
-function retrieveData(count, offset, sort){
-	var urlParams = url + '?count=' + count;
-	if ( offset !== null ){
-		urlParams += '&offset=' + offset;
-	}
-	
-	if ( sort !== null ){
-		urlParams += '&sort=' + sort;
-	}
-	
-	console.log(urlParams);
-	
+raw_data_widget.execute = function() {	
+	//TODO Add ability to ask for count offset and sort
 	$.ajax({
-		type: "POST",
-		url: "../../../lib/post_relay.php",
-		data: JSON.stringify({url: url + "?count=" + count, data: {}, method: "GET"}),
-		success: function(){
-			console.log('success');
+		type: "GET",
+		url: 'http://everest-build:8081/rawfeed',
+		dataType: 'jsonp',
+		jsonpCallback: 'callback',
+		success: function(data){
+			if (data !== []){
+				datas_to_use = data.slice(0,1001);
+						
+				initTable(datas_to_use);
+	
+				owfdojo.addOnLoad(function(){
+					OWF.ready(function(){
+						//to be removed later on, and put back clearing into resetAndSend
+						//UPDATE: set to zero to allow immediate loading of the heatChart widget
+						setInterval(raw_data_table.resetAndSend, 10000);
+				
+						OWF.Eventing.subscribe("com.nextcentury.everest.timeline_announcing", function(sender, msg){
+							var range = msg.substring(1,msg.length - 1).split(',');
+							raw_data_table.createTable(Date.parse(range[0]), Date.parse(range[1]));
+							raw_data_table.resetAndSend();
+							$('#start').val('');
+							$('#end').val('');
+						});
+					});
+				});
+			}
 		},
 		error: function(){
 			console.log('error');
-		}
-	});
-}
-
-raw_data_widget.execute = function() {
-	/*$.getJSON(url + "?callback=?", function(data){
-		if (data !== []){
-			datas_to_use = data.slice(0,1001);
-					
-			initTable(datas_to_use);
-
-			owfdojo.addOnLoad(function(){
-				OWF.ready(function(){
-					//to be removed later on, and put back clearing into resetAndSend
-					//UPDATE: set to zero to allow immediate loading of the heatChart widget
-					setInterval(raw_data_table.resetAndSend, 10000);
-			
-					OWF.Eventing.subscribe("com.nextcentury.everest.timeline_announcing", function(sender, msg){
-						var range = msg.substring(1,msg.length - 1).split(',');
-						raw_data_table.createTable(Date.parse(range[0]), Date.parse(range[1]));
-						raw_data_table.resetAndSend();
-						$('#start').val('');
-						$('#end').val('');
-					});
-				});
-			});
-		}
-	});*/
-	
-	console.log(JSON.stringify({url: url + '?count=10', data: {}, method: 'GET'}));
-	
-	//rawfeed not configured to handle count parameter atm
-
-	$.ajax({
-		type: "POST",
-		url: 'http://everest-build:8081/rawfeed?count=10',
-		dataType: 'jsonp',
-		jsonpCallback: 'callback',
-		success: function(r){
-			console.log('success');
-		},
-		error: function(){
-			console.log('error')
 		}
 	});
 	
