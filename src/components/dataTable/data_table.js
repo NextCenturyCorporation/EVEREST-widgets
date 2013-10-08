@@ -1,4 +1,4 @@
-var data_table = function(datas_to_set, announce_function, rows) {
+var data_table = function(datas_to_set, announce_function, rows, length) {
 	var me = this;
 	var time = 'time';
 	
@@ -14,6 +14,9 @@ var data_table = function(datas_to_set, announce_function, rows) {
 	
 	me.start = me.MIN;
 	me.end = me.MAX;
+	
+	me.offset = 0;
+	me.total = length;
 	
 	me.datas = datas_to_set;
 	me.max_rows = (rows ? rows : 10);
@@ -152,6 +155,13 @@ var data_table = function(datas_to_set, announce_function, rows) {
 		me.range_datas = me.extractData(s, e);
 		me.max_pages = Math.ceil(me.range_datas.length / me.max_rows);	
 		table = new me.tableView(me.range_datas);									
+		return table;
+	};
+	
+	me.updateTable = function(data){
+		me.datas = data;
+		me.range_datas = me.extractData(s, e);
+		table = new me.tableView(me.range_datas);
 		return table;
 	};
 	
@@ -378,6 +388,7 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			li.append('a').attr('class', '#')
 				.text('<<').on('click', function(){
 					me.page = 0;
+					me.offset = 0;
 					that.render();
 				});
 		}
@@ -388,7 +399,13 @@ var data_table = function(datas_to_set, announce_function, rows) {
 			li.append('a').attr('xlink:href', '#')
 				.text(n).on('click', function(){
 					me.page = parseInt(this.text, 10) - 1;
-					that.render();
+					
+					if (me.page * me.max_rows >= me.offset + MAX_ROWS){
+						me.offset += MAX_ROWS;
+						console.log('need to grab other data');
+					} else {
+						that.render();
+					}
 				});
 		});
 		

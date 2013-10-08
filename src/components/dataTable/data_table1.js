@@ -1,9 +1,8 @@
-var data_table = function(datas_to_set, announce_function, update_function, rows, length) {
+var data_table = function(datas_to_set, announce_function, update_function, rows, items, length) {
 	var me = this;
 	var time = 'time';
 	
 	var MAX_CHARS = 100;
-	var MAX_ROWS = 1000;
 	var TYPE_OF_DATE = 'createdDate';
 	var FADE_OUT_TIME = 10000;
 	var HILIGHT = 'red';
@@ -20,6 +19,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	
 	me.datas = datas_to_set;
 	me.max_rows = (rows ? rows : 10);
+	me.max_items = (items ? items : 1000);
 	me.max_pages = Math.ceil(me.total / me.max_rows);
 	me.count = me.page * me.max_rows;
 	me.range_datas = me.datas;
@@ -30,6 +30,8 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 
 	me.announce = announce_function;
 	me.update = update_function;
+	
+	me.currentTableView = {};
 
 	me.sentence = Backbone.Model.extend({
 		defaults: {	}
@@ -156,24 +158,29 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		me.page = 0;
 		me.range_datas = me.extractData(s, e);
 		me.max_pages = Math.ceil(me.total / me.max_rows);	
-		table = new me.tableView(me.range_datas);									
-		return table;
+		me.currentTableView = new me.tableView(me.range_datas);									
+		return me.currentTableView;
 	};
 	
-	me.updateTable = function(that){
-		if (me.page * me.max_rows >= me.offset + MAX_ROWS || 
+	me.updateTable = function(){
+		if (me.page * me.max_rows >= me.offset + me.max_items || 
 				me.page * me.max_rows < me.offset){
-			console.log('need to grab other data');
-			var temp_offset = Math.floor(me.page * me.max_rows / MAX_ROWS) * MAX_ROWS;
-			console.log(temp_offset);
-			me.update(function(data){
+			var temp_offset = Math.floor(me.page * me.max_rows / me.max_items) * me.max_items;
+			me.update({count: me.max_items, offset: temp_offset}, function(data){
 				me.offset = temp_offset;
-				me.datas = data.slice(temp_offset, temp_offset + MAX_ROWS);
+				
+				me.datas = data.raw_feeds;
+				me.total = data.total_count;
+				me.max_pages = Math.ceil(me.total / me.max_rows);
+				
+				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
+				$('.panel-title').text(s);
+				
 				me.range_datas = me.extractData(me.MIN, me.MAX);
-				table = new me.tableView(me.range_datas);
+				me.currentTableView = new me.tableView(me.range_datas);
 			});
 		} else {
-			that.render();
+			me.currentTableView.render();
 		}
 	};
 	
@@ -184,7 +191,6 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				var col = parseInt(this.id, 10);
 				col = Object.keys(me.temp_datas[0])[col];
 				me.sorter(this, col);
-				table.render();
 			});
 
 		d3.select('.data_table_submit')
@@ -214,7 +220,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		d3.selectAll('.show').on('click', function(){
 			me.setMaxRows(parseInt(this.id, 10));
 			me.page = 0;
-			me.createTable(me.start,me.end);
+			me.updateTable();
 		});	
 	};
 	
@@ -235,8 +241,10 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		return currData;
 	};
 
+	//at the moment, this wont work properly, will only sort what exists in range_datas
 	me.sorter = function(elem, colId){
 		//don't bother sorting if temp is empty
+		/TODO fix remove this to account for new sorting from queries/
 		if (me.range_datas.length !== 0){
 			elem = d3.select(elem);
 
@@ -249,7 +257,21 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			
 				elem.classed('unsorted', false);
 				elem.classed('down', true);
-				me.range_datas.sort( function (a, b){ return a[colId] < b[colId] ? 1 : -1; });
+				
+				var temp_offset = Math.floor(me.page * me.max_rows / me.max_items) * me.max_items;
+				me.update({count: me.max_items, offset: temp_offset, sort: 'desc'}, function(data){
+					me.offset = temp_offset;
+					
+					me.datas = data.raw_feeds;
+					me.total = data.total_count;
+					me.max_pages = Math.ceil(me.total / me.max_rows);
+					
+					var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
+					$('.panel-title').text(s);
+					
+					me.range_datas = me.extractData(me.MIN, me.MAX);
+					me.currentTableView = new me.tableView(me.range_datas);
+				});
 			} else {
 				elements.classed('up', false);
 				elements.classed('down', false);
@@ -257,7 +279,20 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				
 				elem.classed('unsorted', false);
 				elem.classed('up', true);
-				me.range_datas.sort( function (a, b){ return a[colId] > b[colId] ? 1 : -1; });
+				var temp_offset = Math.floor(me.page * me.max_rows / me.max_items) * me.max_items;
+				me.update({count: me.max_items, offset: temp_offset, sort: 'asc'}, function(data){
+					me.offset = temp_offset;
+					
+					me.datas = data.raw_feeds;
+					me.total = data.total_count;
+					me.max_pages = Math.ceil(me.total / me.max_rows);
+					
+					var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
+					$('.panel-title').text(s);
+					
+					me.range_datas = me.extractData(me.MIN, me.MAX);
+					me.currentTableView = new me.tableView(me.range_datas);
+				});
 			}
 		}
 	};
@@ -308,7 +343,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	};
 	
 	me.setMaxRows = function(r){
-		if( r > 0 && r < MAX_ROWS){
+		if( r > 0 && r < me.max_items){
 			me.max_rows = r;
 			me.temp_datas = me.range_datas.slice(0, me.max_rows);
 			me.max_pages = Math.ceil( me.total / me.max_rows );
@@ -400,7 +435,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			li.append('a').attr('class', '#')
 				.text('<<').on('click', function(){
 					me.page = 0;
-					me.updateTable(that);
+					me.updateTable();
 				});
 		}
 
@@ -410,7 +445,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			li.append('a').attr('xlink:href', '#')
 				.text(n).on('click', function(){
 					me.page = parseInt(this.text, 10) - 1;
-					me.updateTable(that);
+					me.updateTable();
 				});
 		});
 		
@@ -421,7 +456,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			li.append('a').attr('class', '#')
 				.text('>>').on('click', function(){
 					me.page = me.max_pages - 1;
-					me.updateTable(that);
+					me.updateTable();
 				});
 		}
 	};

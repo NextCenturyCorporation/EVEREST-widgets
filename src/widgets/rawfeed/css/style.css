@@ -16,13 +16,19 @@ th {
 	background-position:right;
 }
 
+.disable{
+	//display: none;
+	position: absolute;
+	background-color: black;
+	width: inherit;
+	height: inherit;
+}
+
 .info {
 	position: relative;
 }
 
 .data_table_container{
-	overflow: auto;
-	height: 600px;
 }
 
 .data_table_headers{

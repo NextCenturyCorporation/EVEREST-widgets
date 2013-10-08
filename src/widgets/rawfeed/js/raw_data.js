@@ -10,10 +10,30 @@ var announceCallback = function(announcement){
 	OWF.Eventing.publish("com.nextcentury.everest.data_table_announcing.raw_data", announcement);
 };
 
-function initTable(data){
+var updateDataCallback = function(count, offset, sort, successCallback, errorCallback){
+	var updateUrl = url + '?count=' + count;
+	if (offset !== null){
+		updateUrl += '&offset=' + offset;
+	}
+	
+	if (sort !== null){
+		updateUrl += '&sort=' + JSON.stringify(sort);
+	}
+	
+	$.ajax({
+		type: "GET",
+		url: updateUrl,
+		dataType: 'jsonp',
+		jsonpCallback: 'callback',
+		success: successCallback,
+		error: errorCallback
+	});
+};
+
+function initTable(data, length){
 	datas_to_use = (data === [] ? {} : data);
 		
-	raw_data_table = new data_table(datas_to_use, announceCallback, max_rows);
+	raw_data_table = new data_table(datas_to_use, announceCallback, max_rows, length);
 	
 	if (raw_data_table.datas.length > 0){
 		raw_data_table.createHeaders(Object.keys(raw_data_table.datas[0]));
@@ -26,14 +46,15 @@ raw_data_widget.execute = function() {
 	//TODO Add ability to ask for count offset and sort
 	$.ajax({
 		type: "GET",
-		url: 'http://everest-build:8081/rawfeed',
+		url: url,
 		dataType: 'jsonp',
 		jsonpCallback: 'callback',
 		success: function(data){
 			if (data !== []){
 				datas_to_use = data.slice(0,1001);
+				var length = data.length;
 						
-				initTable(datas_to_use);
+				initTable(datas_to_use, length);
 	
 				owfdojo.addOnLoad(function(){
 					OWF.ready(function(){

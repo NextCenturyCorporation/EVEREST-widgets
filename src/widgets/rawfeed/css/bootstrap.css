@@ -4644,7 +4644,6 @@ textarea.input-group-sm > .input-group-btn > .btn {
 
 .pagination > li > a,
 .pagination > li > span {
-  width: 2.5em;
   float: left;
   padding: 5px 10px;
   margin-left: -1px;
