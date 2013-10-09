@@ -46,7 +46,7 @@ function initTable(data, length){
 	
 	if (raw_data_table.datas.length > 0){
 		raw_data_table.createHeaders(Object.keys(raw_data_table.datas[0]));
-		table = raw_data_table.createTable(raw_data_table.MIN,raw_data_table.MAX);
+		table = raw_data_table.createTable(raw_data_table.MIN,raw_data_table.MAX, false);
 		raw_data_table.createClickers();
 	}
 }
@@ -68,7 +68,7 @@ raw_data_widget.execute = function() {
 			
 					OWF.Eventing.subscribe("com.nextcentury.everest.timeline_announcing", function(sender, msg){
 						var range = msg.substring(1,msg.length - 1).split(',');
-						raw_data_table.createTable(Date.parse(range[0]), Date.parse(range[1]));
+						raw_data_table.createTable(Date.parse(range[0]), Date.parse(range[1]), true);
 						raw_data_table.resetAndSend();
 						$('#start').val('');
 						$('#end').val('');

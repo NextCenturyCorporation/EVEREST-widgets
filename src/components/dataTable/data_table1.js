@@ -17,12 +17,12 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	me.offset = 0;
 	me.sort = 'uns';
 	me.total = length;
-	
+	me.range_total = length;
 	
 	me.datas = datas_to_set;
 	me.max_rows = (rows ? rows : 10);
 	me.max_items = (items ? items : 1000);
-	me.max_pages = Math.ceil(me.total / me.max_rows);
+	me.max_pages = Math.ceil(me.range_total / me.max_rows);
 	me.count = me.page * me.max_rows;
 	me.range_datas = me.datas;
 	me.temp_datas = me.datas.slice(0, me.max_rows);
@@ -94,7 +94,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				that.collection = new me.table(me.temp_datas);
 				me.showPageNumbers();
 				
-				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
+				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.range_total + ' objects';
 				$('.panel-title').text(s);
 	
 				me.count = me.page * me.max_rows;
@@ -128,6 +128,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				me.datas.push(item);
 				me.range_datas.push(item);
 				me.total++;
+				me.range_total++;
 				
 				//grab the column we want to sort by
 				var col = me.getSortedColumn();
@@ -151,23 +152,27 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				me.addRow(item, this);
 				
 				//pages @ top, if data becomes large enough to add another page,
-				var expectedPages = Math.ceil(me.total / me.max_rows);
+				var expectedPages = Math.ceil(me.range_total / me.max_rows);
 				if (expectedPages > me.max_pages){
 					var that = this;
 					me.max_pages = expectedPages;
 					me.showPageNumbers();
 				}
 				
-				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
+				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.range_total + ' objects';
 				$('.panel-title').text(s);
 			}
 		}
 	);
 
-	me.createTable = function(s, e){
+	me.createTable = function(s, e, isSubset){
 		me.page = 0;
 		me.range_datas = me.extractData(s, e);
-		me.max_pages = Math.ceil(me.total / me.max_rows);	
+		
+		if ( isSubset ){
+			me.range_total = me.range_datas.length;
+		} 
+		me.max_pages = Math.ceil(me.range_total / me.max_rows);	
 		me.currentTableView = new me.tableView(me.range_datas);									
 		return me.currentTableView;
 	};
@@ -177,9 +182,10 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		
 		me.datas = data.raw_feeds;
 		me.total = data.total_count;
-		me.max_pages = Math.ceil(me.total / me.max_rows);
+		me.range_total = data.total_count;
+		me.max_pages = Math.ceil(me.range_total / me.max_rows);
 		
-		var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
+		var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.range_total + ' objects';
 		$('.panel-title').text(s);
 		
 		me.range_datas = me.extractData(me.MIN, me.MAX);
@@ -218,13 +224,13 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				$('.data_table_end').val('');
 		
 				if (me.start && me.end && me.start <= me.end) { 
-					me.createTable(me.start,me.end); 
+					me.createTable(me.start,me.end, true); 
 				} else if ( !me.start && me.end){
-					me.createTable(me.MIN,me.end); 
+					me.createTable(me.MIN,me.end, true);
 				} else if ( me.start && !me.end ){
-					me.createTable(me.start,me.MAX); 
+					me.createTable(me.start,me.MAX, true);
 				} else { 
-					me.createTable(me.MIN,me.MAX); 
+					me.createTable(me.MIN,me.MAX, false); 
 				}
 			
 				me.resetAndSend();
@@ -233,7 +239,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		d3.select('.show_all')
 			.on('click', function(){
 				me.page = 0;
-				me.renderPage();
+				me.update({count: me.max_items}, me.updateTable);
 				me.resetAndSend();
 			});		
 			
@@ -358,7 +364,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		if( r > 0 && r < me.max_items){
 			me.max_rows = r;
 			me.temp_datas = me.range_datas.slice(0, me.max_rows);
-			me.max_pages = Math.ceil( me.total / me.max_rows );
+			me.max_pages = Math.ceil( me.range_total / me.max_rows );
 		}
 	};
 	
