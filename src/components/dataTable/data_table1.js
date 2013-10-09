@@ -15,7 +15,9 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	me.end = me.MAX;
 	
 	me.offset = 0;
+	me.sort = 'uns';
 	me.total = length;
+	
 	
 	me.datas = datas_to_set;
 	me.max_rows = (rows ? rows : 10);
@@ -105,6 +107,8 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 						me.count++;
 					}
 				}, this);
+				
+				$.unblockUI();
 			},
 			renderSentence: function(item, location){
 				var sentView = new me.sentenceView({
@@ -122,6 +126,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			},
 			addSentence: function(item){
 				me.datas.push(item);
+				me.range_datas.push(item);
 				me.total++;
 				
 				//grab the column we want to sort by
@@ -130,12 +135,17 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				
 				//make sure new item is in its correct location in me.datas 
 				if(col.class === 'up'){
+					me.range_datas.sort(function(a,b){ return a[colText] > b[colText] ? 1 : -1; });
 					me.datas.sort(function(a,b){ return a[colText] > b[colText] ? 1 : -1; });
 				} else if (col.class === 'down'){
+					me.range_datas.sort(function(a,b){ return a[colText] < b[colText] ? 1 : -1; });
 					me.datas.sort(function(a,b){ return a[colText] < b[colText] ? 1 : -1; });
 				}
 				
-				me.temp_datas = me.datas.slice(me.page * me.max_rows, (me.page + 1) * me.max_rows);						
+				me.range_datas = me.range_datas.slice(0, me.max_items);
+				me.datas = me.datas.slice(0, me.max_items);
+				
+				me.temp_datas = me.range_datas.slice(me.page * me.max_rows - me.offset, (me.page + 1) * me.max_rows - me.offset);						
 				this.collection = new me.table(me.temp_datas);
 
 				me.addRow(item, this);
@@ -162,23 +172,29 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		return me.currentTableView;
 	};
 	
-	me.updateTable = function(){
+	me.updateTable = function(data){
+		me.offset = Math.floor(me.page * me.max_rows / me.max_items) * me.max_items;
+		
+		me.datas = data.raw_feeds;
+		me.total = data.total_count;
+		me.max_pages = Math.ceil(me.total / me.max_rows);
+		
+		var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
+		$('.panel-title').text(s);
+		
+		me.range_datas = me.extractData(me.MIN, me.MAX);
+		me.currentTableView = new me.tableView(me.range_datas);
+	};
+	
+	me.renderPage = function(){
 		if (me.page * me.max_rows >= me.offset + me.max_items || 
 				me.page * me.max_rows < me.offset){
+			$.blockUI({ message: '<h3><img src="img/ajax-loader.gif" /> <br /> Please wait... </h3>'});
 			var temp_offset = Math.floor(me.page * me.max_rows / me.max_items) * me.max_items;
-			me.update({count: me.max_items, offset: temp_offset}, function(data){
-				me.offset = temp_offset;
-				
-				me.datas = data.raw_feeds;
-				me.total = data.total_count;
-				me.max_pages = Math.ceil(me.total / me.max_rows);
-				
-				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
-				$('.panel-title').text(s);
-				
-				me.range_datas = me.extractData(me.MIN, me.MAX);
-				me.currentTableView = new me.tableView(me.range_datas);
-			});
+			me.update({
+				count: me.max_items, 
+				offset: temp_offset
+			}, me.updateTable);
 		} else {
 			me.currentTableView.render();
 		}
@@ -220,7 +236,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		d3.selectAll('.show').on('click', function(){
 			me.setMaxRows(parseInt(this.id, 10));
 			me.page = 0;
-			me.updateTable();
+			me.renderPage();
 		});	
 	};
 	
@@ -233,7 +249,9 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			for (var i = 0; i < me.datas.length; i++){
 				var ti = Date.parse(me.datas[i][time]);
 		
-				if (ti <= end && ti >= start) { currData.push(me.datas[i]); }
+				if (ti <= end && ti >= start) { 
+					currData.push(me.datas[i]); 
+				}
 			}
 		} else {
 			currData = me.datas;
@@ -244,54 +262,42 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	//at the moment, this wont work properly, will only sort what exists in range_datas
 	me.sorter = function(elem, colId){
 		//don't bother sorting if temp is empty
-		/TODO fix remove this to account for new sorting from queries/
 		if (me.range_datas.length !== 0){
 			elem = d3.select(elem);
 
-			var elements = d3.selectAll('th');
 			
 			if (elem.classed('up')){
-				elements.classed('up', false);
-				elements.classed('down', false);
-				elements.classed('unsorted', true);
-			
-				elem.classed('unsorted', false);
-				elem.classed('down', true);
+				me.update({
+					count: me.max_items, 
+					offset: Math.floor(me.page * me.max_rows / me.max_items) * me.max_items, 
+					sort: 'desc'
+				}, function(data){
+					me.updateTable(data);
+						
+					elements.classed('up', false);
+					elements.classed('down', false);
+					elements.classed('unsorted', true);
 				
-				var temp_offset = Math.floor(me.page * me.max_rows / me.max_items) * me.max_items;
-				me.update({count: me.max_items, offset: temp_offset, sort: 'desc'}, function(data){
-					me.offset = temp_offset;
+					elem.classed('unsorted', false);
+					elem.classed('down', true);
 					
-					me.datas = data.raw_feeds;
-					me.total = data.total_count;
-					me.max_pages = Math.ceil(me.total / me.max_rows);
-					
-					var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
-					$('.panel-title').text(s);
-					
-					me.range_datas = me.extractData(me.MIN, me.MAX);
-					me.currentTableView = new me.tableView(me.range_datas);
+					me.sort = 'desc';
 				});
 			} else {
-				elements.classed('up', false);
-				elements.classed('down', false);
-				elements.classed('unsorted', true);
-				
-				elem.classed('unsorted', false);
-				elem.classed('up', true);
-				var temp_offset = Math.floor(me.page * me.max_rows / me.max_items) * me.max_items;
-				me.update({count: me.max_items, offset: temp_offset, sort: 'asc'}, function(data){
-					me.offset = temp_offset;
+				me.update({
+					count: me.max_items, 
+					offset: Math.floor(me.page * me.max_rows / me.max_items) * me.max_items, 
+					sort: 'asc'
+				}, function(data){
+					me.updateTable(data);
 					
-					me.datas = data.raw_feeds;
-					me.total = data.total_count;
-					me.max_pages = Math.ceil(me.total / me.max_rows);
+					elements.classed('up', false);
+					elements.classed('down', false);
+					elements.classed('unsorted', true);
 					
-					var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
-					$('.panel-title').text(s);
-					
-					me.range_datas = me.extractData(me.MIN, me.MAX);
-					me.currentTableView = new me.tableView(me.range_datas);
+					elem.classed('unsorted', false);
+					elem.classed('up', true);
+					me.sort = 'asc';
 				});
 			}
 		}
@@ -380,7 +386,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 
 		} else {
 			//item inserted before this page, re-render table to show shift of elements down
-			if (me.datas.indexOf(item) < me.page * me.max_rows){
+			if (me.range_datas.indexOf(item) < me.page * me.max_rows){
 				that.render();
 			}
 		}		
@@ -435,7 +441,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			li.append('a').attr('class', '#')
 				.text('<<').on('click', function(){
 					me.page = 0;
-					me.updateTable();
+					me.renderPage();
 				});
 		}
 
@@ -445,7 +451,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			li.append('a').attr('xlink:href', '#')
 				.text(n).on('click', function(){
 					me.page = parseInt(this.text, 10) - 1;
-					me.updateTable();
+					me.renderPage();
 				});
 		});
 		
@@ -456,7 +462,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			li.append('a').attr('class', '#')
 				.text('>>').on('click', function(){
 					me.page = me.max_pages - 1;
-					me.updateTable();
+					me.renderPage();
 				});
 		}
 	};

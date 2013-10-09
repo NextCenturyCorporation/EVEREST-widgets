@@ -77,4 +77,36 @@ raw_data_widget.execute = function() {
 			});
 		}
 	});
+	
+	//look for changes and add them to table, no new table creations
+	setInterval(function(){
+		getDataCallback({count: max_items, offset: raw_data_table.offset, sort: raw_data_table.sort}, function(data){
+			if (data.raw_feeds !== []){
+			
+				if ( !table ){
+					initTable(data.raw_feeds, data.total_count);
+					datas_to_use = data.raw_feeds;
+				} else {
+					var tdata = [];
+					var tdatas_to_use = [];
+					
+					data.raw_feeds.forEach(function(d, i){
+						tdata[i] = JSON.stringify(d);
+					});
+					
+					raw_data_table.datas.forEach(function(d, i){
+						tdatas_to_use[i] = JSON.stringify(d);
+					});	
+					
+					var new_data = $(tdata).not(tdatas_to_use);
+					for (var i = 0; i < new_data.length; i++){
+						table.addSentence(JSON.parse(new_data[i]));
+					};
+										
+					tdata = [];
+					tdatas_to_use = [];
+				}
+			}
+		});
+	}, 10000);
 };
