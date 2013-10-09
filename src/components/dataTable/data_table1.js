@@ -167,6 +167,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 
 	me.createTable = function(s, e, isSubset){
 		me.page = 0;
+		me.offset = 0;
 		me.range_datas = me.extractData(s, e);
 		
 		if ( isSubset ){
