@@ -1,4 +1,4 @@
-var data_table = function(datas_to_set, announce_function, update_function, rows, items, length) {
+var data_table1 = function(datas_to_set, announce_function, update_function, rows, items, length) {
 	var me = this;
 	var time = 'time';
 	

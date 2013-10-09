@@ -1,4 +1,4 @@
-var raw_data_widget = {};
+var raw_data_widget1 = {};
 
 var max_rows = 10;
 var max_items = 1000;
@@ -52,7 +52,7 @@ function initTable(data, length){
 	}
 }
 
-raw_data_widget.execute = function() {
+raw_data_widget1.execute = function() {
 
 	getDataCallback({count: max_items}, function(data){
 		if (data.raw_feeds !== []){
@@ -105,7 +105,7 @@ raw_data_widget.execute = function() {
 							for (var i = 0; i < new_data.length; i++){
 								table.addSentence(JSON.parse(new_data[i]));
 							};
-												
+
 							tdata = [];
 							tdatas_to_use = [];
 						}
