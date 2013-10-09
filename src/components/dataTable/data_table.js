@@ -184,8 +184,11 @@ var data_table = function(datas_to_set, announce_function, rows, length) {
 		
 				if (me.start && me.end && me.start <= me.end) { 
 					me.createTable(me.start,me.end); 
-				}
-				else { 
+				} else if ( !me.start && me.end){
+					me.createTable(me.MIN,me.end); 
+				} else if ( me.start && !me.end ){
+					me.createTable(me.start,me.MAX); 
+				} else { 
 					me.createTable(me.MIN,me.MAX); 
 				}
 			

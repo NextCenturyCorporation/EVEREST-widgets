@@ -10,26 +10,6 @@ var announceCallback = function(announcement){
 	OWF.Eventing.publish("com.nextcentury.everest.data_table_announcing.raw_data", announcement);
 };
 
-var updateDataCallback = function(count, offset, sort, successCallback, errorCallback){
-	var updateUrl = url + '?count=' + count;
-	if (offset !== null){
-		updateUrl += '&offset=' + offset;
-	}
-	
-	if (sort !== null){
-		updateUrl += '&sort=' + JSON.stringify(sort);
-	}
-	
-	$.ajax({
-		type: "GET",
-		url: updateUrl,
-		dataType: 'jsonp',
-		jsonpCallback: 'callback',
-		success: successCallback,
-		error: errorCallback
-	});
-};
-
 function initTable(data, length){
 	datas_to_use = (data === [] ? {} : data);
 		
@@ -43,16 +23,15 @@ function initTable(data, length){
 }
 
 raw_data_widget.execute = function() {	
-	//TODO Add ability to ask for count offset and sort
 	$.ajax({
 		type: "GET",
 		url: url,
 		dataType: 'jsonp',
 		jsonpCallback: 'callback',
 		success: function(data){
-			if (data !== []){
-				datas_to_use = data.slice(0,1001);
-				var length = data.length;
+			if (data.raw_feeds !== []){
+				datas_to_use = data.raw_feeds.slice(0,1001);
+				var length = data.total_count;
 						
 				initTable(datas_to_use, length);
 	

@@ -92,7 +92,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				var that = this;
 				me.temp_datas = me.range_datas.slice(me.page * me.max_rows - me.offset, (me.page + 1) * me.max_rows - me.offset);
 				that.collection = new me.table(me.temp_datas);
-				me.showPageNumbers(that);
+				me.showPageNumbers();
 				
 				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
 				$('.panel-title').text(s);
@@ -155,7 +155,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				if (expectedPages > me.max_pages){
 					var that = this;
 					me.max_pages = expectedPages;
-					me.showPageNumbers(that);
+					me.showPageNumbers();
 				}
 				
 				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
@@ -193,7 +193,8 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			var temp_offset = Math.floor(me.page * me.max_rows / me.max_items) * me.max_items;
 			me.update({
 				count: me.max_items, 
-				offset: temp_offset
+				offset: temp_offset,
+				sort: me.sort
 			}, me.updateTable);
 		} else {
 			me.currentTableView.render();
@@ -218,8 +219,11 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		
 				if (me.start && me.end && me.start <= me.end) { 
 					me.createTable(me.start,me.end); 
-				}
-				else { 
+				} else if ( !me.start && me.end){
+					me.createTable(me.MIN,me.end); 
+				} else if ( me.start && !me.end ){
+					me.createTable(me.start,me.MAX); 
+				} else { 
 					me.createTable(me.MIN,me.MAX); 
 				}
 			
@@ -229,7 +233,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		d3.select('.show_all')
 			.on('click', function(){
 				me.page = 0;
-				me.createTable(me.MIN,me.MAX);
+				me.renderPage();
 				me.resetAndSend();
 			});		
 			
@@ -259,9 +263,9 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		return currData;
 	};
 
-	//at the moment, this wont work properly, will only sort what exists in range_datas
+	//at the moment, this wont work properly, only sorts based on id, colId will be used later
 	me.sorter = function(elem, colId){
-		//don't bother sorting if temp is empty
+		//don't bother sorting if range is empty
 		if (me.range_datas.length !== 0){
 			elem = d3.select(elem);
 
@@ -304,17 +308,19 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	};
 	
 	me.getSortedColumn = function(){
-		var cols = d3.selectAll('th');
+		var cols = d3.selectAll('th')[0];
 		var found = { 
 			id: '-1',
 			class: 'unsorted'
 		};
-		cols.each(function(){
-			if (this.className === 'up' || this.className === 'down'){
-				found.id = this.id;
-				found.class = this.className;
+		
+		for (var i = 0; i < cols.length; i++){
+			if (cols[i].className === 'up' || cols[i].className === 'down'){
+				found.id = cols[i].id;
+				found.class = cols[i].className;
+				break;
 			}
-		});
+		}
 		return found;
 	};
 	
@@ -322,7 +328,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		time = $.inArray(TYPE_OF_DATE, arr) !== -1 ? TYPE_OF_DATE : arr[0];
 		me.headers = arr;
 	
-		var header = d3.select('.data_table_data').append('thead');
+		var header = d3.select('.data_table_data');
 		header.selectAll('th').remove();
 		
 		for (var i = arr.length - 1; i >= 0; i--){
@@ -339,7 +345,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		headers.classed('down', false);
 		headers.classed('unsorted', true);
 			
-		var time_data = table.getTimes();
+		var time_data = me.currentTableView.getTimes();
 		
 		if (Date.parse(time_data[0])){
 			for (var i = 0; i < time_data.length; i++){ time_data[i] = Date.parse(time_data[i]); }
@@ -369,6 +375,8 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			}
 			
 			me.count++;
+			
+			
 			var rs = d3.selectAll('tr')[0].length;
 			
 			if (rs === me.max_rows + 1){
@@ -429,7 +437,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		return nums;
 	};
 	
-	me.showPageNumbers = function(that){
+	me.showPageNumbers = function(){
 		d3.selectAll('.pagination li').remove();
 		var pages = d3.select('.pagination');
 		var nums = me.getPageNumbers(me.page + 1, me.max_pages);
