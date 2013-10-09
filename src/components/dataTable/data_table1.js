@@ -265,7 +265,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		if (me.range_datas.length !== 0){
 			elem = d3.select(elem);
 
-			
+			var elements = d3.selectAll('th');
 			if (elem.classed('up')){
 				me.update({
 					count: me.max_items, 
