@@ -93,6 +93,15 @@ raw_data_widget1.execute = function() {
 						$('#start').val('');
 						$('#end').val('');
 					});
+					
+					//I don't think this works at the moment....
+					//lines 109 - 149 can be removed when this works
+					OWF.Eventing.subscribe("com.nextcentury.everest.data.workflow", function(sender, msg){
+						//makesure msg.data is of the type you're expecting...
+						if (typeof(msg.data) !== 'string'){
+							table.addSentence(msg.data);
+						}
+					});
 				});
 			});
 		}
