@@ -9,11 +9,16 @@ td {
 }
 
 th {
-	cursor: pointer;
 	padding: 5px 20px 5px 5px;
 	text-align:left;
 	background-repeat:no-repeat;
 	background-position:right;
+}
+
+.unsorted,
+.up,
+.down{
+	cursor: pointer;
 }
 
 .disable{

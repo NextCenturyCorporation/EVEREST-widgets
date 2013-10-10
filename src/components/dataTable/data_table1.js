@@ -16,6 +16,7 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 	
 	me.offset = 0;
 	me.sort = 'uns';
+	me.sortKey = '_id';
 	me.total = length;
 	me.range_total = length;
 	
@@ -201,7 +202,8 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 			me.update({
 				count: me.max_items, 
 				offset: temp_offset,
-				sort: me.sort
+				sort: me.sort,
+				sortKey: me.sortKey
 			}, me.updateTable);
 		} else {
 			me.currentTableView.render();
@@ -281,34 +283,47 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 				me.update({
 					count: me.max_items, 
 					offset: Math.floor(me.page * me.max_rows / me.max_items) * me.max_items, 
-					sort: 'desc'
+					sort: 'desc',
+					sortKey: colId
 				}, function(data){
 					me.updateTable(data);
 						
-					elements.classed('up', false);
-					elements.classed('down', false);
-					elements.classed('unsorted', true);
-				
+					elements.each(function(){
+						if (d3.select(this).attr('class') !== 'no_sort'){		
+							d3.select(this).classed('up', false);
+							d3.select(this).classed('down', false);
+							d3.select(this).classed('unsorted', true);
+						}
+					});
+							
 					elem.classed('unsorted', false);
 					elem.classed('down', true);
 					
 					me.sort = 'desc';
+					me.sortKey = colId;
 				});
-			} else {
+			} else if (!elem.classed('no_sort')){
 				me.update({
 					count: me.max_items, 
 					offset: Math.floor(me.page * me.max_rows / me.max_items) * me.max_items, 
-					sort: 'asc'
+					sort: 'asc',
+					sortKey: colId
 				}, function(data){
 					me.updateTable(data);
 					
-					elements.classed('up', false);
-					elements.classed('down', false);
-					elements.classed('unsorted', true);
+					elements.each(function(){
+						if (d3.select(this).attr('class') !== 'no_sort'){		
+							d3.select(this).classed('up', false);
+							d3.select(this).classed('down', false);
+							d3.select(this).classed('unsorted', true);
+						}
+					});
 					
 					elem.classed('unsorted', false);
 					elem.classed('up', true);
+					
 					me.sort = 'asc';
+					me.sortKey = colId;
 				});
 			}
 		}
@@ -331,9 +346,10 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 		return found;
 	};
 	
-	me.createHeaders = function(arr){
+	me.createHeaders = function(arr, indexes){
 		time = $.inArray(TYPE_OF_DATE, arr) !== -1 ? TYPE_OF_DATE : arr[0];
 		me.headers = arr;
+		console.log(indexes);
 	
 		var header = d3.select('.data_table_data');
 		header.selectAll('th').remove();
@@ -342,7 +358,13 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 			header.insert('th',':first-child')
 				.text(arr[i])
 				.attr('id', i)
-				.attr('class', 'unsorted');
+				.attr('class', function(){
+					if (indexes.indexOf(arr[i]) === -1){
+						return 'no_sort';
+					} else {
+						return 'unsorted';
+					}
+				});
 		}
 	};
 	

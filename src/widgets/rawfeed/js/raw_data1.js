@@ -8,6 +8,19 @@ var datas_to_use = [];
 var table = null;
 var intervalID = -1;
 
+var getIndexes = function(callback){
+	$.ajax({
+		type: "GET",
+		url: url + '/indexes',
+		dataType: 'jsonp',
+		jsonpCallback: 'callback',
+		success: callback,
+		error: function(){
+			console.log('error');
+		}
+	});
+};
+
 var announceCallback = function(announcement){
 	OWF.Eventing.publish("com.nextcentury.everest.data_table_announcing.raw_data", announcement);
 };
@@ -24,6 +37,10 @@ var getDataCallback = function(params, successCallback){
 	
 	if (params.sort){
 		newUrl += '&sort=' + params.sort;
+	}
+	
+	if (params.sortKey){
+		newUrl += '&sortKey=' + params.sortKey;
 	}
 
 	console.log(newUrl);
@@ -43,12 +60,14 @@ var getDataCallback = function(params, successCallback){
 function initTable(data, length){
 	datas_to_use = (data === [] ? {} : data);
 		
-	raw_data_table = new data_table(datas_to_use, announceCallback, getDataCallback, max_rows, max_items, length);
+	raw_data_table = new data_table1(datas_to_use, announceCallback, getDataCallback, max_rows, max_items, length);
 	
 	if (raw_data_table.datas.length > 0){
-		raw_data_table.createHeaders(Object.keys(raw_data_table.datas[0]));
-		table = raw_data_table.createTable(raw_data_table.MIN,raw_data_table.MAX, false);
-		raw_data_table.createClickers();
+		getIndexes(function(data){
+			raw_data_table.createHeaders(Object.keys(raw_data_table.datas[0]), data);
+			table = raw_data_table.createTable(raw_data_table.MIN,raw_data_table.MAX, false);
+			raw_data_table.createClickers();
+		});
 	}
 }
 
