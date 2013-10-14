@@ -8,6 +8,10 @@ function midpoint(p1, p2){
 	};
 }
 
+var entity1Color = '#333399';
+var entity2Color = '#339966';
+var bothColor = '#9900cc';
+
 var network = function(svg, data, disjoint){
 	var me = this;
 	me.svg = svg;
@@ -74,7 +78,13 @@ var network = function(svg, data, disjoint){
 			.on("mouseout", me.mouseout)
 			.style("fill", function(d){
 				if ( d.color === undefined ){
-					d.color = '#000000';
+					if ( d.type === 'entity1' ){
+						d.color = entity1Color;
+					} else if ( d.type === 'entity2' ){
+						d.color = entity2Color;
+					} else {
+						d.color = '#000000';
+					}
 				} else if (d.color.indexOf('#') === -1){
 					d.color = '#' + d.color;
 				}
