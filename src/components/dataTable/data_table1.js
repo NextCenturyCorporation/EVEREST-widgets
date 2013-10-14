@@ -2,7 +2,7 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 	var me = this;
 	var time = 'time';
 	
-	var MAX_CHARS = 100;
+	var MAX_CHARS = 75;
 	var TYPE_OF_DATE = 'createdDate';
 	var FADE_OUT_TIME = 10000;
 	var HILIGHT = 'red';
@@ -227,13 +227,13 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 				$('.data_table_end').val('');
 		
 				if (me.start && me.end && me.start <= me.end) { 
-					me.createTable(me.start,me.end, true); 
+					me.createTable(me.start, me.end, true); 
 				} else if ( !me.start && me.end){
-					me.createTable(me.MIN,me.end, true);
+					me.createTable(me.MIN, me.end, true);
 				} else if ( me.start && !me.end ){
-					me.createTable(me.start,me.MAX, true);
+					me.createTable(me.start, me.MAX, true);
 				} else { 
-					me.createTable(me.MIN,me.MAX, false); 
+					me.createTable(me.MIN, me.MAX, false); 
 				}
 			
 				me.resetAndSend();
@@ -370,10 +370,14 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 	
 	me.resetAndSend = function(){
 		var headers = d3.selectAll('th');
-		headers.classed('up', false);
-		headers.classed('down', false);
-		headers.classed('unsorted', true);
-			
+		headers.each(function(){
+			if (d3.select(this).attr('class') !== 'no_sort'){		
+				d3.select(this).classed('up', false);
+				d3.select(this).classed('down', false);
+				d3.select(this).classed('unsorted', true);
+			}
+		});
+		
 		var time_data = me.currentTableView.getTimes();
 		
 		if (Date.parse(time_data[0])){
