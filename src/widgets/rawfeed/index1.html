@@ -34,21 +34,31 @@
 	    </ul>
 	</nav>
 	<div class='well'>
-		<div class='panel panel-default'>
-			<div class='panel-heading'>
-				<div class="panel-title">Displaying 0 of 0 objects</div>
-				<div class='data_table_pages'>
-					<ul class="pagination"></ul>
-				</div>
+		<div class="navbar navbar-static-top">
+			<div class="navbar-header">
+	   			<span class="navbar-brand" href="#" id='panel-title'>Displaying 0 of 0 objects</span>
 			</div>
+			
+			<ul class="nav navbar-nav navbar-right">
+				<ul class="pagination"></ul>
+			</ul>
+		</div>
+		<div class='panel panel-default'>
 			<div class='panel-body'>
 				<div class='info'>
 					<div id="data_table_inputs">
-						<label>Start Date: </label>
-						<input type="text" name="start" class="data_table_start">
-						<label>End Date: </label>
-						<input type="text" name="end" class="data_table_end">
-						<input type="button" value="Submit" class="data_table_submit">
+						<div class='col-xs-7'></div>
+						<div class='input-group input-group-sm col-xs-2'>
+							<span class='input-group-addon'>Start Date</span>
+							<input type="text" name="start" class='form-control' id="data_table_start" placeholder='09/01/2013'>
+						</div>
+						<div class='input-group input-group-sm col-xs-2'>
+							<span class='input-group-addon'>End Date: </span>
+							<input type="text" name="end" class='form-control' id="data_table_end" placeholder='10/01/2013'>
+						</div>
+						<div class='col-xs-1'>
+							<input type="button" value="Submit" class='btn btn-primary btn-sm btn-block' id="data_table_submit">
+						</div>
 					</div>	
 				</div>
 				<div class="data_table_hold">

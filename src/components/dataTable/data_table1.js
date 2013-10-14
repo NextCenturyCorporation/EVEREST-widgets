@@ -96,7 +96,7 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 				me.showPageNumbers();
 				
 				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.range_total + ' objects';
-				$('.panel-title').text(s);
+				$('#panel-title').text(s);
 	
 				me.count = me.page * me.max_rows;
 				var temp = (1 + me.page) * me.max_rows;
@@ -161,7 +161,7 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 				}
 				
 				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.range_total + ' objects';
-				$('.panel-title').text(s);
+				$('#panel-title').text(s);
 			}
 		}
 	);
@@ -188,7 +188,7 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 		me.max_pages = Math.ceil(me.range_total / me.max_rows);
 		
 		var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.range_total + ' objects';
-		$('.panel-title').text(s);
+		$('#panel-title').text(s);
 		
 		me.range_datas = me.extractData(me.MIN, me.MAX);
 		me.currentTableView = new me.tableView(me.range_datas);
@@ -219,12 +219,12 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 				me.sorter(this, col);
 			});
 
-		d3.select('.data_table_submit')
+		d3.select('#data_table_submit')
 			.on('click', function(){
-				me.start = Date.parse($('.data_table_start').val());
-				me.end = Date.parse($('.data_table_end').val());
-				$('.data_table_start').val('');
-				$('.data_table_end').val('');
+				me.start = Date.parse($('#data_table_start').val());
+				me.end = Date.parse($('#data_table_end').val());
+				$('#data_table_start').val('');
+				$('#data_table_end').val('');
 		
 				if (me.start && me.end && me.start <= me.end) { 
 					me.createTable(me.start, me.end, true); 

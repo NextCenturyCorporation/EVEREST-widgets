@@ -847,8 +847,8 @@ pre code {
 .col-lg-12 {
   position: relative;
   min-height: 1px;
-  padding-right: 15px;
-  padding-left: 15px;
+  //padding-right: 15px;
+  //padding-left: 15px;
 }
 
 .col-xs-1,
@@ -1709,7 +1709,7 @@ input[type="number"]::-webkit-inner-spin-button {
   display: block;
   width: 100%;
   height: 34px;
-  padding: 6px 12px;
+  padding: 6px 6px;
   font-size: 14px;
   line-height: 1.428571429;
   color: #555555;
@@ -4013,9 +4013,7 @@ textarea.input-group-sm > .input-group-btn > .btn {
 
 .navbar {
   position: relative;
-  z-index: 1000;
   min-height: 50px;
-  margin-bottom: 20px;
   border: 1px solid transparent;
 }
 
@@ -4373,6 +4371,8 @@ textarea.input-group-sm > .input-group-btn > .btn {
 }
 
 .navbar-default {
+  z-index: 1000;
+  margin-bottom: 20px;
   background-color: #f8f8f8;
   border-color: #e7e7e7;
 }
