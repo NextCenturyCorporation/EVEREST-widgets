@@ -14,6 +14,7 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 	me.start = me.MIN;
 	me.end = me.MAX;
 	
+	me.page = 0;
 	me.offset = 0;
 	me.sort = 'uns';
 	me.sortKey = '_id';
@@ -25,7 +26,6 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 	me.max_pages = Math.ceil(me.total / me.max_rows);
 	me.count = me.page * me.max_rows;
 	me.temp_datas = me.datas.slice(0, me.max_rows);
-	me.page = 0;
 	
 	me.headers = [];
 
@@ -148,7 +148,6 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 				//pages @ top, if data becomes large enough to add another page,
 				var expectedPages = Math.ceil(me.total / me.max_rows);
 				if (expectedPages > me.max_pages){
-					var that = this;
 					me.max_pages = expectedPages;
 					me.showPageNumbers();
 				}
@@ -159,13 +158,19 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 		}
 	);
 
-	me.createTable = function(s, e, isSubset){
-		me.page = 0;
-		me.offset = 0;
-
-		me.max_pages = Math.ceil(me.total / me.max_rows);	
-		me.currentTableView = new me.tableView(me.datas);									
-		return me.currentTableView;
+	me.createTable = function(s, e){
+		if (s && e){
+			me.start = s;
+			me.end = e;
+			
+			me.update({
+				count: me.max_items,
+				start: me.start,
+				end: me.end
+			}, me.updateTable);
+		} else {
+			me.currentTableView = new me.tableView(me.datas);
+		}
 	};
 	
 	me.updateTable = function(data){
@@ -207,8 +212,6 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 
 		d3.select('#data_table_submit')
 			.on('click', function(){
-				//me.start = Date.parse($('#data_table_start').val());
-				//me.end = Date.parse($('#data_table_end').val());
 				me.start = $('#data_table_start').val();
 				me.end = $('#data_table_end').val();
 				$('#data_table_start').val('');
@@ -239,9 +242,7 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 		});	
 	};
 
-	//at the moment, this wont work properly, only sorts based on id, colId will be used later
 	me.sorter = function(elem, colId){
-		//don't bother sorting if range is empty
 		if (me.datas.length !== 0){
 			elem = d3.select(elem);
 
@@ -370,7 +371,6 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 		var isIn = -1 === ind ? false : true;
 		
 		if (isIn){
-			
 			if (ind === me.temp_datas.length - 1){
 				that.renderSentence(item, false);
 			} else {
@@ -378,8 +378,6 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 			}
 			
 			me.count++;
-			
-			
 			var rs = d3.selectAll('tr')[0].length;
 			
 			if (rs === me.max_rows + 1){
@@ -413,7 +411,7 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 			for (var i = 0; i < last; i++){ 
 				nums[i] = i+1; 
 			}
-				return nums;
+			return nums;
 		}
 		
 		if (current <= maxNumPages / 2){

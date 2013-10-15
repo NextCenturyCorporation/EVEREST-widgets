@@ -5,7 +5,6 @@ var max_items = 1000;
 var url = 'http://everest-build:8081/rawfeed';
 var raw_data_table;
 var datas_to_use = [];
-var table = null;
 var intervalID = -1;
 
 var getIndexes = function(callback){
@@ -55,7 +54,7 @@ function initTable(data, length){
 	if (raw_data_table.datas.length > 0){
 		getIndexes(function(data){
 			raw_data_table.createHeaders(Object.keys(raw_data_table.datas[0]), data);
-			table = raw_data_table.createTable(raw_data_table.MIN,raw_data_table.MAX, false);
+			raw_data_table.createTable();
 			raw_data_table.createClickers();
 		});
 	}
@@ -78,10 +77,10 @@ raw_data_widget1.execute = function() {
 			
 					OWF.Eventing.subscribe("com.nextcentury.everest.timeline_announcing", function(sender, msg){
 						var range = msg.substring(1,msg.length - 1).split(',');
-						raw_data_table.createTable(Date.parse(range[0]), Date.parse(range[1]), true);
+						raw_data_table.createTable(Date.parse(range[0]), Date.parse(range[1]));
 						raw_data_table.resetAndSend();
-						$('#start').val('');
-						$('#end').val('');
+						$('#data_table_start').val('');
+						$('#data_table_end').val('');
 					});
 					
 					//I don't think this works at the moment....
@@ -89,7 +88,7 @@ raw_data_widget1.execute = function() {
 					OWF.Eventing.subscribe("com.nextcentury.everest.data.workflow", function(sender, msg){
 						//makesure msg.data is of the type you're expecting...
 						if (typeof(msg.data) !== 'string'){
-							table.addSentence(msg.data);
+							raw_data_table.currentTableView.addSentence(msg.data);
 						}
 					});
 				});
@@ -104,7 +103,7 @@ raw_data_widget1.execute = function() {
 				getDataCallback({count: max_items, offset: raw_data_table.offset, sort: raw_data_table.sort}, function(data){
 					if (data.raw_feeds !== []){
 					
-						if ( !table ){
+						if ( !raw_data_table.currentTableView ){
 							initTable(data.raw_feeds, data.total_count);
 							datas_to_use = data.raw_feeds;
 						} else {
@@ -121,7 +120,7 @@ raw_data_widget1.execute = function() {
 							
 							var new_data = $(tdata).not(tdatas_to_use);
 							for (var i = 0; i < new_data.length; i++){
-								table.addSentence(JSON.parse(new_data[i]));
+								raw_data_table.currentTableView.addSentence(JSON.parse(new_data[i]));
 							};
 
 							tdata = [];
