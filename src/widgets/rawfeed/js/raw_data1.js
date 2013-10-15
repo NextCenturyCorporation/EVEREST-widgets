@@ -26,23 +26,12 @@ var announceCallback = function(announcement){
 };
 
 var getDataCallback = function(params, successCallback){
-	var newUrl = url;
-	if (params.count){
-		newUrl += '?count=' + params.count;
-	}
+	var newUrl = url + '?';
+	var keys = Object.keys(params);
+	keys.forEach(function(k){
+		newUrl += k + '=' + params[k] + '&';
+	});
 	
-	if (params.offset){
-		newUrl += '&offset=' + params.offset;
-	}
-	
-	if (params.sort){
-		newUrl += '&sort=' + params.sort;
-	}
-	
-	if (params.sortKey){
-		newUrl += '&sortKey=' + params.sortKey;
-	}
-
 	console.log(newUrl);
 
 	$.ajax({

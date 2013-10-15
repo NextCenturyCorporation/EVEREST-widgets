@@ -18,14 +18,12 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 	me.sort = 'uns';
 	me.sortKey = '_id';
 	me.total = length;
-	me.range_total = length;
 	
 	me.datas = datas_to_set;
 	me.max_rows = (rows ? rows : 10);
 	me.max_items = (items ? items : 1000);
-	me.max_pages = Math.ceil(me.range_total / me.max_rows);
+	me.max_pages = Math.ceil(me.total / me.max_rows);
 	me.count = me.page * me.max_rows;
-	me.range_datas = me.datas;
 	me.temp_datas = me.datas.slice(0, me.max_rows);
 	me.page = 0;
 	
@@ -91,11 +89,11 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 			},
 			render: function(){	
 				var that = this;
-				me.temp_datas = me.range_datas.slice(me.page * me.max_rows - me.offset, (me.page + 1) * me.max_rows - me.offset);
+				me.temp_datas = me.datas.slice(me.page * me.max_rows - me.offset, (me.page + 1) * me.max_rows - me.offset);
 				that.collection = new me.table(me.temp_datas);
 				me.showPageNumbers();
 				
-				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.range_total + ' objects';
+				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
 				$('#panel-title').text(s);
 	
 				me.count = me.page * me.max_rows;
@@ -127,9 +125,7 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 			},
 			addSentence: function(item){
 				me.datas.push(item);
-				me.range_datas.push(item);
 				me.total++;
-				me.range_total++;
 				
 				//grab the column we want to sort by
 				var col = me.getSortedColumn();
@@ -137,30 +133,27 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 				
 				//make sure new item is in its correct location in me.datas 
 				if(col.class === 'up'){
-					me.range_datas.sort(function(a,b){ return a[colText] > b[colText] ? 1 : -1; });
 					me.datas.sort(function(a,b){ return a[colText] > b[colText] ? 1 : -1; });
 				} else if (col.class === 'down'){
-					me.range_datas.sort(function(a,b){ return a[colText] < b[colText] ? 1 : -1; });
 					me.datas.sort(function(a,b){ return a[colText] < b[colText] ? 1 : -1; });
 				}
 				
-				me.range_datas = me.range_datas.slice(0, me.max_items);
 				me.datas = me.datas.slice(0, me.max_items);
 				
-				me.temp_datas = me.range_datas.slice(me.page * me.max_rows - me.offset, (me.page + 1) * me.max_rows - me.offset);						
+				me.temp_datas = me.datas.slice(me.page * me.max_rows - me.offset, (me.page + 1) * me.max_rows - me.offset);						
 				this.collection = new me.table(me.temp_datas);
 
 				me.addRow(item, this);
 				
 				//pages @ top, if data becomes large enough to add another page,
-				var expectedPages = Math.ceil(me.range_total / me.max_rows);
+				var expectedPages = Math.ceil(me.total / me.max_rows);
 				if (expectedPages > me.max_pages){
 					var that = this;
 					me.max_pages = expectedPages;
 					me.showPageNumbers();
 				}
 				
-				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.range_total + ' objects';
+				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
 				$('#panel-title').text(s);
 			}
 		}
@@ -169,13 +162,9 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 	me.createTable = function(s, e, isSubset){
 		me.page = 0;
 		me.offset = 0;
-		me.range_datas = me.extractData(s, e);
-		
-		if ( isSubset ){
-			me.range_total = me.range_datas.length;
-		} 
-		me.max_pages = Math.ceil(me.range_total / me.max_rows);	
-		me.currentTableView = new me.tableView(me.range_datas);									
+
+		me.max_pages = Math.ceil(me.total / me.max_rows);	
+		me.currentTableView = new me.tableView(me.datas);									
 		return me.currentTableView;
 	};
 	
@@ -184,14 +173,9 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 		
 		me.datas = data.raw_feeds;
 		me.total = data.total_count;
-		me.range_total = data.total_count;
-		me.max_pages = Math.ceil(me.range_total / me.max_rows);
-		
-		var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.range_total + ' objects';
-		$('#panel-title').text(s);
-		
-		me.range_datas = me.extractData(me.MIN, me.MAX);
-		me.currentTableView = new me.tableView(me.range_datas);
+		me.max_pages = Math.ceil(me.total / me.max_rows);
+				
+		me.currentTableView = new me.tableView(me.datas);
 	};
 	
 	me.renderPage = function(){
@@ -203,7 +187,9 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 				count: me.max_items, 
 				offset: temp_offset,
 				sort: me.sort,
-				sortKey: me.sortKey
+				sortKey: me.sortKey,
+				start: me.start,
+				end: me.end
 			}, me.updateTable);
 		} else {
 			me.currentTableView.render();
@@ -221,27 +207,27 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 
 		d3.select('#data_table_submit')
 			.on('click', function(){
-				me.start = Date.parse($('#data_table_start').val());
-				me.end = Date.parse($('#data_table_end').val());
+				//me.start = Date.parse($('#data_table_start').val());
+				//me.end = Date.parse($('#data_table_end').val());
+				me.start = $('#data_table_start').val();
+				me.end = $('#data_table_end').val();
 				$('#data_table_start').val('');
 				$('#data_table_end').val('');
 		
-				if (me.start && me.end && me.start <= me.end) { 
-					me.createTable(me.start, me.end, true); 
-				} else if ( !me.start && me.end){
-					me.createTable(me.MIN, me.end, true);
-				} else if ( me.start && !me.end ){
-					me.createTable(me.start, me.MAX, true);
-				} else { 
-					me.createTable(me.MIN, me.MAX, false); 
-				}
-			
+				me.page = 0;
+				me.update({
+					count: me.max_items, 
+					start: me.start,
+					end: me.end,
+				}, me.updateTable);
 				me.resetAndSend();
 			});
 
 		d3.select('.show_all')
 			.on('click', function(){
 				me.page = 0;
+				me.start = me.MIN;
+				me.end = me.MAX;
 				me.update({count: me.max_items}, me.updateTable);
 				me.resetAndSend();
 			});		
@@ -252,30 +238,11 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 			me.renderPage();
 		});	
 	};
-	
-	/*Get a range of data based on start and end params
-	Returns a subset of the array of objects datas containing
-	only rows that occur in the specified time range*/
-	me.extractData = function(start, end) {
-		var currData = [];
-		if(time === TYPE_OF_DATE){
-			for (var i = 0; i < me.datas.length; i++){
-				var ti = Date.parse(me.datas[i][time]);
-		
-				if (ti <= end && ti >= start) { 
-					currData.push(me.datas[i]); 
-				}
-			}
-		} else {
-			currData = me.datas;
-		}
-		return currData;
-	};
 
 	//at the moment, this wont work properly, only sorts based on id, colId will be used later
 	me.sorter = function(elem, colId){
 		//don't bother sorting if range is empty
-		if (me.range_datas.length !== 0){
+		if (me.datas.length !== 0){
 			elem = d3.select(elem);
 
 			var elements = d3.selectAll('th');
@@ -284,7 +251,9 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 					count: me.max_items, 
 					offset: Math.floor(me.page * me.max_rows / me.max_items) * me.max_items, 
 					sort: 'desc',
-					sortKey: colId
+					sortKey: colId,
+					start: me.start,
+					end: me.end
 				}, function(data){
 					me.updateTable(data);
 						
@@ -307,7 +276,9 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 					count: me.max_items, 
 					offset: Math.floor(me.page * me.max_rows / me.max_items) * me.max_items, 
 					sort: 'asc',
-					sortKey: colId
+					sortKey: colId,
+					start: me.start,
+					end: me.end
 				}, function(data){
 					me.updateTable(data);
 					
@@ -349,7 +320,6 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 	me.createHeaders = function(arr, indexes){
 		time = $.inArray(TYPE_OF_DATE, arr) !== -1 ? TYPE_OF_DATE : arr[0];
 		me.headers = arr;
-		console.log(indexes);
 	
 		var header = d3.select('.data_table_data');
 		header.selectAll('th').remove();
@@ -390,8 +360,8 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 	me.setMaxRows = function(r){
 		if( r > 0 && r < me.max_items){
 			me.max_rows = r;
-			me.temp_datas = me.range_datas.slice(0, me.max_rows);
-			me.max_pages = Math.ceil( me.range_total / me.max_rows );
+			me.temp_datas = me.datas.slice(0, me.max_rows);
+			me.max_pages = Math.ceil( me.total / me.max_rows );
 		}
 	};
 	
@@ -427,7 +397,7 @@ var data_table1 = function(datas_to_set, announce_function, update_function, row
 
 		} else {
 			//item inserted before this page, re-render table to show shift of elements down
-			if (me.range_datas.indexOf(item) < me.page * me.max_rows){
+			if (me.datas.indexOf(item) < me.page * me.max_rows){
 				that.render();
 			}
 		}		
