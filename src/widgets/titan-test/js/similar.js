@@ -161,29 +161,20 @@ var comparer = function(){
 		me.net2.svg.select('.node-link-container').remove();
 		
 		var comparedTo = item.comparedTo;
-		comparedTo.forEach(function(d){
-			if (d.score === 8){
-				if ( d.alpha_report_id !== null ){
-					d3.select('#panel-two-select').append('option').attr('class', 'perfect').text(d.alpha_report_id);
-					me.pane_two_items.push(d.alpha_report_id);
-				} else if ( d.target_event_id !== null ){
-					d3.select('#panel-two-select').append('option').attr('class', 'perfect').text(d.target_event_id);
-					me.pane_two_items.push(d.target_event_id);
+		console.log(comparedTo);
+		if (comparedTo){
+			comparedTo.forEach(function(d){
+				if ( d.item_id !== null ){
+					if (d.score === 8){
+						d3.select('#panel-two-select').append('option').attr('class', 'perfect').text(d.item_id);
+						me.pane_two_items.push(d.item_id);	
+					} else if ( d.score > 3 ){
+						d3.select('#panel-two-select').append('option').text(d.item_id);
+						me.pane_two_items.push(d.item_id);
+					} 
 				}
-			}
-			
-			else if ( d.score > 3 ){
-				//TODO - groovy script switched from alpha_id and target__id to
-				// just item_id, will need to be changed when database updates
-				if ( d.alpha_report_id !== null ){
-					d3.select('#panel-two-select').append('option').text(d.alpha_report_id);
-					me.pane_two_items.push(d.alpha_report_id);
-				} else if ( d.target_event_id !== null ){
-					d3.select('#panel-two-select').append('option').text(d.target_event_id);
-					me.pane_two_items.push(d.target_event_id);
-				}
-			}
-		});
+			});
+		}
 		
 		if (me.pane_two_items.length !== 0){
 			me.getTitanItem(me.pane_two_items[0], me.net2);
