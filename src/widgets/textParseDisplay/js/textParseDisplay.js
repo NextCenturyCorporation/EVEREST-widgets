@@ -86,7 +86,7 @@ var textParseDisplay = function() {
 		var text = $(".free-form-text-area").val();
 		console.log(text);
 
-		var url = "http://localhost:5454/nlp-parser/full-parse-result";
+		var url = "http://everest-build:8081/nlp-parser/full-parse-result";
 		var data = {text: text};
 		//post
 		$.ajax({
