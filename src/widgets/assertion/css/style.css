@@ -1,32 +1,52 @@
-.data_table_data {
-	border-color:#004785;
-	border-width:3px;
-	border-collapse:collapse;
-	font-size:15px;
+body {
+	font-size: 14px;
+}
+
+table {	
+	border-color: #004785;
+	border-collapse: collapse;
+	width: 100%;
 }
 
 td {
-	padding:0px 10px 0px 5px;
+	padding: 3px;
 }
 
 th {
-	cursor: pointer;
-	padding:10px 30px 10px 5px;
-	text-align:left;
-	background-repeat:no-repeat;
-	background-position:right;
+	background-repeat: no-repeat;
+	background-position: right;
 }
 
-.up{
-	background-image:url('img/asc.png');
-}
-
+.unsorted,
+.up,
 .down{
-	background-image:url('img/des.png');
+	padding: 3px 20px 3px 3px;
+	cursor: pointer;
 }
 
-.unsorted{
-	background-image:url('img/uns.png');
+.data_table_text {
+	word-wrap: break-word;
+}
+
+.data_table_pages {
+	display: inline-block;
+}
+
+.data_table_hold {
+	width: 100%;
+	overflow: auto;
+}
+
+.up {
+	background-image:url('../img/asc.png');
+}
+
+.down {
+	background-image:url('../img/des.png');
+}
+
+.unsorted {
+	background-image:url('../img/uns.png');
 }
 
 .lit {
@@ -37,23 +57,8 @@ th {
 	background-color:#d5d8d9;
 }
 
-.data_table_inputs{
-	display:inline-block;
+#pages {
+	right: 0;
+	left: auto;
+	position: relative;
 }
-
-.data_table_display_count {
-	display: inline-block;
-}
-
-.data_table_text { 
-	word-wrap: break-word;
-	border-style:solid;
-	border-color:#004785;
-	text-align:center;
-}
-
-.data_table_title{
-	color:#004785;
-	display:inline-block;
-}
-

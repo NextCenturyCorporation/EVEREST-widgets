@@ -1,4 +1,4 @@
-var table_widget = function(url, announce, timeline, workflow){
+var table_widget = function(url, announce, timeline, workflow, datatype){
 	var me = this;
 	
 	me.max_rows = 10;
@@ -6,6 +6,7 @@ var table_widget = function(url, announce, timeline, workflow){
 	me.url = url;
 	me.table = null;
 	me.datas_to_use = [];
+	me.datatype = datatype;
 	
 	me.timeline_channel = timeline;
 	me.workflow_channel = workflow;
@@ -27,9 +28,11 @@ var table_widget = function(url, announce, timeline, workflow){
 			url: newUrl,
 			dataType: 'jsonp',
 			jsonpCallback: 'callback',
-			success: successCallback,
-			error: function(){
-				console.log('error');
+			success: function(data){
+				successCallback(data, me.datatype);
+			},
+			error: function(error){
+				console.log(error);
 			}
 		});
 	};
@@ -51,23 +54,21 @@ var table_widget = function(url, announce, timeline, workflow){
 		me.datas_to_use = (data === [] ? {} : data);
 			
 		me.table = new data_table(me.datas_to_use, me.announceCallback, me.getDataCallback, me.max_rows, me.max_items, length);
+		me.getIndexes(function(data){
+			me.table.createHeaders(Object.keys(me.table.datas[0]), data);
+			me.table.createTable();
+			me.table.createClickers();
+		});
 		
-		if (me.table.datas.length > 0){
-			me.getIndexes(function(data){
-				me.table.createHeaders(Object.keys(me.table.datas[0]), data);
-				me.table.createTable();
-				me.table.createClickers();
-			});
-		}
 	};
 	
 	me.execute = function(){
-		me.getDataCallback({count: me.max_items}, function(data){
-			if (data.raw_feeds !== []){
-				datas_to_use = data.raw_feeds;
+		me.getDataCallback({count: me.max_items}, function(data, datatype){
+			if (data[me.datatype]!== []){
+				me.datas_to_use = data[datatype];
 				var length = data.total_count;
 						
-				me.initTable(datas_to_use, length);
+				me.initTable(me.datas_to_use, length);
 	
 				owfdojo.addOnLoad(function(){
 					OWF.ready(function(){
@@ -90,6 +91,6 @@ var table_widget = function(url, announce, timeline, workflow){
 					});
 				});
 			}
-		});
+		});		
 	};
 };

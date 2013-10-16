@@ -28,29 +28,33 @@
 	    </ul>
 	</nav>
 	<div class='well'>
-		<div class='panel panel-default'>
-			<div class='panel-heading'>
-				<div class="panel-title"></div>
+		<div class="navbar navbar-static-top">
+			<div class="navbar-header">
+	   			<span class="navbar-brand" href="#" id='panel-title'>Displaying 0 of 0 objects</span>
 			</div>
+			
+			<ul class="nav navbar-nav navbar-right">
+				<ul class="pagination"></ul>
+			</ul>
+		</div>
+		<div class='panel panel-default'>
 			<div class='panel-body'>
 				<div class='info'>
-					<div class='data_table_pages'>
-						<ul class="pagination"></ul>
-					</div>
-					
-					<div class="data_table_inputs">
-						<label>Start Date: </label>
-						<input type="text" name="start" class="data_table_start">
-						<label>End Date: </label>
-						<input type="text" name="end" class="data_table_end">
-						<input type="button" value="Submit" class="data_table_submit">
+					<div id="data_table_inputs">
+						<div class='col-xs-7'></div>
+						<div class='input-group input-group-sm col-xs-2'>
+							<input type="text" name="start" class='form-control' id="data_table_start" placeholder='Start Date'>
+						</div>
+						<div class='input-group input-group-sm col-xs-2'>
+							<input type="text" name="end" class='form-control' id="data_table_end" placeholder='End Date'>
+						</div>
+						<div class='col-xs-1'>
+							<input type="button" value="Submit" class='btn btn-primary btn-sm btn-block' id="data_table_submit">
+						</div>
 					</div>	
 				</div>
 				<div class="data_table_hold">
-					<div class='data_table_container'>
-						<table border="1" class='data_table_headers'></table>
-						<table border="1" class='data_table_data'></table>
-					</div>				
+					<table border="1" class='data_table_data'></table>		
 				</div>
 			</div>
 		</div>
@@ -62,12 +66,20 @@
 	<script src="../../../lib/d3.v3.js"></script>
 	<script src="../../../lib/owf-widget-debug.js"></script>
 	<script src="../../../lib/dropdown.js"></script>
+	<script src="../../../lib/jquery.blockUI.js"></script>
 	
 	<script src="../../components/dataTable/data_table.js"></script>
-	<script src="./js/raw_data.js"></script>
+	<script src="../../components/dataTable/table_widget.js"></script>
 
 	<script type="text/javascript">
-		$(raw_data_widget.execute());
+		$(function(){
+			var url = 'http://everest-build:8081/rawfeed';
+			var announce = 'com.nextcentury.everest.data_table_announce.raw_data';
+			var timeline = 'com.nextcentury.everest.timeline_announcing';
+			var workflow = 'com.nextcentury.everest.data.workflow';
+			var raw_data_widget = new table_widget(url, announce, timeline, workflow, 'raw_feeds');
+			raw_data_widget.execute();
+		});
 	</script>
 </body>
 </html>

@@ -1,55 +1,86 @@
-<html>
-	<head>
-		<meta charset="utf-8">
-		<script src="../../../lib/underscore.js"></script>
-		<script src="../../../lib/jquery-2.0.2.js"></script>
-		<script src="../../../lib/backbone.js"></script>
-		<script src="../../../lib/d3.v3.js"></script>
-		<script src="../../../lib/owf-widget-debug.js"></script>
-		<script src="../../components/dataTable/data_table.js"></script>
-		<link rel="stylesheet" type="text/css" href="css/style.css">
-	</head>
-	<body>
-		<div class="data_table_hold">
-			<div class="data_table_title"></div>
-			
-			<table border="1" class='data_table_data'></table>
-			
-			<div class="data_table_inputs">
-				Start Date: <input type="text" name="start" class="data_table_start">
-				End Date: <input type="text" name="end" class="data_table_end">
-				<input type="button" value="Submit" class="data_table_submit">
-				<input type="button" value="Show All" class="data_table_reset">
-			</div>
-			<div class="data_table_text"></div>
-			<!--div class="data_table_display_count"> Please select the number of rows to display 
-				<label><input type="radio" name="rows" value="10" checked>10</label>
-				<label><input type="radio" name="rows" value="25">25</label>
-				<label><input type="radio" name="rows" value="50">50</label>
-				<label><input type="radio" name="rows" value="100">100</label>
-				<label><input type="radio" name="rows" value="all" class="data_table_all_radio">All</label>
-			</div-->
-			<div class="data_table_pages"></div>
+<!DOCTYPE html>
+<head>
+	<meta charset="utf-8">
+	<title>Assertion Table</title>
+	
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+
+	<nav class="navbar navbar-default navbar-static-top" role="navigation">
+ 		<div class="navbar-header">
+   			<a class="navbar-brand" href="#">Assertion Table</a>
 		</div>
-
-		<script type="text/javascript">
-			//remove the previous data block and do something to get the data
-
-
-			$(function() {
-				var success = function(data, status, xhr) {
-					var raw_data_table = new data_table(data, function(announcement) {
-						OWF.Eventing.publish("com.nextcentury.everest.data_table_announcing.assertion", announcement);
-					}, null);
-
-					raw_data_table.generateTable();
-				};
-
-				var url = "http://everest-build:8081/assertion/?callback=?";
-
-				$.getJSON(url, success);
-			})
-		</script>
-	</body>
+		<ul class="nav navbar-nav navbar-right">
+			<li class='dropdown'>
+				<a href='#' class='dropdown-toggle' data-toggle='dropdown'> Set Max Rows <b class='caret'></b></a>
+				<ul class='dropdown-menu'>
+					<li><a href='#' class='show' id='10'>Show 10</a></li>
+					<li><a href='#' class='show' id='25'>Show 25</a></li>
+					<li><a href='#' class='show' id='50'>Show 50</a></li>
+					<li><a href='#' class='show' id='100'>Show 100</a></li>
+				</ul>
+			</li>
+			<li>
+				<a href='#' class='show_all'>Show All Data</a>
+			</li>	
+	    </ul>
+	</nav>
+	<div class='well'>
+		<div class="navbar navbar-static-top">
+			<div class="navbar-header">
+	   			<span class="navbar-brand" href="#" id='panel-title'>Displaying 0 of 0 objects</span>
+			</div>
+			
+			<ul class="nav navbar-nav navbar-right">
+				<ul class="pagination"></ul>
+			</ul>
+		</div>
+		<div class='panel panel-default'>
+			<div class='panel-body'>
+				<div class='info'>
+					<div id="data_table_inputs">
+						<div class='col-xs-7'></div>
+						<div class='input-group input-group-sm col-xs-2'>
+							<input type="text" name="start" class='form-control' id="data_table_start" placeholder='Start Date'>
+						</div>
+						<div class='input-group input-group-sm col-xs-2'>
+							<input type="text" name="end" class='form-control' id="data_table_end" placeholder='End Date'>
+						</div>
+						<div class='col-xs-1'>
+							<input type="button" value="Submit" class='btn btn-primary btn-sm btn-block' id="data_table_submit">
+						</div>
+					</div>	
+				</div>
+				<div class="data_table_hold">
+					<table border="1" class='data_table_data'></table>		
+				</div>
+			</div>
+		</div>
+		<div class="data_table_text"></div>
+	</div>
+	<script src="../../../lib/underscore.js"></script>
+	<script src="../../../lib/jquery-2.0.2.js"></script>
+	<script src="../../../lib/backbone.js"></script>
+	<script src="../../../lib/d3.v3.js"></script>
+	<script src="../../../lib/owf-widget-debug.js"></script>
+	<script src="../../../lib/dropdown.js"></script>
+	<script src="../../../lib/jquery.blockUI.js"></script>
+	
+	<script src="../../components/dataTable/data_table.js"></script>
+	<script src="../../components/dataTable/table_widget.js"></script>
+	
+	<script type="text/javascript">
+		$(function() {
+			var url = 'http://everest-build:8081/assertion';
+			var announce = 'com.nextcentury.everest.data_table_announce.assertion';
+			var timeline = 'com.nextcentury.everest.timeline_announcing';
+			var workflow = 'com.nextcentury.everest.data.workflow';
+			var assertion_widget = new table_widget(url, announce, timeline, workflow, 'assertions');
+			assertion_widget.execute();
+		});
+	</script>
+</body>
 </html>
 
