@@ -121,14 +121,18 @@ var textParseDisplay = function() {
 				'<div class="col-xs-1"></div>' +
 				'</div>');
 
-		var i = 0;
-		for(i = 0; i < data.tuples.length; i++) {
-			$(".free-parse-results-display .free-parse-results-display-tuple-div").append('' +
-						'{<br/>' +
-						'&nbsp;&nbsp;&nbsp;&nbsp;Entity1: ' + data.tuples[i].entity1 +',<br/>' +
-						'&nbsp;&nbsp;&nbsp;&nbsp;Relationship: ' + data.tuples[i].relationship + ',<br/>' +
-						'&nbsp;&nbsp;&nbsp;&nbsp;Entity2: ' + data.tuples[i].entity2 + '<br/>' +
-						'}' + (data.tuples.length > i+1 ? ', ' : ''));
+		if(data.tuples.length > 0) {
+			var i = 0;
+			for(i = 0; i < data.tuples.length; i++) {
+				$(".free-parse-results-display .free-parse-results-display-tuple-div").append('' +
+							'{<br/>' +
+							'&nbsp;&nbsp;&nbsp;&nbsp;Entity1: ' + data.tuples[i].entity1 +',<br/>' +
+							'&nbsp;&nbsp;&nbsp;&nbsp;Relationship: ' + data.tuples[i].relationship + ',<br/>' +
+							'&nbsp;&nbsp;&nbsp;&nbsp;Entity2: ' + data.tuples[i].entity2 + '<br/>' +
+							'}' + (data.tuples.length > i+1 ? ', ' : ''));
+			}
+		} else {
+			$(".free-parse-results-display .free-parse-results-display-tuple-div").append('No tuples found');
 		}
 		
 		for(var i = 0; i < sentenceCount; i++) {
