@@ -84,7 +84,7 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 						
 						OWF.Eventing.subscribe(me.workflow_channel, function(sender, msg){
 							if (msg.data.type === me.datatype){
-								table.currentTableView.addSentence(msg.data);
+								table.currentTableView.addSentence(msg.data.eventObject);
 							}
 						});
 					});
