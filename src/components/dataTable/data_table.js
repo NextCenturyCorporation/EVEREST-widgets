@@ -9,7 +9,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	var STANDARD = 'black';
 	
 	me.MIN = 0;
-	me.MAX = Number.MAX_VALUE;
+	me.MAX = 32500000000000;
 	
 	me.start = me.MIN;
 	me.end = me.MAX;
@@ -128,36 +128,41 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				return this.collection.pluck(time);
 			},
 			addSentence: function(item){
-				me.datas.push(item);
-				me.total++;
+				var item_time = new Date(item[time]);
+				var start_time = new Date(me.start);
+				var end_time = new Date(me.end);
+				if (item_time > start_time && item_time < end_time){
+					me.datas.push(item);
+					me.total++;
 				
-				//grab the column we want to sort by
-				var col = me.getSortedColumn();
-				var colText = me.headers[col.id];
+					//grab the column we want to sort by
+					var col = me.getSortedColumn();
+					var colText = me.headers[col.id];
 				
-				//make sure new item is in its correct location in me.datas 
-				if(col.class === 'up'){
-					me.datas.sort(function(a,b){ return a[colText] > b[colText] ? 1 : -1; });
-				} else if (col.class === 'down'){
-					me.datas.sort(function(a,b){ return a[colText] < b[colText] ? 1 : -1; });
+					//make sure new item is in its correct location in me.datas 
+					if(col.class === 'up'){
+						me.datas.sort(function(a,b){ return a[colText] > b[colText] ? 1 : -1; });
+					} else if (col.class === 'down'){
+						me.datas.sort(function(a,b){ return a[colText] < b[colText] ? 1 : -1; });
+					}
+					
+					me.datas = me.datas.slice(0, me.max_items);
+					
+					me.temp_datas = me.datas.slice(me.page * me.max_rows - me.offset, (me.page + 1) * me.max_rows - me.offset);						
+					this.collection = new me.table(me.temp_datas);
+	
+					me.addRow(item, this);
+					
+					//pages @ top, if data becomes large enough to add another page,
+					var expectedPages = Math.ceil(me.total / me.max_rows);
+					if (expectedPages > me.max_pages){
+						me.max_pages = expectedPages;
+						me.showPageNumbers();
+					}
+				
+					var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
+					$('#panel-title').text(s);
 				}
-				
-				me.datas = me.datas.slice(0, me.max_items);
-				
-				me.temp_datas = me.datas.slice(me.page * me.max_rows - me.offset, (me.page + 1) * me.max_rows - me.offset);						
-				this.collection = new me.table(me.temp_datas);
-
-				me.addRow(item, this);
-				
-				//pages @ top, if data becomes large enough to add another page,
-				var expectedPages = Math.ceil(me.total / me.max_rows);
-				if (expectedPages > me.max_pages){
-					me.max_pages = expectedPages;
-					me.showPageNumbers();
-				}
-				
-				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
-				$('#panel-title').text(s);
 			}
 		}
 	);
@@ -179,7 +184,13 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	
 	me.updateTable = function(data){
 		me.offset = Math.floor(me.page * me.max_rows / me.max_items) * me.max_items;
-		
+		if (me.start === ''){
+			me.start = me.MIN;
+		}
+
+		if (me.end === ''){
+			me.end = me.MAX;
+		}
 		me.datas = data.docs;
 		me.total = data.total_count;
 		me.max_pages = Math.ceil(me.total / me.max_rows);
