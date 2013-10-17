@@ -184,13 +184,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	
 	me.updateTable = function(data){
 		me.offset = Math.floor(me.page * me.max_rows / me.max_items) * me.max_items;
-		if (me.start === ''){
-			me.start = me.MIN;
-		}
 
-		if (me.end === ''){
-			me.end = me.MAX;
-		}
 		me.datas = data.docs;
 		me.total = data.total_count;
 		me.max_pages = Math.ceil(me.total / me.max_rows);
@@ -201,7 +195,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	me.renderPage = function(){
 		if (me.page * me.max_rows >= me.offset + me.max_items || 
 				me.page * me.max_rows < me.offset){
-			$.blockUI({ message: '<h3><img src="img/ajax-loader.gif" /> <br /> Please wait... </h3>'});
+			$.blockUI({ message: '<h3><img src="../../components/dataTable/img/ajax-loader.gif" /> <br /> Please wait... </h3>'});
 			var temp_offset = Math.floor(me.page * me.max_rows / me.max_items) * me.max_items;
 			me.update({
 				count: me.max_items, 
@@ -230,8 +224,10 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				me.start = $('#data_table_start').val();
 				me.end = $('#data_table_end').val();
 				$('#data_table_start').val('');
-				$('#data_table_end').val('');
-		
+				$('#data_table_end').val('');		
+			
+				me.validateDates();
+				
 				me.page = 0;
 				me.update({
 					count: me.max_items, 
@@ -488,6 +484,23 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					me.page = me.max_pages - 1;
 					me.renderPage();
 				});
+		}
+	};
+	
+	me.validateDates = function(){
+		var startdate = new Date(me.start);
+		var enddate = new Date(me.end);
+		if (!startdate){
+			me.start = me.MIN;
+		}
+		
+		if (!enddate){
+			me.end = me.MAX;
+		}
+		
+		if (startdate > enddate){
+			me.start = me.MIN;
+			me.end = me.MAX;
 		}
 	};
 };
