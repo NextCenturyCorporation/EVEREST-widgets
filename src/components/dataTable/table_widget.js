@@ -70,7 +70,7 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 	
 				owfdojo.addOnLoad(function(){
 					OWF.ready(function(){
-						setInterval(me.table.resetAndSend, 10000);
+						/*setInterval(me.table.resetAndSend, 10000);
 				
 						OWF.Eventing.subscribe(me.timeline_channel, function(sender, msg){
 							var range = msg.substring(1,msg.length - 1).split(',');
@@ -78,11 +78,12 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 							me.table.resetAndSend();
 							$('#data_table_start').val('');
 							$('#data_table_end').val('');
-						});
+						});*/
 						
 						OWF.Eventing.subscribe(me.workflow_channel, function(sender, msg){
-							if (msg.data.type === me.datatype){
-								table.currentTableView.addSentence(msg.data.eventObject);
+							var data = JSON.parse(msg).data;
+							if (data.type === me.datatype){
+								me.table.currentTableView.addSentence(data.eventObject);
 							}
 						});
 					});
