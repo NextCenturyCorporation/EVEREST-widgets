@@ -73,6 +73,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					return 'N/A';
 				}
 			}).on('click', function(d){
+				console.log(JSON.stringify({message: d}));
 				d3.selectAll('.data_table_descr').remove();
 				d3.select('.data_table_text')
 					.append('text')
@@ -81,6 +82,8 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					
 				d3.selectAll('td').style('font-weight', 'normal');
 				d3.select(this).style('font-weight', 'bold');
+				
+				me.announce(JSON.stringify({message: d}));
 			});
 		}
 	});
@@ -234,7 +237,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					start: me.start,
 					end: me.end,
 				}, me.updateTable);
-				me.resetAndSend();
+				me.sendTimes();
 			});
 
 		d3.select('.show_all')
@@ -243,7 +246,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				me.start = me.MIN;
 				me.end = me.MAX;
 				me.update({count: me.max_items}, me.updateTable);
-				me.resetAndSend();
+				me.sendTimes();
 			});		
 			
 		d3.selectAll('.show').on('click', function(){
@@ -350,22 +353,15 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		}
 	};
 	
-	me.resetAndSend = function(){
-		var headers = d3.selectAll('th');
-		headers.each(function(){
-			if (d3.select(this).attr('class') !== 'no_sort'){		
-				d3.select(this).classed('up', false);
-				d3.select(this).classed('down', false);
-				d3.select(this).classed('unsorted', true);
-			}
-		});
-		
+	me.sendTimes = function(){
 		var time_data = me.currentTableView.getTimes();
 		
 		if (Date.parse(time_data[0])){
-			for (var i = 0; i < time_data.length; i++){ time_data[i] = Date.parse(time_data[i]); }
+			for (var i = 0; i < time_data.length; i++){ 
+				time_data[i] = Date.parse(time_data[i]); 
+			}
 		
-			me.announce(JSON.stringify(time_data));
+			me.announce(JSON.stringify({times:time_data}));
 		}
 	};
 	

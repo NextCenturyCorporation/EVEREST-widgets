@@ -70,9 +70,9 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 	
 				owfdojo.addOnLoad(function(){
 					OWF.ready(function(){
-						/*setInterval(me.table.resetAndSend, 10000);
+						setInterval(me.table.sendTimes, 10000);
 				
-						OWF.Eventing.subscribe(me.timeline_channel, function(sender, msg){
+						/*OWF.Eventing.subscribe(me.timeline_channel, function(sender, msg){
 							var range = msg.substring(1,msg.length - 1).split(',');
 							me.table.createTable(Date.parse(range[0]), Date.parse(range[1]));
 							me.table.resetAndSend();
