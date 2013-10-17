@@ -82,12 +82,11 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 							$('#data_table_end').val('');
 						});
 						
-						/*OWF.Eventing.subscribe(me.workflow_channel, function(sender, msg){
-							//makesure msg.data is of the type you're expecting...
-							if (typeof(msg.data) !== 'string'){
-								raw_data_table.currentTableView.addSentence(msg.data);
+						OWF.Eventing.subscribe(me.workflow_channel, function(sender, msg){
+							if (msg.data.type === me.datatype){
+								table.currentTableView.addSentence(msg.data);
 							}
-						});*/
+						});
 					});
 				});
 			}
