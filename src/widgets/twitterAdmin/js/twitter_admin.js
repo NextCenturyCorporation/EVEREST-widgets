@@ -1,6 +1,6 @@
 var twitter_admin = function() {
 	var me = this;
-
+	var baseURL = "http://everest-build:8081";
 	me.template = null;
 
 	me.execute = function() {
@@ -11,22 +11,17 @@ var twitter_admin = function() {
 		me.admin_view = new me.Admin_View({el: $(".twitter_admin_container")[0]});
 	};
 
+
+
 	me.loadTemplate = function() {
 		if($("#template_twitter_admin").length === 0) {
 			$("head").append(
 				'<script id="template_twitter_admin" type="text/template">'+
-					'<div class="twitter_admin_alert"></div>'+
+					'<div class="twitter_admin_alert alert alert-danger" hidden="true"></div>'+
 					'<div class="twitter_admin_sub_alert"></div>'+
 					'<div class="twitter_filter_form">'+
 					'</div>'+
 					'<div class="twitter_admin_form">'+
-					'</div>'+
-					'<div class="twitter_admin_buttons_div">'+
-						'<div class="button_inner_div">'+
-							'<button type="button" class="twitter_admin_new_key">New Key</button>'+
-							'<button type="button" class="twitter_admin_save_button">Save Key</button>'+
-							'<button type="button" class="twitter_admin_cancel_button">Cancel</button>'+
-						'</div>'+
 					'</div>'+
 				'</script>');
 		}
@@ -45,11 +40,7 @@ var twitter_admin = function() {
 				this.$el.html(template);
 
 				me.setup_button_handlers();
-
-				$(".twitter_admin_save_button").hide();
-				$(".twitter_admin_cancel_button").hide();
-				
-				var url = 'http://everest-build:8081/twitter-ingest/';
+				var url = baseURL + '/twitter-ingest/';
 				$.ajax({
 					type: "GET",
 					url: url,
@@ -57,6 +48,42 @@ var twitter_admin = function() {
 					jsonpCallback: 'callback',
 					success: $.proxy(me.handleInitialKeyLoadSuccess, me),
 					error: $.proxy(me.onKeySaveError, me)
+				});
+			}
+		});
+	};
+
+	me.getTwitStreamsFilters = function(id) {
+		var url = baseURL + '/twitter-ingest/twitStreams';
+		var filters = [];
+		var active = false;
+		$.get(url, function(data) {
+			for(i in data) {
+				var incomingFilterData  = data[i].activeStream.filters;
+				if(!(incomingFilterData instanceof Array)) {
+					filters = incomingFilterData.split(",");
+				}
+				console.log(filters);
+				console.log(data[i].activeStream);
+				if(data[i] && data[i].activeStream && data[i].activeStream.filters) {
+					 console.log('6656565656565656');
+					 console.log(data);
+					// console.log(data[i].activeStream.filters);
+					 console.log('6656565656565656');
+					// filters =  data[i].activeStream.filters;
+				}
+			}
+		}).done(function() {
+			if(filters.length > 0) {
+				$(".twitter_admin_filter_" + id).val(filters[0]);
+				filters.shift();
+				$.each(filters, function(i, value) {
+					if(id == '52289b546c4459b05f000006') {
+						console.log("i" + i);
+						console.log("id" + id);
+						me.onAddFilters(id);
+						$(".twitter_admin_filter_" + id).eq(i+1).val(value);//offset by one
+					}
 				});
 			}
 		});
@@ -73,11 +100,12 @@ var twitter_admin = function() {
 				me.bindDeleteHandler(id);
 				
 				var filter = me.createFilter(0, id);
+				me.createFilter(0, id);
 				filter += '<hr class="filter_hr" />';
 				$(".api_key_container_" + id).append(filter);
 				
 				me.bindMoreFiltersButton(id);
-
+				me.getTwitStreamsFilters(id);
 			}
 		}
 
@@ -106,11 +134,12 @@ var twitter_admin = function() {
 	me.handleToggle = function(id, active) {
 		if(active) {
 
-			var url = 'http://everest-build:8081/twitter-ingest/start/' + id;
-
+			var url =  baseURL +'/twitter-ingest/start/' + id;
+			var fields = [];
 			//get filters
-			var fields = $(".twitter_admin_filter_"+id).val();
-			
+			$(".twitter_admin_filter_"+id).each(function(i) {
+				fields.push($(this).val())
+			});
 			$.ajax({
 				type: "POST",
 				url: "./post_relay.php",
@@ -123,7 +152,7 @@ var twitter_admin = function() {
 			$(".twitter_admin_filter_" + id).attr('disabled', 'disabled');
 		} else {
 			//stop call
-			var url = 'http://everest-build:8081/twitter-ingest/stop/' + id;
+			var url =  baseURL +'/twitter-ingest/stop/' + id;
 
 			$.ajax({
 				type: "POST",
@@ -139,9 +168,19 @@ var twitter_admin = function() {
 	};
 
 	me.setup_button_handlers = function() {
-		$(".twitter_admin_new_key").on('click', $.proxy(me.onNewKeyButtonClick, me));
-		$(".twitter_admin_save_button").on('click', $.proxy(me.onSaveButtonClick, me));
-		$(".twitter_admin_cancel_button").on('click', $.proxy(me.onCancelButtonClick, me));
+		$("#new-ingest-key").on('click', $.proxy(me.onNewKeyButtonClick, me));
+
+		$("#start-all-feeds").on('click', function() {
+			console.log("hi");
+			$( ".toggle-select" ).each(function( index ) {
+				var apiKeyId = $( this ).attr('class').match(/[0-9]+[a-z0-9]+/gi);
+				if(apiKeyId) {
+					me.handleToggle(apiKeyId, true);
+				}
+			});
+		});
+		//$("#stop-all-feeds").on('click', $.proxy(me.onNewKeyButtonClick, me));
+		
 	};
 
 	me.bindMoreFiltersButton = function(id) {
@@ -154,7 +193,7 @@ var twitter_admin = function() {
 	me.onAddFilters = function(id) {
 		$(".add_more_filters_button_"+id).remove();
 		$(".filter_line_"+id+">.filter_item_div>.filter_field_with_more_button").removeClass("filter_field_with_more_button").addClass("filter_field_with_no_button");
-		var filter_label = $(".filter_line_"+id+">.base_filter_label");
+		var filter_label = $(".base_filter_label");
 		filter_label.text("Filters :");
 
 		var filters = $(".filter_line_"+id);
@@ -165,37 +204,61 @@ var twitter_admin = function() {
 	};
 
 	me.onNewKeyButtonClick = function() {
-		var currentKeyCount = $(".api_key_div").length;
-		var keyContainer = $(".twitter_filter_form");
-		keyContainer.append(me.createApiKeyDiv(currentKeyCount));
-		me.changeToApiFormButtons(currentKeyCount);
+		if($("#new-ingest-key").attr('class').toString().indexOf('active') >= 0) {
+			var currentKeyCount = $(".api_key_div").length;
+			var keyContainer = $(".twitter_filter_form");
+			keyContainer.append(me.createApiKeyDiv(currentKeyCount));
+			me.changeToApiFormButtons(currentKeyCount);
+			$(".twitter_admin_save_button").on('click', $.proxy(me.onSaveButtonClick, me));
+			$(".twitter_admin_cancel_button").on('click', $.proxy(me.onCancelButtonClick, me));
+		}
 	};
 
 	me.createApiKeyDiv = function(i) {
-		var divHtml = '<div class="api_key_div api_key_entry_form api_key_div_' + i + '"> \
-							<hr /> \
-							<div class="field_input_line"> \
-								<label for="consumer_key_' + i + '">Consumer Key</label> \
-								<input name="consumer_key_' + i + '" class="twitter_admin_api_field consumer_key_field"></input> \
-							</div> \
-							<div class="field_input_line"> \
-								<label for="conusmer_secret_' + i + '">Consumer Secret</label> \
-								<input name="conusmer_secret_' + i + '" class="twitter_admin_api_field consumer_secret_field"></input> \
-							</div> \
-							<div class="field_input_line"> \
-								<label for="access_token_key_' + i + '">Access Token Key</label> \
-								<input name="access_token_key_' + i + '" class="twitter_admin_api_field access_token_key_field"></input> \
-							</div> \
-							<div class="field_input_line"> \
-								<label for="access_token_secret_' + i + '">Access Token Secret</label> \
-								<input name="acesss_token_secret_' + i + '" class="twitter_admin_api_field access_token_secret_field"></input> \
-							</div> \
-						</div>';
-		return divHtml;
+		return '<div class="api_key_div api_key_entry_form api_key_div_' + i + '"> \
+			<hr/> \
+			<form role="form"> \
+			<div class="row"> \
+				<div class="col-xs-1"></div> \
+				<div class="field_input_line form-group col-xs-10"> \
+						<label for="consumer_key_' + i + '" class="control-label">Consumer Key</label> \
+						<input id="consumer_key_' + i + '" class="twitter_admin_api_field consumer_key_field form-control"></input> \
+				</div> \
+			</div> \
+			<div class="row"> \
+				<div class="col-xs-1"></div> \
+				<div class="field_input_line form-group col-xs-10"> \
+					<label for="consumer_secret_' + i + '" class="control-label">Consumer Secret</label> \
+					<input id="consumer_secret_' + i + '" class="twitter_admin_api_field consumer_secret_field  form-control"></input> \
+				</div> \
+			</div> \
+			<div class="row"> \
+				<div class="col-xs-1"></div> \
+					<div class="field_input_line form-group col-xs-10"> \
+						<label for="access_token_key_' + i + '" class="control-label">Access Token Key</label> \
+						<input id="access_token_key_' + i + '" class="twitter_admin_api_field access_token_key_field form-control"></input> \
+					</div> \
+			</div> \
+			<div class="row"> \
+				<div class="col-xs-1"></div> \
+					<div class="field_input_line form-group col-xs-10"> \
+						<label for="access_token_secret_' + i + '" class="control-label">Access Token Secret</label> \
+						<input id="access_token_secret_' + i + '" class="twitter_admin_api_field access_token_secret_field form-control"></input> \
+					</div> \
+			</div> \
+			<div class="row"> \
+				<div class="col-xs-1"></div> \
+					<div class="field_input_line form-group col-xs-10"> \
+						<button type="button" class="btn btn-primary twitter_admin_save_button">Save Key</button> \
+						<button type="button" class="btn btn-default twitter_admin_cancel_button">Cancel</button> \
+					</div> \
+			</div> \
+			</form> \
+		</div>';
 	};
 
 	me.changeToApiFormButtons = function(currentCount) {
-		$(".twitter_admin_new_key").hide();
+		$("#new-ingest-key").attr('class','disabled');
 		$(".twitter_admin_save_button").show();
 		if(currentCount > 0) {
 			$(".twitter_admin_cancel_button").show();
@@ -203,7 +266,7 @@ var twitter_admin = function() {
 	};
 
 	me.changeToNewButton = function() {
-		$(".twitter_admin_new_key").show();
+		$("#new-ingest-key").attr('class','active');
 		$(".twitter_admin_save_button").hide();
 		$(".twitter_admin_cancel_button").hide();
 	};
@@ -212,12 +275,11 @@ var twitter_admin = function() {
 
 		apiFields = {};
 
-		apiFields.consumer_key = $("input.consumer_key_field").val();
-		apiFields.consumer_secret = $("input.consumer_secret_field").val();
-		apiFields.access_token_key = $("input.access_token_key_field").val();
-		apiFields.access_token_secret = $("input.access_token_secret_field").val();
-
-		var url = 'http://everest-build:8081/twitter-ingest/';
+		apiFields.consumer_key = $(".consumer_key_field").val();
+		apiFields.consumer_secret = $(".consumer_secret_field").val();
+		apiFields.access_token_key = $(".access_token_key_field").val();
+		apiFields.access_token_secret = $(".access_token_secret_field").val();
+		var url =  baseURL +'/twitter-ingest/';
 		$.ajax({
 			type: "POST",
 			url: "./post_relay.php",
@@ -248,7 +310,7 @@ var twitter_admin = function() {
 		//TODO
 
 		//make request
-		var url = 'http://everest-build:8081/twitter-ingest/' + id;
+		var url =  baseURL +'/twitter-ingest/' + id;
 
 		$.ajax({
 			type: "POST",
@@ -268,28 +330,46 @@ var twitter_admin = function() {
 	};
 
 	me.handleDeleteError = function(id) {
-		$(".twitter_admin_alert").text("Error: error deleting " + id);
+		$(".twitter_admin_alert").text("Error: error deleting " + id).show();
 	};
 
 	me.createApiIdDiv = function(i, id) {
-		var divHtml = '<div class="api_key_container_block api_key_container_' + id + '"> \
-						<div class="api_key_div api_key_display_line api_key_div_' + id + '"> \
-							<div class="api_id_display">' + id + '</div> \
-							<div class="buttons_container_div buttons_container_div_' + id + '"> \
-								<div class="toggle-dark toggle-dark-' + id + '"> \
-	      							<div class="toggle toggle-select toggle-select-' + id + '" data-type="select"> \
-	    							</div> \
-	    						</div> \
-	    						<div class="api_delete_img api_delete_img_' + id + '"> \
-	    						</div> \
-							</div> \
+		return '<div class="api_key_container_block api_key_container_' + id + '"> \
+			<div class="api_key_div api_key_display_line api_key_div_' + id + '"> \
+				<div class="row"> \
+					<div class="col-xs-1"></div> \
+					<div class="alert alert-success col-xs-10"> \
+						<div class="input-group"> \
+							<div class="api_id_display ">' + 'API Key ID: '+id + '</div> \
+							<div class="btn-group dropup"> \
+			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">'+'Action <span class="glyphicon glyphicon-chevron-down"></span></button> \
+				<ul class="dropdown-menu" role="menu"> \
+				    <li id="create-option"><a href="#">Create Feed</a></li> \
+				    <li id="create-and-start-option"><a href="#">Create and Start Feed</a></li> \
+				    <li id="remove-feed-option"><a href="#">Remove Feed</a></li> \
+				    <li class="divider"></li> \
+				    <li id="start-stop-feed-option"><a href="#">Start Feed</a></li> \
+			  </ul> \
+			</div> \
+							<span class="input-group-btn"> \
+								<div class="buttons_container_div buttons_container_div_' + id + '"> \
+									<div class="toggle-dark toggle-dark-' + id + '"> \
+										<div class="toggle toggle-select toggle-select-' + id + '" data-type="select"> \
+										</div> \
+									</div> \
+									<div class="api_delete_img api_delete_img_' + id + '"> \
+									</div> \
+								</div> \
+							</span> \
 						</div> \
-					   </div>';
-		return divHtml;
+					</div> \
+				</div> \
+			</div> \
+	   </div>';
 	};
 
 	me.onKeySaveError = function(jqXHR, textStatus, errorThrown) {
-		$(".twitter_admin_alert").text(errorThrown);
+		$(".twitter_admin_alert").text(errorThrown + ": Could not properly connect/access Twitter Ingests").show();
 	};
 
 	//TODO edit api key
@@ -301,17 +381,22 @@ var twitter_admin = function() {
 	};
 
 	me.createFilter = function(i, id) {
-
-		var filter_html ='<div class="filter_line filter_line_' + id + '"> \
-				<label for="filter_' + i + '" ' + (i === 0 ? 'class="base_filter_label">Filter' : '>') + '</label> \
-				<div class="filter_item_div"> \
-					<input name="filter_' + i + '" class="twitter_admin_filter \
-						twitter_admin_filter_' + id + ' filter_field_with_more_button multi_filter" /> \
-					<button type="button" class="add_more_filters_button add_more_filters_button_' + id + '">+</button> \
+		return '<div class="filter_line filter_line_' + id + '"> \
+			<form role="form" id = "form-'+ id +'"> \
+			<div class="col-xs-1"></div> \
+			<label for="filter_' + i + '" ' + (i === 0 ? 'class="base_filter_label control-label" >Filter' : '>') + '</label> \
+			<div class="row"> \
+				<div class="col-xs-1"></div> \
+				<div class="field_input_line input-group col-xs-10"> \
+					<input id="filter_' + i + '" class="form-control twitter_admin_filter \
+							twitter_admin_filter_' + id + ' filter_field_with_more_button multi_filter" /> \
+					<span class="input-group-btn"> \
+						<button type="button" class="btn btn-default add_more_filters_button_' + id + '">+</button>	\
+					</span> \
 				</div> \
-			</div>';
-
-		return filter_html;
+			</div> \
+			</form> \
+		</div>';
 	};
 };
 
