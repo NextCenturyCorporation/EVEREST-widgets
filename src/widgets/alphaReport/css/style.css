@@ -1,0 +1,64 @@
+body {
+	font-size: 14px;
+}
+
+table {	
+	border-color: #004785;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+td {
+	padding: 3px;
+}
+
+th {
+	background-repeat: no-repeat;
+	background-position: right;
+}
+
+.unsorted,
+.up,
+.down{
+	padding: 3px 20px 3px 3px;
+	cursor: pointer;
+}
+
+.data_table_text {
+	word-wrap: break-word;
+}
+
+.data_table_pages {
+	display: inline-block;
+}
+
+.data_table_hold {
+	width: 100%;
+	overflow: auto;
+}
+
+.up {
+	background-image:url('../img/asc.png');
+}
+
+.down {
+	background-image:url('../img/des.png');
+}
+
+.unsorted {
+	background-image:url('../img/uns.png');
+}
+
+.lit {
+	background-color:#366fb4;
+}
+
+.unlit {
+	background-color:#d5d8d9;
+}
+
+#pages {
+	right: 0;
+	left: auto;
+	position: relative;
+}

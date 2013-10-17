@@ -66,8 +66,12 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			}).selectAll('td')
 			.data(vals).enter()
 			.append('td').text(function(d){ 
-				var str = d.toString();
-				return str.length > MAX_CHARS ? str.substring(0, MAX_CHARS) + '...' : str;
+				if (d !== undefined){
+					var str = d.toString();
+					return str.length > MAX_CHARS ? str.substring(0, MAX_CHARS) + '...' : str;
+				} else {
+					return 'N/A';
+				}
 			}).on('click', function(d){
 				d3.selectAll('.data_table_descr').remove();
 				d3.select('.data_table_text')
