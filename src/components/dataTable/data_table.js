@@ -177,10 +177,10 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		}
 	};
 	
-	me.updateTable = function(data, datatype){
+	me.updateTable = function(data){
 		me.offset = Math.floor(me.page * me.max_rows / me.max_items) * me.max_items;
 		
-		me.datas = data[datatype];
+		me.datas = data.docs;
 		me.total = data.total_count;
 		me.max_pages = Math.ceil(me.total / me.max_rows);
 				
@@ -259,8 +259,8 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					sortKey: colId,
 					start: me.start,
 					end: me.end
-				}, function(data, datatype){
-					me.updateTable(data, datatype);
+				}, function(data){
+					me.updateTable(data);
 						
 					elements.each(function(){
 						if (d3.select(this).attr('class') !== 'no_sort'){		
@@ -284,8 +284,8 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					sortKey: colId,
 					start: me.start,
 					end: me.end
-				}, function(data, datatype){
-					me.updateTable(data, datatype);
+				}, function(data){
+					me.updateTable(data);
 					
 					elements.each(function(){
 						if (d3.select(this).attr('class') !== 'no_sort'){		

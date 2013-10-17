@@ -28,9 +28,7 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 			url: newUrl,
 			dataType: 'jsonp',
 			jsonpCallback: 'callback',
-			success: function(data){
-				successCallback(data, me.datatype);
-			},
+			success: successCallback,
 			error: function(error){
 				console.log(error);
 			}
@@ -63,9 +61,9 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 	};
 	
 	me.execute = function(){
-		me.getDataCallback({count: me.max_items}, function(data, datatype){
-			if (data[me.datatype]!== []){
-				me.datas_to_use = data[datatype];
+		me.getDataCallback({count: me.max_items}, function(data){
+			if (data.docs!== []){
+				me.datas_to_use = data.docs;
 				var length = data.total_count;
 						
 				me.initTable(me.datas_to_use, length);
