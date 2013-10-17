@@ -5,7 +5,6 @@ var twitter_admin = function() {
 
 	me.execute = function() {
 		me.loadTemplate();
-
 		me.setup_view();
 
 		me.admin_view = new me.Admin_View({el: $(".twitter_admin_container")[0]});
@@ -53,38 +52,30 @@ var twitter_admin = function() {
 		});
 	};
 
-	me.getTwitStreamsFilters = function(id) {
+	me.getTwitStreamsFilters = function() {
 		var url = baseURL + '/twitter-ingest/twitStreams';
-		var filters = [];
-		var active = false;
-		$.get(url, function(data) {
+		$.ajax({
+			type: "GET",
+			url: url
+		}).done(function(data){
 			for(i in data) {
-				var incomingFilterData  = data[i].activeStream.filters;
-				if(!(incomingFilterData instanceof Array)) {
-					filters = incomingFilterData.split(",");
-				}
-				console.log(filters);
-				console.log(data[i].activeStream);
-				if(data[i] && data[i].activeStream && data[i].activeStream.filters) {
-					 console.log('6656565656565656');
-					 console.log(data);
-					// console.log(data[i].activeStream.filters);
-					 console.log('6656565656565656');
-					// filters =  data[i].activeStream.filters;
-				}
-			}
-		}).done(function() {
-			if(filters.length > 0) {
-				$(".twitter_admin_filter_" + id).val(filters[0]);
-				filters.shift();
-				$.each(filters, function(i, value) {
-					if(id == '52289b546c4459b05f000006') {
-						console.log("i" + i);
-						console.log("id" + id);
-						me.onAddFilters(id);
-						$(".twitter_admin_filter_" + id).eq(i+1).val(value);//offset by one
+ 				if(data[i] && data[i].activeStream && data[i].activeStream.filters) {
+					var filters = data[i].activeStream.filters;
+					if(!(data[i].activeStream.filters instanceof Array)) {
+						filters = data[i].activeStream.filters.split(",");
+					} else {
+						filters = data[i].activeStream.filters;
 					}
-				});
+					if(filters && filters.length > 0) {
+						$(".twitter_admin_filter_" + i).val(filters[0]);
+						filters.shift();
+						$.each(filters, function(index, value) {
+							me.onAddFilters(i);
+							$(".twitter_admin_filter_" + i).eq(index+1).val(value);
+						});
+						$(".twitter_admin_filter_" + i).attr('disabled', 'disabled');
+					}
+				}	
 			}
 		});
 	};
@@ -105,8 +96,8 @@ var twitter_admin = function() {
 				$(".api_key_container_" + id).append(filter);
 				
 				me.bindMoreFiltersButton(id);
-				me.getTwitStreamsFilters(id);
 			}
+				me.getTwitStreamsFilters();
 		}
 
 		if($(".api_key_div").length === 0) {
@@ -132,23 +123,21 @@ var twitter_admin = function() {
 	};
 
 	me.handleToggle = function(id, active) {
-		if(active) {
-
+	if(active) {
 			var url =  baseURL +'/twitter-ingest/start/' + id;
 			var fields = [];
 			//get filters
 			$(".twitter_admin_filter_"+id).each(function(i) {
-				fields.push($(this).val())
+				fields.push($(this).val());
 			});
 			$.ajax({
 				type: "POST",
 				url: "./post_relay.php",
-				data: JSON.stringify({url: url, data: {filters: fields}, method: "POST"}),
+				data: JSON.stringify({url: url, data: {filters: fields.join()}, method: "POST"}),
 				success: function() {console.log("success");},
 				error: function() {console.log("error");}
 			});
 
-			//TODO gray filters
 			$(".twitter_admin_filter_" + id).attr('disabled', 'disabled');
 		} else {
 			//stop call
@@ -171,7 +160,6 @@ var twitter_admin = function() {
 		$("#new-ingest-key").on('click', $.proxy(me.onNewKeyButtonClick, me));
 
 		$("#start-all-feeds").on('click', function() {
-			console.log("hi");
 			$( ".toggle-select" ).each(function( index ) {
 				var apiKeyId = $( this ).attr('class').match(/[0-9]+[a-z0-9]+/gi);
 				if(apiKeyId) {
@@ -179,7 +167,14 @@ var twitter_admin = function() {
 				}
 			});
 		});
-		//$("#stop-all-feeds").on('click', $.proxy(me.onNewKeyButtonClick, me));
+		$("#stop-all-feeds").on('click', function() {
+                        $( ".toggle-select" ).each(function( index ) {
+                                var apiKeyId = $( this ).attr('class').match(/[0-9]+[a-z0-9]+/gi);
+                                if(apiKeyId) {
+                                        me.handleToggle(apiKeyId, false);
+                                }
+                        });
+                });
 		
 	};
 
@@ -342,14 +337,6 @@ var twitter_admin = function() {
 						<div class="input-group"> \
 							<div class="api_id_display ">' + 'API Key ID: '+id + '</div> \
 							<div class="btn-group dropup"> \
-			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">'+'Action <span class="glyphicon glyphicon-chevron-down"></span></button> \
-				<ul class="dropdown-menu" role="menu"> \
-				    <li id="create-option"><a href="#">Create Feed</a></li> \
-				    <li id="create-and-start-option"><a href="#">Create and Start Feed</a></li> \
-				    <li id="remove-feed-option"><a href="#">Remove Feed</a></li> \
-				    <li class="divider"></li> \
-				    <li id="start-stop-feed-option"><a href="#">Start Feed</a></li> \
-			  </ul> \
 			</div> \
 							<span class="input-group-btn"> \
 								<div class="buttons_container_div buttons_container_div_' + id + '"> \
@@ -399,4 +386,3 @@ var twitter_admin = function() {
 		</div>';
 	};
 };
-
