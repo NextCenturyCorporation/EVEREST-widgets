@@ -21,8 +21,8 @@
 					$('#dateNow').show();
 					heatChart_widget.execute("month");
 
-					$('#updateButton').click(function() {
-						heatChart_widget.update();
+					$('#nowButton').click(function() {
+						heatChart_widget.updateNow();
 					});
 
 					$('#hourButton').click(function() {
@@ -48,14 +48,14 @@
 	</head>
 	<body>
 
-		<button id="hourButton" type="button">Hour</button>
-		<button id="dayButton" type="button">Day</button>
-		<button id="weekButton" type="button">Week</button>
-		<button id="monthButton" type="button">Month</button>
-		<button id="yearButton" type="button">Year</button>
 		<button id="year5Button" type="button">5-Year</button>
+		<button id="yearButton" type="button">Year</button>
+		<button id="monthButton" type="button">Month</button>
+		<button id="weekButton" type="button">Week</button>
+		<button id="dayButton" type="button">Day</button>
+		<button id="hourButton" type="button">Hour</button>
 
-		<button id="updateButton" type="button">Update</button>
+		<button id="nowButton" type="button">Now</button>
 		<div id="info"></div>
 		
 		<div id="baseDate"></div>

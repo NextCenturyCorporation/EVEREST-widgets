@@ -1,13 +1,13 @@
 /**
- * 24hour.js
+ * heatChart.js
  */
 
 var color = "";
 var mode = "";
 var numCols = 1; 
 var numRows = 1; 
-var samplePoints = 1000;
-var sampleTimes = [];
+var samplePoints = 500000;
+var timeData = [];
 var baseDate = new Date(Date.now());
 
 var heatChart_widget = {};
@@ -63,16 +63,144 @@ heatChart_widget.execute = function(modeChoice) {
 
 	init();
 	this.update();
+	handleModeButtons(modeChoice);
 };
 
 heatChart_widget.update = function() {
 
-	if (0 === sampleTimes.length ) {
-		sampleTimes = getSampleTimes(samplePoints);
-	}
+	timeData = getTimeData();
 	
-	var updated_time_chunks = getTimeChunks(mode,sampleTimes);
+	var updated_time_chunks = getTimeChunks(mode,timeData);
 	updateChart(updated_time_chunks);
+	
+};
+
+heatChart_widget.updateNow = function() {
+
+	baseDate = new Date(Date.now());
+	this.update();
+	handleModeButtons(mode);
+	
+};
+
+/**
+ * 
+ */
+var getTimeData = function() {
+	if (0 === timeData.length ) {
+		timeData = getSampleTimes(samplePoints);
+	}
+	return timeData;
+};
+
+/**
+ * getMonthLabel is a utility function to return the three character
+ * string month name for a JavaScript monthValue.
+ */
+var getMonthLabel = function(monthValue){
+	var monthLabel = '';
+	switch (monthValue) {
+	case 0: monthLabel = 'JAN'; break;
+	case 1: monthLabel = 'FEB'; break;
+	case 2: monthLabel = 'MAR'; break;
+	case 3: monthLabel = 'APR'; break;
+	case 4: monthLabel = 'MAY'; break;
+	case 5: monthLabel = 'JUN'; break;
+	case 6: monthLabel = 'JUL'; break;
+	case 7: monthLabel = 'AUG'; break;
+	case 8: monthLabel = 'SEP'; break;
+	case 9: monthLabel = 'OCT'; break;
+	case 10: monthLabel = 'NOV'; break;
+	case 11: monthLabel = 'DEC'; break;
+	}
+	return monthLabel;
+};
+
+/**
+ * getDayOfWeekLabel is a utility function to return the three character
+ * string day name for a JavaScript dayOfWeekValue.
+ */
+var getDayOfWeekLabel = function(dayOfWeekValue){
+	var dayOfWeekLabel = '';
+	switch (dayOfWeekValue) {
+	case 0: dayOfWeekLabel = 'SUN'; break;
+	case 1: dayOfWeekLabel = 'MON'; break;
+	case 2: dayOfWeekLabel = 'TUE'; break;
+	case 3: dayOfWeekLabel = 'WED'; break;
+	case 4: dayOfWeekLabel = 'THU'; break;
+	case 5: dayOfWeekLabel = 'FRI'; break;
+	case 6: dayOfWeekLabel = 'SAT'; break;
+	}
+	return dayOfWeekLabel;
+};
+
+
+var handleModeButtons = function(modeChoice){
+	
+	var baseYear = baseDate.getFullYear();
+	var baseMonth = baseDate.getMonth();
+	var baseDay = baseDate.getDate();
+	var baseDayOfWeek = baseDate.getDay();
+	var baseHour = baseDate.getHours();
+
+	d3.select("#hourButton").text('Hour');
+	d3.select("#dayButton").text('Day');
+	d3.select("#weekButton").text('Week');
+	d3.select("#monthButton").text('Month');
+	d3.select("#yearButton").text('Year');
+	d3.select("#year5Button").text('5-Year');
+	
+	var monthLabel = getMonthLabel(baseMonth);
+	
+	var dayOfWeekLabel = getDayOfWeekLabel(baseDayOfWeek);
+	
+	var dayLabel = baseDay;
+	if (dayLabel < 10) { dayLabel = '0' + dayLabel;}
+	
+	var hourLabel = baseHour;
+	if (hourLabel < 10) { hourLabel = '0' + hourLabel + '00';}
+	else { hourLabel = hourLabel + '00';}
+
+	switch (modeChoice) {
+
+	case "hour":
+		d3.select("#yearButton").text(baseYear);
+		d3.select("#monthButton").text(monthLabel);
+		d3.select("#weekButton").text(dayOfWeekLabel);
+		d3.select("#dayButton").text(dayLabel);
+		d3.select("#hourButton").text(hourLabel);
+		break;
+
+	case "day":
+		d3.select("#yearButton").text(baseYear);
+		d3.select("#monthButton").text(monthLabel);
+		d3.select("#weekButton").text(dayOfWeekLabel);
+		d3.select("#dayButton").text(dayLabel);
+		break;
+
+	case "week":
+		d3.select("#yearButton").text(baseYear);
+		d3.select("#monthButton").text(monthLabel);
+		d3.select("#weekButton").text(dayOfWeekLabel);
+		break;
+		
+	case "month":
+		d3.select("#yearButton").text(baseYear);
+		d3.select("#monthButton").text(monthLabel);
+		break;
+
+	case "year":
+		d3.select("#yearButton").text(baseYear);
+		break;
+		
+	case "year5":
+		d3.select("#yearButton").text(baseYear);
+		break;
+		
+	};
+
+	d3.select("#baseDate").text(baseDate.toString());
+
 	
 };
 
@@ -177,17 +305,12 @@ var getTimeChunks = function(mode, time_list){
 		var time, year, month, day, dayofweek, hour, minutes, seconds;
 		
 		// baseDate is a global date used as a benchmark for focusing the display
-		d3.select("#baseDate").text(baseDate.toString());
-
 		var baseYear = baseDate.getFullYear();
 		var baseMonth = baseDate.getMonth();
 		var baseDay = baseDate.getDate();
 		var baseDayofweek = baseDate.getDay();
 		var baseHour = baseDate.getHours();
 
-		d3.select("#yearButton").text(baseYear);
-		d3.select("#monthButton").text(baseMonth);
-		
 		var wsd = baseDay - baseDayofweek;
 		var weekStartDate = new Date(baseDate);
 		weekStartDate.setDate(wsd);
@@ -311,7 +434,17 @@ var createHeatchart = function(time_chunks) {
 			col_labels.push('Saturday');
 			break;
 			
-		case "month":
+		case "day": // begin with '0'
+			for (var cl = 0; cl < numCols; cl++) {
+				if (cl < 10) {
+					col_labels.push('0'+cl+'00');
+				} else {
+					col_labels.push(cl+'00');			
+				}
+			}
+			break;
+			
+		case "month": // begin with '1'
 			for (var cl = 1; cl <= numCols; cl++) {
 				if (cl < 10) {
 					col_labels.push('0'+cl);
@@ -320,7 +453,7 @@ var createHeatchart = function(time_chunks) {
 				}
 			}
 			break;
-			
+
 		case "year":
 			col_labels.push('January');
 			col_labels.push('February');
@@ -334,6 +467,15 @@ var createHeatchart = function(time_chunks) {
 			col_labels.push('October');
 			col_labels.push('November');
 			col_labels.push('December');
+
+			for (var rl = 1; rl <= numRows; rl++) {
+				if ((rl%7) === 0) {
+					row_labels.push(rl);
+				} else {
+					row_labels.push('');			
+				}
+			}
+			
 			break;
 			
 		case "year5":
@@ -433,22 +575,22 @@ var handleDrillDown = function(cellDate){
 
 	case "week":
 		baseDate = new Date(cellDate);
-		heatChart_widget.execute("day");
+		heatChart_widget.execute("hour");
 		break;
 		
 	case "month":
 		baseDate = new Date(cellDate);
-		heatChart_widget.execute("day");
+		heatChart_widget.execute("hour");
 		break;
 
 	case "year":
 		baseDate = new Date(cellDate);
-		heatChart_widget.execute("month");
+		heatChart_widget.execute("day");
 		break;
 		
 	case "year5":
 		baseDate = new Date(cellDate);
-		heatChart_widget.execute("year");
+		heatChart_widget.execute("month");
 		break;
 		
 	};
