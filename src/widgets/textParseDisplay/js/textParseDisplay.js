@@ -165,7 +165,7 @@ var textParseDisplay = function() {
 		if(data.tuples.length > 0) {
 			var i = 0;
 			for(i = 0; i < data.tuples.length; i++) {
-				div.children(".free-parse-results-display-tuple-div").append('' +
+				div.children(".parse-results-display-tuple-div").append('' +
 							'{<br/>' +
 							'&nbsp;&nbsp;&nbsp;&nbsp;Entity1: ' + data.tuples[i].entity1 +',<br/>' +
 							'&nbsp;&nbsp;&nbsp;&nbsp;Relationship: ' + data.tuples[i].relationship + ',<br/>' +
