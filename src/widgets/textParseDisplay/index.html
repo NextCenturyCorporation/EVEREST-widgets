@@ -22,13 +22,13 @@
 
 					var alphaReportChannel = "com.nextcentury.everest.data_table_announce.alpha-report";
 
-					console.log("hit");
-
-					OWF.Eventing.subscribe(alphaReportChannel, function(sender, msg){
-						console.log("message");
-						console.log(msg);
-						var data = JSON.parse(msg).data;
-						obj.handleReceiveAlphaReportData(data._id);
+					OWF.ready(function(){
+						OWF.Eventing.subscribe(alphaReportChannel, function(sender, msg){
+							console.log("message");
+							console.log(msg);
+							var data = JSON.parse(msg).data;
+							obj.handleReceiveAlphaReportData(data._id);
+						});
 					});
 				});
 			</script>
