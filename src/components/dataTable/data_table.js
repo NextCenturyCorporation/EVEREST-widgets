@@ -80,10 +80,12 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					.text(d)
 					.classed('data_table_descr', true);
 					
-				d3.selectAll('td').style('font-weight', 'normal');
-				d3.select(this).style('font-weight', 'bold');
+				d3.selectAll('tr').style('font-weight', 'normal');
+				$(this).parent('tr').css('font-weight', 'bold');
 				
-				me.announce(JSON.stringify({message: d}));
+				var id = $(this).parent('tr').children('td:nth-child(1)').text();
+
+				me.announce(JSON.stringify({_id: id, field_value: d}));
 			});
 		}
 	});
