@@ -5,10 +5,6 @@ var textParseDisplayWidget = {
 
 		textParseDisplayObject.execute();
 
-		OWF.Eventing.subscribe(alphaReportChannel, function(sender, msg){
-			console.log(msg);
-			var data = JSON.parse(msg).data;
-			textParseDisplayObject.handleReceiveAlphaReportData(data._id);
-		});
+		return textParseDisplayObject;
 	}
 };

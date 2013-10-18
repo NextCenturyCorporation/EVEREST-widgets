@@ -17,7 +17,14 @@
 	<body>
 		<div class="text_parse_display_container">
 			<script type="text/javascript">
-				$(textParseDisplayWidget.execute);
+				$(function() {
+					var obj = textParseDisplayWidget.execute();
+					OWF.Eventing.subscribe(alphaReportChannel, function(sender, msg){
+						console.log(msg);
+						var data = JSON.parse(msg).data;
+						obj.handleReceiveAlphaReportData(data._id);
+					});
+				});
 			</script>
 		</div>
 	</body>
