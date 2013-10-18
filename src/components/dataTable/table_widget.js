@@ -22,7 +22,7 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 		keys.forEach(function(k){
 			newUrl += k + '=' + params[k] + '&';
 		});
-	
+		console.log(newUrl);
 		$.ajax({
 			type: "GET",
 			url: newUrl,
@@ -49,15 +49,12 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 	};
 	
 	me.initTable = function(data, length){
-		me.datas_to_use = (data === [] ? {} : data);
-			
 		me.table = new data_table(me.datas_to_use, me.announceCallback, me.getDataCallback, me.max_rows, me.max_items, length);
 		me.getIndexes(function(data){
 			me.table.createHeaders(Object.keys(me.table.datas[0]), data);
 			me.table.createTable();
 			me.table.createClickers();
-		});
-		
+		});	
 	};
 	
 	me.execute = function(){

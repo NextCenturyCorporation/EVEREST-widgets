@@ -231,23 +231,29 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				$('#data_table_start').val('');
 				$('#data_table_end').val('');		
 			
-				me.validateDates();
+				var dates = me.validateDates();
 				
 				me.page = 0;
 				me.update({
 					count: me.max_items, 
-					start: me.start,
-					end: me.end,
-				}, me.updateTable);
+					start: dates[0],
+					end: dates[1],
+				}, function(data){
+					me.start = dates[0];
+					me.end = dates[1];
+					me.updateTable(data);
+				});
 				me.sendTimes();
 			});
 
 		d3.select('.show_all')
 			.on('click', function(){
 				me.page = 0;
-				me.start = me.MIN;
-				me.end = me.MAX;
-				me.update({count: me.max_items}, me.updateTable);
+				me.update({count: me.max_items}, function(data){
+					me.start = me.MIN;
+					me.end = me.MAX;
+					me.updateTable(data);
+				});
 				me.sendTimes();
 			});		
 			
@@ -488,17 +494,19 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	me.validateDates = function(){
 		var startdate = new Date(me.start);
 		var enddate = new Date(me.end);
-		if (!startdate){
-			me.start = me.MIN;
-		}
+		if ( !Date.parse(me.start) ){
+			startdate = new Date(me.MIN);
+		} 
 		
-		if (!enddate){
-			me.end = me.MAX;
+		if ( !Date.parse(me.end) ){
+			enddate = new Date(me.MAX);
 		}
 		
 		if (startdate > enddate){
-			me.start = me.MIN;
-			me.end = me.MAX;
+			startdate = new Date(me.MIN);
+			enddate = new Date(me.MAX);
 		}
+		
+		return [startdate, enddate];
 	};
 };
