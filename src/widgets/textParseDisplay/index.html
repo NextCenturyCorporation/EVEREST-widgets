@@ -24,8 +24,6 @@
 
 					OWF.ready(function(){
 						OWF.Eventing.subscribe(alphaReportChannel, function(sender, msg){
-							console.log("message");
-							console.log(msg);
 							var data = JSON.parse(msg).data;
 							obj.handleReceiveAlphaReportData(data._id);
 						});
