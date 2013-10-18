@@ -111,7 +111,7 @@ var twitter_admin = function() {
 	};
 
 	me.bindDeleteHandler = function(id) {
-		$(".api_delete_img_" + id).click(function() {
+		$(".remove_" + id).click(function() {
 			me.handleDeleteClick(id);
 		});
 	};
@@ -302,8 +302,6 @@ var twitter_admin = function() {
 	};
 
 	me.handleDeleteClick = function(id) {
-		//TODO
-
 		//make request
 		var url =  baseURL +'/twitter-ingest/' + id;
 
@@ -333,7 +331,8 @@ var twitter_admin = function() {
 			<div class="api_key_div api_key_display_line api_key_div_' + id + '"> \
 				<div class="row"> \
 					<div class="col-xs-1"></div> \
-					<div class="alert alert-success col-xs-10"> \
+					<a class="glyphicon glyphicon-remove remove_' + id + '"></a> \
+					<div class="alert alert-info col-xs-10"> \
 						<div class="input-group"> \
 							<div class="api_id_display ">' + 'API Key ID: '+id + '</div> \
 							<div class="btn-group dropup"> \
