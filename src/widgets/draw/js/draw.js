@@ -234,12 +234,6 @@ var draw = function(){
 		});
 		
 		d3.select('#save_target').on('click', me.saveTargetEventToTitan);
-		
-		d3.select('#save_nodes').on('click', function(){
-			me.saveCirclesToTitan(me.target_event._titan_id);
-		});
-		
-		d3.select('#save_edges').on('click', me.saveLinesToTitan);
 	};
 
 	/**
@@ -1376,6 +1370,12 @@ var draw = function(){
 				var resp = JSON.parse(e.responseText);
 				if (resp.message === undefined){
 					me.target_event._titan_id = resp.results._id;
+					
+					me.saveCirclesToTitan(me.target_event._titan_id);
+					setTimeout(function(){
+						me.saveLinesToTitan();
+					},2000);
+					
 				}
 			}
 		});
@@ -1399,15 +1399,17 @@ var draw = function(){
 						
 						var edge = {
 							_label: 'metadata of',
-							target: m_id,
-							source: cObj._titan_id
+							target_id: m_id,
+							source_id: cObj._titan_id
 						};
 						$.ajax({
 							type: 'POST',
 							url: buildEdge(edge),
 							dataType: 'application/json',
 							success: function(r){ console.log(r); },
-							error: function(e){ console.log(JSON.parse(e.responseText)); }
+							error: function(e){ 
+								console.log(JSON.parse(e.responseText)); 
+							}
 						});
 					}
 				}
@@ -1424,8 +1426,8 @@ var draw = function(){
 				var cInd1 = indexOfObj(me.circles, cSvg1.attr('class'), 'class');
 				var cInd2 = indexOfObj(me.circles, cSvg2.attr('class'), 'class');
 				
-				line.source = me.circles[cInd1]._titan_id;
-				line.target = me.circles[cInd2]._titan_id;
+				line.source_id = me.circles[cInd1]._titan_id;
+				line.target_id = me.circles[cInd2]._titan_id;
 				
 				$.ajax({
 					type: 'POST',
