@@ -104,7 +104,7 @@ var textParseDisplay = function() {
 	me.handleFreeResponseSuccess = function(data, stringResult, xhr) {
 		var mainDiv = $(".free-parse-results-display");
 
-		handleResponseSuccess(data, stringResult, xhr, mainDiv)
+		me.handleResponseSuccess(data, stringResult, xhr, mainDiv)
 	}
 
 	me.handleReceiveAlphaReportData = function(id) {
@@ -136,7 +136,7 @@ var textParseDisplay = function() {
 	me.handleExistingResponseSuccess = function(data, stringResult, xhr) {
 		var mainDiv = $(".existing-parse-results-display");
 
-		handleResponseSuccess(data, stringResult, xhr, mainDiv)
+		me.handleResponseSuccess(data, stringResult, xhr, mainDiv)
 	}
 
 	me.handleResponseSuccess = function(data, stringResult, xhr, div) {
