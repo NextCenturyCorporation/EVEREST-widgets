@@ -81,7 +81,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					.classed('data_table_descr', true);
 					
 				d3.selectAll('td').style('font-weight', 'normal');
-				d3.selectAll(this).style('font-weight', 'bold');
+				d3.select(this).style('font-weight', 'bold');
 				
 				var id = $(this).parent('tr').children('td:nth-child(1)').text();
 
