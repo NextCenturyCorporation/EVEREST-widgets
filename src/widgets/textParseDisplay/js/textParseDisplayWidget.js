@@ -6,6 +6,7 @@ var textParseDisplayWidget = {
 		textParseDisplayObject.execute();
 
 		if(typeof(OWF.Eventing.subscribe) !== 'undefined') {
+			console.log("good");
 			OWF.Eventing.subscribe(alphaReportChannel, function(sender, msg){
 				console.log(msg);
 				var data = JSON.parse(msg).data;
