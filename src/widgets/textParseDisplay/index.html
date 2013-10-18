@@ -22,6 +22,8 @@
 
 					var alphaReportChannel = "com.nextcentury.everest.data_table_announce.alpha-report";
 
+					console.log("hit");
+
 					OWF.Eventing.subscribe(alphaReportChannel, function(sender, msg){
 						console.log("message");
 						console.log(msg);
