@@ -108,6 +108,8 @@ var textParseDisplay = function() {
 	}
 
 	me.handleReceiveAlphaReportData = function(id) {
+		console.log("Working");
+
 		//remove response block
 		var mainDiv = $(".existing-parse-results-display");
 		mainDiv.empty();
