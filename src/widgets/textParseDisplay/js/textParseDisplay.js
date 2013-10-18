@@ -21,7 +21,10 @@ var textParseDisplay = function() {
 	  						'<li class="active"><a data-toggle="tab" href="#parse_free_text">Free Form Text</a></li>' +
 						'</ul>' +
 						'<div class="tab-content">' +
-							'<div class="tab-pane" id="parse_selection_text"></div>' +
+							'<div class="tab-pane" id="parse_selection_text">' +
+								'<div class="row existing-parse-results-display">' +
+								'</div>' +
+							'</div>' +
 							'<div class="tab-pane active" id="parse_free_text">' +
 								'<div style="height:10px;"></div>' +
 								'<div class="row parse-form-row">' +
@@ -93,12 +96,48 @@ var textParseDisplay = function() {
 			type: "POST",
 			url: "./post_relay.php",
 			data: JSON.stringify({url: url, data: data, method: "POST"}),
-			success: me.handleResponseSuccess,
+			success: me.handleFreeResponseSuccess,
 			error: function() {console.log("error");}
 		});
 	};
 
-	me.handleResponseSuccess = function(data, stringResult, xhr) {
+	me.handleFreeResponseSuccess = function(data, stringResult, xhr) {
+		var mainDiv = $(".free-parse-results-display");
+
+		handleResponseSuccess(data, stringResult, xhr, mainDiv)
+	}
+
+	me.handleReceiveAlphaReportData = function(id) {
+		//remove response block
+		var mainDiv = $(".existing-parse-results-display");
+		mainDiv.empty();
+		mainDiv.append('' +
+			'<div class="col-xs-5"></div>' +
+			'<div class="col-xs-2">' +
+				'<img src="./lib/ajax-loader.gif">' +	
+			'</div>' +
+			'<div class="col-xs-5"></div>');
+		
+
+		var url = "http://everest-build:8081/nlp-parser/full-parse-result/" + id;
+		var data = {};
+		//post
+		$.ajax({
+			type: "POST",
+			url: "./post_relay.php",
+			data: JSON.stringify({url: url, data: data, method: "POST"}),
+			success: me.handleExistingResponseSuccess,
+			error: function() {console.log("error");}
+		});
+	};
+
+	me.handleExistingResponseSuccess = function(data, stringResult, xhr) {
+		var mainDiv = $(".existing-parse-results-display");
+
+		handleResponseSuccess(data, stringResult, xhr, mainDiv)
+	}
+
+	me.handleResponseSuccess = function(data, stringResult, xhr, div) {
 		var sentenceCount = Math.max.apply(null, [
 			data.annotation.length,
 			data.dependency.length,
@@ -108,15 +147,15 @@ var textParseDisplay = function() {
 			data.root_child_data.length
 		]);
 
-		$(".free-parse-results-display").empty();
+		div.empty();
 		
-		$(".free-parse-results-display").append('' +
+		div.append('' +
 			'<div class="row">' +
 				'<div class="col-xs-1"></div>' +
 				'<div class="col-xs-2">' +
 					'<label>Extracted tuple' + (data.tuples.length > i+1 ? 's' : '') + ':</label>' +
 				'</div>' +	
-				'<div class="col-xs-8 free-parse-results-display-tuple-div">' +
+				'<div class="col-xs-8 parse-results-display-tuple-div">' +
 				'</div>' +
 				'<div class="col-xs-1"></div>' +
 				'</div>');
@@ -124,7 +163,7 @@ var textParseDisplay = function() {
 		if(data.tuples.length > 0) {
 			var i = 0;
 			for(i = 0; i < data.tuples.length; i++) {
-				$(".free-parse-results-display .free-parse-results-display-tuple-div").append('' +
+				div.children(".free-parse-results-display-tuple-div").append('' +
 							'{<br/>' +
 							'&nbsp;&nbsp;&nbsp;&nbsp;Entity1: ' + data.tuples[i].entity1 +',<br/>' +
 							'&nbsp;&nbsp;&nbsp;&nbsp;Relationship: ' + data.tuples[i].relationship + ',<br/>' +
@@ -132,11 +171,11 @@ var textParseDisplay = function() {
 							'}' + (data.tuples.length > i+1 ? ', ' : ''));
 			}
 		} else {
-			$(".free-parse-results-display .free-parse-results-display-tuple-div").append('No tuples found');
+			div.children(".parse-results-display-tuple-div").append('No tuples found');
 		}
 		
 		for(var i = 0; i < sentenceCount; i++) {
-			$(".free-parse-results-display").append('' +
+			div.append('' +
 				'<div class="row">' +
 					'<div class="col-xs-1"></div>' +
 					'<div class="col-xs-2">' +
@@ -148,7 +187,7 @@ var textParseDisplay = function() {
 					'<div class="col-xs-5"></div>' +
 				'</div>');
 
-			$(".free-parse-results-display").append('' +
+			div.append('' +
 				'<div class="row">' +
 					'<div class="col-xs-1"></div>' +
 					'<div class="col-xs-2">' +
@@ -160,7 +199,7 @@ var textParseDisplay = function() {
 					'<div class="col-xs-5"></div>' +
 				'</div>');
 
-			$(".free-parse-results-display").append('' +
+			div.append('' +
 				'<div class="row">' +
 					'<div class="col-xs-1"></div>' +
 					'<div class="col-xs-2">' +
@@ -172,7 +211,7 @@ var textParseDisplay = function() {
 					'<div class="col-xs-5"></div>' +
 				'</div>');
 
-			$(".free-parse-results-display").append('' +
+			div.append('' +
 				'<div class="row">' +
 					'<div class="col-xs-1"></div>' +
 					'<div class="col-xs-2">' +
@@ -184,7 +223,7 @@ var textParseDisplay = function() {
 					'<div class="col-xs-5"></div>' +
 				'</div>');
 
-			$(".free-parse-results-display").append('' +
+			div.append('' +
 				'<div class="row">' +
 					'<div class="col-xs-1"></div>' +
 					'<div class="col-xs-2">' +
@@ -196,7 +235,7 @@ var textParseDisplay = function() {
 					'<div class="col-xs-5"></div>' +
 				'</div>');
 
-			$(".free-parse-results-display").append('' +
+			div.append('' +
 				'<div class="row">' +
 					'<div class="col-xs-1"></div>' +
 					'<div class="col-xs-2">' +
@@ -208,7 +247,7 @@ var textParseDisplay = function() {
 					'<div class="col-xs-5"></div>' +
 				'</div>');
 
-			$(".free-parse-results-display").append('<br/><br/>');
+			div.append('<br/><br/>');
 		}
 	};
 };
