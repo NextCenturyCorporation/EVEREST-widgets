@@ -1,12 +1,13 @@
 <?php
 $data_string = file_get_contents('php://input');
+//print_r($data_string);
 
-$data_json = json_decode($data_string);
+$data = $_POST['data'];
+$url = $_POST['url'];
+$method = $_POST['method'];
 
-$data = $data_json->{'data'};
-$url = $data_json->{'url'};
-$method = $data_json->{'method'};
-
+//print_r($data);
+//print_r($url);
 //print_r($method);
 
 $curl = curl_init();

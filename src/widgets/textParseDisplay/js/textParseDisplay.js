@@ -87,15 +87,14 @@ var textParseDisplay = function() {
 			'<div class="col-xs-5"></div>');
 		//get text field contents
 		var text = $(".free-form-text-area").val();
-		console.log(text);
-
+		
 		var url = "http://everest-build:8081/nlp-parser/full-parse-result";
 		var data = {text: text};
 		//post
 		$.ajax({
 			type: "POST",
 			url: "./post_relay.php",
-			data: JSON.stringify({url: url, data: data, method: "POST"}),
+			data: {url: url, data: data, method: "POST"},
 			success: me.handleFreeResponseSuccess,
 			error: function() {console.log("error");}
 		});
@@ -108,8 +107,7 @@ var textParseDisplay = function() {
 	}
 
 	me.handleReceiveAlphaReportData = function(id) {
-		console.log("Working");
-
+		
 		//remove response block
 		var mainDiv = $(".existing-parse-results-display");
 		mainDiv.empty();
@@ -127,7 +125,7 @@ var textParseDisplay = function() {
 		$.ajax({
 			type: "POST",
 			url: "./post_relay.php",
-			data: JSON.stringify({url: url, data: data, method: "POST"}),
+			data: {url: url, data: null, method: "POST"},
 			success: me.handleExistingResponseSuccess,
 			error: function() {console.log("error");}
 		});
@@ -165,8 +163,7 @@ var textParseDisplay = function() {
 		if(data.tuples.length > 0) {
 			var i = 0;
 			for(i = 0; i < data.tuples.length; i++) {
-				console.log(div.children(".parse-results-display-tuple-div"));
-				div.children(".parse-results-display-tuple-div").append('' +
+				div.children("div").children(".parse-results-display-tuple-div").append('' +
 							'{<br/>' +
 							'&nbsp;&nbsp;&nbsp;&nbsp;Entity1: ' + data.tuples[i].entity1 +',<br/>' +
 							'&nbsp;&nbsp;&nbsp;&nbsp;Relationship: ' + data.tuples[i].relationship + ',<br/>' +
