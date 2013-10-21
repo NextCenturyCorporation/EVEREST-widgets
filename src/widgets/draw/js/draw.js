@@ -287,7 +287,7 @@ var draw = function(){
 			}
 		});
 		
-		//$('.csvg').mousedown(me.saveTargetAssertions);
+		$('.csvg').mousedown(me.saveTargetAssertions);
 	};
 	
 	/**
@@ -1209,9 +1209,9 @@ var draw = function(){
 				};
 				
 				//update if already exists in database
-					if ( line.id !== undefined ){
-						tempUrl += line.id;
-					}
+				if ( line.id !== undefined ){
+					tempUrl += line.id;
+				}
 				
 				me.assertions.assertions.push(postData);
 				
@@ -1221,7 +1221,7 @@ var draw = function(){
 					data: JSON.stringify({url: assert_url, data: postData}),
 					success: function(){console.log('success');},
 					error: function(){console.log('error');}
-				});*/
+				});
 				
 				$.ajax({
 					type: "POST",
@@ -1231,7 +1231,7 @@ var draw = function(){
 					success: function(r){
 						console.log(r);
 					}
-				});
+				});*/
 			}
 		}
 				
@@ -1267,7 +1267,7 @@ var draw = function(){
 					data: JSON.stringify({url: assert_url, data: postData}),
 					success: function(){console.log('success');},
 					error: function(){console.log('error');}
-				});*/
+				});
 				
 				$.ajax({
 					type: "POST",
@@ -1277,7 +1277,7 @@ var draw = function(){
 					success: function(r){
 						console.log(r);
 					}
-				});
+				});*/
 			}
 		}
 		me.saveState(JSON.stringify(me.assertions));
