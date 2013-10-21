@@ -28,6 +28,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	me.temp_datas = me.datas.slice(0, me.max_rows);
 	
 	me.headers = [];
+	me.idColumn = null;
 
 	me.announce = announce_function;
 	me.update = update_function;
@@ -73,7 +74,6 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					return 'N/A';
 				}
 			}).on('click', function(d){
-				console.log(JSON.stringify({message: d}));
 				d3.selectAll('.data_table_descr').remove();
 				d3.select('.data_table_text')
 					.append('text')
@@ -83,7 +83,9 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				d3.selectAll('td').style('font-weight', 'normal');
 				d3.select(this).style('font-weight', 'bold');
 				
-				var id = $(this).parent('tr').children('td:nth-child(1)').text();
+				if(me.idColumn !== null) {
+					var id = $(this).parent('tr').children('td:nth-child(' + (me.idColumn + 1) + ')').text();
+				}
 
 				me.announce(JSON.stringify({_id: id, field_value: d}));
 			});
@@ -343,6 +345,13 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	me.createHeaders = function(arr, indexes){
 		time = $.inArray(TYPE_OF_DATE, arr) !== -1 ? TYPE_OF_DATE : arr[0];
 		me.headers = arr;
+
+		var headerId = 0;
+		for(headerId = 0; headerId < me.headers.length; headerId++) {
+			if(me.headers[headerId] === "_id") {
+				me.idColumn = headerId;
+			}
+		}
 	
 		var header = d3.select('.data_table_data');
 		header.selectAll('th').remove();
