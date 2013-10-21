@@ -171,7 +171,7 @@ var textParseDisplay = function() {
 							'}' + (data.tuples.length > j+1 ? ', ' : ''));
 			}
 		} else {
-			div.children(".parse-results-display-tuple-div").append('No tuples found');
+			div.children("div").children(".parse-results-display-tuple-div").append('No tuples found');
 		}
 		
 		for(var i = 0; i < sentenceCount; i++) {
