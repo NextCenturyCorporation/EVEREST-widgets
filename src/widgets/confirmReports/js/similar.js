@@ -120,16 +120,13 @@ var comparer = function(){
 	me.getTitanPaneOne = function(){
 		d3.selectAll('#panel-one-select option').remove();
 		me.net1.svg.select('.node-link-container').remove();
-	
-		var name = $('#name-one').val();
-		var start = $('#start-one').val();
-		var end = $('#end-one').val();
 		
 		$('#title-one').text(name);
 		me.net1.name = name;
 		$.ajax({
 			type: 'GET',
-			url: buildKeyValueQuery('name', name, start, end),
+			url: buildKeyValueQuery('name', $('#name-one').val(),
+				 $('#start-one').val(), $('#end-one').val()),
 			dataType: 'application/json',
 			success: function(){ 
 				console.log('success');
@@ -142,7 +139,7 @@ var comparer = function(){
 				if ( data.length > 0 ){
 					data.forEach(function(ar){
 						d3.select('#panel-one-select')
-						.append('option').text(ar._id);
+							.append('option').text(ar._id);
 					});
 					
 					me.curr_pane_one_item = me.pane_one_items[0];
@@ -159,15 +156,12 @@ var comparer = function(){
 		$('#panel-two-info').text('');
 		me.pane_two_items = [];
 		me.net2.svg.select('.node-link-container').remove();
-		
-		var name = $('#name-two').val();
-		var start = $('#start-two').val();
-		var end = $('#end-two').val();
 	
 		resetScores();
 		$.ajax({
 			type: 'GET',
-			url: buildKeyValueQuery('name', name, start, end),
+			url: buildKeyValueQuery('name', $('#name-two').val(), 
+				$('#start-two').val(), $('#end-two').val()),
 			dataType: 'application/json',
 			success: function(){ 
 				console.log('success');
@@ -191,7 +185,7 @@ var comparer = function(){
 						.text(this.id + ' | ' + $(this).find('.true li').length);
 				});
 				
-				me.getTitanItemCount(name, 2);
+				me.getTitanItemCount($('#name-two').val(), 2);
 				
 				$('#' +me.pane_two_items[0]._id).show();
 				me.getTitanItem(me.pane_two_items[0]._id, me.net2);

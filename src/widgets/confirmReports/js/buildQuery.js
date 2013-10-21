@@ -36,6 +36,7 @@ var getGroupPathById = function(id){
 };
 
 var getGroupVertexCountById = function(id){
+
 	return titanAddress+'/tp/gremlin?script=g.v(' + id + ').inE.outV.count()';
 };
 
@@ -60,7 +61,6 @@ var getMatchingVertices = function(id, array){
 	query = query.replace(/\#/g, '');
 	query = query.replace(/\+/g, '');
 	query = query.replace(/\\/g, '');
-	console.log(query);
 	return query;
 };
 
@@ -77,7 +77,6 @@ var getMatchingEdges = function(id, array){
 	query = query.replace(/\#/g, '');
 	query = query.replace(/\+/g, '');
 	query = query.replace(/\\/g, '');
-	console.log(query);
 	return query;
 };
 
@@ -119,7 +118,6 @@ var buildKeyValueQuery = function(key, value, start, end){
 	query = query.replace(/\#/g, '');
 	query = query.replace(/\+/g, '');
 	query = query.replace(/\\/g, '');
-	console.log(query);
 	return query;
 };
 
