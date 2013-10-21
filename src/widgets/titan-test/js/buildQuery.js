@@ -132,8 +132,8 @@ var getMetadataVertex = function(id){
 	POST / Create
 */
 var buildEdge = function(lObj){
-	var outV = lObj.source;
-	var inV = lObj.target;
+	var outV = lObj.source_id;
+	var inV = lObj.target_id;
 	var query = titanAddress + '/edges';
 	if ( lObj._titan_id !== undefined ) {
 		query += '/' + lObj._titan_id;

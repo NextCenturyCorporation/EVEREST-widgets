@@ -250,7 +250,7 @@ var comparer = function(){
 			var options2 = paneTwos.options[paneTwos.selectedIndex].text.split(' | ');
 			var obj1 = getObj(me.pane_one_items, parseInt(options1, 10), '_id');
 			var obj2 = getObj(me.pane_two_items, parseInt(options2[0], 10), '_id');
-			
+
 			var percent = options2[1] / 8;
 			var send = {
 				alpha_report_id: obj1.mongo_ar_id,
