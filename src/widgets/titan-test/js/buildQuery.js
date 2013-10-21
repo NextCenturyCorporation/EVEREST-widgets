@@ -1,4 +1,4 @@
-var titanAddress = 'http://localhost:8182/graphs/graph';
+var titanAddress = 'http://everest-build:8182/graphs/graph';
 
 /**
 	GET
@@ -53,7 +53,14 @@ var getMatchingVertices = function(id, array){
 		query += '_().has("name","' + d + '"),';
 		
 	});
-	query = query.substring(0, query.length - 1) + ')';
+	if ( query.charAt(query.length - 1) === ','){
+		query = query.substring(0, query.length - 1);
+	}
+	query += ')';
+	query = query.replace(/\#/g, '');
+	query = query.replace(/\+/g, '');
+	query = query.replace(/\\/g, '');
+	console.log(query);
 	return query;
 };
 
@@ -62,7 +69,15 @@ var getMatchingEdges = function(id, array){
 	array.forEach(function(d){
 		query += '_().has("label","' + d + '"),';
 	});
-	query = query.substring(0, query.length - 1) + ')';
+	
+	if ( query.charAt(query.length - 1) === ','){
+		query = query.substring(0, query.length - 1);
+	}
+	query += ')';
+	query = query.replace(/\#/g, '');
+	query = query.replace(/\+/g, '');
+	query = query.replace(/\\/g, '');
+	console.log(query);
 	return query;
 };
 
@@ -73,21 +88,39 @@ var getMatchingOrientation = function(id, array){
 			'").inE.has("label","' + d[1]._label + 
 			'").outV.has("name","' + d[2].name + '"),';
 	});
-	return query.substr(0, query.length - 1) + ')';
+	if ( query.charAt(query.length - 1) === ','){
+		query = query.substring(0, query.length - 1);
+	}
+	query += ')';
+	query = query.replace(/\#/g, '');
+	query = query.replace(/\+/g, '');
+	query = query.replace(/\\/g, '');
+	return query;
 };
 
 var buildKeyValueCountQuery = function(key, value){
-	return titanAddress+'/tp/gremlin?script=g.V.has("' + key + '","' + value + '").count()';
+	var query = titanAddress+'/tp/gremlin?script=g.V.has("' + key + '","' + value + '").count()';
+	query = query.replace(/\#/g, '');
+	query = query.replace(/\+/g, '');
+	query = query.replace(/\\/g, '');
+	return query;
 };
 
 var buildKeyValueQuery = function(key, value, start, end){
-	start = start === undefined ? 0 : start;
-	end = end === undefined ? start + 9 : end;
-	if ( value === 'alpha report' || value === 'target event'){
-		return titanAddress+'/tp/gremlin?script=g.V.has("' + key + '","' + value + '")[' + start + '..' + end + ']';
-	} else {
-		return titanAddress+'/tp/gremlin?script=g.V.has("' + key + '","' + value + '")[' + start + '..' + end + '].outE.has("label","metadata of").inV';
+	var query = titanAddress+'/tp/gremlin?script=g.V.has("' + key + '","' + value + '")';
+	
+	if ( value !== 'alpha report' && value !== 'target event'){
+		query += '.outE.has("label","metadata of").inV';
 	}
+	
+	if (start !== undefined && end !== undefined){
+		query += '[' + start + '..' + end + ']';
+	}
+	query = query.replace(/\#/g, '');
+	query = query.replace(/\+/g, '');
+	query = query.replace(/\\/g, '');
+	console.log(query);
+	return query;
 };
 
 var getMetadataVertex = function(id){
@@ -119,8 +152,9 @@ var buildEdge = function(lObj){
 			query += '&';
 		}
 	});
-	query = query.replace('#', '');
-	query = query.replace('+', 'plus');
+	query = query.replace(/\#/g, '');
+	query = query.replace(/\+/g, '');
+	query = query.replace(/\\/g, '');
 	return query;
 };
 
@@ -143,8 +177,9 @@ var buildNode = function(cObj){
 			query += '&';
 		}
 	});
-	query = query.replace('#', '');
-	query = query.replace('+', 'plus');
+	query = query.replace(/\#/g, '');
+	query = query.replace(/\+/g, '');
+	query = query.replace(/\\/g, '');
 	return query;
 };
 
@@ -152,6 +187,5 @@ var buildNode = function(cObj){
 	POST / Update
 */
 var updateVertexQuery = function(id, obj){
-	console.log(obj);
 	return titanAddress + '/vertices/' + id + '?comparedTo=' + JSON.stringify(obj);
 };
