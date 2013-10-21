@@ -342,10 +342,6 @@ var addScore = function(id){
 	$('<div>').appendTo(scores[id]).attr('class', 'false');
 };
 
-var getScores = function(){
-	return scores;
-};
-
 var resetScores = function(){
 	$('.info').remove();
 	scores = {};

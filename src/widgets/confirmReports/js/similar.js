@@ -61,6 +61,7 @@ var getObj = function(array, value, attribute){
 
 var comparer = function(){
 	var me = this;
+	var url = 'http://everest-build:8081/confirmed-report';
 	me.pane_one_items = [];
 	me.pane_two_items = [];
 
@@ -68,6 +69,7 @@ var comparer = function(){
 	me.height = d3.select('#asserts').style('height').split('p')[0];
 
 	me.curr_pane_one_item = null;
+	me.curr_pane_two_item = null;
 	
 	me.svg_target = d3.select('#target-pattern')
 		.append('svg')
@@ -116,6 +118,9 @@ var comparer = function(){
 	};
 			
 	me.getTitanPaneOne = function(){
+		d3.selectAll('#panel-one-select option').remove();
+		me.net1.svg.select('.node-link-container').remove();
+	
 		var name = $('#name-one').val();
 		var start = $('#start-one').val();
 		var end = $('#end-one').val();
@@ -136,21 +141,19 @@ var comparer = function(){
 				me.getTitanItemCount(name, 1);
 				if ( data.length > 0 ){
 					data.forEach(function(ar){
-						d3.select('#panel-one-select').append('option').text(ar._id);
+						d3.select('#panel-one-select')
+						.append('option').text(ar._id);
 					});
 					
 					me.curr_pane_one_item = me.pane_one_items[0];
 					me.getTitanItem(me.curr_pane_one_item._id, me.net1);
 					me.getTitanPaneTwo();
-				} else {
-					d3.selectAll('#panel-one-select option').remove();
-					me.net1.svg.select('.node-link-container').remove();
-				}
+				} 
 			}
 		});
 	};
 	
-	me.getTitanPaneTwo = function(item){
+	me.getTitanPaneTwo = function(){
 		d3.selectAll('#information li').remove();
 		d3.selectAll('#panel-two-select option').remove();
 		$('#panel-two-info').text('');
@@ -182,10 +185,11 @@ var comparer = function(){
 		
 		$(document).ajaxStop(function(){
 			if (d3.selectAll('#panel-two-select option')[0].length === 0){
-				$('.info').each(function(d){
-					d3.select('#panel-two-select').append('option').text(this.id + ' | ' + $(this).find('.true li').length);
+				$('.info').each(function(){
+					d3.select('#panel-two-select')
+						.append('option')
+						.text(this.id + ' | ' + $(this).find('.true li').length);
 				});
-				
 				
 				me.getTitanItemCount(name, 2);
 				
@@ -226,7 +230,7 @@ var comparer = function(){
 			}
 		});
 	};
-
+	
 	me.createListeners = function(){  
 		d3.select('#get_pane1').on('click', function(){
 			d3.selectAll('#panel-one-select option').remove();
@@ -239,21 +243,32 @@ var comparer = function(){
 			me.getTitanPaneTwo();
 		});
 		
-		d3.select('#compare').on('click', function(){
-			d3.selectAll('#information li').remove();
-		
-			var alphas = d3.select('#panel-one-select')[0][0];
-			var targets = d3.select('#panel-two-select')[0][0];
-			if ( targets.options.length !== 0){
-				var ar_id = alphas.options[alphas.selectedIndex].text;
-				var te_id = targets.options[targets.selectedIndex].text;
-				
-				compareVertexAmount(ar_id, te_id);
-				compareEdgeAmount(ar_id, te_id);
-				compareVertices(ar_id, te_id);
-				compareEdges(ar_id, te_id);
-				compareOrientation(ar_id, te_id);
-			}
+		d3.select('#confirm').on('click', function(){
+			var paneOnes = d3.select('#panel-one-select')[0][0];
+			var paneTwos = d3.select('#panel-two-select')[0][0];
+			var options1 = paneOnes.options[paneOnes.selectedIndex].text;
+			var options2 = paneTwos.options[paneTwos.selectedIndex].text.split(' | ');
+			var obj1 = getObj(me.pane_one_items, parseInt(options1, 10), '_id');
+			var obj2 = getObj(me.pane_two_items, parseInt(options2[0], 10), '_id');
+			
+			var percent = options2[1] / 8;
+			var send = {
+				alpha_report_id: obj1.mongo_ar_id,
+				target_event_percentage: percent
+				//target_event_id: obj2.mongo_te_id
+			};
+			
+			//none of the assertions actually go with any of the alpha reports.... wont be valid
+			$.ajax({
+				type: 'POST',
+				url: url,
+				data: send,
+				success: function(r){ 
+					console.log('success');
+					console.log(r); 
+				},
+				error: function(){ console.log('error'); }
+			});
 		});
 		
 		d3.select('#panel-two-select').on('change', function(){
