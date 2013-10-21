@@ -25,7 +25,9 @@
 					OWF.ready(function(){
 						OWF.Eventing.subscribe(alphaReportChannel, function(sender, msg){
 							var data = JSON.parse(msg);
-							obj.handleReceiveAlphaReportData(data._id);
+							if(typeof(data._id) !== 'undefined' && data.id !== null) {
+								obj.handleReceiveAlphaReportData(data._id);
+							}
 						});
 					});
 				});
