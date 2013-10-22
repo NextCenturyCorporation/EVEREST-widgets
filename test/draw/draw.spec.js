@@ -164,7 +164,7 @@ describe('To test the target event definition widget', function(){
 		it('the createClickers function', function(){
 			spyOn(d3, 'select').andCallThrough();
 			test_draw.createClickers();
-			expect(d3.select.callCount).toEqual(6);
+			expect(d3.select.callCount).toEqual(4);
 		});
 		
 		it('the toggleLabels function', function(){
