@@ -176,10 +176,8 @@ var comparer = function(){
 			error: function(e){ 
 				var data = JSON.parse(e.responseText).results;
 				for (var i = 0; i < data.length; i++){
-					if (data[i]._id !== me.curr_pane_one_item._id){
-						me.getScore(data[i]._id, me.curr_pane_one_item._id);
-						me.pane_two_items.push(data[i]);
-					}
+					me.getScore(data[i]._id, me.curr_pane_one_item._id);
+					me.pane_two_items.push(data[i]);
 				}
 			}
 		});
