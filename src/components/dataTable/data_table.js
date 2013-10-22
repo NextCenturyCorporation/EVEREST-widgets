@@ -219,45 +219,64 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	
 	me.createClickers = function() {
 		//add a listener to sort the rows based upon what column is clicked
-		d3.selectAll('th')
-			.on('click', function() {
-				var col = parseInt(this.id, 10);
-				col = Object.keys(me.temp_datas[0])[col];
-				me.sorter(this, col);
-			});
+		d3.selectAll('th').on('click', function() {
+			var col = parseInt(this.id, 10);
+			col = Object.keys(me.temp_datas[0])[col];
+			me.sorter(this, col);
+		});
 
-		d3.select('#data_table_submit')
-			.on('click', function(){
-				me.start = $('#data_table_start').val();
-				me.end = $('#data_table_end').val();
-				$('#data_table_start').val('');
-				$('#data_table_end').val('');		
+		d3.select('#data_table_submit').on('click', function(){
+			me.start = $('#data_table_start').val();
+			me.end = $('#data_table_end').val();
+			$('#data_table_start').val('');
+			$('#data_table_end').val('');		
+		
+			var dates = me.validateDates();
 			
-				var dates = me.validateDates();
+			me.page = 0;
+			me.update({
+				count: me.max_items,
+				start: dates[0],
+				end: dates[1],
+			}, function(data){
+				me.start = dates[0];
+				me.end = dates[1];	
+				me.sort = 'uns';
+				me.sortKey = '_id';
 				
-				me.page = 0;
-				me.update({
-					count: me.max_items, 
-					start: dates[0],
-					end: dates[1],
-				}, function(data){
-					me.start = dates[0];
-					me.end = dates[1];
-					me.updateTable(data);
+				me.updateTable(data);
+				
+				d3.selectAll('th').each(function(){
+					if (d3.select(this).attr('class') !== 'no_sort'){		
+						d3.select(this).classed('up', false);
+						d3.select(this).classed('down', false);
+						d3.select(this).classed('unsorted', true);
+					}
 				});
-				me.sendTimes();
 			});
+			me.sendTimes();
+		});
 
-		d3.select('.show_all')
-			.on('click', function(){
-				me.page = 0;
-				me.update({count: me.max_items}, function(data){
-					me.start = me.MIN;
-					me.end = me.MAX;
-					me.updateTable(data);
+		d3.select('.show_all').on('click', function(){
+			me.page = 0;
+			me.update({count: me.max_items}, function(data){
+				me.start = me.MIN;
+				me.end = me.MAX;
+				me.sort = 'uns';
+				me.sortKey = '_id';
+				
+				me.updateTable(data);
+					
+				d3.selectAll('th').each(function(){
+					if (d3.select(this).attr('class') !== 'no_sort'){		
+						d3.select(this).classed('up', false);
+						d3.select(this).classed('down', false);
+						d3.select(this).classed('unsorted', true);
+					}
 				});
-				me.sendTimes();
-			});		
+			});
+			me.sendTimes();
+		});		
 			
 		d3.selectAll('.show').on('click', function(){
 			me.setMaxRows(parseInt(this.id, 10));
