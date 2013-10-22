@@ -239,7 +239,7 @@ var textParseDisplay = function() {
 				'<div class="row">' +
 					'<div class="col-xs-1"></div>' +
 					'<div class="col-xs-2">' +
-						'<label>Edges and Vetices:</label>' +
+						'<label>Edges and Vertices:</label>' +
 					'</div>' +	
 					'<div class="col-xs-8">' +
 						data.edge_vertex[i].replace(/\n/g, "<br/>").replace(/ /g, "&nbsp;&nbsp;") +
