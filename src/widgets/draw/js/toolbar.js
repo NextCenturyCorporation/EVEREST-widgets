@@ -1,14 +1,16 @@
 var toolbar = function(div_class){
 	var me = this;
-	me.svg = d3.select(div_class).append('svg')
-		.attr('class', 'tsvg');
-		
+	me.hold = d3.select(div_class);
 	me.shift = 25;
 	me.radius = 8;
 	me.center = {
-		x: me.svg.style('width').split('p')[0] / 2,
-		y: me.svg.style('height').split('p')[0] / 2
+		x: me.hold.style('width').split('p')[0] / 2,
+		y: me.hold.style('height').split('p')[0] / 2
 	};
+	
+	me.svg = me.hold.append('svg').attr('class', 'tsvg')
+		.attr('width', me.center.x * 2)
+		.attr('height', me.center.y * 2);
 	
 	me.num_tools = 0;
 	me.mode = "";

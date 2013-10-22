@@ -245,7 +245,11 @@ var draw = function(){
 	*/
 	me.createCanvas = function(){
 		var canvas = d3.select('#canvas');
+		me.canvasW = canvas.style('width').split('p')[0];
+		me.canvasH = canvas.style('height').split('p')[0];
+		
 		var svg = canvas.append('svg').attr('class', 'csvg')
+			.attr('width', me.canvasW).attr('height', me.canvasH)
 			.on('click', function(){
 				if ( me.t_mode.getMode() === 'node_hold' ) {
 					me.createCircle(d3.mouse(this));
@@ -253,9 +257,6 @@ var draw = function(){
 					me.resetColors();
 				}
 			});
-		
-		me.canvasW = svg.style('width').split('p')[0];
-		me.canvasH = svg.style('height').split('p')[0];
 
 		svg.append('rect')
 			.attr('class', 'background')

@@ -1,4 +1,12 @@
 #draw_container {
+	width: 75%;
+	height: auto;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.hold {
+	width: 100%;
 	display: inline-block;
 }
 
@@ -15,7 +23,7 @@
 	opacity: 0;
 }
 
-.tsvg, .csvg {
+.csvg, .tsvg {
 	height: 500px;
 }
 
