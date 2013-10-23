@@ -53,9 +53,9 @@ var compareVertexAmount = function(id1, id2){
 					//console.log("The Right Graph vertex length: " + te_length);
 					
 					if (te_length === ar_length){
-						$(scores[id1]).find('.true').append('<li>There are the same number of vertices</li>');
+						$(scores[id1]).find('.true').append('<li id="1">There are the same number of vertices</li>');
 					} else {
-						$(scores[id1]).find('.false').append('<li>There are a different number of vertices</li>');
+						$(scores[id1]).find('.false').append('<li id="1">There are a different number of vertices</li>');
 					}
 				}
 			});
@@ -85,9 +85,9 @@ var compareEdgeAmount = function(id1, id2){
 					var te_length = JSON.parse(e.responseText).results[0];
 					//console.log("The Right Graph edge length: " + te_length);
 					if (te_length === ar_length){
-						$(scores[id1]).find('.true').append('<li>There are the same number of edges</li>');
+						$(scores[id1]).find('.true').append('<li id="1">There are the same number of edges</li>');
 					} else {
-						$(scores[id1]).find('.false').append('<li>There are a different number of edges</li>');
+						$(scores[id1]).find('.false').append('<li id="1">There are a different number of edges</li>');
 					}
 				}
 			});
@@ -122,13 +122,21 @@ var compareVertices = function(id1, id2){
 					var unique_te = getUniqueObjectArray(te_matches);
 					//console.log("The Right Graph vertex matches: ");
 					//console.log(te_matches);
-					if (unique_te.length === unique_ar.length){
-						$(scores[id1]).find('.true').append('<li>The Left Graph vertices are subset of The Right Graph</li>');
+					/*if (unique_te.length === unique_ar.length){
+						$(scores[id1]).find('.true').append('<li id="1">The Left Graph vertices are subset of The Right Graph</li>');
 					//} else if (te_matches.length > 0) {
-					//	$(scores[id1]).find('.true').append('<li>Some of The Left Graph vertices match those of The Right Graph</li>');
+					//	$(scores[id1]).find('.true').append('<li id="1">Some of The Left Graph vertices match those of The Right Graph</li>');
 					} else {
-						$(scores[id1]).find('.false').append('<li>The Left Graph vertices are not subset of The Right Graph</li>');
-						//$(scores[id1]).find('.false').append('<li>None of The Left Graph vertices match those of The Right Graph</li>');
+						$(scores[id1]).find('.false').append('<li id="1">The Left Graph vertices are not subset of The Right Graph</li>');
+						//$(scores[id1]).find('.false').append('<li id="1">None of The Left Graph vertices match those of The Right Graph</li>');
+					}*/
+					var score = te_matches.length / ar_names.length;
+					console.log(score);
+					
+					if (score > 0){
+						$(scores[id1]).find('.true').append('<li id=' + score + '>The Left Graph vertices are subset of The Right Graph</li>');
+					} else {
+						$(scores[id1]).find('.false').append('<li id="1">None of The Left Graph vertices match those of The Right Graph</li>');
 					}
 				}
 			});
@@ -160,13 +168,22 @@ var compareVertices = function(id1, id2){
 					var unique_ar = getUniqueObjectArray(ar_matches);
 					//console.log("The Left Graph vertex matches: ");
 					//console.log(ar_matches);
-					if (unique_ar.length === unique_te.length){
-						$(scores[id1]).find('.true').append('<li>The Right Graph vertices are subset of The Left Graph</li>');
+					/*if (unique_ar.length === unique_te.length){
+						$(scores[id1]).find('.true').append('<li id="1">The Right Graph vertices are subset of The Left Graph</li>');
 					//} else if (ar_matches.length > 0 ){
-					//	$(scores[id1]).find('.true').append('<li>Some of The Right Graph vertices match those of The Left Graph</li>');
+					//	$(scores[id1]).find('.true').append('<li id="1">Some of The Right Graph vertices match those of The Left Graph</li>');
 					} else {
-						$(scores[id1]).find('.false').append('<li>The Right Graph vertices are not subset of The Left Graph</li>');
-					//	$(scores[id1]).find('.false').append('<li>None of The Right Graph vertices match those of The Left Graph</li>');
+						$(scores[id1]).find('.false').append('<li id="1">The Right Graph vertices are not subset of The Left Graph</li>');
+					//	$(scores[id1]).find('.false').append('<li id="1">None of The Right Graph vertices match those of The Left Graph</li>');
+					}*/
+					
+					var score = ar_matches.length / te_names.length;
+					console.log(score);
+					
+					if (score > 0){
+						$(scores[id1]).find('.true').append('<li id=' + score + '>The Right Graph vertices are subset of The Left Graph</li>');
+					} else {
+						$(scores[id1]).find('.false').append('<li id="1">None of The Right Graph vertices match those of The Left Graph</li>');
 					}
 				}
 			});
@@ -198,13 +215,22 @@ var compareEdges = function(id1, id2){
 					var te_matches = JSON.parse(e.responseText).results;
 					//console.log("The Right Graph edge matches: ");
 					//console.log(te_matches);
-					if (te_matches.length === ar_labels.length){
-						$(scores[id1]).find('.true').append('<li>The Left Graph egdes are subset of The Right Graph</li>');
+					/*if (te_matches.length === ar_labels.length){
+						$(scores[id1]).find('.true').append('<li id="1">The Left Graph egdes are subset of The Right Graph</li>');
 					//} else if (te_matches.length > 0) {
-					//	$(scores[id1]).find('.true').append('<li>Some of The Left Graph egdes match those of The Right Graph</li>');
+					//	$(scores[id1]).find('.true').append('<li id="1">Some of The Left Graph egdes match those of The Right Graph</li>');
 					} else {
-						$(scores[id1]).find('.false').append('<li>The Left Graph egdes are not subset of The Right Graph</li>');
-					//	$(scores[id1]).find('.false').append('<li>None of The Left Graph egdes match those of The Right Graph</li>');
+						$(scores[id1]).find('.false').append('<li id="1">The Left Graph egdes are not subset of The Right Graph</li>');
+					//	$(scores[id1]).find('.false').append('<li id="1">None of The Left Graph egdes match those of The Right Graph</li>');
+					}*/
+					
+					var score = te_matches.length / ar_labels.length;
+					console.log(score);
+					
+					if (score > 0){
+						$(scores[id1]).find('.true').append('<li id=' + score + '>The Left Graph egdes are subset of The Right Graph</li>');
+					} else {
+						$(scores[id1]).find('.false').append('<li id="1">None of The Left Graph egdes match those of The Right Graph</li>');
 					}
 				}
 			});
@@ -233,13 +259,22 @@ var compareEdges = function(id1, id2){
 					var ar_matches = JSON.parse(e.responseText).results;
 					//console.log("The Left Graph edge matches: ");
 					//console.log(ar_matches);
-					if (ar_matches.length === te_labels.length){
-						$(scores[id1]).find('.true').append('<li>The Right Graph edges are subset of The Left Graph</li>');
+					/*if (ar_matches.length === te_labels.length){
+						$(scores[id1]).find('.true').append('<li id="1">The Right Graph edges are subset of The Left Graph</li>');
 					//} else if (ar_matches.length > 0){
-					//	$(scores[id1]).find('.true').append('<li>Some of The Right Graph egdes match those of The Left Graph</li>');
+					//	$(scores[id1]).find('.true').append('<li id="1">Some of The Right Graph egdes match those of The Left Graph</li>');
 					} else {
-						$(scores[id1]).find('.false').append('<li>The Right Graph edges are not subset of The Left Graph</li>');
-					//	$(scores[id1]).find('.false').append('<li>None of The Right Graph egdes match those of The Left Graph</li>');
+						$(scores[id1]).find('.false').append('<li id="1">The Right Graph edges are not subset of The Left Graph</li>');
+					//	$(scores[id1]).find('.false').append('<li id="1">None of The Right Graph egdes match those of The Left Graph</li>');
+					}*/
+					
+					var score = ar_matches.length / te_labels.length;
+					console.log(score);
+					
+					if (score > 0){
+						$(scores[id1]).find('.true').append('<li id=' + score + '>The Right Graph edges are subset of The Left Graph</li>');
+					} else {
+						$(scores[id1]).find('.false').append('<li id="1">None of The Right Graph egdes match those of The Left Graph</li>');
 					}
 				}
 			});
@@ -275,10 +310,19 @@ var compareOrientation = function(id1, id2){
 					var te_matches = JSON.parse(e.responseText).results;
 					//console.log("The Right Graph matches: ");
 					//console.log(te_matches);
-					if (assertions.length === te_matches.length) {
-						$(scores[id1]).find('.true').append('<li>The Left Graph is a subset of The Right Graph</li>');
+					/*if (assertions.length === te_matches.length) {
+						$(scores[id1]).find('.true').append('<li id="1">The Left Graph is a subset of The Right Graph</li>');
 					} else {
-						$(scores[id1]).find('.false').append('<li>The Left Graph is not a subset of The Right Graph</li>');
+						$(scores[id1]).find('.false').append('<li id="1">The Left Graph is not a subset of The Right Graph</li>');
+					}*/
+					
+					var score = te_matches.length / assertions.length;
+					console.log(score);
+					
+					if (score > 0){
+						$(scores[id1]).find('.true').append('<li id=' + score + '>The Left Graph is a subset of The Right Graph</li>');
+					} else {
+						$(scores[id1]).find('.false').append('<li id="1">The Left Graph is not a subset of The Right Graph</li>');
 					}
 				}
 			});
@@ -311,10 +355,19 @@ var compareOrientation = function(id1, id2){
 					
 					//console.log("The Left Graph matches: ");
 					//console.log(ar_matches);
-					if (assertions.length === ar_matches.length){
-						$(scores[id1]).find('.true').append('<li>The Right Graph is a subset of The Left Graph</li>');
+					/*if (assertions.length === ar_matches.length){
+						$(scores[id1]).find('.true').append('<li id="1">The Right Graph is a subset of The Left Graph</li>');
 					} else {
-						$(scores[id1]).find('.false').append('<li>The Right Graph is not a subset of The Left Graph</li>');
+						$(scores[id1]).find('.false').append('<li id="1">The Right Graph is not a subset of The Left Graph</li>');
+					}*/
+					
+					var score = ar_matches.length / assertions.length;
+					console.log(score);
+					
+					if (score > 0){
+						$(scores[id1]).find('.true').append('<li id=' + score + '>The Right Graph is a subset of The Left Graph</li>');
+					} else {
+						$(scores[id1]).find('.false').append('<li id="1">The Right Graph is not a subset of The Left Graph</li>');
 					}
 				}
 			});
@@ -340,6 +393,7 @@ var addScore = function(id){
 	scores[id] = $('<div>').appendTo('#information').attr('class', 'info').attr('id', id).hide();
 	$('<div>').appendTo(scores[id]).attr('class', 'true');
 	$('<div>').appendTo(scores[id]).attr('class', 'false');
+	$('<div>').appendTo(scores[id]).attr('class', 'score').hide();
 };
 
 var resetScores = function(){

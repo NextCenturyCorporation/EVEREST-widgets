@@ -179,10 +179,6 @@ var updateVertexQuery = function(id, obj){
 };
 
 var strip = function(str){
-	str = str.replace(/[\#\+\\\&\%\!]/g, '');
-	//str = str.replace(/\+/g, '');
-	//str = str.replace(/\\/g, '');
-	//str = str.replace(/\&/g, '');
-	console.log(str);
+	str = str.replace(/[\#\+\\\&\%\!\<\>]/g, '');
 	return str;
 };

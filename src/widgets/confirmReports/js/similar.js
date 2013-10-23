@@ -187,7 +187,17 @@ var comparer = function(){
 		$(document).ajaxStop(function(){
 			if (d3.selectAll('#panel-two-select option')[0].length === 0 &&
 					me.pane_two_items.length !== 0){
-				$('.info').each(function(){
+				
+			
+				d3.selectAll('.info').each(function(){
+					var self = this;
+					var score = 0;
+					console.log(self);
+					d3.select(self).selectAll('.true li').each(function(){
+						score += parseInt(this.id, 10);
+					});
+					console.log(score);
+				
 					d3.select('#panel-two-select')
 						.append('option')
 						.text(this.id + ' | ' + $(this).find('.true li').length);
