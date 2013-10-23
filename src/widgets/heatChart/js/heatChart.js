@@ -1,4 +1,7 @@
-
+var currentUTCTime = function() {
+	var now = new Date(Date.now());
+	return new Date(now.getTime() + (now.getTimezoneOffset() * 60000));
+}
 /**
  * heatChart.js
  */
@@ -11,8 +14,7 @@ var numRows = 1;
 var samplePoints = 500000;
 var fullTimeData = [];
 var timeData = [];
-var baseDate = new Date(Date.now());
-
+var baseDate = currentUTCTime();
 var heatChart_widget = {};
 
 heatChart_widget.execute = function(modeChoice) {
@@ -81,7 +83,7 @@ heatChart_widget.update = function() {
 
 heatChart_widget.updateNow = function() {
 
-	baseDate = new Date(Date.now());
+	baseDate = currentUTCTime();
 	this.update();
 	handleModeButtons(mode);
 	
