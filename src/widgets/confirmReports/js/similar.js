@@ -129,7 +129,7 @@ var comparer = function(){
 		me.net1.name = name;
 		$.ajax({
 			type: 'GET',
-			url: buildKeyValueQuery('name', me.net1.name, start, end, 'incr'),
+			url: buildKeyValueQuery('name', me.net1.name, start, end, 'decr'),
 			dataType: 'application/json',
 			success: function(){ 
 				console.log('success');
