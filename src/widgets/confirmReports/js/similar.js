@@ -18,8 +18,10 @@ var buildLinksNodes = function(input, nodes, edges, nodesById, edgesById){
             } else {
                 //Check if its a known vertex or not
                 if(d._type == 'vertex' && !nodesById[d._id]){
-                    nodesById[d._id] = d;
-                    nodes.push(d);
+                	if ( d.name !== 'alpha report' && d.name !== 'target event'){
+	                    nodesById[d._id] = d;
+	                    nodes.push(d);
+	                }
                 }
             }
         });
@@ -27,7 +29,7 @@ var buildLinksNodes = function(input, nodes, edges, nodesById, edgesById){
         input.forEach(function(d){
             //Skip this loop for arrays
             if(!$.isArray(d)){
-                if(d._type == 'edge' && !edgesById[d._id]){
+                if(d._type == 'edge' && !edgesById[d._id] && d._label !== 'metadata of'){
                     edgesById[d._id] = true;
                     //The source and target elements need to be references to the full vertices
                     d.source = nodesById[d._outV];

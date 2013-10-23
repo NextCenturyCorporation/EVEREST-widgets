@@ -58,10 +58,8 @@ var getMatchingVertices = function(id, array){
 		query = query.substring(0, query.length - 1);
 	}
 	query += ')';
-	query = query.replace(/\#/g, '');
-	query = query.replace(/\+/g, '');
-	query = query.replace(/\\/g, '');
-	return query;
+		
+	return strip(query);
 };
 
 var getMatchingEdges = function(id, array){
@@ -74,10 +72,8 @@ var getMatchingEdges = function(id, array){
 		query = query.substring(0, query.length - 1);
 	}
 	query += ')';
-	query = query.replace(/\#/g, '');
-	query = query.replace(/\+/g, '');
-	query = query.replace(/\\/g, '');
-	return query;
+		
+	return strip(query);
 };
 
 var getMatchingOrientation = function(id, array){
@@ -91,18 +87,14 @@ var getMatchingOrientation = function(id, array){
 		query = query.substring(0, query.length - 1);
 	}
 	query += ')';
-	query = query.replace(/\#/g, '');
-	query = query.replace(/\+/g, '');
-	query = query.replace(/\\/g, '');
-	return query;
+		
+	return strip(query);
 };
 
 var buildKeyValueCountQuery = function(key, value){
 	var query = titanAddress+'/tp/gremlin?script=g.V.has("' + key + '","' + value + '").count()';
-	query = query.replace(/\#/g, '');
-	query = query.replace(/\+/g, '');
-	query = query.replace(/\\/g, '');
-	return query;
+		
+	return strip(query);
 };
 
 var buildKeyValueQuery = function(key, value, start, end, sort){
@@ -119,11 +111,8 @@ var buildKeyValueQuery = function(key, value, start, end, sort){
 	if (start !== undefined && end !== undefined){
 		query += '[' + start + '..' + end + ']';
 	}
-	query = query.replace(/\#/g, '');
-	query = query.replace(/\+/g, '');
-	query = query.replace(/\\/g, '');
-	console.log(query);
-	return query;
+		
+	return strip(query);
 };
 
 var getMetadataVertex = function(id){
@@ -155,10 +144,8 @@ var buildEdge = function(lObj){
 			query += '&';
 		}
 	});
-	query = query.replace(/\#/g, '');
-	query = query.replace(/\+/g, '');
-	query = query.replace(/\\/g, '');
-	return query;
+		
+	return strip(query);
 };
 
 var buildNode = function(cObj){
@@ -180,10 +167,8 @@ var buildNode = function(cObj){
 			query += '&';
 		}
 	});
-	query = query.replace(/\#/g, '');
-	query = query.replace(/\+/g, '');
-	query = query.replace(/\\/g, '');
-	return query;
+	
+	return strip(query);
 };
 
 /**
@@ -191,4 +176,13 @@ var buildNode = function(cObj){
 */
 var updateVertexQuery = function(id, obj){
 	return titanAddress + '/vertices/' + id + '?comparedTo=' + JSON.stringify(obj);
+};
+
+var strip = function(str){
+	str = str.replace(/[\#\+\\\&\%\!]/g, '');
+	//str = str.replace(/\+/g, '');
+	//str = str.replace(/\\/g, '');
+	//str = str.replace(/\&/g, '');
+	console.log(str);
+	return str;
 };
