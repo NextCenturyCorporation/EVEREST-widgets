@@ -71,6 +71,10 @@ li {
 	color: red;	
 }
 
+.compare-info{
+	display: inline-block;
+}
+
 #range { 
 	position: absolute;
 	bottom: 5px;

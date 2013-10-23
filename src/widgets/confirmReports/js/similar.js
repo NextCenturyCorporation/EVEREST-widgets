@@ -183,7 +183,8 @@ var comparer = function(){
 		});
 		
 		$(document).ajaxStop(function(){
-			if (d3.selectAll('#panel-two-select option')[0].length === 0){
+			if (d3.selectAll('#panel-two-select option')[0].length === 0 &&
+					me.pane_two_items.length !== 0){
 				$('.info').each(function(){
 					d3.select('#panel-two-select')
 						.append('option')
@@ -265,6 +266,7 @@ var comparer = function(){
 				success: function(r){ 
 					console.log('success');
 					console.log(r); 
+					d3.select('.confirm-info').text("Alpha report confirmed with id of " + r._id);
 				},
 				error: function(){ console.log('error'); }
 			});
