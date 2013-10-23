@@ -129,7 +129,7 @@ var comparer = function(){
 		me.net1.name = name;
 		$.ajax({
 			type: 'GET',
-			url: buildKeyValueQuery('name', me.net1.name, start, end),
+			url: buildKeyValueQuery('name', me.net1.name, start, end, 'incr'),
 			dataType: 'application/json',
 			success: function(){ 
 				console.log('success');
@@ -168,7 +168,7 @@ var comparer = function(){
 		resetScores();
 		$.ajax({
 			type: 'GET',
-			url: buildKeyValueQuery('name', me.net2.name, start, end),
+			url: buildKeyValueQuery('name', me.net2.name, start, end, 'decr'),
 			dataType: 'application/json',
 			success: function(){ 
 				console.log('success');

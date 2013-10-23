@@ -105,19 +105,24 @@ var buildKeyValueCountQuery = function(key, value){
 	return query;
 };
 
-var buildKeyValueQuery = function(key, value, start, end){
+var buildKeyValueQuery = function(key, value, start, end, sort){
 	var query = titanAddress+'/tp/gremlin?script=g.V.has("' + key + '","' + value + '")';
 	
 	if ( value !== 'alpha report' && value !== 'target event'){
 		query += '.outE.has("label","metadata of").inV';
 	}
-	
+
+	if (sort !== undefined){
+		query += '.order(T.' + sort + ')';
+	}
+		
 	if (start !== undefined && end !== undefined){
 		query += '[' + start + '..' + end + ']';
 	}
 	query = query.replace(/\#/g, '');
 	query = query.replace(/\+/g, '');
 	query = query.replace(/\\/g, '');
+	console.log(query);
 	return query;
 };
 
