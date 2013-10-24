@@ -5,7 +5,7 @@ line, path {
 }
 
 select {
-	width: 100px;
+	width: 120px;
 	position: absolute;
 	right: 5px;
 	top: 5px;
@@ -72,7 +72,8 @@ li {
 }
 
 .compare-info{
-	display: inline-block;
+	opacity: 0;
+	text-align: center;
 }
 
 #range { 

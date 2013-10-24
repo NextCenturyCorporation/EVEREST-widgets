@@ -194,13 +194,15 @@ var comparer = function(){
 					var score = 0;
 					console.log(self);
 					d3.select(self).selectAll('.true li').each(function(){
-						score += parseInt(this.id, 10);
+						score += parseFloat(this.id);
 					});
+					score = 100 * score / 8;
 					console.log(score);
 				
 					d3.select('#panel-two-select')
 						.append('option')
-						.text(this.id + ' | ' + $(this).find('.true li').length);
+						.text(this.id + ' | ' + score + '%   ');
+						//.text(this.id + ' | ' + $(this).find('.true li').length);
 				});
 				
 				me.getTitanItemCount($('#name-two').val(), 2);
@@ -263,12 +265,13 @@ var comparer = function(){
 			var obj1 = getObj(me.pane_one_items, parseInt(options1, 10), '_id');
 			var obj2 = getObj(me.pane_two_items, parseInt(options2[0], 10), '_id');
 
-			var percent = options2[1] / 8;
+			var percent = options2[1].split('%')[0];
 			var send = {
 				alpha_report_id: obj1.mongo_ar_id,
 				target_event_percentage: percent
 				//target_event_id: obj2.mongo_te_id
 			};
+			console.log(send);
 			
 			//none of the assertions actually go with any of the alpha reports.... wont be valid
 			$.ajax({
@@ -278,7 +281,15 @@ var comparer = function(){
 				success: function(r){ 
 					console.log('success');
 					console.log(r); 
-					d3.select('.confirm-info').text("Alpha report confirmed with id of " + r._id);
+					d3.select('.confirm-info')
+						.style('opacity', 1)
+						.text("Alpha report confirmed with id of " + r._id)
+						.transition()
+						.duration(5000)
+						.style('opacity', 0);
+						
+					
+					
 				},
 				error: function(){ console.log('error'); }
 			});

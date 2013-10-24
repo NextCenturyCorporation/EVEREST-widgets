@@ -1439,12 +1439,19 @@ var draw = function(){
 					},
 					error: function(e){
 						var resp = JSON.parse(e.responseText);
-						
+						console.log(resp);
 						if (resp.message === undefined){
 							var lObj = me.lines[indexOfObj(me.lines, 
 								resp.results.class,	'class')];
 							lObj._titan_id = JSON.parse(e.responseText).results._id;
 							console.log(JSON.parse(e.responseText).results._id);
+							
+							d3.select('.draw-info')
+								.style('opacity', 1)
+								.text("Target event saved to Titan")
+								.transition()
+								.duration(5000)
+								.style('opacity', 0);
 						}	
 					}
 				});

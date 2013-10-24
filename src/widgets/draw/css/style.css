@@ -10,6 +10,11 @@
 	display: inline-block;
 }
 
+.draw-info {
+	opacity: 0;
+	text-align: center;
+}
+
 #canvas, 
 #custom-accordion,
 #toolbar_modes,
