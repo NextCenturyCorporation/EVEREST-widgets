@@ -96,8 +96,8 @@
 		
 		owfdojo.addOnLoad(function(){
 			OWF.ready(function(){
-				OWF.Eventing.subscribe('', function(sender, msg){
-					me.getTitanPaneOne();
+				OWF.Eventing.subscribe('com.nextcentury.everest.target-event', function(sender, msg){
+					c.getTitanPaneOne();
 				});
 			});
 		});
