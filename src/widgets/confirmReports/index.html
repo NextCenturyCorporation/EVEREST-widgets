@@ -81,6 +81,7 @@
 	
 	<script src="../../../lib/jquery-2.0.2.min.js"></script>
 	<script src="../../../lib/d3.v3.min.js"></script>
+	<script src="../../../lib/owf-widget-debug.js"></script>
 	
 	<script src='./js/compare.js'></script>
 	<script src='./js/buildQuery.js'></script>
@@ -92,6 +93,14 @@
 		var c = new comparer();
 		c.createListeners();
 		c.display();
+		
+		owfdojo.addOnLoad(function(){
+			OWF.ready(function(){
+				OWF.Eventing.subscribe('', function(sender, msg){
+					me.getTitanPaneOne();
+				});
+			});
+		});
 	</script>
 </body>
 </html>

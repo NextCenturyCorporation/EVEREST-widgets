@@ -246,6 +246,10 @@ var comparer = function(){
 	};
 	
 	me.createListeners = function(){  
+		OWF.Eventing.subscribe('', function(sender, msg){
+			me.getTitanPaneOne();
+		});
+	
 		d3.select('#get_pane1').on('click', function(){
 			d3.selectAll('#panel-one-select option').remove();
 			d3.selectAll('#panel-two-select option').remove();
@@ -287,9 +291,6 @@ var comparer = function(){
 						.transition()
 						.duration(5000)
 						.style('opacity', 0);
-						
-					
-					
 				},
 				error: function(){ console.log('error'); }
 			});

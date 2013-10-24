@@ -1452,6 +1452,8 @@ var draw = function(){
 								.transition()
 								.duration(5000)
 								.style('opacity', 0);
+							
+							OWF.Eventing.publish('com.nextcentury.everest.target-event', 'target-event');
 						}	
 					}
 				});
