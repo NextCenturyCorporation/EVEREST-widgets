@@ -34,14 +34,14 @@
 
 circle {
 	cursor:pointer;
-	stroke: #666666;
-	stroke-width:1.5px;
+	stroke: #000000;
+	stroke-width:1px;
 }
 
 line, path {
-	fill: #666666;
-	stroke: #666666;
-	stroke-width:1.5px;
+	fill: #000000;
+	stroke: #000000;
+	stroke-width:1.3px;
 	cursor:pointer;
 }
 

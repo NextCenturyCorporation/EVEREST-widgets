@@ -67,9 +67,28 @@ var getAllIndicies = function(array, value, attribute){
 	return indicies;
 };
 
+var createPostObj = function(obj, type){
+	var out = ['html', 'source', 'target', '_id'];
+	var newObj = { name: type };
+	var keys = Object.keys(obj);
+	keys.forEach(function(k){
+		if ( out.indexOf(k) === -1 ){
+			if ( k === 'd' ){
+				newObj.value = obj[k];
+			} else if ( k === 'x' || k === 'y' ){
+				newObj[k] = parseInt(obj[k], 10);
+			} else {
+				newObj[k] = obj[k];
+			}
+		}
+	});
+	
+	return newObj;
+};
+
 var draw = function(){
 	var me =  this;
-	var assert_url = 'http://everest-build:8081/target_assertion/';
+	var assert_url = 'http://everest-build:8081/target-assertion/';
 	var event_url = 'http://everest-build:8081/target-event/';
 	
 	me.target_event = { name: 'target event' };
@@ -233,7 +252,7 @@ var draw = function(){
 			}, 750);
 		});
 		
-		d3.select('#save_target').on('click', me.saveTargetEventToTitan);
+		d3.select('#save_target').on('click', me.saveTargetAssertions);
 	};
 
 	/**
@@ -288,7 +307,7 @@ var draw = function(){
 			}
 		});
 		
-		$('.csvg').mousedown(me.saveTargetAssertions);
+		//$('.csvg').mousedown(me.saveTargetAssertions);
 	};
 	
 	/**
@@ -1012,48 +1031,6 @@ var draw = function(){
 	};
 	
 	/**
-	@function	saves the state of the current canvas as a target event
-				and posts it to /target_event/
-				if this target event already has an _id, the target event
-				is updated instead of created
-	*/
-	me.saveTargetEvent = function() {
-		var tempUrl = event_url;
-		if ( me.event.id !== undefined ) {
-			tempUrl += me.event.id;
-		}
-		var date = new Date();
-		me.event = {
-			name: date.getTime(),
-			event_horizon: [],
-			location: [],
-			assertions: []
-		};
-				
-		for ( var i = 0; i < me.circles; i++ ) {
-			var cObj = me.circles[i];
-			if ( me.isAlone(cObj) ) {
-				me.event.assertions.push(cObj.id.toString());
-			}
-		}
-		
-		for ( var i = 0; i < me.lines; i++ ) {
-			me.event.assertions.push(me.lines[i].id.toString());
-		}
-		
-		console.log(JSON.stringify(me.event));
-		$.ajax({
-			type: "POST",
-			url: tempUrl,
-			dataType: 'application/json',
-			data: me.event,
-			success: function(r){
-				console.log(r);
-			}
-		});
-	};
-	
-	/**
 	@param		json json object formatted with asserions and singletons which
 				will be used to redraw a previously saved canvas
 	@function	takes the json object and draws circles and lines for each
@@ -1151,141 +1128,6 @@ var draw = function(){
 	};
 	
 	/**
-	@function	takes the current state of the canvas and saves each assertion
-				or singleton to /target_assertions/. if an assertion already 
-				has an _id, it is simply updated in the database instead of
-				being recreated
-	*/
-	me.saveTargetAssertions = function(){
-		me.assertions = { assertions : [], singletons: [] };
-		for (var i = 0; i < me.lines.length; i++){
-			var tempUrl = assert_url;
-			var line = me.lines[i];
-			var cObj1 = null;
-			var cObj2 = null;
-			for ( var j = 0; j < me.circles.length; j++ ) {
-				if ( me.circles[j].html === line.source ) {
-					cObj1 = me.circles[j];
-				}
-				
-				if(me.circles[j].html === line.target){
-					cObj2 = me.circles[j];
-				}
-			}
-			
-			if ( cObj1 !== null && cObj2 !== null ){
-				var entity1 = {
-					name: "entity1",
-					value: cObj1.d,
-					x: parseInt(cObj1.x, 10),
-					y: parseInt(cObj1.y, 10),
-					color: cObj1.color,
-					class: cObj1.class,
-					group: cObj1.group
-				};
-				
-				var relationship = {
-					name: "relationship",
-					value: line.d,
-					color: 0,
-					class: line.class
-				};
-				
-				var entity2 = {
-					name: "entity2",
-					value: cObj2.d,
-					x: parseInt(cObj2.x, 10),
-					y: parseInt(cObj2.y, 10),
-					color: cObj2.color,
-					class: cObj2.class,
-					group: cObj2.group
-				};
-							
-				var postData = {
-					name: cObj1.d + ' ' + line.d + ' ' + cObj2.d,
-					description:"",
-					entity1: [entity1],
-					relationship: [relationship],
-					entity2: [entity2]
-				};
-				
-				//update if already exists in database
-				if ( line.id !== undefined ){
-					tempUrl += line.id;
-				}
-				
-				me.assertions.assertions.push(postData);
-				
-				/*$.ajax({
-					type: "POST",
-					url: "../../../lib/post_relay.php",
-					data: JSON.stringify({url: assert_url, data: postData}),
-					success: function(){console.log('success');},
-					error: function(){console.log('error');}
-				});
-				
-				$.ajax({
-					type: "POST",
-					url: assert_url,
-					dataType: 'application/json',
-					data: postData,
-					success: function(r){
-						console.log(r);
-					}
-				});*/
-			}
-		}
-				
-		for ( var i = 0; i < me.circles.length; i++ ) {
-			var cObj = me.circles[i];
-			var tempUrl = assert_url;
-			if ( me.isAlone(cObj) ) {
-				var entity1 = {
-					name: 'entity1',
-					value: cObj.d,
-					x: parseInt(cObj.x, 10),
-					y: parseInt(cObj.y, 10),
-					color: cObj.color,
-					class: cObj.class,
-					group: cObj.group		
-				};
-				
-				var postData = {
-					name: cObj.d,
-					description:"",
-					entity1: [entity1]
-				};
-				
-				//update if already exists in database
-				if ( cObj.id !== undefined ){
-					tempUrl += cObj.id;
-				}
-				
-				me.assertions.singletons.push(postData);
-				/*$.ajax({
-					type: "POST",
-					url: "../../../lib/post_relay.php",
-					data: JSON.stringify({url: assert_url, data: postData}),
-					success: function(){console.log('success');},
-					error: function(){console.log('error');}
-				});
-				
-				$.ajax({
-					type: "POST",
-					url: assert_url,
-					dataType: 'application/json',
-					data: postData,
-					success: function(r){
-						console.log(r);
-					}
-				});*/
-			}
-		}
-		me.saveState(JSON.stringify(me.assertions));
-		//me.saveTargetEvent();
-	};
-	
-	/**
 	@function	if there exists a past saved state, reset the canvas and redraw
 				based on that saved state, removing it from the stack
 	*/
@@ -1359,62 +1201,144 @@ var draw = function(){
 		}
 	};
 	
-	me.saveTargetEventToTitan = function(){
-		$.ajax({
-			type: 'POST', 
-			url: buildNode(me.target_event),
-			dataType: 'application/json',
-			success: function(r){
-				console.log(r);
-			},
-			error: function(e){
-				var resp = JSON.parse(e.responseText);
-				if (resp.message === undefined){
-					me.target_event._titan_id = resp.results._id;
-					
-					me.saveCirclesToTitan(me.target_event._titan_id);
-					setTimeout(function(){
-						me.saveLinesToTitan();
-					},2000);
-					
+	/**
+	@function	takes the current state of the canvas and saves each assertion
+				or singleton to /target_assertions/. if an assertion already 
+				has an _id, it is simply updated in the database instead of
+				being recreated
+	*/
+	me.saveTargetAssertions = function(){
+		me.assertions = { assertions : [], singletons: [] };
+		
+		me.lines.forEach(function(line){
+			var tempUrl = assert_url;
+			var cObj1 = null;
+			var cObj2 = null;
+			
+			me.circles.forEach(function(circle){
+				if ( circle.html === line.source ) {
+					cObj1 = circle;
 				}
+				
+				if ( circle.html === line.target ) {
+					cObj2 = circle;
+				}
+			});
+			
+			if ( cObj1 !== null && cObj2 !== null ){
+				var postData = {
+					name: cObj1.d + ' ' + line.d + ' ' + cObj2.d,
+					description: "",
+					entity1: [createPostObj(cObj1, 'entity1')],
+					relationship: [createPostObj(line, 'relationship')],
+					entity2: [createPostObj(cObj2, 'entity2')]
+				};
+				
+				me.assertions.assertions.push(postData);
+				
+				//update if already exists in database
+				/*if ( line._id !== undefined ){
+					tempUrl += line._id;
+				}*/
+				
+				$.post( tempUrl, postData, function(r){
+					console.log('it worked');
+					cObj1._id = r._id;
+					cObj2._id = r._id;
+					line._id = r._id;
+				});
 			}
+		});
+		
+		me.circles.forEach(function(circle){
+			var tempUrl = assert_url;
+			if ( me.isAlone(circle) ) {
+				var postData = {
+					name: circle.d,
+					description: "",
+					entity1: [createPostObj(circle, 'entity1')]
+				};
+				
+				me.assertions.assertions.push(postData);
+				
+				//update if already exists in database
+				/*if ( circle._id !== undefined ){
+					tempUrl += circle._id;
+				} */
+				
+				$.post( tempUrl, postData, function(r){
+					circle._id = r._id;
+				});			
+			}
+		});
+		
+		me.saveState(JSON.stringify(me.assertions));
+		setTimeout(me.saveTargetEvent, 5000);
+	};
+		
+	/**
+	@function	saves the state of the current canvas as a target event
+				and posts it to /target_event/
+				if this target event already has an _id, the target event
+				is updated instead of created
+	*/
+	me.saveTargetEvent = function() {
+		var tempUrl = event_url;
+		
+		//if true, update instead of post
+		/*if ( me.event._id !== undefined ) {
+			tempUrl += me.event._id;
+		}*/
+		
+		me.event = {
+			name: new Date().getTime(),
+			event_horizon: [],
+			location: [],
+			assertions: []
+		};
+		
+		me.circles.forEach(function(circle){
+			if ( me.isAlone(circle) ) {
+				me.event.assertions.push(circle._id);
+			}
+		});
+		
+		me.lines.forEach(function(line){
+			me.event.assertions.push(line._id);
+		});
+		
+		$.post( tempUrl, me.event, function(r){
+			me.event._id = r._id;
+			me.target_event._id = r._id;
+			me.saveTargetEventToTitan();
+		});
+	};
+	
+	me.saveTargetEventToTitan = function(){
+		$.post( buildNode(me.target_event), null, function(r){
+			me.target_event._titan_id = r.results._id;
+			
+			me.saveCirclesToTitan(me.target_event._titan_id);
+			setTimeout(function(){
+				me.saveLinesToTitan();
+			},2000);
 		});
 	};
 	
 	me.saveCirclesToTitan = function(m_id){
 		me.circles.forEach(function(circle){
-			$.ajax({
-				type: 'POST', 
-				url: buildNode(circle),
-				dataType: 'application/json',
-				success: function(r){
-					console.log(r);
-				},
-				error: function(e){
-					var resp = JSON.parse(e.responseText);
-					if (resp.message === undefined){
-						var cObj = me.circles[indexOfObj(me.circles, 
-							resp.results.name,	'd')];
-						cObj._titan_id = resp.results._id;
-						
-						var edge = {
-							_label: 'metadata of',
-							target_id: m_id,
-							source_id: cObj._titan_id
-						};
-						$.ajax({
-							type: 'POST',
-							url: buildEdge(edge),
-							dataType: 'application/json',
-							success: function(r){ console.log(r); },
-							error: function(e){ 
-								console.log(JSON.parse(e.responseText)); 
-							}
-						});
-					}
-				}
-			});			
+			$.post( buildNode(circle), null, function(r){
+				var cObj = me.circles[indexOfObj(me.circles, r.results.name, 'd')];
+				cObj._titan_id = r.results._id;
+				
+				var edge = {
+					_label: 'metadata of',
+					target_id: m_id,
+					source_id: cObj._titan_id
+				};
+				
+				$.post( buildEdge(edge), null, function(r){ console.log(r) });
+			});		
 		});
 	};
 
@@ -1430,39 +1354,20 @@ var draw = function(){
 				line.source_id = me.circles[cInd1]._titan_id;
 				line.target_id = me.circles[cInd2]._titan_id;
 				
-				$.ajax({
-					type: 'POST',
-					url : buildEdge(line),
-					dataType: 'application/json',
-					success: function(r){
-						console.log(r);
-					},
-					error: function(e){
-						var resp = JSON.parse(e.responseText);
-						console.log(resp);
-						if (resp.message === undefined){
-							var lObj = me.lines[indexOfObj(me.lines, 
-								resp.results.class,	'class')];
-							lObj._titan_id = JSON.parse(e.responseText).results._id;
-							console.log(JSON.parse(e.responseText).results._id);
-							
-							d3.select('.draw-info')
-								.style('opacity', 1)
-								.text("Target event saved to Titan")
-								.transition()
-								.duration(5000)
-								.style('opacity', 0);
-							
-							OWF.Eventing.publish('com.nextcentury.everest.target-event', 'target-event');
-						}	
-					}
+				$.post( buildEdge(line), null, function(r){
+					var lObj = me.lines[indexOfObj(me.lines, r.results.class,	'class')];
+					lObj._titan_id = r.results._id;
+					
+					d3.select('.draw-info')
+						.style('opacity', 1)
+						.text("Target event saved to Titan")
+						.transition()
+						.duration(5000)
+						.style('opacity', 0);
+					
+					OWF.Eventing.publish('com.nextcentury.everest.target-event', 'target-event');
 				});
 			}
 		});
-	};
-	
-	me.saveAssertionsToTitan = function(){
-		me.saveCirclesToTitan(me.target_event._titan_id);
-		setTimeout(me.saveLinesToTitan, 5000);
 	};
 };
