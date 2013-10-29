@@ -8,6 +8,7 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 	me.datas_to_use = [];
 	me.datatype = datatype;
 	
+	var heatChartChannel = "com.nextcentury.everest.heatchart";
 	me.timeline_channel = timeline;
 	me.workflow_channel = workflow;
 	me.announce_channel = announce;
@@ -83,9 +84,27 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 								me.table.currentTableView.addSentence(data.eventObject);
 							}
 						});
+
+						OWF.Eventing.subscribe(heatChartChannel, function(sender, msg){
+							var data = JSON.parse(msg);
+							if(data && data.startTime && data.endTime) {
+								console.log("message revieved");
+								  me.getDataCallback({
+								  	count: me.max_items, 
+								  	start: data.startTime,
+								  	end: data.endTime,
+								  }, function(newData){
+								 	me.table.updateTable(newData, true);
+								 });
+							} else {
+								console.log("Could not recognize event message.");
+							}
+						});
+
 					});
 				});
 			}
 		});		
 	};
+
 };

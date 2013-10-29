@@ -6,7 +6,6 @@ var currentUTCTime = function() {
  * heatChart.js
  */
 var baseURL = "http://everest-build:8081";
-var heatChartChannel = "com.nextcentury.everest.heatchart";
 var color = "";
 var mode = "";
 var numCols = 1;
@@ -16,10 +15,12 @@ var fullTimeData = [];
 var timeData = [];
 var baseDate = currentUTCTime();
 var heatChart_widget = {};
+var heatChartChannel = "com.nextcentury.everest.heatchart";
+var OWFheatChartWidget = new heatChartWidget(heatChartChannel);
 
-heatChart_widget.execute = function(modeChoice) {
+heatChart_widget.execute = function(modeChoice, feedType) {
 	mode = modeChoice;
-	getAllFeeds();
+	getAllFeeds('rawfeed');
 	
 	switch (mode) {
 
@@ -101,27 +102,6 @@ var getTimeData = function() {
 	return timeData;
 };
 
-var getOWFDateEvents = function() {
-	console.log("now getting events");
-	var workflow = 'com.nextcentury.everest.data_table_announce.raw_data';
-	OWF.ready(function(){
-		OWF.Eventing.subscribe(workflow, function(sender, msg){
-			var data = JSON.parse(msg);
-			if(data && data.times) {
-				if(timeData.toString() != data.times.toString()) {
-					timeData = data.times;
-					heatChart_widget.update();
-					//console.log("00000000000000000000000000000000000000000");
-					console.log(data.times);
-					//console.log("00000000000000000000000000000000000000000");
-				}
-			}
-			
-			//obj.handleReceiveAlphaReportData(data._id);
-		});
-	});
-};
-
 var filterDownDates = function(start, end) {
 	fullTimeData.filter(function(element) {
 		return element >= Date.parse(start) && element <=Date.parse(end);
@@ -129,10 +109,20 @@ var filterDownDates = function(start, end) {
 };
 
 
-var getAllFeeds = function() {
+var getAllFeeds = function(feedType) {
+	var feedURL = '';
+	feedType = feedType.toLowerCase();
+	if(feedType == 'alpha-report') {
+		feedURL = '/alpha-report/dates';
+	} else if(feedType == 'assertion') {
+		feedURL = '/assertion/dates';
+	} else {
+		feedURL = '/rawfeed/dates';
+	}
+
 	$.ajax({
 		type: "GET",
-		url: baseURL + '/rawfeed/dates',
+		url: baseURL + feedURL,
 		dataType: 'jsonp',
 		jsonpCallback: 'callback',
 		success: function(data){
@@ -255,7 +245,7 @@ var handleModeButtons = function(modeChoice){
 	};
 
 	d3.select("#baseDate").text("Context Date: " + baseDate.toString());
-
+	OWFheatChartWidget.publishDateRange(mode, baseDate);
 	
 };
 
@@ -609,15 +599,6 @@ var createHeatchart = function(time_chunks) {
 };
 
 var handleDrillDown = function(cellDate){
-	var checkOWF;
-	if(OWF.Eventing.publish) {
-		checkOWF = OWF.Eventing.publish;
-	} else {
-		checkOWF = function() {
-			console.log("OWF Eventing API is not accessible");
-		}
-	}
-	
 	switch (mode) {
 		//Announce Channel: com.nextcentury.everest.heatchart
 		//Each time the heat chart is drilled down, announce the new date range
@@ -628,9 +609,6 @@ var handleDrillDown = function(cellDate){
 
 	case "day":
 		baseDate = new Date(cellDate);
-		checkOWF(heatChartChannel,JSON.stringify(
-			{startTime: toLocaleHours(baseDate), endTime: toLocaleHours(addHours(baseDate, 1))}));
-		
 		heatChart_widget.execute("hour");
 		break;
 
@@ -641,89 +619,28 @@ var handleDrillDown = function(cellDate){
 		
 	case "month":
 		baseDate = new Date(cellDate);
-		checkOWF(heatChartChannel,JSON.stringify(
-			{startTime: setDateHourZero(baseDate), endTime: setDateHour24(baseDate)}));
 		heatChart_widget.execute("day");
 		break;
 
 	case "year":
 		baseDate = new Date(cellDate);
-		checkOWF(heatChartChannel,JSON.stringify(
-			{startTime: getFirstDateOfMonth(baseDate), endTime: getLastDateOfMonth(baseDate)}));
 		heatChart_widget.execute("month");
 		break;
 		
 	case "year5":
-		checkOWF(heatChartChannel,JSON.stringify(
-			{startTime: getFirstDateOfYear(baseDate), endTime: getLastDateOfYear(baseDate)}));
 		baseDate = new Date(cellDate);
 		heatChart_widget.execute("year");
 		break;
-	
 	};
-};
-//The Following functions are helper functions designed to get date ranges to send for 
-//OWF eventing.
-var setDateHourZero = function(time) {
-	var tempTime = new Date(time);
-	tempTime.setUTCHours(0);
-	return tempTime;
-};
+	OWFheatChartWidget.publishDateRange(mode, baseDate);
 
-var setDateHour24 = function(time) {
-	var tempTime = new Date(time);
-	tempTime.setUTCHours(24);
-	return tempTime;
 };
-
-var addHours = function(time, h) {
-	var tempTime = new Date(time);
-	tempTime.setTime(tempTime.getTime() + (h*60*60*1000));
-	return tempTime;
-};
-
-var toLocaleHours = function(time) {
-	var tempDate = new Date(time + " UTC");
-	tempDate .setUTCMinutes(0);
-	return tempDate;
-};
-
-var getFirstDateOfYear = function(date) {
-	var tempDate = date;
-	tempDate = new Date(tempDate.getFullYear(), 0, 1);
-	tempDate.setUTCHours(0);
-	return tempDate;
-};
-
-
-var getLastDateOfYear = function(date) {
-	var tempDate = date;
-	tempDate = new Date(tempDate.getFullYear(), 11, 31, 24);
-	tempDate.setUTCHours(0);
-	return tempDate;
-};
-
-var getFirstDateOfMonth = function(date) {
-	var tempDate = date;
-	tempDate = new Date(tempDate.getFullYear(), tempDate.getMonth(), 1);
-	tempDate.setUTCHours(0);
-	return tempDate;
-};
-
-var getLastDateOfMonth = function(date) {
-	var tempDate = date;
-	tempDate = new Date(tempDate.getFullYear(), tempDate.getMonth() + 1, 0, 24);
-	tempDate.setUTCHours(0);
-	return tempDate;
-};
-
-//End Date Helper Functions
 
 var init = function() {
 
 	d3.select("#chart").selectAll("svg").data([]).exit().remove();
 
 	var cells = getEmptyTimeChunks();
-  createHeatchart(cells);
+	createHeatchart(cells);
 };
 

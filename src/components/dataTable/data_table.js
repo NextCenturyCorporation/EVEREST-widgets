@@ -7,7 +7,6 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	var FADE_OUT_TIME = 10000;
 	var HILIGHT = 'red';
 	var STANDARD = 'black';
-	var heatChartChannel = "com.nextcentury.everest.heatchart";
 	
 	me.MIN = 0;
 	me.MAX = 32500000000000;
@@ -49,7 +48,6 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		className: 'unlit',
 		initialize: function(){
 			this.render();
-			me.handleHeatChartIncoming();
 		},
 		render: function(){
 			//get keys and values of the attributes of this model
@@ -205,7 +203,10 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		console.log(data);
 	};
 
-	me.updateTable = function(data){
+	me.updateTable = function(data, setFirstPage){
+		if(setFirstPage) {
+			me.page = 0;
+		}
 		me.offset = Math.floor(me.page * me.max_rows / me.max_items) * me.max_items;
 
 		me.datas = data.docs;
@@ -554,28 +555,4 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		return [startdate, enddate];
 	};
 
-	me.handleHeatChartIncoming = function(){
-		owfdojo.addOnLoad(function(){
-			OWF.ready(function(){
-				OWF.Eventing.subscribe(heatChartChannel, function(sender, msg){
-					var data = JSON.parse(msg);
-					if(data && data.startTime && data.endTime) {
-						me.page = 0;
-						me.update({
-							count: me.max_items, 
-							start: data.startTime,
-							end: data.endTime,
-						}, function(newData){
-							me.start = data.startTime;
-							me.end = data.endTime;
-							me.updateTable(newData);
-						});
-						me.sendTimes();
-					} else {
-						console.log("Could not recognize event message.");
-					}
-				});
-			});
-		});
-	};
 };
