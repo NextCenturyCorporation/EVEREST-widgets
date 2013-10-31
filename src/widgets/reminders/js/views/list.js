@@ -17,6 +17,7 @@ function($, _, Backbone, SelectorView) {
         },
 
         addSelector: function(selectorModel) {
+            console.log('in add selector');
             var selector = this.createSelector({ model: selectorModel }).render();
             this.$('.nav').append(selector.el);
             this.selectors.push(selector);

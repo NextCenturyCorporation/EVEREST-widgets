@@ -39,6 +39,18 @@ function($, _, Backbone, Templates) {
                 case "Hypertension Screen/BP Check":
                     this.$('#resolution-controls').append(Templates.hypertensionReminderForm());
                     break;
+                case "Pain Screening":
+                    this.$('#resolution-controls').append(Templates.painScreenReminderForm());
+                    break;
+                case "Advance Directive Screening":
+                    this.$('#resolution-controls').append(Templates.advDirectiveReminderForm());
+                    break;
+                case "Pneumococcal":
+                    this.$('#resolution-controls').append(Templates.pneumoVaxReminderForm());
+                    break;
+                case "Influenza Vaccine 65":
+                    this.$('#resolution-controls').append(Templates.influenzaVaxReminderForm());
+                    break;
             }
         },
 

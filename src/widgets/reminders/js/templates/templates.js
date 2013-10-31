@@ -9,7 +9,11 @@ define(function(require) {
       , _reminderList             = require('text!templates/reminderList.html')
       , _patientList              = require('text!templates/patientList.html')
       , _patientSelector          = require('text!templates/patientSelector.html')
-      , _reminderSelector         = require('text!templates/reminderSelector.html');
+      , _reminderSelector         = require('text!templates/reminderSelector.html')
+      , _painScreenReminderForm   = require('text!templates/painScreen.html')
+      , _pneumoVaxReminderForm    = require('text!templates/pneumoVax.html')
+      , _influenzaVaxReminderForm = require('text!templates/influenzaVax.html')
+      , _advDirectiveReminderForm = require('text!templates/advDirective.html');
 
     /*var formatDate = function() {
       return function(text, render) {
@@ -26,6 +30,22 @@ define(function(require) {
     };
 
     return {
+        painScreenReminderForm: function() {
+            return getCompiledTemplate(_painScreenReminderForm, arguments[0]);
+        },
+
+        advDirectiveReminderForm: function() {
+            return getCompiledTemplate(_advDirectiveReminderForm, arguments[0]);
+        },
+
+        influenzaVaxReminderForm: function() {
+            return getCompiledTemplate(_influenzaVaxReminderForm, arguments[0]);
+        },
+
+        pneumoVaxReminderForm: function() {
+            return getCompiledTemplate(_pneumoVaxReminderForm, arguments[0]);
+        },
+
         aspirinReminderForm: function() {
             return getCompiledTemplate(_aspirinReminderForm, arguments[0]);
         },
