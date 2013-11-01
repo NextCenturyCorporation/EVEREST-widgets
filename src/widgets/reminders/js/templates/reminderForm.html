@@ -1,0 +1,35 @@
+<div class='panel-heading'><h4>Reminder Resolution</h4><h5>{{ performedBy }} - {{ title }}</h5></div>
+<div class='panel-body'>
+  <div class='well well-sm'>
+  <table class='table table-condensed'>
+    <thead><th>Who</th><th>What</th><th>When</th></thead>
+    <tbody>
+      {{#each components}}
+      <tr>
+        <td>{{ who }}</td>
+        <td>{{ what }}</td>
+        <td>{{ when }}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+  <form role='form'>
+    <div class='well well-sm'>
+      <h4>Resolution:</h4>
+      <div id='resolution-controls'></div>
+    </div>
+    <div class='well well-sm'>
+      <h4>Exceptions:</h4>
+      {{#each exceptions}}
+      <div class='radio'>
+        <label>
+        <input type='radio' name='optionsRadios' id='optionsRadios{{ @index }}' value='option{{ @index }}'>
+          {{ . }}
+        </label>
+      </div>
+      {{/each}}
+    </div>
+  </form>
+  <button id="submitReminderBtn" class="btn btn-default">Submit</button>
+</div>
