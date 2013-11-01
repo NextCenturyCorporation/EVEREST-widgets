@@ -28,6 +28,7 @@ var app = app || {};
 
     app.initialize = function() {
         $("#tline").syrinxTimeline({ bands: bandInfo });
+        //eventSource.loadJSON(app.eventData, "");
     };
 
     app.plotReminders = function(reminders) {
