@@ -1,17 +1,14 @@
-define([
-    'jquery',
-    'underscore',
-    'backbone',
-    'models/patient'
-],
+var app = app || {};
 
-function($, _, Backbone, PatientModel) {
-    return Backbone.Collection.extend({
-        url: 'http://localhost:8081/patient',
-        model: PatientModel,
+(function() {
+    app.PatientCollection = Backbone.Collection.extend({
+        url: 'http://everest-build:8081/patient',
+        model: app.PatientModel,
 
         parse: function(response) {
             return response.docs;
         }
     });
-});
+
+    app.patients = new app.PatientCollection();
+}());

@@ -1,17 +1,14 @@
-define([
-    'jquery',
-    'underscore',
-    'backbone',
-    'models/reminder'
-],
+var app = app || {};
 
-function($, _, Backbone, ReminderModel) {
-    return Backbone.Collection.extend({
-        url: 'http://localhost:8081/reminder',
-        model: ReminderModel,
+(function() {
+    app.ReminderCollection = Backbone.Collection.extend({
+        url: 'http://everest-build:8081/reminder',
+        model: app.ReminderModel,
 
         parse: function(response) {
             return response.docs;
         }
     });
-});
+
+    app.reminders = new app.ReminderCollection();
+}());

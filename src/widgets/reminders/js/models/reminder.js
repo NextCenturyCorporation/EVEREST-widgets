@@ -1,11 +1,7 @@
-define([
-    'jquery',
-    'underscore',
-    'backbone'
-],
+var app = app || {};
 
-function($, _, Backbone) {
-    return Backbone.Model.extend({
+(function() {
+    app.ReminderModel = Backbone.Model.extend({
         idAttribute: "_id",
     });
-});
+}());
