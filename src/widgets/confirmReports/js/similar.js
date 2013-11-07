@@ -43,7 +43,7 @@ var buildLinksNodes = function(input, nodes, edges, nodesById, edgesById){
         if(input._type == 'vertex' && !nodesById[input._id]){
             nodesById[input._id] = input;
             nodes.push(input);
-        } else if(input._type == 'edge' && !edgesById[input._id]){
+        } else if(input._type == 'edge' && !edgesById[input._id] && input._label !== 'metadata of'){
             edgesById[input._id] = true;
             //The source and target elements need to be references to the full vertices
             input.source = nodesById[input._outV];
@@ -64,6 +64,7 @@ var getObj = function(array, value, attribute){
 var comparer = function(){
 	var me = this;
 	var url = 'http://everest-build:8081/confirmed-report';
+	var titan = 'http://everest-build:8081/titan-graph/';
 	me.pane_one_items = [];
 	me.pane_two_items = [];
 
@@ -98,23 +99,15 @@ var comparer = function(){
 	};
 		
 	me.getTitanItemCount = function(name, pane){
-		$.ajax({
-			type: 'GET',
-			url: buildKeyValueCountQuery('name', name),
-			dataType: 'application/json',
-			success: function(){ 
-				console.log('success');
-			},
-			error: function(e){
-				var data = JSON.parse(e.responseText).results;
-				var options;
-				if (pane === 1){
-					options = d3.selectAll('#panel-one-select option')[0].length;			
-					$('#panel-one-info').text('Displaying ' + options + ' of ' + data + ' items');
-				} else {
-					options = d3.selectAll('#panel-two-select option')[0].length;		
-					$('#panel-two-info').text('Displaying ' + options + ' of ' + data + ' items');
-				}
+		$.get( buildKeyValueCountQuery('name', name), function(r){
+			var data = r.results;
+			var options;
+			if (pane === 1){
+				options = d3.selectAll('#panel-one-select option')[0].length;			
+				$('#panel-one-info').text('Displaying ' + options + ' of ' + data + ' items');
+			} else {
+				options = d3.selectAll('#panel-two-select option')[0].length;		
+				$('#panel-two-info').text('Displaying ' + options + ' of ' + data + ' items');
 			}
 		});
 	};
@@ -124,34 +117,23 @@ var comparer = function(){
 		me.net1.svg.select('.node-link-container').remove();
 	
 		var name = $('#name-one').val();
-		var start = $('#start-one').val();
-		var end = $('#end-one').val();
 		
 		$('#title-one').text(name);
 		me.net1.name = name;
-		$.ajax({
-			type: 'GET',
-			url: buildKeyValueQuery('name', me.net1.name, start, end, 'decr'),
-			dataType: 'application/json',
-			success: function(){ 
-				console.log('success');
-			},
-			error: function(e){				
-				var data = JSON.parse(e.responseText).results;
-				d3.selectAll('#information li').remove();
-				me.pane_one_items = data;
-				me.getTitanItemCount(name, 1);
-				if ( data.length > 0 ){
-					data.forEach(function(ar){
-						d3.select('#panel-one-select')
-							.append('option').text(ar._id);
-					});
-					
-					me.curr_pane_one_item = me.pane_one_items[0];
-					me.getTitanItem(me.curr_pane_one_item._id, me.net1);
-					me.getTitanPaneTwo();
-				} 
-			}
+		$.get( titan + 'vertices?name=' + name, function(r){
+			d3.selectAll('#information li').remove();
+			me.pane_one_items = r;
+			if ( r.length > 0 ){
+				r.forEach(function(ar){
+			
+					d3.select('#panel-one-select')
+						.append('option').text(ar._id);
+				});
+				
+				me.curr_pane_one_item = me.pane_one_items[0];
+				me.getTitanItem(me.curr_pane_one_item._id, me.net1);
+				me.getTitanPaneTwo();
+			} 
 		});
 	};
 	
@@ -162,55 +144,31 @@ var comparer = function(){
 		me.pane_two_items = [];
 		me.net2.svg.select('.node-link-container').remove();
 		
-		var name = $('#name-two').val();
-		var start = $('#start-two').val();
-		var end = $('#end-two').val();
-		me.net2.name = name;
-		
-		resetScores();
-		$.ajax({
-			type: 'GET',
-			url: buildKeyValueQuery('name', me.net2.name, start, end, 'decr'),
-			dataType: 'application/json',
-			success: function(){ 
-				console.log('success');
-			},
-			error: function(e){ 
-				var data = JSON.parse(e.responseText).results;
-				for (var i = 0; i < data.length; i++){
-					me.getScore(data[i]._id, me.curr_pane_one_item._id);
-					me.pane_two_items.push(data[i]);
-				}
-			}
-		});
-		
-		$(document).ajaxStop(function(){
-			if (d3.selectAll('#panel-two-select option')[0].length === 0 &&
-					me.pane_two_items.length !== 0){
-				
-			
-				d3.selectAll('.info').each(function(){
-					var self = this;
-					var score = 0;
-					console.log(self);
-					d3.select(self).selectAll('.true li').each(function(){
-						score += parseFloat(this.id);
-					});
-					score = 100 * score / 8;
-					console.log(score);
-				
+		if (me.curr_pane_one_item.comparedTo.length < me.pane_one_items.length){
+			console.log('have to get comparisons');
+			$.get( titan + 'compare/' + me.curr_pane_one_item._id, function(r){
+				me.pane_two_items = r;
+				me.pane_two_items.forEach(function(item){
 					d3.select('#panel-two-select')
 						.append('option')
-						.text(this.id + ' | ' + score + '%   ');
-						//.text(this.id + ' | ' + $(this).find('.true li').length);
-				});
+						.text(item.item_id + ' | ' + item.score + '%');
+				});	
+				me.getTitanItem(me.pane_two_items[0].item_id, me.net2);
+			});
+		} else {
+			console.log('already compared');
+			me.pane_two_items = [];
+			me.curr_pane_one_item.comparedTo.forEach(function(i){
+				var parsed = JSON.parse(i);
+				d3.select('#panel-two-select')
+					.append('option')
+					.text(parsed.item_id + ' | ' + parsed.score + '%');
 				
-				me.getTitanItemCount($('#name-two').val(), 2);
-				
-				$('#' +me.pane_two_items[0]._id).show();
-				me.getTitanItem(me.pane_two_items[0]._id, me.net2);
-			}
-		});
+				me.pane_two_items.push(parsed);
+			});
+			
+			me.getTitanItem(me.pane_two_items[0].item_id, me.net2);
+		}
 	};
 	
 	me.getTitanItem = function(id, net){
@@ -218,30 +176,21 @@ var comparer = function(){
 		var nodes = [];
 		var edges = [];
 		var edgesById = [];
-		$.ajax({
-			type: 'GET',
-			url: getGroupPathById(id, net.name),
-			dataType: 'application/json',
-			success: function(){ 
-				console.log('success');
-			},
-			error: function(e){
-				var data = JSON.parse(e.responseText).results;
-				
-				data.forEach(function(first){
-					buildLinksNodes(first, nodes, edges, nodesById, edgesById);
-				});
 		
-				nodesById = null;
-				edgesById = null;
-				
-				net.svg.select('.node-link-container').remove();
-						
-				net.network = new network(net.svg, [], false);
-				net.network.setNodes(nodes);
-				net.network.setLinks(edges);
-				net.network.draw();		
-			}
+		$.get( titan + '' + id, function(r){
+			var data = r;
+			data.forEach(function(first){
+				buildLinksNodes(first, nodes, edges, nodesById, edgesById);
+			});
+	
+			nodesById = null;
+			edgesById = null;
+			net.svg.select('.node-link-container').remove();
+					
+			net.network = new network(net.svg, [], false);
+			net.network.setNodes(nodes);
+			net.network.setLinks(edges);
+			net.network.draw();
 		});
 	};
 	
@@ -271,24 +220,14 @@ var comparer = function(){
 				target_event_percentage: percent
 				//target_event_id: obj2.mongo_te_id
 			};
-			console.log(send);
 			
-			//none of the assertions actually go with any of the alpha reports.... wont be valid
-			$.ajax({
-				type: 'POST',
-				url: url,
-				data: send,
-				success: function(r){ 
-					console.log('success');
-					console.log(r); 
-					d3.select('.confirm-info')
-						.style('opacity', 1)
-						.text("Alpha report confirmed with id of " + r._id)
-						.transition()
-						.duration(5000)
-						.style('opacity', 0);
-				},
-				error: function(){ console.log('error'); }
+			$.post( url, send, function(r){
+				d3.select('.confirm-info')
+					.style('opacity', 1)
+					.text("Alpha report confirmed with id of " + r._id)
+					.transition()
+					.duration(5000)
+					.style('opacity', 0);
 			});
 		});
 		
@@ -313,15 +252,5 @@ var comparer = function(){
 	
 	me.display = function(){
 		me.getTitanPaneOne();
-	};
-	
-	me.getScore = function(id1, id2){
-		addScore(id1);
-		
-		compareVertexAmount(id1, id2);
-		compareEdgeAmount(id1, id2);
-		compareVertices(id1, id2);
-		compareEdges(id1, id2);
-		compareOrientation(id1, id2);
 	};
 };
