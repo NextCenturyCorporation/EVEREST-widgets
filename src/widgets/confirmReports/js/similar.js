@@ -63,8 +63,8 @@ var getObj = function(array, value, attribute){
 
 var comparer = function(){
 	var me = this;
-	var url = 'http://everest-build:8081/confirmed-report';
-	var titan = 'http://everest-build:8081/titan-graph/';
+	var url = 'http://localhost:8081/confirmed-report';
+	var titan = 'http://localhost:8081/titan-graph/';
 	me.pane_one_items = [];
 	me.pane_two_items = [];
 
@@ -97,20 +97,6 @@ var comparer = function(){
 		svg: me.svg_target,
 		name: 'target event'
 	};
-		
-	me.getTitanItemCount = function(name, pane){
-		$.get( buildKeyValueCountQuery('name', name), function(r){
-			var data = r.results;
-			var options;
-			if (pane === 1){
-				options = d3.selectAll('#panel-one-select option')[0].length;			
-				$('#panel-one-info').text('Displaying ' + options + ' of ' + data + ' items');
-			} else {
-				options = d3.selectAll('#panel-two-select option')[0].length;		
-				$('#panel-two-info').text('Displaying ' + options + ' of ' + data + ' items');
-			}
-		});
-	};
 			
 	me.getTitanPaneOne = function(){
 		d3.selectAll('#panel-one-select option').remove();
@@ -123,8 +109,8 @@ var comparer = function(){
 		$.get( titan + 'vertices?name=' + name, function(r){
 			d3.selectAll('#information li').remove();
 			me.pane_one_items = r;
-			if ( r.length > 0 ){
-				r.forEach(function(ar){
+			if ( me.pane_one_items.length > 0 ){
+				me.pane_one_items.forEach(function(ar){
 			
 					d3.select('#panel-one-select')
 						.append('option').text(ar._id);
@@ -132,6 +118,7 @@ var comparer = function(){
 				
 				me.curr_pane_one_item = me.pane_one_items[0];
 				me.getTitanItem(me.curr_pane_one_item._id, me.net1);
+				$('#panel-one-info').text('Displaying ' + me.pane_one_items.length + ' items');
 				me.getTitanPaneTwo();
 			} 
 		});
