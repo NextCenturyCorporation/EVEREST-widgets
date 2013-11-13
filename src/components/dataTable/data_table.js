@@ -183,7 +183,9 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				count: me.max_items,
 				start: me.start,
 				end: me.end
-			}, me.updateTable);
+			}, function(data){
+				me.updateTable(data);
+			});
 			getAllFeeds(me.start,me.end);
 		} else {
 			
@@ -228,7 +230,9 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				sortKey: me.sortKey,
 				start: me.start,
 				end: me.end
-			}, me.updateTable);
+			}, function(data){
+				me.updateTable(data);
+			});
 		} else {
 			me.currentTableView.render();
 		}
