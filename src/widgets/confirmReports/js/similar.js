@@ -63,8 +63,8 @@ var getObj = function(array, value, attribute){
 
 var comparer = function(){
 	var me = this;
-	var url = 'http://localhost:8081/confirmed-report';
-	var titan = 'http://localhost:8081/titan-graph/';
+	var url = 'http://everest-build:8081/confirmed-report';
+	var titan = 'http://everest-build:8081/titan-graph/';
 	me.pane_one_items = [];
 	me.pane_two_items = [];
 
@@ -140,7 +140,10 @@ var comparer = function(){
 						.append('option')
 						.text(item.item_id + ' | ' + item.score + '%');
 				});	
-				me.getTitanItem(me.pane_two_items[0].item_id, me.net2);
+				
+				if (me.pane_two_items.length > 0){
+					me.getTitanItem(me.pane_two_items[0].item_id, me.net2);
+				}
 			});
 		} else {
 			console.log('already compared');
@@ -154,7 +157,9 @@ var comparer = function(){
 				me.pane_two_items.push(parsed);
 			});
 			
-			me.getTitanItem(me.pane_two_items[0].item_id, me.net2);
+			if (me.pane_two_items.length > 0){
+				me.getTitanItem(me.pane_two_items[0].item_id, me.net2);
+			}
 		}
 	};
 	
@@ -187,12 +192,7 @@ var comparer = function(){
 			d3.selectAll('#panel-two-select option').remove();
 			me.getTitanPaneOne();
 		});
-		
-		d3.select('#get_pane2').on('click', function(){
-			d3.selectAll('#panel-two-select option').remove();
-			me.getTitanPaneTwo();
-		});
-		
+
 		d3.select('#confirm').on('click', function(){
 			var paneOnes = d3.select('#panel-one-select')[0][0];
 			var paneTwos = d3.select('#panel-two-select')[0][0];
