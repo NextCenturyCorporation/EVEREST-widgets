@@ -68,7 +68,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			.data(vals).enter()
 			.append('td').text(function(d){ 
 				if (d !== undefined){
-					var str = d.toString();
+					var str = typeof(d) === 'object' ? JSON.stringify(d) : d.toString();
 					return str.length > MAX_CHARS ? str.substring(0, MAX_CHARS) + '...' : str;
 				} else {
 					return 'N/A';
@@ -77,13 +77,16 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				d3.selectAll('.data_table_descr').remove();
 				d3.select('.data_table_text')
 					.append('text')
-					.text(d)
+					.text(function(){
+						var str = typeof(d) === 'object' ? JSON.stringify(d) : d.toString();
+						return str;
+					})
 					.classed('data_table_descr', true);
 					
 				d3.selectAll('td').style('font-weight', 'normal');
 				d3.select(this).style('font-weight', 'bold');
 				
-				if(me.idColumn !== null) {
+				if (me.idColumn !== null) {
 					var id = $(this).parent('tr').children('td:nth-child(' + (me.idColumn + 1) + ')').text();
 				}
 
@@ -188,7 +191,6 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			});
 			getAllFeeds(me.start,me.end);
 		} else {
-			
 			me.currentTableView = new me.tableView(me.datas);
 		}
 	};
