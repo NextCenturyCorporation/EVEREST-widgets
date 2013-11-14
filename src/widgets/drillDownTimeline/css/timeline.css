@@ -108,6 +108,10 @@ rect:hover{
   opacity : 0.5;
 }
 
+.selecting rect.selected {
+  opacity : 0.5;
+}
+
 .d3-tip {
   line-height: 1;
   font-weight: bold;
@@ -134,19 +138,23 @@ rect:hover{
   top: 100%;
   left: 0;
 }
-.slider .handle {
-  fill: #fff;
-  stroke: #000;
-  stroke-opacity: .5;
-  stroke-width: 1.25px;
-  pointer-events: none;
+.selecting path {
+  fill-opacity: .2;
 }
 
-.brush .extent {
-  fill-opacity: .125;
+.selecting path.selected {
+  stroke: #f00;
+  stroke-width: 2px;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
   shape-rendering: crispEdges;
 }
 
-.selecting bar.selected {
-  fill: #f00;
+.brush .extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
 }

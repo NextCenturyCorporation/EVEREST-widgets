@@ -1,6 +1,7 @@
 var DrillDownTimeline = function() {
 	var self = this;
 	var contextDate = Date.now();
+	var baseURL = "http://localhost:8081";
 
 	var monthNames = [ "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December" ];
@@ -11,16 +12,15 @@ var DrillDownTimeline = function() {
 	var daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 	var lowerYearRange = 2011;
 	var uppperYearRange = 2015;
+	var contextMode = {0: '5year', 1: 'year', 2: 'month', 3: 'day', 4: 'hour', 5: 'minute', 6:'second'};
+	var currentContextMode = 0;
 
 	d3.select("#baseDate").text("Context Date:" + new Date(contextDate).toISOString());
 
 
-	self.tempCallToBackend = function(mode) {
-		$.get( "http://localhost:8081/rawfeed/dates/" + mode + "/" + contextDate, function(data) {
-			console.log(data);
+	self.getDatesAndFrequency = function(mode) {
+		$.get(baseURL + "/rawfeed/dates/" + mode + "/" + contextDate, function(data) {
 			//var data = sudoRandomDateGenerator(mode);
-			console.log(data)
-			console.log(mode)
 			if(mode == 'month') {
 				self.repaint(convertToMonthNameFromInt(self.interpolateZeros(data,mode, lowerYearRange, uppperYearRange)));
 			} else if(mode == 'day') {
@@ -29,7 +29,6 @@ var DrillDownTimeline = function() {
 			} else if(mode == 'hour') {
 				self.repaint(convertHoursSyntax(self.interpolateZeros(data,mode, lowerYearRange, uppperYearRange)));	
 			} else {
-				console.log(self.interpolateZeros(data,mode, lowerYearRange, uppperYearRange));
 				self.repaint(self.interpolateZeros(data,mode, lowerYearRange, uppperYearRange));
 			}
 		});
@@ -129,7 +128,7 @@ var DrillDownTimeline = function() {
 			newArray.sort(function(a,b){return a.date-b.date});
 			return newArray;
 		} else if(mode === 'hour') {
-			var contextDateMonth = new Date(contextDate).getDate();
+			var contextDateMonth = new Date(contextDate).getUTCDate();
 			for(var i = 0; i <= 23; i++) {
 				newArray.push({date: i, frequency:0});
 			}
@@ -149,7 +148,8 @@ var DrillDownTimeline = function() {
 
 
 self.init = function() {
-	self.tempCallToBackend('year');
+	
+	self.getDatesAndFrequency('year');
 	setUpBreadCrumbHandlers();
 	var margin = {top: 20, right: 20, bottom: 60, left: 40},
 		width = 960 - margin.left - margin.right,
@@ -180,6 +180,33 @@ self.init = function() {
 		.attr("height", height + margin.top + margin.bottom)
 		.append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	d3.select("svg").call(d3.behavior.zoom()
+		.on("zoom", function() {
+			if(isPos(d3.event.sourceEvent.wheelDelta)) {//in
+				var selected = filterFreqGreaterThan1(d3.selectAll("rect.selected"));
+				var data = d3.select(selected[0][0]).data()[0];
+				if(typeof data != 'undefined') {
+					setBreadCrumbValues(data.date);
+					handleClickEvents(data.date.toString());
+				}
+			} else {//out
+				var backup = currentContextMode -1;
+				if(backup >= 0) {
+					self.getDatesAndFrequency(contextMode[currentContextMode]);
+					buttonClicked(contextMode[backup])
+					currentContextMode--;
+				}
+			}
+		}));
+
+	var isPos = function(num){ return num > 0 ? true: false; }
+
+	var filterFreqGreaterThan1 = function(array) {
+		return array.filter(function(element) {
+			return element.frequency > 0;
+		});
+	};
 
 	var tip = d3.tip()
 		.attr('class', 'd3-tip')
@@ -232,6 +259,7 @@ self.init = function() {
 			.attr("class", "bar")
 			.on("click", clickEvent);
 
+
 		var outDelay = 800;
 
 		if(!noOutTransition) {
@@ -256,67 +284,60 @@ self.init = function() {
 			.attr("height", function(d) { return height - y(d.frequency); })
 			.duration(800);
 
+
 		rectsNew
 			.on('mouseover', tip.show)
       		.on('mouseout', tip.hide)
 
-  		var brush = d3.svg.brush()
-			.x(x)
-			.on("brush", brushed);
+  		svg.append("g")
+			.attr("class", "brush")
+			.call(d3.svg.brush().y(y)
+			.on("brushstart", brushstart)
+			.on("brush", brushmoveY)
+			.on("brushend", brushend))
+			.selectAll("rect")
+			.attr("x",  -(margin.left))
+			.attr("width", margin.left);
 
-		var brush1 = d3.svg.brush()
-			.x(x)
-			.on("brush", brushed1);
-
-		var slider = svg.append("g")
-			.attr("class", "slider")
-			.call(brush);
-
-		slider.selectAll(".extent,.resize")
-			.remove();
-
-		slider.select(".background")
-			.attr("transform", "translate("+ 0 +"," + (height -9) + ")")
-			.attr("height",18)
-
-		var slider2 = svg.append("g")
-			.attr("class", "slider")
-			.call(brush1);
-
-		slider2.selectAll(".extent,.resize")
-			.remove();
-
-		slider2.select(".background")
-			.attr("transform", "translate("+ 0 +"," + 0 + ")")
-			.attr("height",height)
-			.attr("width",18)
-
-		var handle2 = slider2.append("circle")
-			.attr("class", "handle")
-			.attr("transform", "translate("+ width +"," + height + ")")
-			.attr("r", 9);
-
-		var handle = slider.append("circle")
-			.attr("class", "handle")
-			.attr("transform", "translate("+ 0 +"," + 0 + ")")
-			.attr("r", 9);
+  		svg.append("g")
+			.attr("class", "brush")
+			.call(d3.svg.brush().x(x)
+			.on("brushstart", brushstart)
+			.on("brush", brushmoveX)
+			.on("brushend", brushend))
+			.selectAll("rect")
+			.attr("y", height)
+			.attr("height", (height/2))
+			
 
 
-		function brushed() {
-			var value = d3.mouse(this);
-			if(value[0] >= 0 && value[0] <= width) {
-				handle2.attr("transform", "translate("+ value[0] +"," + height + ")")
-			}
+  		function brushstart() {
+			svg.classed("selecting", true);
 		}
-		function brushed1() {
-			var value = d3.mouse(this);
-			if(value [1] >= 0 && value[1] <= height) {
-				handle.attr("transform", "translate("+ 0 +"," + value[1] + ")")
-			}
+
+		function brushmoveY() {
+			var s = d3.event.target.extent();
+			rectsNew.classed("selected", function(d) { 
+				var upperFreq = s[0] <= d.frequency
+				return upperFreq; 
+			});
+		}
+
+		function brushmoveX() {
+			var s = d3.event.target.extent();
+			rectsNew.classed("selected", function(d) { 
+				s[0] = s[0] > 0 ? s[0] : 1;
+				var lowerband = s[0] && s[1] >= x(d.date);
+				var upperband = (x(d.date) + x.rangeBand()) >= s[0] && s[1];
+			   return lowerband && upperband; 
+			});
+		}
+
+		function brushend() {
+			svg.classed("selecting", !d3.event.target.empty());
 		}
 	
 	};
-
 
 };
 
@@ -334,23 +355,27 @@ var handleClickEvents = function(date) {
 	 if(year.test(date)) {
 	 	contextDate.setFullYear(date);
 	 	contextDate = contextDate.getTime();
-	 	self.tempCallToBackend('month');
+	 	currentContextMode =1;
+	 	self.getDatesAndFrequency('month');
 	 	setBreadCrumbValues(contextDate, 'year');
 	 } else if(day.test(date)) {
 	 	date = date.replace(/\D/g,'');
 	 	contextDate.setDate(parseInt(date));
 	 	contextDate = contextDate.getTime();
-	 	self.tempCallToBackend('hour');
+	 	currentContextMode =3;
+	 	self.getDatesAndFrequency('hour');
 	 	setBreadCrumbValues(contextDate, 'day');
 	 } else if(month.test(date)) {
 	 	contextDate.setMonth(months[date]);
 	 	contextDate = contextDate.getTime();
-	 	self.tempCallToBackend('day');
+	 	currentContextMode =2;
+	 	self.getDatesAndFrequency('day');
 	 	setBreadCrumbValues(contextDate, 'month');
 	 } else if(hour.test(date)){
 	 	contextDate.setUTCHours(milToHours(date));
 	 	contextDate = contextDate.getTime();
-	 	self.tempCallToBackend('minute');
+	 	currentContextMode =4;
+	 	self.getDatesAndFrequency('minute');
 	 	setBreadCrumbValues(contextDate, 'hour');
 	 } else {
 	 	contextDate = contextDate.getTime();
@@ -360,7 +385,7 @@ var handleClickEvents = function(date) {
 };
 
 var milToHours = function(time) {
-	return time.replace(/:/g, '').replace(/0/g, '');
+	return parseInt(time.substring(0, time.indexOf(':'))).toString();
 
 };
 
@@ -373,7 +398,7 @@ var setBreadCrumbValues = function(baseDate, mode) {
 		$("#monthButton").text(monthNames[tempDate.getMonth()]);
 		$("#monthButton").css("visibility", "visible");
 	} else if(mode == 'day') {
-		$("#dayButton").text(tempDate.getDate());
+		$("#dayButton").text(tempDate.getUTCDate());
 		$("#dayButton").css("visibility", "visible");
 	} else if(mode == 'hour') {
 		$("#hourButton").text(tempDate.getUTCHours() + ":00");
@@ -386,30 +411,58 @@ var setBreadCrumbValues = function(baseDate, mode) {
 
 var setUpBreadCrumbHandlers = function() {
 	$("#year5Button").on("click", function() {
-		$("#yearButton").css("visibility", "hidden");
-		$("#monthButton").css("visibility", "hidden");
-		$("#dayButton").css("visibility", "hidden");
-		$("#hourButton").css("visibility", "hidden");
-		self.tempCallToBackend('year');
+		year5ButtonClicked();
 	});
 	$("#yearButton").on("click", function() {
-		$("#monthButton").css("visibility", "hidden");
-		$("#dayButton").css("visibility", "hidden");
-		$("#hourButton").css("visibility", "hidden");
-		self.tempCallToBackend('month');
+		yearButtonClicked();
 	});
 	$("#monthButton").on("click", function() {
-		$("#dayButton").css("visibility", "hidden");
-		$("#hourButton").css("visibility", "hidden");
-		self.tempCallToBackend('day');
+		monthButtonClicked();
 	});
 	$("#dayButton").on("click", function() {
-		$("#hourButton").css("visibility", "hidden");
-		self.tempCallToBackend('hour');
+		dayButtonClicked();
 	});
 };
 
+var year5ButtonClicked = function() {
+	$("#yearButton").css("visibility", "hidden");
+	$("#monthButton").css("visibility", "hidden");
+	$("#dayButton").css("visibility", "hidden");
+	$("#hourButton").css("visibility", "hidden");
+	currentContextMode =1;
+	self.getDatesAndFrequency('year');
+};
 
+var yearButtonClicked = function() {
+	$("#monthButton").css("visibility", "hidden");
+	$("#dayButton").css("visibility", "hidden");
+	$("#hourButton").css("visibility", "hidden");
+	currentContextMode =2;
+	self.getDatesAndFrequency('month');
+}
+
+var monthButtonClicked = function() {
+	$("#dayButton").css("visibility", "hidden");
+	$("#hourButton").css("visibility", "hidden");
+	currentContextMode =3;
+	self.getDatesAndFrequency('day');
+}
+
+
+var dayButtonClicked = function() {
+	$("#hourButton").css("visibility", "hidden");
+	currentContextMode =4;
+	self.getDatesAndFrequency('hour');
+}
+
+var buttonClicked = function(mode) {
+	switch(mode) {
+		case '5year':year5ButtonClicked();break;
+		case 'year':yearButtonClicked();break;
+		case 'month':monthButtonClicked();break;
+		case 'day':dayButtonClicked();break;
+	}
+}
 
 };
 
