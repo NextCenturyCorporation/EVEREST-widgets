@@ -97,6 +97,34 @@ var comparer = function(){
 		svg: me.svg_target,
 		name: 'target event'
 	};
+	
+	me.populateLeftGraphs = function(data) {
+		d3.selectAll('#information li').remove();
+		me.pane_one_items = data;
+		if ( me.pane_one_items.length > 0 ){
+			me.pane_one_items.forEach(function(item){
+				d3.select('#panel-one-select').append('option').text(item._id);
+			});
+			
+			me.curr_pane_one_item = me.pane_one_items[0];
+			me.getTitanItem(me.curr_pane_one_item._id, me.net1);
+			$('#panel-one-info').text('Displaying ' + me.pane_one_items.length + ' items');
+			me.getTitanPaneTwo();
+		} 
+	};
+	
+	me.populateRightGraphs = function(data) {
+		me.pane_two_items = data;
+		me.pane_two_items.forEach(function(item){
+			d3.select('#panel-two-select')
+				.append('option')
+				.text(item.item_id + ' | ' + item.score + '%');
+		});	
+		
+		if (me.pane_two_items.length > 0){
+			me.getTitanItem(me.pane_two_items[0].item_id, me.net2);
+		}
+	};
 			
 	me.getTitanPaneOne = function(){
 		d3.selectAll('#panel-one-select option').remove();
@@ -106,22 +134,7 @@ var comparer = function(){
 		
 		$('#title-one').text(name);
 		me.net1.name = name;
-		$.get( titan + 'vertices?name=' + name, function(r){
-			d3.selectAll('#information li').remove();
-			me.pane_one_items = r;
-			if ( me.pane_one_items.length > 0 ){
-				me.pane_one_items.forEach(function(ar){
-			
-					d3.select('#panel-one-select')
-						.append('option').text(ar._id);
-				});
-				
-				me.curr_pane_one_item = me.pane_one_items[0];
-				me.getTitanItem(me.curr_pane_one_item._id, me.net1);
-				$('#panel-one-info').text('Displaying ' + me.pane_one_items.length + ' items');
-				me.getTitanPaneTwo();
-			} 
-		});
+		$.get( titan + 'vertices?name=' + name, me.populateLeftGraphs);
 	};
 	
 	me.getTitanPaneTwo = function(){
@@ -133,18 +146,7 @@ var comparer = function(){
 		
 		if (me.curr_pane_one_item.comparedTo.length < me.pane_one_items.length){
 			console.log('have to get comparisons');
-			$.get( titan + 'compare/' + me.curr_pane_one_item._id, function(r){
-				me.pane_two_items = r;
-				me.pane_two_items.forEach(function(item){
-					d3.select('#panel-two-select')
-						.append('option')
-						.text(item.item_id + ' | ' + item.score + '%');
-				});	
-				
-				if (me.pane_two_items.length > 0){
-					me.getTitanItem(me.pane_two_items[0].item_id, me.net2);
-				}
-			});
+			$.get( titan + 'compare/' + me.curr_pane_one_item._id, me.populateRightGraphs);
 		} else {
 			console.log('already compared');
 			me.pane_two_items = [];
@@ -169,8 +171,7 @@ var comparer = function(){
 		var edges = [];
 		var edgesById = [];
 		
-		$.get( titan + '' + id, function(r){
-			var data = r;
+		$.get( titan + id, function(data) {
 			data.forEach(function(first){
 				buildLinksNodes(first, nodes, edges, nodesById, edgesById);
 			});
