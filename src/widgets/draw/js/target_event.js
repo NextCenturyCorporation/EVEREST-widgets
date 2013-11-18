@@ -23,13 +23,13 @@ var createPostObj = function(obj, type){
 					newObj._label = obj[k];
 				}
 			} else if ( k === 'x' || k === 'y' ){
-				newObj[k + 'loc'] = parseInt(obj[k], 10);
+				newObj[k] = parseInt(obj[k], 10);
 			} else {
 				newObj[k] = obj[k];
 			}
 		}
 	});
-	console.log(newObj);
+	console.log(JSON.stringify(newObj));
 	return newObj;
 };
 
@@ -121,6 +121,8 @@ var target_event_widget = function(draw, map){
 					relationship: [createPostObj(line)],
 					entity2: [createPostObj(cObj2)]
 				};
+				
+				console.log(JSON.stringify(postData));
 				post( tempUrl, postData, function(r) {
 					console.log(r);
 					cObj1._id = r._id;
@@ -173,8 +175,14 @@ var target_event_widget = function(draw, map){
 
 	me.saveCirclesToTitan = function(circles, m_id){
 		circles.forEach(function(circle) {
-			post( titan_url + 'vertices/', createPostObj(circle), function(r){
-				var cObj = circles[indexOfObj(circles, r.value, 'd')];
+			var postCircle = {
+				name: circle.d,
+				type: circle.type,
+				class: circle.class
+			};
+			post( titan_url + 'vertices/', postCircle, function(r){
+			console.log(r);
+				var cObj = circles[indexOfObj(circles, r.name, 'd')];
 				cObj._titan_id = r._titan_id;
 				
 				var edge = {
@@ -200,7 +208,14 @@ var target_event_widget = function(draw, map){
 				line.source_id = circles[cInd1]._titan_id;
 				line.target_id = circles[cInd2]._titan_id;
 				
-				post( titan_url + 'edges/', createPostObj(line, 'line'), function(r){
+				var postLine = {
+					source_id: circles[cInd1]._titan_id,
+					target_id: circles[cInd2]._titan_id,
+					_label: line.d,
+					class: line.class
+				};
+				
+				post( titan_url + 'edges/', postLine, function(r){
 					var lObj = lines[indexOfObj(lines, r.class,	'class')];
 					lObj._titan_id = r._titan_id;
 					
