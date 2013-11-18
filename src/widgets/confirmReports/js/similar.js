@@ -63,8 +63,8 @@ var getObj = function(array, value, attribute){
 
 var comparer = function(){
 	var me = this;
-	var url = 'http://everest-build:8081/confirmed-report';
-	var titan = 'http://everest-build:8081/titan-graph/';
+	var url = 'http://localhost:8081/confirmed-report';
+	var titan = 'http://localhost:8081/titan-graph/';
 	me.pane_one_items = [];
 	me.pane_two_items = [];
 

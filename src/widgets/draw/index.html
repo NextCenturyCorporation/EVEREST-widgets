@@ -4,6 +4,8 @@
 	<title>Interactive Drawing Application</title>
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
 	<link rel="stylesheet" type="text/css" href="css/style.css" />
+	
+	<script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYmEUJPU4DRk96ElaCUQDcxmJxzbjxP8&sensor=true'></script>
 </head>
 <body>
 
@@ -11,89 +13,114 @@
 		<div class="navbar-header">
   			<a class="navbar-brand" href="#">Define Target Events</a>
 		</div>
-		
    		<ul class="nav navbar-nav navbar-right">
    			<li id="save_target" class="active"><a href="#">Save Target Event</a></li>
 	    </ul>
 	</nav>
-	<div class='col-xs-4'></div>
-	<div class='col-xs-4 draw-info'></div>
-	<div class='col-xs-4'></div>
-	<div class='well' id='draw_container'>
-		<div class='hold'>
-			<div class='col-xs-1'>
-				<div class='panel panel-default' id='toolbar_modes'></div>
-			</div>
-			<div class='col-xs-6'>
-				<div class='panel panel-default' id='canvas'></div>
-			</div>
-			<div class='col-xs-1'>
-				<div class='panel panel-default' id='toolbar_buttons'></div>
-			</div>
-			<div class='col-xs-4'>
-				<div id="custom-accordion">
-				 	<h4>Create a Node</h4>
-					<div class="ent1-form">
-						<div class='input-group'>
-							<span class='input-group-addon'>Entity</span>
-							<input type='text' class='ent1'>
+	<ul class="nav nav-tabs" id="draw-tabs">
+		<li class="active"><a href="#draw_container" data-toggle="tab">Nodes and Edges</a></li>
+		<li><a href="#map_container" data-toggle="tab">Location of Event</a></li>
+		<li><a href="#time_container" data-toggle="tab">Time of Event</a></li>
+	</ul>
+	
+	<div class="tab-content">
+		<div class='well tab-pane active' id='draw_container'>
+			<div class='hold'>
+				<div class='col-xs-1'>
+					<div class='panel panel-default' id='toolbar_modes'></div>
+				</div>
+				<div class='col-xs-6'>
+					<div class='panel panel-default' id='canvas'></div>
+				</div>
+				<div class='col-xs-1'>
+					<div class='panel panel-default' id='toolbar_buttons'></div>
+				</div>
+				<div class='col-xs-4'>
+					<div id="custom-accordion">
+					 	<h4>Create a Node</h4>
+						<div class="ent1-form">
+							<div class='input-group'>
+								<span class='input-group-addon'>Entity</span>
+								<input type='text' class='ent1'>
+							</div>
+							<div class='button-group'>
+								<button class='btn btn-sm' id='ent-submit'>Submit</button>
+								<button class='btn btn-sm' id='ent-cancel'>Cancel</button>
+							</div>
 						</div>
-						<div class='button-group'>
-							<button class='btn btn-sm' id='ent-submit'>Submit</button>
-							<button class='btn btn-sm' id='ent-cancel'>Cancel</button>
+						<h4>Link Two Nodes</h4>
+						<div class="rel-form">
+							<div class='input-group'>
+								<span class='input-group-addon'>Relationship</span>
+								<input type='text' class='rel-only'>
+							</div>
+							<div class='button-group'>
+								<button class='btn btn-sm' id='rel-submit'>Submit</button>
+								<button class='btn btn-sm' id='rel-cancel'>Cancel</button>
+							</div>
 						</div>
-					</div>
-					<h4>Link Two Nodes</h4>
-					<div class="rel-form">
-						<div class='input-group'>
-							<span class='input-group-addon'>Relationship</span>
-							<input type='text' class='rel-only'>
-						</div>
-						<div class='button-group'>
-							<button class='btn btn-sm' id='rel-submit'>Submit</button>
-							<button class='btn btn-sm' id='rel-cancel'>Cancel</button>
-						</div>
-					</div>
-					<h4>Attach a Node</h4>
-					<div class="rel-ent2-form">
-						<div class='input-group'>
-							<span class='input-group-addon'>Relationship</span>
-							<input type='text' class='relate'>
-						</div>
-						<div class='input-group'>
-							<span class='input-group-addon'>Entity 2</span>
-							<input type='text' class='ent2'>
-						</div>
-						<div class='button-group'>
-							<button class='btn btn-sm' id='rel-ent-submit'>Submit</button>
-							<button class='btn btn-sm' id='rel-ent-cancel'>Cancel</button>
+						<h4>Attach a Node</h4>
+						<div class="rel-ent2-form">
+							<div class='input-group'>
+								<span class='input-group-addon'>Relationship</span>
+								<input type='text' class='relate'>
+							</div>
+							<div class='input-group'>
+								<span class='input-group-addon'>Entity 2</span>
+								<input type='text' class='ent2'>
+							</div>
+							<div class='button-group'>
+								<button class='btn btn-sm' id='rel-ent-submit'>Submit</button>
+								<button class='btn btn-sm' id='rel-ent-cancel'>Cancel</button>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+		<div class='well tab-pane' id='map_container'>
+			<div class='hold'>
+				<div class='col-xs-8' id='map-canvas'></div>
+				<div class='col-xs-4' id='buttons'>
+					<h4>Latitude</h4>
+					<input type='text' class='form-control' placeholder='latitude' id='map-lat'>
+					<h4>Longitude</h4>
+					<input type='text' class='form-control' placeholder='longitude' id='map-long'>
+					<h4>Radius</h4>
+					<input type='text' class='form-control' placeholder='radius' id='map-rad'>
+				</div>
+			</div>
+		</div>
+		<div class='well tab-pane' id='time_container'>
+			<div class='hold'>
+				
+			</div>
+		</div>
 	</div>
-	
 	<div class='aloneColor'></div>
 	<div class='entity1Color'></div>
 	<div class='entity2Color'></div>
 	<div class='bothColor'></div>
 	<div class='lineColor'></div>
-	
+
 	<script src="../../../lib/jquery-2.0.2.min.js"></script>
 	<script src="../../../lib/d3.v3.min.js"></script>
 	<script src="../../../lib/bootstrap.min.js"></script>
 	<script src="../../../lib/owf-widget-debug.js"></script>
+	<script src="../../../lib/jquery.blockUI.js"></script>
 	
+	
+	<script src='./js/target_event.js'></script>
+	<script src='./js/maps.js'></script>
 	<script src='./js/draw.js'></script>
 	<script src='./js/buildQuery.js'></script>
 	<script src='./js/toolbar.js'></script>
 	
 	<script type="text/javascript">
-		var d = new draw();
-		d.setUpToolbars();
-		d.createCanvas();
-		d.createClickers();
+		var draw = new draw();
+		var map = new googlemap();
+		var target_event_widget = new target_event_widget(draw, map);
+		target_event_widget.initialize();
 	</script>
 </body>
 </html>

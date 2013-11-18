@@ -1,5 +1,6 @@
 //with help from threedubmedia.com/code/event/drop/demo/selection
 
+
 /**
 @params		div_class: a string pointing to the class of the hidden
 			div element containing a background color, most likely to
@@ -67,24 +68,6 @@ var getAllIndicies = function(array, value, attribute){
 	return indicies;
 };
 
-var createPostObj = function(obj, type){
-	var out = ['html', 'source', 'target', '_id'];
-	var newObj = { name: type };
-	var keys = Object.keys(obj);
-	keys.forEach(function(k){
-		if ( out.indexOf(k) === -1 ){
-			if ( k === 'd' ){
-				newObj.value = obj[k];
-			} else if ( k === 'x' || k === 'y' ){
-				newObj[k] = parseInt(obj[k], 10);
-			} else {
-				newObj[k] = obj[k];
-			}
-		}
-	});
-	
-	return newObj;
-};
 
 var draw = function(){
 	var me =  this;
@@ -168,24 +151,6 @@ var draw = function(){
 	};
 	
 	/**
-	@param		circle: simplified circle object from me.circles
-	@return		boolean stating whether circle is connected by a line
-				to another circle
-	@function	search through each line in me.lines to see if this
-				circle's class is used as a source or target for any
-				of the lines. if it is, something is connected to it
-	*/
-	me.isAlone = function(circle){
-		var alone = true;
-		me.lines.forEach(function(d){
-			if (d.source === circle.html || d.target === circle.html ){
-				alone = false;
-			}
-		});
-		return alone;
-	};
-	
-	/**
 	@param		g: group number corresponding to an existing circle 
 	@return		an array of indicies pointing back to circles in
 				me.circles, which all have the same group number
@@ -251,8 +216,6 @@ var draw = function(){
 				opacity: '0'
 			}, 750);
 		});
-		
-		d3.select('#save_target').on('click', me.saveTargetAssertions);
 	};
 
 	/**
@@ -1201,173 +1164,10 @@ var draw = function(){
 		}
 	};
 	
-	/**
-	@function	takes the current state of the canvas and saves each assertion
-				or singleton to /target_assertions/. if an assertion already 
-				has an _id, it is simply updated in the database instead of
-				being recreated
-	*/
-	me.saveTargetAssertions = function(){
-		me.assertions = { assertions : [], singletons: [] };
-		
-		me.lines.forEach(function(line){
-			var tempUrl = assert_url;
-			var cObj1 = null;
-			var cObj2 = null;
-			
-			me.circles.forEach(function(circle){
-				if ( circle.html === line.source ) {
-					cObj1 = circle;
-				}
-				
-				if ( circle.html === line.target ) {
-					cObj2 = circle;
-				}
-			});
-			
-			if ( cObj1 !== null && cObj2 !== null ){
-				var postData = {
-					name: cObj1.d + ' ' + line.d + ' ' + cObj2.d,
-					description: "",
-					entity1: [createPostObj(cObj1, 'entity1')],
-					relationship: [createPostObj(line, 'relationship')],
-					entity2: [createPostObj(cObj2, 'entity2')]
-				};
-				
-				me.assertions.assertions.push(postData);
-				
-				//update if already exists in database
-				/*if ( line._id !== undefined ){
-					tempUrl += line._id;
-				}*/
-				
-				$.post( tempUrl, postData, function(r){
-					console.log('it worked');
-					cObj1._id = r._id;
-					cObj2._id = r._id;
-					line._id = r._id;
-				});
-			}
-		});
-		
-		me.circles.forEach(function(circle){
-			var tempUrl = assert_url;
-			if ( me.isAlone(circle) ) {
-				var postData = {
-					name: circle.d,
-					description: "",
-					entity1: [createPostObj(circle, 'entity1')]
-				};
-				
-				me.assertions.assertions.push(postData);
-				
-				//update if already exists in database
-				/*if ( circle._id !== undefined ){
-					tempUrl += circle._id;
-				} */
-				
-				$.post( tempUrl, postData, function(r){
-					circle._id = r._id;
-				});			
-			}
-		});
-		
-		me.saveState(JSON.stringify(me.assertions));
-		setTimeout(me.saveTargetEvent, 5000);
-	};
-		
-	/**
-	@function	saves the state of the current canvas as a target event
-				and posts it to /target_event/
-				if this target event already has an _id, the target event
-				is updated instead of created
-	*/
-	me.saveTargetEvent = function() {
-		var tempUrl = event_url;
-		
-		//if true, update instead of post
-		/*if ( me.event._id !== undefined ) {
-			tempUrl += me.event._id;
-		}*/
-		
-		me.event = {
-			name: new Date().getTime(),
-			event_horizon: [],
-			location: [],
-			assertions: []
+	me.getState = function(){
+		return {
+			circles: me.circles,
+			lines: me.lines
 		};
-		
-		me.circles.forEach(function(circle){
-			if ( me.isAlone(circle) ) {
-				me.event.assertions.push(circle._id);
-			}
-		});
-		
-		me.lines.forEach(function(line){
-			me.event.assertions.push(line._id);
-		});
-		
-		$.post( tempUrl, me.event, function(r){
-			me.event._id = r._id;
-			me.target_event._id = r._id;
-			me.saveTargetEventToTitan();
-		});
-	};
-	
-	me.saveTargetEventToTitan = function(){
-		$.post( buildNode(me.target_event), null, function(r){
-			me.target_event._titan_id = r.results._id;
-			
-			me.saveCirclesToTitan(me.target_event._titan_id);
-			setTimeout(function(){
-				me.saveLinesToTitan();
-			},2000);
-		});
-	};
-	
-	me.saveCirclesToTitan = function(m_id){
-		me.circles.forEach(function(circle){
-			$.post( buildNode(circle), null, function(r){
-				var cObj = me.circles[indexOfObj(me.circles, r.results.name, 'd')];
-				cObj._titan_id = r.results._id;
-				
-				var edge = {
-					_label: 'metadata of',
-					target_id: m_id,
-					source_id: cObj._titan_id
-				};
-				
-				$.post( buildEdge(edge), null, function(r){ console.log(r) });
-			});		
-		});
-	};
-
-	me.saveLinesToTitan = function(){
-		me.lines.forEach(function(line){
-			if ( line._titan_id === undefined ) {
-				var cSvg1 = d3.select(line.source);
-				var cSvg2 = d3.select(line.target);
-				
-				var cInd1 = indexOfObj(me.circles, cSvg1.attr('class'), 'class');
-				var cInd2 = indexOfObj(me.circles, cSvg2.attr('class'), 'class');
-				
-				line.source_id = me.circles[cInd1]._titan_id;
-				line.target_id = me.circles[cInd2]._titan_id;
-				
-				$.post( buildEdge(line), null, function(r){
-					var lObj = me.lines[indexOfObj(me.lines, r.results.class,	'class')];
-					lObj._titan_id = r.results._id;
-					
-					d3.select('.draw-info')
-						.style('opacity', 1)
-						.text("Target event saved to Titan")
-						.transition()
-						.duration(5000)
-						.style('opacity', 0);
-					
-					OWF.Eventing.publish('com.nextcentury.everest.target-event', 'target-event');
-				});
-			}
-		});
 	};
 };

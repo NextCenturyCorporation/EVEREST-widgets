@@ -1,6 +1,32 @@
-#draw_container {
+html {
+	height: 100%;
+}
+
+body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+#map-canvas {
+	border: none;
+	margin: 0px;
+	padding: 0px;
+	height: 500px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#draw_container,
+#map_container,
+#time_container {
 	width: 75%;
 	height: auto;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#location{
 	margin-left: auto;
 	margin-right: auto;
 }
