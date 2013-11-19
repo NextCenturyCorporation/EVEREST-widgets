@@ -29,6 +29,7 @@ var createPostObj = function(obj, type){
 			}
 		}
 	});
+	console.log('post object');
 	console.log(JSON.stringify(newObj));
 	return newObj;
 };
@@ -46,7 +47,6 @@ var post = function(url, obj, success) {
 		},
 		error: function(response) {
 			var data = JSON.parse(response.responseText);
-			console.log(data);
 			if (data.error === undefined){
 				success(data);
 			} else {
@@ -75,7 +75,6 @@ var target_event_widget = function(draw, map){
 		OWF.ready(function(){
 			OWF.Eventing.subscribe(announce, function(sender, msg) {
 				var data = JSON.parse(msg);
-				console.log(data);
 				if (data._id) {
 					me.loadState(data._id);
 				}
@@ -133,7 +132,6 @@ var target_event_widget = function(draw, map){
 			error: function(e){
 				console.log('error');
 				var te = JSON.parse(e.responseText);
-				console.log(te);
 				
 				var assert_ids = te.assertions;
 				var json = {
@@ -169,11 +167,14 @@ var target_event_widget = function(draw, map){
 	};
 	
 	me.saveState = function(obj) {
-		me.saveTargetAssertions(obj.circles, obj.lines);
+		post( titan_url + 'vertices/', me.target_event, function(r){
+			me.target_event._titan_id = r._titan_id;
+			me.state.name = r._titan_id;
+			
+			me.saveTargetAssertions(obj.circles, obj.lines);
+		});
+		
 		setTimeout(me.saveTargetEvent, 2500);
-		setTimeout(function(){
-			me.saveTargetEventToTitan(obj.circles, obj.lines);
-		}, 2500);
 	};
 
 	me.saveTargetAssertions = function(circles, lines) {		
@@ -202,9 +203,10 @@ var target_event_widget = function(draw, map){
 					relationship: [createPostObj(line)],
 					entity2: [createPostObj(cObj2)]
 				};
-				me.state.name += postData.name + " ";
 				
-				console.log(JSON.stringify(postData));
+				//me.state.name += postData.name + " ";
+				
+				//post entire target assertion to mongo
 				post( tempUrl, postData, function(r) {
 					console.log(r);
 					cObj1._id = r._id;
@@ -213,6 +215,8 @@ var target_event_widget = function(draw, map){
 					
 					me.state.assertions.push(r._id);
 				});
+				
+				me.saveAssertionToTitan(cObj1, cObj2, line);
 			}
 		});
 		
@@ -229,7 +233,9 @@ var target_event_widget = function(draw, map){
 				post( tempUrl, postData, function(r){
 					circle._id = r._id;
 					me.state.assertions.push(r._id);
-				});			
+				});
+				
+				saveCircleToTitan(circle);
 			}
 		});
 	};
@@ -241,77 +247,61 @@ var target_event_widget = function(draw, map){
 			me.state._id = r._id;
 		});
 	};
-	
-	me.saveTargetEventToTitan = function(circles, lines){
-		console.log(me.target_event);
-		post( titan_url + 'vertices/', me.target_event, function(r){
-			me.target_event._titan_id = r._titan_id;
-			me.state._titan_id = r._titan_id;
-			
-			me.saveCirclesToTitan(circles, me.target_event._titan_id);
-			setTimeout(function(){
-				me.saveLinesToTitan(circles, lines);
-			}, 2000);
+
+	me.saveAssertionToTitan = function(c1, c2, l) {
+		me.saveCircleToTitan(c1, function(id){
+			l.source_id = id;
+			me.saveCircleToTitan(c2, function(id){
+				l.target_id = id;
+				me.saveLineToTitan(l);
+			});
 		});
 	};
 
-	me.saveCirclesToTitan = function(circles, m_id){
-		circles.forEach(function(circle) {
+	me.saveCircleToTitan = function(circle, callback) {
+		var postCircle = {
+			name: circle.d,
+			type: circle.type,
+			class: circle.class,
+			color: circle.color,
+			group: circle.group
+		};
 		
-			var postCircle = {
-				name: circle.d,
-				type: circle.type,
-				class: circle.class,
-				color: circle.color,
-				group: circle.group
+		post( titan_url + 'vertices/', postCircle, function(r) {
+			var edge = {
+				_label: 'metadata of',
+				target_id: me.state.name,
+				source_id: r._titan_id
 			};
 			
-			post( titan_url + 'vertices/', postCircle, function(r) {
-				var cObj = circles[indexOfObj(circles, r.name, 'd')];
-				cObj._titan_id = r._titan_id;
-				
-				var edge = {
-					_label: 'metadata of',
-					target_id: m_id,
-					source_id: cObj._titan_id
-				};
-				
-				post( titan_url + 'edges/', edge, function(r){ console.log(r) });
-			});		
+			console.log(edge);
+			if (callback) {
+				callback(r._titan_id);
+			}
+			
+			post( titan_url + 'edges/', edge, function(r) {
+				console.log(r);
+			});
 		});
 	};
 	
-	me.saveLinesToTitan = function(circles, lines){
-		lines.forEach(function(line){
-			var cSvg1 = d3.select(line.source);
-			var cSvg2 = d3.select(line.target);
+	me.saveLineToTitan = function(line){
+		var postLine = {
+			source_id: line.source_id,
+			target_id: line.target_id,
+			_label: line.d,
+			class: line.class
+		};
+		
+		post( titan_url + 'edges/', postLine, function(r){			
+			d3.select('.draw-info')
+				.style('opacity', 1)
+				.text("Target Event " + me.state.name + " saved to Titan")
+				.transition()
+				.duration(5000)
+				.style('opacity', 0);
 			
-			var cInd1 = indexOfObj(circles, cSvg1.attr('class'), 'class');
-			var cInd2 = indexOfObj(circles, cSvg2.attr('class'), 'class');
-			
-			line.source_id = circles[cInd1]._titan_id;
-			line.target_id = circles[cInd2]._titan_id;
-			
-			var postLine = {
-				source_id: circles[cInd1]._titan_id,
-				target_id: circles[cInd2]._titan_id,
-				_label: line.d,
-				class: line.class
-			};
-			
-			post( titan_url + 'edges/', postLine, function(r){
-				var lObj = lines[indexOfObj(lines, r.class,	'class')];
-				lObj._titan_id = r._titan_id;
-				
-				d3.select('.draw-info')
-					.style('opacity', 1)
-					.text("Target Event " + me.state._titan_id + " saved to Titan")
-					.transition()
-					.duration(5000)
-					.style('opacity', 0);
-				
-				OWF.Eventing.publish('com.nextcentury.everest.target-event', 'target-event');
-			});
+			OWF.Eventing.publish('com.nextcentury.everest.target-event', 'target-event');
 		});
 	};
 };
