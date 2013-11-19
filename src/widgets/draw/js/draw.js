@@ -322,8 +322,8 @@ var draw = function(){
 		var fill, cclass, group;
 		if ( c !== undefined ) {
 			fill = c.color;
-			//cclass = c.class;
-			//group = c.group;
+			cclass = c.class;
+			group = c.group;
 		} else {
 			fill = me.aloneColor;
 		}
@@ -485,7 +485,17 @@ var draw = function(){
 			cObj.y = me.computeCoord(newC, 'y'); 
 			return cObj.y;
 		});
-
+		
+		d3.selectAll('text')[0].forEach(function(t){
+			if (d3.select(t).attr('class') === cSvg.attr('class')) {
+				d3.select(t).attr('x', function() { 
+					return cObj.x + me.padding;
+				}).attr('y', function() { 
+					return cObj.y - me.padding;
+				});
+			}
+		});
+		
 		d3.selectAll('.arrow').remove();
 		d3.selectAll('#canvas line').each(function(){
 			var x, y;
@@ -511,6 +521,16 @@ var draw = function(){
 				}).attr(y, function() { 
 					var newC = dy + parseInt(lSvg.attr(y), 10);
 					return me.computeCoord(newC, 'y');
+				});
+				
+				d3.selectAll('text')[0].forEach(function(t){
+					if (d3.select(t).attr('class') === lSvg.attr('class')) {
+						x = ((parseInt(lSvg.attr('x1'), 10) + 
+							parseInt(lSvg.attr('x2'), 10)) / 2) + me.padding;
+						y = ((parseInt(lSvg.attr('y1'), 10) + 
+							parseInt(lSvg.attr('y2'), 10)) / 2) - me.padding;
+						d3.select(t).attr('x', x).attr('y', y);
+					}
 				});
 			}
 			
