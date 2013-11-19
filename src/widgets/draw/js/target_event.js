@@ -69,6 +69,30 @@ var target_event_widget = function(draw, map){
 	var workflow = 'com.nextcentury.everest.data.workflow';
 	var target_event_widget = new table_widget(url, announce, timeline, workflow, 'TargetEvent');
 	target_event_widget.execute();
+
+	owfdojo.addOnLoad(function(){
+		OWF.ready(function(){
+			OWF.Eventing.subscribe(announce, function(sender, msg) {
+				var data = JSON.parse(msg);
+				console.log(data);
+				if (data._id) {
+					$.ajax({
+						type: 'GET',
+						url: event_url + data._id,
+						dataType: 'application/json',
+						success: function(r){
+							console.log('success');
+							console.log(r);
+						},
+						error: function(e){
+							console.log('error');
+							console.log(e);
+						}
+					});
+				}
+			});
+		});
+	});
 	
 	me.state = {
 		name: new Date().getTime().toString(),
