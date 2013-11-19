@@ -116,18 +116,29 @@ var comparer = function(){
 			
 			me.curr_pane_one_item = me.pane_one_items[0];
 			me.getTitanItem(me.curr_pane_one_item._id, me.net1);
-			$('#panel-one-info').text('Displaying ' + me.pane_one_items.length + ' items');
+			//$('#panel-one-info').text('Displaying ' + me.pane_one_items.length + ' items');
 			me.getTitanPaneTwo();
 		} 
 	};
 	
 	me.populateRightGraphs = function(data) {
-		me.pane_two_items = data;
-		me.pane_two_items.forEach(function(item){
+		data.forEach(function(item){
+			if (typeof(item) === 'string'){
+				item = JSON.parse(item);
+			}
+			me.pane_two_items.push(item);
 			
-			d3.select('#panel-two-select')
-				.append('option')
-				.text(item.item_id + ' | ' + item.score + '%');
+			$.get( titan + item.item_id, function(data) {
+				var str = '';
+				if (data[0][0].name === 'target event') {
+					str += 'Target Event';
+				} else if (data[0][0].name === 'alpha report') {
+					str += 'Alpha Report';
+				}
+				
+				str += ' ' + item.item_id + ' | ' + item.score + '%';
+				d3.select('#panel-two-select').append('option').text(str);
+			});
 		});	
 		
 		if (me.pane_two_items.length > 0){
@@ -159,28 +170,7 @@ var comparer = function(){
 		} else {
 			console.log('already compared');
 			me.pane_two_items = [];
-			me.curr_pane_one_item.comparedTo.forEach(function(i){
-				var parsed = JSON.parse(i);
-				//console.log(parsed);
-				
-				$.get( titan + parsed.item_id, function(data) {
-					//console.log(data[0][0].name);
-					var str = '';
-					if (data[0][0].name === 'target event') {
-						str += 'Target Event';
-					} else if (data[0][0].name === 'alpha report') {
-						str += 'Alpha Report';
-					}
-					
-					str += ' ' + parsed.item_id + ' | ' + parsed.score + '%';
-					d3.select('#panel-two-select').append('option').text(str);
-				});
-				me.pane_two_items.push(parsed);
-			});
-			
-			if (me.pane_two_items.length > 0){
-				me.getTitanItem(me.pane_two_items[0].item_id, me.net2);
-			}
+			me.populateRightGraphs(me.curr_pane_one_item.comparedTo);
 		}
 	};
 	
