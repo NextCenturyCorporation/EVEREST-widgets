@@ -34,16 +34,25 @@ var createPostObj = function(obj, type){
 };
 
 var post = function(url, obj, success) {
-	$.post( url, obj, success );
+	//$.post( url, obj, success );
 	
-	/*$.ajax({
+	$.ajax({
+		type: 'POST',
 		url: url,
 		data: obj,
-		success: success,
-		error: function(error){
-			console.log(error);
+		dataType: 'application/json',
+		success: function(response){
+			console.log('success?');
+		},
+		error: function(response) {
+			var data = JSON.parse(response.responseText);
+			if (data.error === undefined){
+				success(data);
+			} else {
+				console.error(data.error);
+			}
 		}
-	});*/
+	});
 };
 
 var target_event_widget = function(draw, map){
@@ -51,7 +60,7 @@ var target_event_widget = function(draw, map){
 	
 	var assertion_url = 'http://everest-build:8081/target-assertion/';
 	var event_url = 'http://everest-build:8081/target-event/';
-	var titan_url = 'http://localhost:8081/titan-graph/';
+	var titan_url = 'http://everest-build:8081/titan-graph/';
 	
 	me.state = {
 		name: new Date().getTime().toString(),
@@ -198,7 +207,6 @@ var target_event_widget = function(draw, map){
 	
 	me.saveLinesToTitan = function(circles, lines){
 		lines.forEach(function(line){
-			if ( line._titan_id === undefined ) {
 				var cSvg1 = d3.select(line.source);
 				var cSvg2 = d3.select(line.target);
 				
@@ -228,7 +236,6 @@ var target_event_widget = function(draw, map){
 					
 					OWF.Eventing.publish('com.nextcentury.everest.target-event', 'target-event');
 				});
-			}
 		});
 	};
 };
