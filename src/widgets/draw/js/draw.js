@@ -322,14 +322,15 @@ var draw = function(){
 		var fill, cclass, group;
 		if ( c !== undefined ) {
 			fill = c.color;
-			cclass = c.class;
-			group = c.group;
+			//cclass = c.class;
+			//group = c.group;
 		} else {
 			fill = me.aloneColor;
-			cclass = me.count;
-			group = me.count;
 		}
-		
+	
+		cclass = me.count;
+		group = me.count;
+	
 		var circle = d3.select('.node-link-container').append('circle')
 			.attr('d', d).attr('class', cclass)
 			.attr('cx', x).attr('cy', y)
@@ -1001,6 +1002,7 @@ var draw = function(){
 				assertion and singleton that exists in the arrays
 	*/
 	me.redraw = function(json){
+		me.resetCanvas();
 		var assertions = json.assertions;
 		var singletons = json.singletons;
 	
@@ -1009,8 +1011,8 @@ var draw = function(){
 			var c2 = assertions[i].entity2[0];
 			var l = assertions[i].relationship[0];
 			
-			var cObj1 = getObject(me.circles, c1.class, 'class');
-			var cObj2 = getObject(me.circles, c2.class, 'class');
+			var cObj1 = getObject(me.circles, c1.value, 'd');
+			var cObj2 = getObject(me.circles, c2.value, 'd');
 			
 			var cSvg1, cSvg2;
 			if (cObj1 === null){
@@ -1025,14 +1027,14 @@ var draw = function(){
 				cSvg2 = d3.select(cObj2.html);
 			}
 			
-			if ( indexOfObj(me.lines, l.class, 'class') === -1){
+			if ( indexOfObj(me.lines, l.value, 'd') === -1){
 				me.addLine(cSvg1, cSvg2, l.value, l);
 			}
 		}
 		
 		for (var i = 0; i < singletons.length; i++){
 			var c = singletons[i].entity1[0];
-			if ( getObject(me.circles, c.class,'class') === null ){
+			if ( getObject(me.circles, c.value, 'd') === null ){
 				me.addCircle(c.x, c.y, c.value, c);
 			}
 		}
