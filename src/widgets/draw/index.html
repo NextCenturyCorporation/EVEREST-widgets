@@ -4,6 +4,7 @@
 	<title>Interactive Drawing Application</title>
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
 	<link rel="stylesheet" type="text/css" href="css/style.css" />
+	<link rel="stylesheet" type="text/css" href="../../components/dataTable/css/style.css">
 	
 	<script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYmEUJPU4DRk96ElaCUQDcxmJxzbjxP8&sensor=true'></script>
 </head>
@@ -21,10 +22,14 @@
 		<li class="active"><a href="#draw_container" data-toggle="tab">Nodes and Edges</a></li>
 		<li><a href="#map_container" data-toggle="tab">Location of Event</a></li>
 		<li><a href="#time_container" data-toggle="tab">Time of Event</a></li>
+		<li><a href="#load_container" data-toggle="tab">Load from Table</a></li>
 	</ul>
 	
 	<div class="tab-content">
 		<div class='well tab-pane active' id='draw_container'>
+			<div class='col-xs-4'></div>
+			<div class='col-xs-4 draw-info'></div>
+			<div class='col-xs-4'></div>
 			<div class='hold'>
 				<div class='col-xs-1'>
 					<div class='panel panel-default' id='toolbar_modes'></div>
@@ -96,6 +101,41 @@
 				
 			</div>
 		</div>
+		<div class='well tab-pane' id='load_container'>
+			<div class='hold'>
+				<div class="navbar navbar-static-top">
+					<div class="navbar-header">
+			   			<span class="navbar-brand" href="#" id='panel-title'>Displaying 0 of 0 objects</span>
+					</div>
+					
+					<ul class="nav navbar-nav navbar-right">
+						<ul class="pagination"></ul>
+					</ul>
+				</div>
+				<div class='panel panel-default'>
+					<div class='panel-body'>
+						<div class='info'>
+							<div id="data_table_inputs">
+								<div class='col-xs-7'></div>
+								<div class='input-group input-group-sm col-xs-2'>
+									<input type="text" name="start" class='form-control' id="data_table_start" placeholder='Start Date'>
+								</div>
+								<div class='input-group input-group-sm col-xs-2'>
+									<input type="text" name="end" class='form-control' id="data_table_end" placeholder='End Date'>
+								</div>
+								<div class='col-xs-1'>
+									<input type="button" value="Submit" class='btn btn-primary btn-sm btn-block' id="data_table_submit">
+								</div>
+							</div>	
+						</div>
+						<div class="data_table_hold">
+							<table border="1" class='data_table_data'></table>		
+						</div>
+					</div>
+				</div>
+				<div class="data_table_text"></div>
+			</div>
+		</div>
 	</div>
 	<div class='aloneColor'></div>
 	<div class='entity1Color'></div>
@@ -103,7 +143,9 @@
 	<div class='bothColor'></div>
 	<div class='lineColor'></div>
 
-	<script src="../../../lib/jquery-2.0.2.min.js"></script>
+	<script src="../../../lib/underscore.js"></script>
+	<script src="../../../lib/jquery-2.0.2.js"></script>
+	<script src="../../../lib/backbone.js"></script>
 	<script src="../../../lib/d3.v3.min.js"></script>
 	<script src="../../../lib/bootstrap.min.js"></script>
 	<script src="../../../lib/owf-widget-debug.js"></script>
@@ -115,6 +157,8 @@
 	<script src='./js/draw.js'></script>
 	<script src='./js/buildQuery.js'></script>
 	<script src='./js/toolbar.js'></script>
+	<script src="../../components/dataTable/data_table.js"></script>
+	<script src="../../components/dataTable/table_widget.js"></script>
 	
 	<script type="text/javascript">
 		var draw = new draw();

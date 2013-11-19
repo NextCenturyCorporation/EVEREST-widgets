@@ -136,7 +136,7 @@ var comparer = function(){
 					str += 'Alpha Report';
 				}
 				
-				str += ' ' + item.item_id + ' | ' + item.score + '%';
+				str += ' ' + item.item_id + ' | ' + item.score.toFixed(2) + '%';
 				d3.select('#panel-two-select').append('option').text(str);
 			});
 		});	

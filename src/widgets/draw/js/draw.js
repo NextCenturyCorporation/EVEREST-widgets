@@ -633,12 +633,12 @@ var draw = function(){
 				what kind of entity they are
 	*/
 	me.nodeclick = function(){
-		if(me.t_mode.getMode() === 'rel_hold'){
+		if (me.t_mode.getMode() === 'rel_hold') {
 			//if no entities have been clicked before this one
 			if (me.lastNodeClicked === null){
 				me.lastNodeClicked = this;
 			//if this entity was the last node clicked, do nothing
-			} else if(this === me.lastNodeClicked){
+			} else if (this === me.lastNodeClicked) {
 				return;
 			} else {  //if this is the second unique entity chosen, draw a line
 				$('.rel-form').animate({
@@ -699,8 +699,7 @@ var draw = function(){
 					}, 750);
 				});	
 			}
-		}
-		else if (me.t_mode.getMode() === 'delete_hold'){
+		} else if (me.t_mode.getMode() === 'delete_hold'){
 			me.deleteItem(this);
 		}
 	};
@@ -815,7 +814,8 @@ var draw = function(){
 	me.mouseover = function(){
 		if ( !me.labelsShown ) {
 			var x = 0, y = 0;
-			var item = d3.select(this);	
+			var item = d3.select(this);
+			console.log(item.attr('class'));	
 			//if the element being hovered over is an entity
 			if ( this.localName === 'circle' ) {
 				x = parseInt(item.attr('cx'), 10) + me.padding;
@@ -830,6 +830,7 @@ var draw = function(){
 			} 
 			
 			d3.select('.csvg').append('text')
+				.attr('class', item.attr('class'))
 				.attr('x', x).attr('y', y)
 				.text(item.attr('d'));
 		}
@@ -1146,6 +1147,7 @@ var draw = function(){
 				x = parseInt(circle.attr('cx'), 10) + 15;
 				y = parseInt(circle.attr('cy'), 10) - 15;
 				d3.select('#canvas svg').append('text')
+					.attr('class', circle.attr('class'))
 					.attr('x', x).attr('y', y)
 					.text(circle.attr('d'));
 			});
@@ -1155,6 +1157,7 @@ var draw = function(){
 				x = ((parseInt(line.attr('x1'), 10) + parseInt(line.attr('x2'), 10)) / 2) + 15;
 				y = ((parseInt(line.attr('y1'), 10) + parseInt(line.attr('y2'), 10)) / 2) - 15;
 				d3.select('.csvg').append('text')
+					.attr('class', line.attr('class'))
 					.attr('x', x).attr('y', y)
 					.text(line.attr('d'));
 			});

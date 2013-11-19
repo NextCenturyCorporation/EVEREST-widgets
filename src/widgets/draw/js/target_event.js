@@ -63,6 +63,13 @@ var target_event_widget = function(draw, map){
 	var event_url = 'http://everest-build:8081/target-event/';
 	var titan_url = 'http://everest-build:8081/titan-graph/';
 	
+	var url = 'http://everest-build:8081/target-event';
+	var announce = 'com.nextcentury.everest.data_table_announce.target-event';
+	var timeline = 'com.nextcentury.everest.timeline_announcing';
+	var workflow = 'com.nextcentury.everest.data.workflow';
+	var target_event_widget = new table_widget(url, announce, timeline, workflow, 'TargetEvent');
+	target_event_widget.execute();
+	
 	me.state = {
 		name: new Date().getTime().toString(),
 		description: '',
@@ -94,6 +101,10 @@ var target_event_widget = function(draw, map){
 			e.preventDefault();
 			$(this).tab('show');
 			map.resize();
+		});
+		
+		$('.draw-info').click(function(){
+			alert(JSON.stringify(me.state));
 		});
 	};
 	
@@ -189,7 +200,8 @@ var target_event_widget = function(draw, map){
 			var postCircle = {
 				name: circle.d,
 				type: circle.type,
-				class: circle.class
+				class: circle.class,
+				color: circle.color
 			};
 			
 			post( titan_url + 'vertices/', postCircle, function(r) {
@@ -231,7 +243,7 @@ var target_event_widget = function(draw, map){
 				
 				d3.select('.draw-info')
 					.style('opacity', 1)
-					.text("Target event saved to Titan")
+					.text("Target Event " + me.state._titan_id + " saved to Titan")
 					.transition()
 					.duration(5000)
 					.style('opacity', 0);
