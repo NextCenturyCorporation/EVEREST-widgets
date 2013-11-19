@@ -86,7 +86,39 @@ var target_event_widget = function(draw, map){
 						},
 						error: function(e){
 							console.log('error');
-							console.log(e);
+							var te = JSON.parse(e.responseText);
+							console.log(te);
+							
+							var assert_ids = te.assertions;
+							var json = {
+								assertions: [],
+								singletons: []
+							};
+							
+							assert_ids.forEach(function(d){
+								$.ajax({
+									type: 'GET',
+									url: assertion_url + d,
+									dataType: 'application/json',
+									success: function(r){
+										console.log('success');
+										console.log(r);
+									},
+									error: function(e){
+										var assertion = JSON.parse(e.responseText);
+										console.log(assertion);
+										
+										if (assertion.entity2) {
+											json.assertions.push(assertion);
+										} else {
+											json.singletons.push(assertion);
+										}
+										
+										draw.redraw(json);
+									}
+								});
+							});
+							
 						}
 					});
 				}
