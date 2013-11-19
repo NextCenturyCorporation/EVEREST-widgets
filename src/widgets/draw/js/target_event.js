@@ -46,6 +46,7 @@ var post = function(url, obj, success) {
 		},
 		error: function(response) {
 			var data = JSON.parse(response.responseText);
+			console.log(data);
 			if (data.error === undefined){
 				success(data);
 			} else {
@@ -184,13 +185,14 @@ var target_event_widget = function(draw, map){
 
 	me.saveCirclesToTitan = function(circles, m_id){
 		circles.forEach(function(circle) {
+		
 			var postCircle = {
 				name: circle.d,
 				type: circle.type,
 				class: circle.class
 			};
-			post( titan_url + 'vertices/', postCircle, function(r){
-			console.log(r);
+			
+			post( titan_url + 'vertices/', postCircle, function(r) {
 				var cObj = circles[indexOfObj(circles, r.name, 'd')];
 				cObj._titan_id = r._titan_id;
 				
@@ -207,35 +209,35 @@ var target_event_widget = function(draw, map){
 	
 	me.saveLinesToTitan = function(circles, lines){
 		lines.forEach(function(line){
-				var cSvg1 = d3.select(line.source);
-				var cSvg2 = d3.select(line.target);
+			var cSvg1 = d3.select(line.source);
+			var cSvg2 = d3.select(line.target);
+			
+			var cInd1 = indexOfObj(circles, cSvg1.attr('class'), 'class');
+			var cInd2 = indexOfObj(circles, cSvg2.attr('class'), 'class');
+			
+			line.source_id = circles[cInd1]._titan_id;
+			line.target_id = circles[cInd2]._titan_id;
+			
+			var postLine = {
+				source_id: circles[cInd1]._titan_id,
+				target_id: circles[cInd2]._titan_id,
+				_label: line.d,
+				class: line.class
+			};
+			
+			post( titan_url + 'edges/', postLine, function(r){
+				var lObj = lines[indexOfObj(lines, r.class,	'class')];
+				lObj._titan_id = r._titan_id;
 				
-				var cInd1 = indexOfObj(circles, cSvg1.attr('class'), 'class');
-				var cInd2 = indexOfObj(circles, cSvg2.attr('class'), 'class');
+				d3.select('.draw-info')
+					.style('opacity', 1)
+					.text("Target event saved to Titan")
+					.transition()
+					.duration(5000)
+					.style('opacity', 0);
 				
-				line.source_id = circles[cInd1]._titan_id;
-				line.target_id = circles[cInd2]._titan_id;
-				
-				var postLine = {
-					source_id: circles[cInd1]._titan_id,
-					target_id: circles[cInd2]._titan_id,
-					_label: line.d,
-					class: line.class
-				};
-				
-				post( titan_url + 'edges/', postLine, function(r){
-					var lObj = lines[indexOfObj(lines, r.class,	'class')];
-					lObj._titan_id = r._titan_id;
-					
-					d3.select('.draw-info')
-						.style('opacity', 1)
-						.text("Target event saved to Titan")
-						.transition()
-						.duration(5000)
-						.style('opacity', 0);
-					
-					OWF.Eventing.publish('com.nextcentury.everest.target-event', 'target-event');
-				});
+				OWF.Eventing.publish('com.nextcentury.everest.target-event', 'target-event');
+			});
 		});
 	};
 };

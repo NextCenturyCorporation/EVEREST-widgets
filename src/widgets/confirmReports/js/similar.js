@@ -63,8 +63,8 @@ var getObj = function(array, value, attribute){
 
 var comparer = function(){
 	var me = this;
-	var url = 'http://localhost:8081/confirmed-report';
-	var titan = 'http://localhost:8081/titan-graph/';
+	var url = 'http://everest-build:8081/confirmed-report';
+	var titan = 'http://everest-build:8081/titan-graph/';
 	me.pane_one_items = [];
 	me.pane_two_items = [];
 
@@ -103,7 +103,15 @@ var comparer = function(){
 		me.pane_one_items = data;
 		if ( me.pane_one_items.length > 0 ){
 			me.pane_one_items.forEach(function(item){
-				d3.select('#panel-one-select').append('option').text(item._id);
+				var str = '';
+				if (item.name === 'target event') {
+					str += 'Target Event';
+				} else if (item.name === 'alpha report') {
+					str += 'Alpha Report';
+				}
+				
+				str += ' ' + item._id;
+				d3.select('#panel-one-select').append('option').text(str);
 			});
 			
 			me.curr_pane_one_item = me.pane_one_items[0];
@@ -116,6 +124,7 @@ var comparer = function(){
 	me.populateRightGraphs = function(data) {
 		me.pane_two_items = data;
 		me.pane_two_items.forEach(function(item){
+			
 			d3.select('#panel-two-select')
 				.append('option')
 				.text(item.item_id + ' | ' + item.score + '%');
@@ -152,10 +161,20 @@ var comparer = function(){
 			me.pane_two_items = [];
 			me.curr_pane_one_item.comparedTo.forEach(function(i){
 				var parsed = JSON.parse(i);
-				d3.select('#panel-two-select')
-					.append('option')
-					.text(parsed.item_id + ' | ' + parsed.score + '%');
+				//console.log(parsed);
 				
+				$.get( titan + parsed.item_id, function(data) {
+					//console.log(data[0][0].name);
+					var str = '';
+					if (data[0][0].name === 'target event') {
+						str += 'Target Event';
+					} else if (data[0][0].name === 'alpha report') {
+						str += 'Alpha Report';
+					}
+					
+					str += ' ' + parsed.item_id + ' | ' + parsed.score + '%';
+					d3.select('#panel-two-select').append('option').text(str);
+				});
 				me.pane_two_items.push(parsed);
 			});
 			
