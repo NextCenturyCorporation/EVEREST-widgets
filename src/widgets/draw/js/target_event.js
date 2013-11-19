@@ -59,6 +59,7 @@ var post = function(url, obj, success) {
 var target_event_widget = function(draw, map){
 	var me = this;
 	
+	
 	var assertion_url = 'http://everest-build:8081/target-assertion/';
 	var event_url = 'http://everest-build:8081/target-event/';
 	var titan_url = 'http://everest-build:8081/titan-graph/';
@@ -76,58 +77,14 @@ var target_event_widget = function(draw, map){
 				var data = JSON.parse(msg);
 				console.log(data);
 				if (data._id) {
-					$.ajax({
-						type: 'GET',
-						url: event_url + data._id,
-						dataType: 'application/json',
-						success: function(r){
-							console.log('success');
-							console.log(r);
-						},
-						error: function(e){
-							console.log('error');
-							var te = JSON.parse(e.responseText);
-							console.log(te);
-							
-							var assert_ids = te.assertions;
-							var json = {
-								assertions: [],
-								singletons: []
-							};
-							
-							assert_ids.forEach(function(d){
-								$.ajax({
-									type: 'GET',
-									url: assertion_url + d,
-									dataType: 'application/json',
-									success: function(r){
-										console.log('success');
-										console.log(r);
-									},
-									error: function(e){
-										var assertion = JSON.parse(e.responseText);
-										console.log(assertion);
-										
-										if (assertion.entity2) {
-											json.assertions.push(assertion);
-										} else {
-											json.singletons.push(assertion);
-										}
-										
-										draw.redraw(json);
-									}
-								});
-							});
-							
-						}
-					});
+					me.loadState(data._id);
 				}
 			});
 		});
 	});
 	
 	me.state = {
-		name: new Date().getTime().toString(),
+		name: '',
 		description: '',
 		event_horizon: [],
 		place: [],
@@ -161,6 +118,53 @@ var target_event_widget = function(draw, map){
 		
 		$('.draw-info').click(function(){
 			alert(JSON.stringify(me.state));
+		});
+	};
+	
+	me.loadState = function(target_event_id) {
+		$.ajax({
+			type: 'GET',
+			url: event_url + target_event_id,
+			dataType: 'application/json',
+			success: function(r){
+				console.log('success');
+				console.log(r);
+			},
+			error: function(e){
+				console.log('error');
+				var te = JSON.parse(e.responseText);
+				console.log(te);
+				
+				var assert_ids = te.assertions;
+				var json = {
+					assertions: [],
+					singletons: []
+				};
+				
+				assert_ids.forEach(function(d){
+					$.ajax({
+						type: 'GET',
+						url: assertion_url + d,
+						dataType: 'application/json',
+						success: function(r){
+							console.log('success');
+							console.log(r);
+						},
+						error: function(e){
+							var assertion = JSON.parse(e.responseText);
+							console.log(assertion);
+							
+							if (assertion.entity2) {
+								json.assertions.push(assertion);
+							} else {
+								json.singletons.push(assertion);
+							}
+							
+							draw.redraw(json);
+						}
+					});
+				});
+			}
 		});
 	};
 	
@@ -198,6 +202,7 @@ var target_event_widget = function(draw, map){
 					relationship: [createPostObj(line)],
 					entity2: [createPostObj(cObj2)]
 				};
+				me.state.name += postData.name + " ";
 				
 				console.log(JSON.stringify(postData));
 				post( tempUrl, postData, function(r) {
@@ -257,7 +262,8 @@ var target_event_widget = function(draw, map){
 				name: circle.d,
 				type: circle.type,
 				class: circle.class,
-				color: circle.color
+				color: circle.color,
+				group: circle.group
 			};
 			
 			post( titan_url + 'vertices/', postCircle, function(r) {
