@@ -320,16 +320,16 @@ var draw = function(){
 	*/
 	me.addCircle = function(x, y, d, c){
 		var fill, cclass, group;
+		console.log(c);
 		if ( c !== undefined ) {
 			fill = c.color;
 			cclass = c.class;
 			group = c.group;
 		} else {
 			fill = me.aloneColor;
+			cclass = me.count;
+			group = me.count;
 		}
-	
-		cclass = me.count;
-		group = me.count;
 	
 		var circle = d3.select('.node-link-container').append('circle')
 			.attr('d', d).attr('class', cclass)
