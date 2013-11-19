@@ -240,7 +240,7 @@ var comparer = function(){
 		
 		d3.select('#panel-two-select').on('change', function(){
 			var elem = $(this)[0];
-			var elem_id = elem.options[elem.selectedIndex].text.split(' | ')[0];
+			var elem_id = elem.options[elem.selectedIndex].text.split(' | ')[0].split(' ')[2];
 			me.getTitanItem(elem_id, me.net2);
 			
 			$('.true').parent().hide();
@@ -249,7 +249,7 @@ var comparer = function(){
 		
 		d3.select('#panel-one-select').on('change', function(){
 			var elem = $(this)[0];
-			var elem_id = elem.options[elem.selectedIndex].text;
+			var elem_id = elem.options[elem.selectedIndex].text.split(' ')[2];
 			me.getTitanItem(elem_id, me.net1);
 
 			me.curr_pane_one_item = getObj(me.pane_one_items, parseInt(elem_id, 10), '_id');
