@@ -15,7 +15,7 @@ var toolbar = function(div_class){
 	me.num_tools = 0;
 	me.mode = "";
 	
-	me.createSelection = function(class_name, image, help, callback){
+	me.createSelection = function(class_name, image, callback){
 		var clickFunction;
 		if ( callback !== undefined ){
 			clickFunction = callback;
