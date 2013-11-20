@@ -15,7 +15,7 @@ var toolbar = function(div_class){
 	me.num_tools = 0;
 	me.mode = "";
 	
-	me.createSelection = function(class_name, image, callback){
+	me.createSelection = function(class_name, image, help, callback){
 		var clickFunction;
 		if ( callback !== undefined ){
 			clickFunction = callback;
@@ -55,7 +55,7 @@ var toolbar = function(div_class){
 		var item = d3.select(this);
 		
 		//if the item being toggled is already off, turn it on
-		if(item.select('rect').classed('unselect')){
+		if (item.select('rect').classed('unselect')) {
 			me.svg.selectAll('rect').classed('select', false);
 			me.svg.selectAll('rect').classed('unselect', true);
 			item.select('rect').classed('unselect', false)

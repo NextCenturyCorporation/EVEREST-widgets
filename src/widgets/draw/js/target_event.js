@@ -56,24 +56,37 @@ var post = function(url, obj, success) {
 	});
 };
 
+var get = function(url, success) {
+	//$.get( url, success );
+	
+	$.ajax({
+		type: 'GET',
+		url: url,
+		dataType: 'application/json',
+		success: function(response){
+			console.log('success?');
+		},
+		error: function(response) {
+			var data = JSON.parse(response.responseText);
+			if (data.error === undefined){
+				success(data);
+			} else {
+				console.error(data.error);
+			}
+		}
+	});
+};
+
 var target_event_widget = function(draw, map){
 	var me = this;
-	
-	
 	var assertion_url = 'http://everest-build:8081/target-assertion/';
 	var event_url = 'http://everest-build:8081/target-event/';
 	var titan_url = 'http://everest-build:8081/titan-graph/';
+	var subscribe = 'com.nextcentury.everest.data_table_announce.target-event';
 	
-	var url = 'http://everest-build:8081/target-event';
-	var announce = 'com.nextcentury.everest.data_table_announce.target-event';
-	var timeline = 'com.nextcentury.everest.timeline_announcing';
-	var workflow = 'com.nextcentury.everest.data.workflow';
-	var target_event_widget = new table_widget(url, announce, timeline, workflow, 'TargetEvent');
-	target_event_widget.execute();
-
 	owfdojo.addOnLoad(function(){
 		OWF.ready(function(){
-			OWF.Eventing.subscribe(announce, function(sender, msg) {
+			OWF.Eventing.subscribe(subscribe, function(sender, msg) {
 				var data = JSON.parse(msg);
 				if (data._id) {
 					me.loadState(data._id);
@@ -93,19 +106,15 @@ var target_event_widget = function(draw, map){
 	
 	me.target_event = {
 		name: 'target event',
-		type: 'metadata',
-		comparedTo: []
+		type: 'metadata'
 	};
+	
+	me.metadata = [];
 	
 	me.initialize = function() {
 		draw.setUpToolbars();
 		draw.createCanvas();
 		draw.createClickers();
-		
-		d3.select('#save_target').on('click', function(){
-			var state = draw.getState();
-			me.saveState(state);
-		});
 		
 		map.initialize();
 		
@@ -115,54 +124,80 @@ var target_event_widget = function(draw, map){
 			map.resize();
 		});
 		
-		$('.draw-info').click(function(){
+		me.createListeners();
+		
+		me.loadMetadataIDs();
+	};
+	
+	me.createListeners = function(){
+		d3.select('#save_target').on('click', function(){
+			var state = draw.getState();
+			me.saveState(state);
+		});
+		
+		d3.select('#metadata-select').on('change', function(){
+			var elem = $(this)[0];
+			var elem_id = elem.options[elem.selectedIndex].id;
+			me.loadState(elem_id);
+		});
+		
+		d3.select('.draw-info').on('click', function(){
 			alert(JSON.stringify(me.state));
+		});
+		
+		d3.select('#new').on('click', function(){
+			draw.resetCanvas();
+			me.state = {
+				name: '',
+				description: '',
+				event_horizon: [],
+				place: [],
+				tags: [],
+				assertions: []
+			};
+			
+			me.target_event = {
+				name: 'target event',
+				type: 'metadata',
+				comparedTo: []
+			};
+		});
+	};
+	
+	me.loadMetadataIDs = function(){
+		get(event_url, function(data) {
+			data.docs.forEach(function(e) {
+				var str = "Target Event " + e.name;
+				d3.select('#metadata-select').append('li')
+					.attr('id', e._id).append('a')
+						.attr('xlink:href', '#')
+						.text(str)
+						.on('click', function(){
+							me.loadState(e._id);
+						});
+			});
 		});
 	};
 	
 	me.loadState = function(target_event_id) {
-		$.ajax({
-			type: 'GET',
-			url: event_url + target_event_id,
-			dataType: 'application/json',
-			success: function(r){
-				console.log('success');
-				console.log(r);
-			},
-			error: function(e){
-				console.log('error');
-				var te = JSON.parse(e.responseText);
-				
-				var assert_ids = te.assertions;
-				var json = {
-					assertions: [],
-					singletons: []
-				};
-				
-				assert_ids.forEach(function(d){
-					$.ajax({
-						type: 'GET',
-						url: assertion_url + d,
-						dataType: 'application/json',
-						success: function(r){
-							console.log('success');
-							console.log(r);
-						},
-						error: function(e){
-							var assertion = JSON.parse(e.responseText);
-							console.log(assertion);
-							
-							if (assertion.entity2) {
-								json.assertions.push(assertion);
-							} else {
-								json.singletons.push(assertion);
-							}
-							
-							draw.redraw(json);
-						}
-					});
+		get(event_url + target_event_id, function(event){
+			var assert_ids = event.assertions;
+			var json = {
+				assertions: [],
+				singletons: []
+			};
+			
+			assert_ids.forEach(function(d){
+				get(assertion_url + d, function(assertion) {
+					if (assertion.entity2) {
+						json.assertions.push(assertion);
+					} else {
+						json.singletons.push(assertion);
+					}
+					
+					draw.redraw(json);
 				});
-			}
+			});
 		});
 	};
 	

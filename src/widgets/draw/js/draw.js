@@ -1,6 +1,5 @@
 //with help from threedubmedia.com/code/event/drop/demo/selection
 
-
 /**
 @params		div_class: a string pointing to the class of the hidden
 			div element containing a background color, most likely to
@@ -123,15 +122,7 @@ var draw = function(){
 		me.t_mode.createSelection('mover_hold', images.move);
 		me.t_mode.createSelection('delete_hold', images.deleteM);	
 		me.t_mode.createSelection('select_hold', images.select);
-	
-		me.t_button = new toolbar('#toolbar_buttons');
-		me.t_button.createSelection('resetB', images.reset, me.resetCanvas);		
-		me.t_button.createSelection('submitB', images.submit,
-			me.saveTargetAssertions);
-		me.t_button.createSelection('undoB', images.undo, me.undo);
-		me.t_button.createSelection('deleteB', images.deleteB, 
-			me.deleteSelection);
-		me.t_button.createSelection('labelB', images.label, me.toggleLabels);
+		me.t_mode.createSelection('labelB', images.label, me.toggleLabels);
 	};
 	
 	/**
@@ -164,6 +155,7 @@ var draw = function(){
 				array.push(i);
 			}
 		});
+		
 		return array;
 	};
 	
@@ -320,7 +312,6 @@ var draw = function(){
 	*/
 	me.addCircle = function(x, y, d, c){
 		var fill, cclass, group;
-		console.log(c);
 		if ( c !== undefined ) {
 			fill = c.color;
 			cclass = c.class;
@@ -835,8 +826,7 @@ var draw = function(){
 	me.mouseover = function(){
 		if ( !me.labelsShown ) {
 			var x = 0, y = 0;
-			var item = d3.select(this);
-			console.log(item.attr('class'));	
+			var item = d3.select(this);	
 			//if the element being hovered over is an entity
 			if ( this.localName === 'circle' ) {
 				x = parseInt(item.attr('cx'), 10) + me.padding;
@@ -1105,6 +1095,7 @@ var draw = function(){
 	*/
 	me.resetCanvas = function(){
 		d3.select('.node-link-container').remove();
+		d3.selectAll('.csvg text').remove();
 		d3.select('.csvg').append('g').attr('class', 'node-link-container');
 		me.target_event = { name: 'target event' };
 		me.circles = [];

@@ -20,7 +20,7 @@ body {
 #draw_container,
 #map_container,
 #time_container {
-	width: 75%;
+	width: 80%;
 	height: auto;
 	margin-left: auto;
 	margin-right: auto;
@@ -39,6 +39,15 @@ body {
 .draw-info {
 	opacity: 0;
 	text-align: center;
+}
+
+.scroll {
+	overflow:scroll;
+	height:500px;
+}
+
+select {
+	width: 175px;
 }
 
 #canvas, 
