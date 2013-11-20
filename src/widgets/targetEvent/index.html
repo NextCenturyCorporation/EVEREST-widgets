@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="utf-8">
+	<title>Target Event Table</title>
+	
+	<link rel="stylesheet" type="text/css" href="../../components/dataTable/css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="../../components/dataTable/css/style.css">
+</head>
+<body>
+
+	<nav class="navbar navbar-default navbar-static-top" role="navigation">
+ 		<div class="navbar-header">
+   			<a class="navbar-brand" href="#">Target Event Table</a>
+		</div>
+		<ul class="nav navbar-nav navbar-right">
+			<li class='dropdown'>
+				<a href='#' class='dropdown-toggle' data-toggle='dropdown'> Set Max Rows <b class='caret'></b></a>
+				<ul class='dropdown-menu'>
+					<li><a href='#' class='show' id='10'>Show 10</a></li>
+					<li><a href='#' class='show' id='25'>Show 25</a></li>
+					<li><a href='#' class='show' id='50'>Show 50</a></li>
+					<li><a href='#' class='show' id='100'>Show 100</a></li>
+				</ul>
+			</li>
+			<li>
+				<a href='#' class='show_all'>Show All Data</a>
+			</li>	
+	    </ul>
+	</nav>
+	<div class='well'>
+		<div class="navbar navbar-static-top">
+			<div class="navbar-header">
+	   			<span class="navbar-brand" href="#" id='panel-title'>Displaying 0 of 0 objects</span>
+			</div>
+			
+			<ul class="nav navbar-nav navbar-right">
+				<ul class="pagination"></ul>
+			</ul>
+		</div>
+		<div class='panel panel-default'>
+			<div class='panel-body'>
+				<div class='info'>
+					<div id="data_table_inputs">
+						<div class='col-xs-7'></div>
+						<div class='input-group input-group-sm col-xs-2'>
+							<input type="text" name="start" class='form-control' id="data_table_start" placeholder='Start Date'>
+						</div>
+						<div class='input-group input-group-sm col-xs-2'>
+							<input type="text" name="end" class='form-control' id="data_table_end" placeholder='End Date'>
+						</div>
+						<div class='col-xs-1'>
+							<input type="button" value="Submit" class='btn btn-primary btn-sm btn-block' id="data_table_submit">
+						</div>
+					</div>	
+				</div>
+				<div class="data_table_hold">
+					<table border="1" class='data_table_data'></table>		
+				</div>
+			</div>
+		</div>
+		<div class="data_table_text"></div>
+	</div>
+	<script src="../../../lib/underscore.js"></script>
+	<script src="../../../lib/jquery-2.0.2.js"></script>
+	<script src="../../../lib/backbone.js"></script>
+	<script src="../../../lib/d3.v3.js"></script>
+	<script src="../../../lib/owf-widget-debug.js"></script>
+	<script src="../../../lib/dropdown.js"></script>
+	<script src="../../../lib/jquery.blockUI.js"></script>
+	
+	<script src="../../components/dataTable/data_table.js"></script>
+	<script src="../../components/dataTable/table_widget.js"></script>
+
+	<script type="text/javascript">
+		$(function(){
+			var url = 'http://everest-build:8081/target-event';
+			var announce = 'com.nextcentury.everest.data_table_announce.target-event';
+			var timeline = 'com.nextcentury.everest.timeline_announcing';
+			var workflow = 'com.nextcentury.everest.data.workflow';
+			var target_event_widget = new table_widget(url, announce, timeline, workflow, 'TargetEvent');
+			target_event_widget.execute();
+		});
+	</script>
+</body>
+</html>
