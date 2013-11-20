@@ -21,6 +21,8 @@ var buildLinksNodes = function(input, nodes, edges, nodesById, edgesById){
                 	if ( d.name !== 'alpha report' && d.name !== 'target event'){
 	                    nodesById[d._id] = d;
 	                    nodes.push(d);
+                		console.log(nodesById);
+                		console.log(nodes);
 	                }
                 }
             }
@@ -129,7 +131,7 @@ var comparer = function(){
 			me.pane_two_items.push(item);
 			
 			$.get( titan + item.item_id, function(data) {
-				if (data[0][0]){
+				if (data[0] && data[0][0]){
 					var str = '';
 					if (data[0][0].name === 'target event') {
 						str += 'Target Event';

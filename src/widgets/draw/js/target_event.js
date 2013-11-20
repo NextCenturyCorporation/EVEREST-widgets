@@ -249,9 +249,8 @@ var target_event_widget = function(draw, map){
 					line._id = r._id;
 					
 					me.state.assertions.push(r._id);
+					me.saveAssertionToTitan(cObj1, cObj2, line);
 				});
-				
-				me.saveAssertionToTitan(cObj1, cObj2, line);
 			}
 		});
 		
@@ -294,49 +293,64 @@ var target_event_widget = function(draw, map){
 	};
 
 	me.saveCircleToTitan = function(circle, callback) {
-		var postCircle = {
-			name: circle.d,
-			type: circle.type,
-			class: circle.class,
-			color: circle.color,
-			group: circle.group
-		};
-		
-		post( titan_url + 'vertices/', postCircle, function(r) {
-			var edge = {
-				_label: 'metadata of',
-				target_id: me.state.name,
-				source_id: r._titan_id
-			};
-			
-			console.log(edge);
-			if (callback) {
-				callback(r._titan_id);
+		//timeout allows circle to get its titan_id so it doesn't get added multiple times
+		setTimeout( function(){
+			if (circle._titan_id) {
+				callback(circle._titan_id);
+			} else {
+				var postCircle = {
+					name: circle.d,
+					type: circle.type,
+					class: circle.class,
+					color: circle.color,
+					group: circle.group
+				};
+	
+				post( titan_url + 'vertices/', postCircle, function(r) {
+					console.log(r);
+					circle._titan_id = r._titan_id;
+					var edge = {
+						_label: 'metadata of',
+						target_id: me.state.name,
+						source_id: r._titan_id
+					};
+					
+					console.log(edge);
+					if (callback) {
+						callback(r._titan_id);
+					}
+					
+					post( titan_url + 'edges/', edge, function(r) {
+						console.log(r);
+					});
+				});
 			}
-			
-			post( titan_url + 'edges/', edge, function(r) {
-				console.log(r);
-			});
-		});
+		}, 1000);
 	};
 	
 	me.saveLineToTitan = function(line){
-		var postLine = {
-			source_id: line.source_id,
-			target_id: line.target_id,
-			_label: line.d,
-			class: line.class
-		};
-		
-		post( titan_url + 'edges/', postLine, function(r){			
-			d3.select('.draw-info')
-				.style('opacity', 1)
-				.text("Target Event " + me.state.name + " saved to Titan")
-				.transition()
-				.duration(5000)
-				.style('opacity', 0);
-			
-			OWF.Eventing.publish('com.nextcentury.everest.target-event', 'target-event');
-		});
+		setTimeout(function(){
+			if (line._titan_id) {
+				console.log("Assertion already exists");
+			} else {
+				var postLine = {
+					source_id: line.source_id,
+					target_id: line.target_id,
+					_label: line.d,
+					class: line.class
+				};
+				
+				post( titan_url + 'edges/', postLine, function(r) {			
+					d3.select('.draw-info')
+						.style('opacity', 1)
+						.text("Target Event " + me.state.name + " saved to Titan")
+						.transition()
+						.duration(5000)
+						.style('opacity', 0);
+					
+					OWF.Eventing.publish('com.nextcentury.everest.target-event', 'target-event');
+				});
+			}
+		}, 1000);
 	};
 };
