@@ -132,9 +132,9 @@ var comparer = function(){
 			me.pane_two_items.push(item);
 			console.log(item);
 			var str = '';
-			if (item.type === 'target event') {
+			if (item.name === 'target event') {
 				str += 'Target Event';
-			} else if (item.type === 'alpha report') {
+			} else if (item.name === 'alpha report') {
 				str += 'Alpha Report';
 			}
 			
