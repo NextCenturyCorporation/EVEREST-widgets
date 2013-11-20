@@ -168,14 +168,7 @@ var comparer = function(){
 		me.pane_two_items = [];
 		me.net2.svg.select('.node-link-container').remove();
 		
-		if (me.curr_pane_one_item.comparedTo.length < me.pane_one_items.length){
-			console.log('have to get comparisons');
-			$.get( titan + 'compare/' + me.curr_pane_one_item._id, me.populateRightGraphs);
-		} else {
-			console.log('already compared');
-			me.pane_two_items = [];
-			me.populateRightGraphs(me.curr_pane_one_item.comparedTo);
-		}
+		$.get( titan + 'compare/' + me.curr_pane_one_item._id, me.populateRightGraphs);
 	};
 	
 	me.getTitanItem = function(id, net){
