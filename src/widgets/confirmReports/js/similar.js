@@ -128,21 +128,18 @@ var comparer = function(){
 			if (typeof(item) === 'string'){
 				item = JSON.parse(item);
 			}
-			me.pane_two_items.push(item);
 			
-			$.get( titan + item.item_id, function(data) {
-				if (data[0] && data[0][0]){
-					var str = '';
-					if (data[0][0].name === 'target event') {
-						str += 'Target Event';
-					} else if (data[0][0].name === 'alpha report') {
-						str += 'Alpha Report';
-					}
-					
-					str += ' ' + item.item_id + ' | ' + item.score.toFixed(2) + '%';
-					d3.select('#panel-two-select').append('option').text(str);
-				}
-			});
+			me.pane_two_items.push(item);
+			console.log(item);
+			var str = '';
+			if (item.type === 'target event') {
+				str += 'Target Event';
+			} else if (item.type === 'alpha report') {
+				str += 'Alpha Report';
+			}
+			
+			str += ' ' + item.item_id + ' | ' + item.score.toFixed(2) + '%';
+			d3.select('#panel-two-select').append('option').text(str);
 		});	
 		
 		if (me.pane_two_items.length > 0){
