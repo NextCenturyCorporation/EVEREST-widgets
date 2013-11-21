@@ -184,7 +184,8 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			me.update({
 				count: me.max_items,
 				start: me.start,
-				end: me.end
+				end: me.end,
+				date: me.dateType
 			}, function(data){
 				me.updateTable(data);
 			});
@@ -198,7 +199,8 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		me.update({
 			count: null,
 			start: me.start,
-			end: me.end
+			end: me.end,
+			date: me.dateType
 		}, me.announceAllFeeds);
 	}
 
@@ -230,7 +232,8 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				sort: me.sort,
 				sortKey: me.sortKey,
 				start: me.start,
-				end: me.end
+				end: me.end,
+				date: me.dateType
 			}, function(data){
 				me.updateTable(data);
 			});
@@ -260,6 +263,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				count: me.max_items,
 				start: dates[0],
 				end: dates[1],
+				date: me.dateType
 			}, function(data){
 				me.start = dates[0];
 				me.end = dates[1];	
@@ -281,7 +285,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 
 		d3.select('.show_all').on('click', function() {
 			me.page = 0;
-			me.update({count: me.max_items}, function(data) {
+			me.update({count: me.max_items, date: me.dateType}, function(data) {
 				me.start = me.MIN;
 				me.end = me.MAX;
 				me.sort = 'uns';
@@ -319,7 +323,8 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					sort: 'desc',
 					sortKey: colId,
 					start: me.start,
-					end: me.end
+					end: me.end,
+					date: me.dateType
 				}, function(data){
 					me.updateTable(data);
 						
@@ -344,7 +349,8 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					sort: 'asc',
 					sortKey: colId,
 					start: me.start,
-					end: me.end
+					end: me.end,
+					date: me.dateType
 				}, function(data) {
 					me.updateTable(data);
 					
