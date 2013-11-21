@@ -95,7 +95,7 @@ var DrillDownTimeline = function() {
 	var convertMinutesSyntax= function(data) {
 		return data.map(function(element) {
 			element = checkBaseValues(element);
-			return { date: element.baseYear + '-' + (element.baseMonth + 1) + '-' + element.baseDay + " " + element.baseHour + ":" + element.date, frequency:element.frequency ,baseYear: element.baseYear,
+			return { date: element.baseYear + '-' + (element.baseMonth + 1) + '-' + element.baseDay + " " + element.baseHour + ":" + convertToMilTime(element.date), frequency:element.frequency ,baseYear: element.baseYear,
 				baseMonth: element.baseMonth, baseDay: element.baseDay, baseHour: element.baseHour, baseMinute: 
 				element.baseMinute};
 		});
