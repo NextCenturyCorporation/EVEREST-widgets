@@ -447,7 +447,6 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			
 			if (rs === me.max_rows + 1){
 				$('tbody').children()[me.max_rows].remove();
-				me.temp_datas.pop();
 			}
 			
 			//hi-light the row as it is added, with a fade out
