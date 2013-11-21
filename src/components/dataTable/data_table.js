@@ -1,9 +1,7 @@
 var data_table = function(datas_to_set, announce_function, update_function, rows, items, length) {
 	var me = this;
-	var time = 'time';
 	
 	var MAX_CHARS = 75;
-	var TYPE_OF_DATE = 'createdDate';
 	var FADE_OUT_TIME = 10000;
 	var HILIGHT = 'red';
 	var STANDARD = 'black';
@@ -19,6 +17,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	me.sort = 'uns';
 	me.sortKey = '_id';
 	me.total = length;
+	me.dateType = 'createdDate';
 	
 	me.datas = datas_to_set;
 	me.max_rows = (rows ? rows : 10);
@@ -135,10 +134,10 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				}
 			},
 			getTimes: function(){
-				return this.collection.pluck(time);
+				return this.collection.pluck(me.dateType);
 			},
 			addSentence: function(item){
-				var item_time = new Date(item[time]);
+				var item_time = new Date(item[me.dateType]);
 				var start_time = new Date(me.start);
 				var end_time = new Date(me.end);
 				if (item_time > start_time && item_time < end_time){
@@ -248,7 +247,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			me.sorter(this, col);
 		});
 
-		d3.select('#data_table_submit').on('click', function(){
+		d3.select('#data_table_submit').on('click', function() {
 			me.start = $('#data_table_start').val();
 			me.end = $('#data_table_end').val();
 			$('#data_table_start').val('');
@@ -269,8 +268,8 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				
 				me.updateTable(data);
 				
-				d3.selectAll('th').each(function(){
-					if (d3.select(this).attr('class') !== 'no_sort'){		
+				d3.selectAll('th').each(function() {
+					if (d3.select(this).attr('class') !== 'no_sort') {		
 						d3.select(this).classed('up', false);
 						d3.select(this).classed('down', false);
 						d3.select(this).classed('unsorted', true);
@@ -280,9 +279,9 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			me.sendTimes();
 		});
 
-		d3.select('.show_all').on('click', function(){
+		d3.select('.show_all').on('click', function() {
 			me.page = 0;
-			me.update({count: me.max_items}, function(data){
+			me.update({count: me.max_items}, function(data) {
 				me.start = me.MIN;
 				me.end = me.MAX;
 				me.sort = 'uns';
@@ -291,7 +290,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				me.updateTable(data);
 					
 				d3.selectAll('th').each(function(){
-					if (d3.select(this).attr('class') !== 'no_sort'){		
+					if (d3.select(this).attr('class') !== 'no_sort') {		
 						d3.select(this).classed('up', false);
 						d3.select(this).classed('down', false);
 						d3.select(this).classed('unsorted', true);
@@ -308,12 +307,12 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		});	
 	};
 
-	me.sorter = function(elem, colId){
+	me.sorter = function(elem, colId) {
 		if (me.datas.length !== 0){
 			elem = d3.select(elem);
 
 			var elements = d3.selectAll('th');
-			if (elem.classed('up')){
+			if (elem.classed('up')) {
 				me.update({
 					count: me.max_items, 
 					offset: Math.floor(me.page * me.max_rows / me.max_items) * me.max_items, 
@@ -338,7 +337,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					me.sort = 'desc';
 					me.sortKey = colId;
 				});
-			} else if (!elem.classed('no_sort')){
+			} else if (!elem.classed('no_sort')) {
 				me.update({
 					count: me.max_items, 
 					offset: Math.floor(me.page * me.max_rows / me.max_items) * me.max_items, 
@@ -346,11 +345,11 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					sortKey: colId,
 					start: me.start,
 					end: me.end
-				}, function(data){
+				}, function(data) {
 					me.updateTable(data);
 					
-					elements.each(function(){
-						if (d3.select(this).attr('class') !== 'no_sort'){		
+					elements.each(function() {
+						if (d3.select(this).attr('class') !== 'no_sort') {		
 							d3.select(this).classed('up', false);
 							d3.select(this).classed('down', false);
 							d3.select(this).classed('unsorted', true);
@@ -385,12 +384,12 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	};
 	
 	me.createHeaders = function(arr, indexes){
-		time = $.inArray(TYPE_OF_DATE, arr) !== -1 ? TYPE_OF_DATE : arr[0];
+		me.dateType = $.inArray(me.dateType, arr) !== -1 ? me.dateType : arr[0];
 		me.headers = arr;
 
 		var headerId = 0;
-		for(headerId = 0; headerId < me.headers.length; headerId++) {
-			if(me.headers[headerId] === "_id") {
+		for (headerId = 0; headerId < me.headers.length; headerId++) {
+			if (me.headers[headerId] === "_id") {
 				me.idColumn = headerId;
 			}
 		}
@@ -398,12 +397,12 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		var header = d3.select('.data_table_data');
 		header.selectAll('th').remove();
 		
-		for (var i = arr.length - 1; i >= 0; i--){
+		for (var i = arr.length - 1; i >= 0; i--) {
 			header.insert('th',':first-child')
 				.text(arr[i])
 				.attr('id', i)
 				.attr('class', function(){
-					if (indexes.indexOf(arr[i]) === -1){
+					if (indexes.indexOf(arr[i]) === -1) {
 						return 'no_sort';
 					} else {
 						return 'unsorted';
@@ -542,23 +541,26 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		}
 	};
 	
-	me.validateDates = function(){
+	me.validateDates = function() {
 		var startdate = new Date(me.start);
 		var enddate = new Date(me.end);
-		if ( !Date.parse(me.start) ){
+		if ( !Date.parse(me.start) ) {
 			startdate = new Date(me.MIN);
 		} 
 		
-		if ( !Date.parse(me.end) ){
+		if ( !Date.parse(me.end) ) {
 			enddate = new Date(me.MAX);
 		}
 		
-		if (startdate > enddate){
+		if ( startdate > enddate ) {
 			startdate = new Date(me.MIN);
 			enddate = new Date(me.MAX);
 		}
 		
 		return [startdate, enddate];
 	};
-
+	
+	me.setDefaultDateType = function(date_str) {
+		me.dateType = date_str;
+	};
 };

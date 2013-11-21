@@ -37,14 +37,29 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 	};
 	
 	me.getIndexes = function(callback){
+		console.log(me.url + '/indexes');
 		$.ajax({
 			type: "GET",
 			url: me.url + '/indexes',
 			dataType: 'jsonp',
-			jsonpCallback: 'callback',
 			success: callback,
-			error: function(){
+			error: function(e){
+				console.log(e);
 				console.log('error');
+			}
+		});
+	};
+	
+	me.getDateTypes = function(callback) {
+		console.log(me.url + '/datetypes');
+		$.ajax({
+			type: "GET",
+			url: me.url + '/datetypes',
+			dataType: 'jsonp',
+			success: callback,
+			error: function(e){
+				console.log('error');
+				console.log(e);
 			}
 		});
 	};
@@ -52,10 +67,24 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 	me.initTable = function(data, length){
 		me.table = new data_table(me.datas_to_use, me.announceCallback, me.getDataCallback, me.max_rows, me.max_items, length);
 		me.getIndexes(function(data){
+			console.log('data');
 			me.table.createHeaders(Object.keys(me.table.datas[0]), data);
 			me.table.createTable();
 			me.table.createClickers();
-		});	
+		});
+		
+		me.getDateTypes(function(dates){
+			dates.forEach(function(d){
+				d3.select('#dates').append('li')
+					.append('a').attr('xlink:href', '#')
+						.attr('class', 'date')
+						.text(d)
+						.on('click', function(){
+							console.log(this.text);
+							me.table.setDefaultDateType(this.text);
+						});
+			});
+		});
 	};
 	
 	me.execute = function(){
@@ -100,11 +129,9 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 								console.log("Could not recognize event message.");
 							}
 						});
-
 					});
 				});
 			}
 		});		
 	};
-
 };

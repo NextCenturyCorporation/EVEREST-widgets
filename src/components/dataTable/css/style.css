@@ -37,6 +37,10 @@ th {
 	overflow: auto;
 }
 
+.head {
+	z-index: 0;
+}
+
 .up {
 	background-image:url('../img/asc.png');
 }
