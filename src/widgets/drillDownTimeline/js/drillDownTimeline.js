@@ -223,7 +223,8 @@ self.init = function() {
 		.attr('class', 'd3-tip')
 		.offset([-10, 0])
 		.html(function(d) {
-			return "<strong>Frequency:</strong> <span style='color:red'>" + d.frequency + "</span>";
+			return "<strong>Frequency:</strong> <span style='color:red'> " + d.frequency + "</span></br></br>" +
+			" <strong>Date:</strong> <span style='color:red'> " + d.date + "</span>";
 		});
 
 	var createLabels = function() {
@@ -372,18 +373,14 @@ function clickEvent() {
 		var hour = /^\d{4}-\d{1,2}-\d{1,2}\s*\d{2}:\d{2}/i;
 		contextDate = new Date(contextDate);
 		 if(hour.test(date)){
-		 	console.log("minute");
 		 	self.multipleAjaxCalls('minute', function(data){
-		 		console.log(data);
 				self.repaint(convertMinutesSyntax(data));
 			});
 		 } else if(day.test(date)) {
-		 	console.log('hour');
 		 	self.multipleAjaxCalls('hour', function(data){
 				self.repaint(convertHoursSyntax(data));
 			});
 		 } else if(month.test(date)) {
-		 	console.log(day);
 		 	self.multipleAjaxCalls('day', function(data){
 				self.repaint(convertHoursSyntax(data));
 			});
@@ -433,8 +430,6 @@ var handleClickEvents = function(date) {
 
 		contextDate = new Date(contextDate);
 		 if(hour.test(date)){
-		 	console.log('hour')
-		 	console.log(date);
 		 	date = date.substring(date.lastIndexOf(' ') + 1, date.length);
 		 	contextDate.setUTCHours(milToHours(date));
 		 	contextDate = contextDate.getTime();
@@ -443,15 +438,12 @@ var handleClickEvents = function(date) {
 		 	setBreadCrumbValues(contextDate, 'hour');
 		 } else if(day.test(date)) {
 		 	date = date.substring(date.lastIndexOf('-') + 1, date.length);
-		 	console.log(date);
 		 	contextDate.setDate(parseInt(date));
 		 	contextDate = contextDate.getTime();
 		 	currentContextMode = 3;
 		 	self.getDatesAndFrequency('hour');
-		 	console.log("day");
 		 	setBreadCrumbValues(contextDate, 'day');
 		 } else if(month.test(date)) {
-		 	console.log('month');
 		 	date = date.substring(date.indexOf('-') + 1, date.length);
 		 	date = parseInt(date) - 1;
 		 	contextDate.setMonth(date);
@@ -459,7 +451,6 @@ var handleClickEvents = function(date) {
 		 	currentContextMode = 2;
 		 	self.getDatesAndFrequency('day');
 		 	setBreadCrumbValues(contextDate, 'month');
-		 	console.log(contextDate);
 		 }  else if(year.test(date)) {
 		 	contextDate.setFullYear(date);
 		 	contextDate = contextDate.getTime();
