@@ -19,7 +19,7 @@ var DrillDownTimeline = function() {
 
 
 	self.getDatesAndFrequency = function(mode, multiple) {
-		multiple = true;
+		multiple = false;
 		$.get(baseURL + "/rawfeed/dates/" + mode + "/" + contextDate, function(data) {
 			var interpolated = multiple ? data : self.interpolateZeros(data,mode, lowerYearRange, uppperYearRange);
 			if(mode == 'year') {
@@ -48,8 +48,26 @@ var DrillDownTimeline = function() {
 		$("#baseDate").text("Context Date:" + new Date(date).toISOString());
 	};
 
+	var checkBaseValues = function (element) {
+		if(!element.baseYear) {
+			element.baseYear = new Date(contextDate).getUTCFullYear();
+		}
+		if(!element.baseMonth) {
+			element.baseMonth = new Date(contextDate).getUTCMonth();
+		}
+		if(!element.baseDay) {
+			element.baseDay = new Date(contextDate).getUTCDate();
+		}
+		if(!element.baseHour) {
+			element.baseHour = new Date(contextDate).getUTCHours();
+		}
+		return element;
+	}
+
+
 	var convertToMonthNameFromInt = function(data) {
 		return data.map(function(element) {
+			element = checkBaseValues(element);
 			return { date: element.baseYear + '-' + (element.date + 1), frequency:element.frequency ,baseYear: element.baseYear,
 				baseMonth: element.baseMonth, baseDay: element.baseDay, baseHour: element.baseHour, baseMinute: 
 				element.baseMinute};
@@ -58,6 +76,7 @@ var DrillDownTimeline = function() {
 
 	var convertDaysSyntax = function(data, contextDateMonth) {
 		return data.map(function(element) {
+			element = checkBaseValues(element);
 			return { date:  element.baseYear + '-' + (element.baseMonth + 1) + '-' + element.date, frequency:element.frequency ,baseYear: element.baseYear,
 				baseMonth: element.baseMonth, baseDay: element.baseDay, baseHour: element.baseHour, baseMinute: 
 				element.baseMinute};
@@ -66,6 +85,7 @@ var DrillDownTimeline = function() {
 
 	var convertHoursSyntax= function(data) {
 		return data.map(function(element) {
+			element = checkBaseValues(element);
 			return { date: element.baseYear + '-' + (element.baseMonth + 1) + '-' + element.baseDay + " " + convertToMilTime(element.date), frequency:element.frequency ,baseYear: element.baseYear,
 				baseMonth: element.baseMonth, baseDay: element.baseDay, baseHour: element.baseHour, baseMinute: 
 				element.baseMinute};
@@ -74,6 +94,7 @@ var DrillDownTimeline = function() {
 
 	var convertMinutesSyntax= function(data) {
 		return data.map(function(element) {
+			element = checkBaseValues(element);
 			return { date: element.baseYear + '-' + (element.baseMonth + 1) + '-' + element.baseDay + " " + element.baseHour + ":" + element.date, frequency:element.frequency ,baseYear: element.baseYear,
 				baseMonth: element.baseMonth, baseDay: element.baseDay, baseHour: element.baseHour, baseMinute: 
 				element.baseMinute};
@@ -357,10 +378,12 @@ function clickEvent() {
 				self.repaint(convertMinutesSyntax(data));
 			});
 		 } else if(day.test(date)) {
+		 	console.log('hour');
 		 	self.multipleAjaxCalls('hour', function(data){
 				self.repaint(convertHoursSyntax(data));
 			});
 		 } else if(month.test(date)) {
+		 	console.log(day);
 		 	self.multipleAjaxCalls('day', function(data){
 				self.repaint(convertHoursSyntax(data));
 			});
