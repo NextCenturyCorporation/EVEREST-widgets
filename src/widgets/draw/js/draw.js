@@ -332,7 +332,14 @@ var draw = function(){
 			.on('mouseover', me.mouseover)
 			.on('mouseout', me.mouseout)
 			.on('click', me.nodeclick);
-				
+		
+		if (me.labelsShown) {
+			d3.select('#canvas svg').append('text')
+				.attr('class', circle.attr('class'))
+				.attr('x', x + me.padding).attr('y', y - me.padding)
+				.text(d);
+		}
+		
 		var cObj = me.simplify(circle);
 		cObj.group = group;
 		cObj.color = fill;
@@ -372,9 +379,17 @@ var draw = function(){
 			.on('click', me.lineclick)
 			.on('mouseover', me.mouseover)
 			.on('mouseout', me.mouseout); 
-
+		
 		me.addArrow(lSvg);
 		me.count++;
+		
+					
+		if (me.labelsShown) {
+			d3.select('.csvg').append('text')
+				.attr('class', lSvg.attr('class'))
+				.attr('x', ((p1.x + p2.x) / 2) + me.padding).attr('y', ((p1.y + p2.y)/ 2 ) - me.padding)
+				.text(lSvg.attr('d'));
+		}
 		
 		var lObj = {
 			class: lSvg.attr('class'),
@@ -407,7 +422,7 @@ var draw = function(){
 						' L '+ midX + ' ' + midY +
 						' L '+ line.attr('x2')+' ' + line.attr('y2');
 			});
-		
+
 		return path;
 	};
 	
