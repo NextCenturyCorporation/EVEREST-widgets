@@ -15082,9 +15082,15 @@ gadgets.rpc = function() {
     function getTargetWin(id) {
       if (typeof id === "undefined" || id === "..") {
           //Check to see if we are an iframe in a child window, and if so use the opener
-          if(window.parent.opener) {
-              return window.parent.opener.parent;
-          }
+          try {
+	          if(window.parent.opener) {
+	              return window.parent.opener.parent;
+	          }
+      	  }
+      	  catch(err) {
+
+      	  }
+
           //Normal case, we are an IFrame in a page
           return window.parent;
       }
