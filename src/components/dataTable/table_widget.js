@@ -13,31 +13,31 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 	me.workflow_channel = workflow;
 	me.announce_channel = announce;
 	
-	me.announceCallback = function(announcement){
+	me.announceCallback = function(announcement) {
 		OWF.Eventing.publish(me.announce_channel, announcement);
 	};
 	
-	me.getDataCallback = function(params, successCallback){
+	me.getDataCallback = function(params, successCallback) {
 		var newUrl = me.url + '?';
 		var keys = Object.keys(params);
-		keys.forEach(function(k){
+		keys.forEach(function(k) {
 			newUrl += k + '=' + params[k] + '&';
 		});
-		console.log(newUrl);
+		
 		$.ajax({
 			type: "GET",
 			url: newUrl,
 			dataType: 'jsonp',
 			jsonpCallback: 'callback',
 			success: successCallback,
-			error: function(error){
+			error: function(error) {
 				console.log(error);
+				me.table.bindHeaderEvent();
 			}
 		});
 	};
 	
-	me.getIndexes = function(callback){
-		console.log(me.url + '/indexes');
+	me.getIndexes = function(callback) {
 		$.ajax({
 			type: "GET",
 			url: me.url + '/indexes',
@@ -51,7 +51,6 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 	};
 	
 	me.getDateTypes = function(callback) {
-		console.log(me.url + '/datetypes');
 		$.ajax({
 			type: "GET",
 			url: me.url + '/datetypes',
@@ -64,23 +63,21 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 		});
 	};
 	
-	me.initTable = function(data, length){
+	me.initTable = function(data, length ){
 		me.table = new data_table(me.datas_to_use, me.announceCallback, me.getDataCallback, me.max_rows, me.max_items, length);
-		me.getIndexes(function(data){
-			console.log('data');
+		me.getIndexes(function(data) {
 			me.table.createHeaders(Object.keys(me.table.datas[0]), data);
 			me.table.createTable();
 			me.table.createClickers();
 		});
 		
-		me.getDateTypes(function(dates){
-			dates.forEach(function(d){
+		me.getDateTypes(function(dates) {
+			dates.forEach(function(d) {
 				d3.select('#dates').append('li')
 					.append('a').attr('xlink:href', '#')
 						.attr('class', 'date')
 						.text(d)
-						.on('click', function(){
-							console.log(this.text);
+						.on('click', function() {
 							me.table.setDefaultDateType(this.text);
 						});
 			});

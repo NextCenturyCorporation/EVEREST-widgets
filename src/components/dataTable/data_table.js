@@ -243,12 +243,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	};
 	
 	me.createClickers = function() {
-		//add a listener to sort the rows based upon what column is clicked
-		d3.selectAll('th').on('click', function() {
-			var col = parseInt(this.id, 10);
-			col = Object.keys(me.temp_datas[0])[col];
-			me.sorter(this, col);
-		});
+		me.bindHeaderEvent();
 
 		d3.select('#data_table_submit').on('click', function() {
 			me.start = $('#data_table_start').val();
@@ -280,6 +275,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					}
 				});
 			});
+			
 			me.sendTimes();
 		});
 
@@ -341,6 +337,8 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					
 					me.sort = 'desc';
 					me.sortKey = colId;
+					
+					me.bindHeaderEvent();
 				});
 			} else if (!elem.classed('no_sort')) {
 				me.update({
@@ -367,6 +365,8 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					
 					me.sort = 'asc';
 					me.sortKey = colId;
+					
+					me.bindHeaderEvent();
 				});
 			}
 		}
@@ -567,5 +567,14 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	
 	me.setDefaultDateType = function(date_str) {
 		me.dateType = date_str;
+	};
+	
+	me.bindHeaderEvent = function() { 
+		d3.selectAll('th').on('click', function() {
+			d3.selectAll('th').on('click', null);
+			var col = parseInt(this.id, 10);
+			col = Object.keys(me.temp_datas[0])[col];
+			me.sorter(this, col);
+		});
 	};
 };
