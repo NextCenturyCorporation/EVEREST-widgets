@@ -28,20 +28,45 @@ var app = app || {};
 
     app.initialize = function() {
         $("#tline").syrinxTimeline({ bands: bandInfo });
-        //eventSource.loadJSON(app.eventData, "");
     };
+
+    app.addEvents = function(incomingEvents) {
+        var eventData = {};
+        if (incomingEvents instanceof Array) {
+          eventData.events = incomingEvents;
+        } else {
+          eventData.events = [incomingEvents];
+        }
+        eventSource.loadJSON(eventData, "");      
+    }
 
     app.plotEvents = function(incomingEvents) {
         eventSource.clear();
-        var eventData = { 'events': [] };
-        _.each(incomingEvents, function(ie) {
-            eventData.events.push({
-                'title': ie.title,
-                'start': ie.start,
-            });
-        });
-        eventSource.loadJSON(eventData, "");
+        app.addEvents(incomingEvents);
     };
+
+    app.changeLayout = function(newBandInfos) {
+        // This widget is built for a single timeline.
+        var timeline = Timeline.getTimelineFromID(0);
+
+        // Assign existing event sources and date to new layouts.
+        // Also assign a default theme if one is not provided.
+        for (var ctr=0;(ctr<newBandInfos.length) && (ctr<timeline.getBandCount());++ctr)
+        {
+          newBandInfos[ctr].eventSource = timeline.getBand(ctr).getEventSource();
+          newBandInfos[ctr].date = timeline.getBand(ctr).getCenterVisibleDate();
+          if (!theme in newBandInfos[ctr]) {
+            newBandInfos[ctr].theme = Timeline.ClassicTheme.create();
+          }
+        }
+        // TODO: Really if things like theme, width, and interval info are not provided, we should 
+        // pull those values from the band we are replacing, but it is not completely clear how
+        // to get that info out of the existing bands.
+
+        // Rerender the timeline.
+        $("#tline").removeData();
+        $("#tline").syrinxTimeline({ bands: newBandInfos });        
+    }
 
 }());
 
