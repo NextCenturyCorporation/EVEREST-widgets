@@ -16,16 +16,17 @@ module.exports = function (grunt) {
     grunt.initConfig({
         // configurable paths
         yeoman: {
-            app: 'app',
-            dist: 'dist'
+            base: './',
+            widgets: 'src/widgets',
+            components: 'src/components'
         },
         watch: {
-            compass: {
-                files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
-                tasks: ['compass:server', 'autoprefixer']
-            },
+            // compass: {
+            //     files: ['<%= yeoman.widgets %>/styles/{,*/}*.{scss,sass}'],
+            //     tasks: ['compass:server', 'autoprefixer']
+            // },
             styles: {
-                files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
+                files: ['<%= yeoman.widgets %>/styles/{,*/}*.css'],
                 tasks: ['copy:styles', 'autoprefixer']
             },
             livereload: {
@@ -33,10 +34,10 @@ module.exports = function (grunt) {
                     livereload: '<%= connect.options.livereload %>'
                 },
                 files: [
-                    '<%= yeoman.app %>/*.html',
-                    '.tmp/styles/{,*/}*.css',
-                    '{.tmp,<%= yeoman.app %>}/scripts/{,*/}*.js',
-                    '<%= yeoman.app %>/images/{,*/}*.{gif,jpeg,jpg,png,svg,webp}'
+                    '<%= yeoman.widgets %>/**/*.html',
+                    '<%= yeoman.widgets %>/**/*.css',
+                    '<%= yeoman.widgets %>/**/*.js',
+                    '<%= yeoman.widgets %>/**/*.{gif,jpeg,jpg,png,svg,webp}'
                 ]
             }
         },
@@ -52,7 +53,7 @@ module.exports = function (grunt) {
                     open: true,
                     base: [
                         '.tmp',
-                        '<%= yeoman.app %>'
+                        '<%= yeoman.base %>'
                     ]
                 }
             },
@@ -61,7 +62,7 @@ module.exports = function (grunt) {
                     base: [
                         '.tmp',
                         'test',
-                        '<%= yeoman.app %>'
+                        '<%= yeoman.widgets %>'
                     ]
                 }
             },
@@ -93,8 +94,8 @@ module.exports = function (grunt) {
             },
             all: [
                 'Gruntfile.js',
-                '<%= yeoman.app %>/scripts/{,*/}*.js',
-                '!<%= yeoman.app %>/scripts/vendor/*',
+                '<%= yeoman.widgets %>/scripts/{,*/}*.js',
+                '!<%= yeoman.widgets %>/scripts/vendor/*',
                 'test/spec/{,*/}*.js'
             ]
         },
@@ -106,32 +107,32 @@ module.exports = function (grunt) {
                 }
             }
         },
-        compass: {
-            options: {
-                sassDir: '<%= yeoman.app %>/styles',
-                cssDir: '.tmp/styles',
-                generatedImagesDir: '.tmp/images/generated',
-                imagesDir: '<%= yeoman.app %>/images',
-                javascriptsDir: '<%= yeoman.app %>/scripts',
-                fontsDir: '<%= yeoman.app %>/styles/fonts',
-                importPath: '<%= yeoman.app %>/bower_components',
-                httpImagesPath: '/images',
-                httpGeneratedImagesPath: '/images/generated',
-                httpFontsPath: '/styles/fonts',
-                relativeAssets: false,
-                assetCacheBuster: false
-            },
-            dist: {
-                options: {
-                    generatedImagesDir: '<%= yeoman.dist %>/images/generated'
-                }
-            },
-            server: {
-                options: {
-                    debugInfo: true
-                }
-            }
-        },
+        // compass: {
+        //     options: {
+        //         sassDir: '<%= yeoman.widgets %>/styles',
+        //         cssDir: '.tmp/styles',
+        //         generatedImagesDir: '.tmp/images/generated',
+        //         imagesDir: '<%= yeoman.widgets %>/images',
+        //         javascriptsDir: '<%= yeoman.widgets %>/scripts',
+        //         fontsDir: '<%= yeoman.widgets %>/styles/fonts',
+        //         importPath: '<%= yeoman.widgets %>/bower_components',
+        //         httpImagesPath: '/images',
+        //         httpGeneratedImagesPath: '/images/generated',
+        //         httpFontsPath: '/styles/fonts',
+        //         relativeAssets: false,
+        //         assetCacheBuster: false
+        //     },
+        //     dist: {
+        //         options: {
+        //             generatedImagesDir: '<%= yeoman.dist %>/images/generated'
+        //         }
+        //     },
+        //     server: {
+        //         options: {
+        //             debugInfo: true
+        //         }
+        //     }
+        // },
         autoprefixer: {
             options: {
                 browsers: ['last 1 version']
@@ -158,8 +159,8 @@ module.exports = function (grunt) {
         },*/
         'bower-install': {
             app: {
-                html: '<%= yeoman.app %>/index.html',
-                ignorePath: '<%= yeoman.app %>/'
+                html: '<%= yeoman.widgets %>/index.html',
+                ignorePath: '<%= yeoman.widgets %>/'
             }
         },
         rev: {
@@ -178,7 +179,7 @@ module.exports = function (grunt) {
             options: {
                 dest: '<%= yeoman.dist %>'
             },
-            html: '<%= yeoman.app %>/index.html'
+            html: '<%= yeoman.widgets %>/index.html'
         },
         usemin: {
             options: {
@@ -191,7 +192,7 @@ module.exports = function (grunt) {
             dist: {
                 files: [{
                     expand: true,
-                    cwd: '<%= yeoman.app %>/images',
+                    cwd: '<%= yeoman.widgets %>/images',
                     src: '{,*/}*.{gif,jpeg,jpg,png}',
                     dest: '<%= yeoman.dist %>/images'
                 }]
@@ -201,7 +202,7 @@ module.exports = function (grunt) {
             dist: {
                 files: [{
                     expand: true,
-                    cwd: '<%= yeoman.app %>/images',
+                    cwd: '<%= yeoman.widgets %>/images',
                     src: '{,*/}*.svg',
                     dest: '<%= yeoman.dist %>/images'
                 }]
@@ -218,7 +219,7 @@ module.exports = function (grunt) {
             //     files: {
             //         '<%= yeoman.dist %>/styles/main.css': [
             //             '.tmp/styles/{,*/}*.css',
-            //             '<%= yeoman.app %>/styles/{,*/}*.css'
+            //             '<%= yeoman.widgets %>/styles/{,*/}*.css'
             //         ]
             //     }
             // }
@@ -238,7 +239,7 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd: '<%= yeoman.app %>',
+                    cwd: '<%= yeoman.widgets %>',
                     src: '*.html',
                     dest: '<%= yeoman.dist %>'
                 }]
@@ -250,7 +251,7 @@ module.exports = function (grunt) {
                 files: [{
                     expand: true,
                     dot: true,
-                    cwd: '<%= yeoman.app %>',
+                    cwd: '<%= yeoman.widgets %>',
                     dest: '<%= yeoman.dist %>',
                     src: [
                         '*.{ico,png,txt}',
@@ -263,21 +264,21 @@ module.exports = function (grunt) {
             styles: {
                 expand: true,
                 dot: true,
-                cwd: '<%= yeoman.app %>/styles',
+                cwd: '<%= yeoman.widgets %>/styles',
                 dest: '.tmp/styles/',
                 src: '{,*/}*.css'
             }
         },
         concurrent: {
             server: [
-                'compass',
+                // 'compass',
                 'copy:styles'
             ],
             test: [
                 'copy:styles'
             ],
             dist: [
-                'compass',
+                // 'compass',
                 'copy:styles',
                 'imagemin',
                 'svgmin',
