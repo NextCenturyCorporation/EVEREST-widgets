@@ -4,3 +4,4 @@ logs/*.log
 *~
 EVEREST-widgets.sublime-project
 EVEREST-widgets.sublime-workspace
+node_modules/
