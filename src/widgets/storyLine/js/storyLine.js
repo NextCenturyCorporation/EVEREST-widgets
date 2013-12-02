@@ -40,9 +40,8 @@ var app = app || {};
         eventSource.loadJSON(eventData, "");      
     }
 
-    app.plotEvents = function(incomingEvents) {
+    app.clearEvents = function(incomingEvents) {
         eventSource.clear();
-        app.addEvents(incomingEvents);
     };
 
     app.changeLayout = function(newBandInfos) {
