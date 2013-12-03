@@ -9,13 +9,13 @@ everest.heatChart.time = function() {
 	}
 
 	var _MONTHS_SHORT = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
-		
+
 		_MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-		
+
 		_DAYS_SHORT = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
-		
+
 		_DAYS_LONG = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-		
+
 		_SEVEN_DAY_LABELS = ["", "", "", "", "", "", "7",
 			"", "", "", "", "", "", "14",
 			"", "", "", "", "", "", "21",
@@ -113,6 +113,27 @@ everest.heatChart.time = function() {
 				rowLabels: modeParams.rowLabels,
 				columnLabels: modeParams.columnLabels
 			};
+		},
+
+		getEmptyTimeChunks: function(numRows, numCols) {
+			var numPoints = numCols * numRows,
+				time_chunks = [];
+
+			for (var k = 0; k < numPoints; k++) {
+				var col = k % numCols;
+				var row = (Math.floor(k / numCols)) % numRows;
+				if (col < 10) {
+					col = "0" + col;
+				}
+				if (row < 10) {
+					row = "0" + row;
+				}
+				time_chunks[k] = {
+					title: col + ":" + row,
+					value: 0
+				};
+			}
+			return time_chunks;
 		}
 
 	};
@@ -146,27 +167,6 @@ everest.heatChart.time = function() {
 		}
 
 		return sample_list;
-	},
-
-	getEmptyTimeChunks: function(numRows, numCols) {
-		var numPoints = numCols * numRows,
-			time_chunks = [];
-
-		for (var k = 0; k < numPoints; k++) {
-			var col = k % numCols;
-			var row = (Math.floor(k / numCols)) % numRows;
-			if (col < 10) {
-				col = "0" + col;
-			}
-			if (row < 10) {
-				row = "0" + row;
-			}
-			time_chunks[k] = {
-				title: col + ":" + row,
-				value: 0
-			};
-		}
-		return time_chunks;
 	},
 
 	getTimeChunks: function(numRows, numCols, mode, timeList) {
@@ -208,8 +208,8 @@ everest.heatChart.time = function() {
 			var year5StartYear = year5StartDate.getFullYear();
 
 
-			for (var j = 0; j < time_list.length; j++) {
-				time = new Date(parseInt(time_list[j]));
+			for (var j = 0; j < timeList.length; j++) {
+				time = new Date(parseInt(timeList[j]));
 				year = time.getFullYear();
 				month = time.getMonth();
 				day = time.getDate();

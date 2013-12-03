@@ -14,7 +14,7 @@ describe('everest.heatChart.time', function() {
 
 		it("should return 'month' color, rows, and cols if passed an undefined mode", function() {
 			var fooMode = time.getMode('foo');
-			
+
 			expect(fooMode.color).toEqual('red');
 			expect(fooMode.rows).toEqual(24);
 			expect(fooMode.columns).toEqual(31);
@@ -49,7 +49,7 @@ describe('everest.heatChart.time', function() {
 
 			it('year when passed "year"', function() {
 				var labels = time.getRowAndColumnLabels('year');
-				
+
 				expect(labels.columnLabels).toContain('January', 'February', 'March');
 				expect(labels.rowLabels).toContain('7', '14', '21', '28');
 			});
@@ -68,6 +68,50 @@ describe('everest.heatChart.time', function() {
 				expect(labels.rowLabels).toEqual([]);
 			})
 		})
+
+	});
+
+	describe('getEmptyTimeChunks(numRows, numCols)', function() {
+
+		it('should return an array of objects', function() {
+			var chunks = time.getEmptyTimeChunks(1, 1);
+
+			expect(chunks instanceof Array).toBeTruthy();
+			expect(chunks[0] instanceof Object).toBeTruthy();
+		});
+
+		it('should return zero time and value for 1 row and 1 column', function() {
+			var chunks = time.getEmptyTimeChunks(1, 1);
+
+			expect(chunks).toEqual([{
+				title: '00:00',
+				value: 0
+			}]);
+		});
+
+		it('should return the correct time and values for n rows and m columns', function() {
+			var chunks = time.getEmptyTimeChunks(4, 4);
+
+			expect(chunks[0]).toEqual({
+				title: '00:00',
+				value: 0
+			});
+
+			expect(chunks[4]).toEqual({
+				title: '00:01',
+				value: 0
+			});
+
+			expect(chunks[8]).toEqual({
+				title: '00:02',
+				value: 0
+			});
+
+			expect(chunks[12]).toEqual({
+				title: '00:03',
+				value: 0
+			});
+		});
 
 	});
 
