@@ -61,26 +61,31 @@ var app = app || {};
             this.patientReminder.completed = true;
             this.patientReminder.dateCompleted = new Date();
             //this.patient.save();
-            
-            //may not be the best place to put this
-            var str = '';
-            $('input[type=checkbox]:checked').each(function(){
-                console.log($(this)[0].nextSibling.textContent);
-                str += $(this)[0].nextSibling.textContent + '<br />';
-            });
 
-            $('input[type=radio]:checked').each(function(){
-                console.log($(this)[0].nextSibling.textContent);
-                str += $(this)[0].nextSibling.textContent + '<br />';
-            });
-            console.log({
+            //may not be the best place to put this
+            var state = {
                 'title': this.patientReminder.title,
                 'start': this.patientReminder.completed ? this.patientReminder.dateCompleted : this.patientReminder.dueDate,
-                'resolution' : str
+                'resolution' : ''
+            };
+
+            $('input:checked').each(function(){
+                state.resolution += $(this)[0].nextSibling.textContent + '<br />';
             });
+
+            console.log(state);
+            this.announceState(state)
             
             app.showReminderList();
             Backbone.View.prototype.remove.call(this);
+        },
+
+        announceState: function(state){
+            if(OWF.Util.isRunningInOWF()) {
+                OWF.ready(function() {
+                    OWF.Eventing.publish('com.nextcentury.everest.reminders.sendPatient', state);
+                });
+            }
         }
     });
 }());
