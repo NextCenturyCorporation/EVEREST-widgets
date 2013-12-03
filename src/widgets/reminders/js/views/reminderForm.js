@@ -83,7 +83,7 @@ var app = app || {};
         announceState: function(state){
             if(OWF.Util.isRunningInOWF()) {
                 OWF.ready(function() {
-                    OWF.Eventing.publish('com.nextcentury.everest.reminders.sendPatient', state);
+                    OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', state);
                 });
             }
         }
