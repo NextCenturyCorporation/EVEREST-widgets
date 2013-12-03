@@ -59,24 +59,29 @@ var app = app || {};
 
         markResolved: function() {
             this.patientReminder.completed = true;
-            this.patientReminder.dateCompleted = new Date();
+            this.patientReminder.dateCompleted = moment(new Date()).format('LLL');
             //this.patient.save();
 
             //may not be the best place to put this
             var state = {
                 'title': this.patientReminder.title,
-                'start': this.patientReminder.dateCompleted,
-                'resolution' : ''
+                'completed': true,
+                'dateCompleted': this.patientReminder.dateCompleted,
+                'description' : ''
             };
 
             $('input:checked').each(function(){
-                state.resolution += $(this)[0].nextSibling.textContent + '<br />';
+                state.description += $(this)[0].nextSibling.textContent + '<br />';
             });
 
-            console.log({events: [state]});
-            this.announceState({events: [state]})
+            console.log(JSON.stringify(state));
+            this.announceState({events: [state]});
             
             app.showReminderList();
+
+            //this may need to be removed, renavigates to 'home' so this reminder
+            //can be clicked again directly after being resolved
+            app.router.navigate('//reminderForm/');
             Backbone.View.prototype.remove.call(this);
         },
 
