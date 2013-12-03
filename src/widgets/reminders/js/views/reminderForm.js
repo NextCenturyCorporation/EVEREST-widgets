@@ -58,37 +58,31 @@ var app = app || {};
         },
 
         markResolved: function() {
-            this.patientReminder.completed = true;
-            this.patientReminder.dateCompleted = moment(new Date()).format('LLL');
+            var me = this;
+            me.patientReminder.completed = true;
+            me.patientReminder.dateCompleted = moment(new Date()).format('LLL');
+            me.patientReminder.description = '';
             //this.patient.save();
 
             //may not be the best place to put this
-            var state = {
-                'title': this.patientReminder.title,
-                'completed': true,
-                'dateCompleted': this.patientReminder.dateCompleted,
-                'description' : ''
-            };
-
             $('input:checked').each(function(){
-                state.description += $(this)[0].nextSibling.textContent + '<br />';
+                me.patientReminder.description += $(this)[0].nextSibling.textContent + '<br />';
             });
 
-            console.log(JSON.stringify(state));
-            this.announceState({events: [state]});
+            this.announceState({events: [me.patientReminder]});
             
             app.showReminderList();
 
             //this may need to be removed, renavigates to 'home' so this reminder
             //can be clicked again directly after being resolved
             app.router.navigate('//reminderForm/');
-            Backbone.View.prototype.remove.call(this);
+            Backbone.View.prototype.remove.call(me);
         },
 
         announceState: function(state){
+            console.log(JSON.stringify(state));
             if(OWF.Util.isRunningInOWF()) {
                 OWF.ready(function() {
-
                     //actually not sure what channel to send it on
                     OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', state);
                     //OWF.Eventing.publish('com.nextcentury.everest.reminders.sendPatient', state);
