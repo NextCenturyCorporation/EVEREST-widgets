@@ -7,15 +7,23 @@ var app = app || {};
     var d = Timeline.DateTime.parseGregorianDateTime("2013");
     var theme = Timeline.ClassicTheme.create();
 
-    var bandInfo = [{
+    var zones = [{   start:    "Mon Apr 1 2013 00:00:00 GMT-0600",
+            end:      "Wed May 1 2013 00:00:00 GMT-0600",
+            magnify:  40,
+            unit:     Timeline.DateTime.DAY
+        }];
+
+    var bandInfo = [
+      Timeline.createHotZoneBandInfo({
                       width: "80%",
                       intervalUnit: Timeline.DateTime.MONTH,
                       intervalPixels: 75,
                       eventSource: eventSource,
                       date: d,
+                      zones: zones,
                       theme: theme
-                    },
-                    {
+                    }),
+      Timeline.createBandInfo({
                       width: "20%",
                       intervalUnit: Timeline.DateTime.YEAR,
                       intervalPixels: 200,
@@ -24,10 +32,13 @@ var app = app || {};
                       theme: theme,
                       highlight: true,
                       overview: true
-                    }];
+                    })];
+    bandInfo[1].highlight = true;
+    bandInfo[1].syncWith =0;
 
     app.initialize = function() {
-        $("#tline").syrinxTimeline({ bands: bandInfo });
+        //$("#tline").syrinxTimeline({ bands: bandInfo });
+        Timeline.create(document.getElementById("tline"), bandInfo, Timeline.Horizontal);
     };
 
     app.addEvents = function(incomingEvents) {
