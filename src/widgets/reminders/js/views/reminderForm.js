@@ -65,7 +65,7 @@ var app = app || {};
             //may not be the best place to put this
             var state = {
                 'title': this.patientReminder.title,
-                'start': this.patientReminder.completed ? this.patientReminder.dateCompleted : this.patientReminder.dueDate,
+                'start': this.patientReminder.dateCompleted,
                 'resolution' : ''
             };
 
@@ -73,8 +73,8 @@ var app = app || {};
                 state.resolution += $(this)[0].nextSibling.textContent + '<br />';
             });
 
-            console.log(state);
-            this.announceState(state)
+            console.log({events: [state]});
+            this.announceState({events: [state]})
             
             app.showReminderList();
             Backbone.View.prototype.remove.call(this);
@@ -83,7 +83,10 @@ var app = app || {};
         announceState: function(state){
             if(OWF.Util.isRunningInOWF()) {
                 OWF.ready(function() {
+
+                    //actually not sure what channel to send it on
                     OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', state);
+                    //OWF.Eventing.publish('com.nextcentury.everest.reminders.sendPatient', state);
                 });
             }
         }
