@@ -3,7 +3,7 @@ var app = app || {};
 (function() {
     app.NavListView = Backbone.View.extend({
         tagName: 'div',
-        className: 'panel panel-default',
+        className: 'panel panel-default fixed',
 
         initialize: function(options) {
             this.selectors = [];
