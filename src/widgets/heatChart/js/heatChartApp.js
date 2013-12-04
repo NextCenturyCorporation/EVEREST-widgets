@@ -31,6 +31,29 @@ everest.heatChart.app = function(startingMode) {
 		mode = modeChoice;
 		getAllFeeds('rawfeed');
 
+		$('#nowButton').click(function() {
+			updateNow();
+		});
+
+		$('#hourButton').click(function() {
+			execute("hour");
+		});
+		$('#dayButton').click(function() {
+			execute("day");
+		});
+		$('#weekButton').click(function() {
+			execute("week");
+		});
+		$('#monthButton').click(function() {
+			execute("month");
+		});
+		$('#yearButton').click(function() {
+			execute("year");
+		});
+		$('#year5Button').click(function() {
+			execute("year5");
+		});
+
 		switch (mode) {
 
 			case "hour":
