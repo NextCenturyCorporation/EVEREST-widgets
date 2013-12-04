@@ -100,7 +100,11 @@ module.exports = function(grunt) {
                         'lib/d3.v3.min.js',
                         'lib/underscore-min.js',
                         'lib/backbone.js'
-                    ]
+                    ],
+                    template: require('grunt-template-jasmine-requirejs'),
+                    templateOptions: {
+                        requireConfigFile: '<%= yeoman.widgets %>/heatChart/js/main.js'
+                    }
                 }
             }
         }
