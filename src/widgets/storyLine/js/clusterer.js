@@ -2,7 +2,34 @@ var clusterer = clusterer || {};
 
 (function() {
 
+	/**
+	* Analyzes a set of data points and finds inherent clusters of data.  Then 
+	* calculates how to scale those clusters so that the whole distribution appears
+	* more even
+	* @param dataPoints an array of numbers
+	* @return an array of areas describing how to scale the range each range.  The areas cover
+	*	the entire range of data points, so if the data is completely uniform this will return an array
+	*	with a single area going from the first data point to the last with scale=1.  If the data is mostly
+	*	uniform with a bunch in the middle that is very tightly packed, this will return three areas: one for the 
+	*	tightly packed group in the middle - it will have a high scale, and two for the areas on either side and they
+	*	will have scale=1.
+	*	Is of the form:
+	*	[{
+	*		start: starting point of the range
+	*		end: ending point of the range
+	*		entries: number of data points that fall in that range
+	*		scale: how much to scale this section to make the whole thing look uniform
+	*	}, ...]
+	*/
 	clusterer.cluster = function(dataPoints) {
+		// This is a VERY crude clusterer.  It can only find one section of points packed more
+		// closely than the rest and is very inflexible in choosing the borders of that set and 
+		// very susceptible to noise.  Really this should use a real segmentation algorithm (clustering in 1D is
+		// called segmentation or natural break analysis) that iteratively adjusts the boundaries of the segments
+		// until a best case is found.
+
+		// Basically, this algorithm computes the average distance between points, finds the largest group of consecutive
+		// points that are all closer than average, and marks that as a segment.  It can only find one segment.
 		var sortedData = dataPoints.sort(function(a,b){return a-b});
 
 		// Doesn't make sense to cluster 3 or fewer points.
