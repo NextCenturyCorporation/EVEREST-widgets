@@ -115,5 +115,107 @@ describe('everest.heatChart.time', function() {
 
 	});
 
+	describe('getTimeChunks(mode, timeList', function() {
+
+		var date1 = new Date(2011, 0),
+			date2 = new Date(2012, 0),
+			date3 = new Date(2013, 0);
+
+		var dates = [
+			Date.parse(new Date(2010, 0)),
+			Date.parse(date1),
+			Date.parse(date2),
+			Date.parse(date3),
+			Date.parse(new Date(2014, 0))
+		];
+
+		it('should return an array of objects', function() {
+			var chunks = time.getTimeChunks('year', dates);
+
+			expect(chunks instanceof Array).toBeTruthy();
+			expect(chunks[0] instanceof Object).toBeTruthy();
+		});
+
+		describe('for each mode', function() {
+
+			it('should return the correct number of objects for "hour" mode', function() {
+				var chunks = time.getTimeChunks('hour', dates);
+				expect(chunks.length).toBe(3600);
+			});
+
+			it('should return the correct number of objects for "day" mode', function() {
+				var chunks = time.getTimeChunks('day', dates);
+				expect(chunks.length).toBe(1440);
+			});
+
+			it('should return the correct number of objects for "week" mode', function() {
+				var chunks = time.getTimeChunks('week', dates);
+				expect(chunks.length).toBe(168);
+			});
+
+			it('should return the correct number of objects for "month" mode', function() {
+				var chunks = time.getTimeChunks('month', dates);
+				expect(chunks.length).toBe(744);
+			});
+
+			it('should return the correct number of objects for "year" mode', function() {
+				var chunks = time.getTimeChunks('year', dates);
+				expect(chunks.length).toBe(372);
+			});
+
+			it('should return the correct number of objects for "year" mode', function() {
+				var chunks = time.getTimeChunks('year5', dates);
+				expect(chunks.length).toBe(60);
+			});
+
+		});
+
+		it('should return the correct first five times and values for "year5"', function() {
+			var chunks = time.getTimeChunks('year5', dates);
+
+			expect(chunks.slice(0, 5)).toEqual([{
+				title: 'Sat Jan 01 2011 00:00:00 GMT-0500 (EST)',
+				value: 1
+			}, {
+				title: 'Sun Jan 01 2012 00:00:00 GMT-0500 (EST)',
+				value: 1
+			}, {
+				title: 'Tue Jan 01 2013 00:00:00 GMT-0500 (EST)',
+				value: 1
+			}, {
+				title: 'Wed Jan 01 2014 00:00:00 GMT-0500 (EST)',
+				value: 1
+			}, {
+				title: '',
+				value: 0
+			}]);
+		});
+
+	});
+
+	describe('getRandomSamples( numSamplePoints )', function() {
+
+		it('should return a list', function() {
+			var samples = time.getRandomSamples(1);
+
+			expect(samples instanceof Array).toBeTruthy();
+		});
+
+		it('should return a list of length equal to numSamplePoints', function() {
+			var samples = time.getRandomSamples(1);
+
+			expect(samples.length).toEqual(1);
+		});
+
+		it('should return a list of Dates converted to UNIX epochs', function() {
+			var samples = time.getRandomSamples(2);
+			var date1 = new Date(samples[0]);
+			var date2 = new Date(samples[1]);
+
+			expect(date1 instanceof Date).toBeTruthy();
+			expect(date2 instanceof Date).toBeTruthy();
+		});
+
+	});
 
 });
