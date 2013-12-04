@@ -33,11 +33,13 @@ var app = app || {};
 
     app.plotReminders = function(reminders) {
         eventSource.clear();
-
         //remove bubbles on load of new patient, one or the other
         Timeline._Band.prototype.closeBubble();
         //SimileAjax.WindowManager.cancelPopups();
+        app.addReminders(reminders);
+    };
 
+    app.addReminders = function(reminders) {
         var eventData = { 'events': [] };
         _.each(reminders, function(reminder) {
             console.log(reminder);
