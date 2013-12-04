@@ -1,10 +1,12 @@
-var heatChartWidget = function(announceChannel) {
+var heatChartWidget = function(heatChartChannel) {
 	var self = this;
-	self.announceChannel = announceChannel;
-	
+
+	self.heatChartChannel = heatChartChannel || "com.nextcentury.everest.heatchart";
+
 	self.publishDateRange = function(mode, baseDate) {
 		var checkOWF;
-		if(OWF.Eventing.publish) {
+
+		if (OWF.Eventing.publish) {
 			checkOWF = OWF.Eventing.publish;
 		} else {
 			checkOWF = function(message) {
@@ -13,20 +15,28 @@ var heatChartWidget = function(announceChannel) {
 		}
 		switch (mode) {
 			case "hour":
-				checkOWF(heatChartChannel,JSON.stringify(
-				 	{startTime: toLocaleHours(baseDate), endTime: toLocaleHours(addHours(baseDate, 1))}));
+				checkOWF(self.heatChartChannel, JSON.stringify({
+					startTime: toLocaleHours(baseDate),
+					endTime: toLocaleHours(addHours(baseDate, 1))
+				}));
 				break;
 			case "day":
-				checkOWF(heatChartChannel,JSON.stringify(
-					{startTime: setDateHourZero(baseDate), endTime: setDateHour24(baseDate)}));
+				checkOWF(self.heatChartChannel, JSON.stringify({
+					startTime: setDateHourZero(baseDate),
+					endTime: setDateHour24(baseDate)
+				}));
 				break;
 			case "month":
-				checkOWF(heatChartChannel,JSON.stringify(
-					{startTime: getFirstDateOfMonth(baseDate), endTime: getLastDateOfMonth(baseDate)}));
+				checkOWF(self.heatChartChannel, JSON.stringify({
+					startTime: getFirstDateOfMonth(baseDate),
+					endTime: getLastDateOfMonth(baseDate)
+				}));
 				break;
 			case "year":
-				checkOWF(heatChartChannel,JSON.stringify(
-					{startTime: getFirstDateOfYear(baseDate), endTime: getLastDateOfYear(baseDate)}));
+				checkOWF(self.heatChartChannel, JSON.stringify({
+					startTime: getFirstDateOfYear(baseDate),
+					endTime: getLastDateOfYear(baseDate)
+				}));
 				break;
 		};
 	};
@@ -47,13 +57,13 @@ var heatChartWidget = function(announceChannel) {
 
 	var addHours = function(time, h) {
 		var tempTime = new Date(time);
-		tempTime.setTime(tempTime.getTime() + (h*60*60*1000));
+		tempTime.setTime(tempTime.getTime() + (h * 60 * 60 * 1000));
 		return tempTime;
 	};
 
 	var toLocaleHours = function(time) {
 		var tempDate = new Date(time + " UTC");
-		tempDate .setUTCMinutes(0);
+		tempDate.setUTCMinutes(0);
 		return tempDate;
 	};
 

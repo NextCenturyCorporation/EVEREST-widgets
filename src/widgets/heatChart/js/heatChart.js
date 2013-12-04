@@ -3,7 +3,7 @@
  */
 
 var chartTime = new everest.heatChart.time();
-var OWFheatChartWidget = new heatChartWidget(heatChartChannel);
+var OWFheatChartWidget = new heatChartWidget();
 
 var baseURL = "http://everest-build:8081";
 var color = "";
@@ -14,12 +14,10 @@ var samplePoints = 500000;
 var fullTimeData = [];
 var timeData = [];
 var baseDate = chartTime.currentUTCTime();
-var heatChart_widget = {};
-var heatChartChannel = "com.nextcentury.everest.heatchart";
+var heatChart = {};
 
 
-
-heatChart_widget.execute = function(modeChoice, feedType) {
+heatChart.execute = function(modeChoice, feedType) {
 	mode = modeChoice;
 	getAllFeeds('rawfeed');
 	
@@ -74,7 +72,7 @@ heatChart_widget.execute = function(modeChoice, feedType) {
 	handleModeButtons(modeChoice);
 };
 
-heatChart_widget.update = function() {
+heatChart.update = function() {
 
 	timeData = getTimeData();
 	
@@ -83,7 +81,7 @@ heatChart_widget.update = function() {
 	
 };
 
-heatChart_widget.updateNow = function() {
+heatChart.updateNow = function() {
 
 	baseDate = chartTime.currentUTCTime();
 	this.update();
@@ -121,7 +119,7 @@ var getAllFeeds = function(feedType) {
 		jsonpCallback: 'callback',
 		success: function(data){
 			timeData = data;
-			heatChart_widget.update();
+			heatChart.update();
 			fullTimeData = data;
 		},
 		error: function(error){
@@ -289,27 +287,27 @@ var handleDrillDown = function(cellDate){
 
 	case "day":
 		baseDate = new Date(cellDate);
-		heatChart_widget.execute("hour");
+		heatChart.execute("hour");
 		break;
 
 	case "week":
 		 baseDate = new Date(cellDate);
-		 heatChart_widget.execute("day");
+		 heatChart.execute("day");
 		break;
 		
 	case "month":
 		baseDate = new Date(cellDate);
-		heatChart_widget.execute("day");
+		heatChart.execute("day");
 		break;
 
 	case "year":
 		baseDate = new Date(cellDate);
-		heatChart_widget.execute("month");
+		heatChart.execute("month");
 		break;
 		
 	case "year5":
 		baseDate = new Date(cellDate);
-		heatChart_widget.execute("year");
+		heatChart.execute("year");
 		break;
 	};
 	OWFheatChartWidget.publishDateRange(mode, baseDate);
