@@ -7,7 +7,7 @@
 // use this if you want to recursively match all subfolders:
 // 'test/spec/**/*.js'
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
     // show elapsed time at the end
     require('time-grunt')(grunt);
     // load all grunt tasks
@@ -29,8 +29,15 @@ module.exports = function (grunt) {
                     '<%= yeoman.widgets %>/**/*.html',
                     '<%= yeoman.widgets %>/**/*.css',
                     '<%= yeoman.widgets %>/**/*.js',
-                    '<%= yeoman.widgets %>/**/*.{gif,jpeg,jpg,png,svg,webp}'
+                    'test/**/*.js'
                 ]
+            },
+            test: {
+                files: [
+                    '<%= yeoman.widgets %>/**/*.js',
+                    'test/**/*.js'
+                ],
+                tasks: ['jasmine']
             }
         },
         connect: {
@@ -78,17 +85,28 @@ module.exports = function (grunt) {
                 'test/spec/{,*/}*.js'
             ]
         },
-        mocha: {
+        jasmine: {
             all: {
+                src: [
+                    '<%= yeoman.widgets %>/heatChart/js/time.js'
+                ],
                 options: {
-                    run: true,
-                    urls: ['http://<%= connect.test.options.hostname %>:<%= connect.test.options.port %>/index.html']
+                    specs: [
+                        'test/heatChart/time.spec.js'
+                    ],
+                    vendor: [
+                        'lib/owf-widget-debug.js',
+                        'lib/jquery-2.0.2.min.js',
+                        'lib/d3.v3.min.js',
+                        'lib/underscore-min.js',
+                        'lib/backbone.js'
+                    ]
                 }
             }
         }
     });
 
-    grunt.registerTask('serve', function (target) {
+    grunt.registerTask('serve', function(target) {
         if (target === 'dist') {
             return grunt.task.run(['build', 'connect:dist:keepalive']);
         }
@@ -99,14 +117,15 @@ module.exports = function (grunt) {
         ]);
     });
 
-    grunt.registerTask('server', function () {
-      grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
-      grunt.task.run(['serve']);
+    grunt.registerTask('server', function() {
+        grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
+        grunt.task.run(['serve']);
     });
 
     grunt.registerTask('test', [
         'connect:test',
-        'mocha'
+        'jasmine',
+        'watch:test'
     ]);
 
     grunt.registerTask('default', [
