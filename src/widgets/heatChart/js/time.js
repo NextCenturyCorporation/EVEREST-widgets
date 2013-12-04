@@ -37,8 +37,6 @@ everest.heatChart.time = function() {
 			"25", "26", "27", "28", "29", "30", "31"
 		];
 
-	var _baseDate = currentUTCTime();
-
 	var _MODES = {
 		hour: {
 			color: 'cyan',
@@ -81,7 +79,7 @@ everest.heatChart.time = function() {
 			columns: 5,
 			rowLabels: _MONTHS_SHORT,
 			columnLabels: (function() {
-				var baseYear = _baseDate.getFullYear(),
+				var baseYear = currentUTCTime().getFullYear(),
 					labels = [];
 
 				labels.push(baseYear - 2);
@@ -98,7 +96,15 @@ everest.heatChart.time = function() {
 
 	return {
 
-		baseDate: _baseDate,
+		currentUTCTime: currentUTCTime,
+
+		getMonthLabel: function(month) {
+			return _MONTHS_SHORT[month];
+		},
+
+		getDayOfWeekLabel: function(day) {
+			return _DAYS_SHORT[day];
+		},
 
 		getMode: function(mode) {
 			return _MODES[mode] || _MODES['month'];
@@ -140,7 +146,7 @@ everest.heatChart.time = function() {
 			return time_chunks;
 		},
 
-		getTimeChunks: function(mode, timeList) {
+		getTimeChunks: function(baseDate, mode, timeList) {
 			var _mode = this.getMode(mode);
 
 			var numPoints = _mode.columns * _mode.rows;
@@ -160,13 +166,13 @@ everest.heatChart.time = function() {
 				var time, year, month, day, dayofweek, hour, minutes, seconds;
 
 				// baseDate is a global date used as a benchmark for focusing the display
-				var baseYear = this.baseDate.getFullYear();
-				var baseMonth = this.baseDate.getMonth();
-				var baseDay = this.baseDate.getDate();
-				var baseDayofweek = this.baseDate.getDay();
-				var baseHour = this.baseDate.getHours();
+				var baseYear = baseDate.getFullYear();
+				var baseMonth = baseDate.getMonth();
+				var baseDay = baseDate.getDate();
+				var baseDayofweek = baseDate.getDay();
+				var baseHour = baseDate.getHours();
 				var wsd = baseDay - baseDayofweek;
-				var weekStartDate = new Date(this.baseDate);
+				var weekStartDate = new Date(baseDate);
 				weekStartDate.setDate(wsd);
 				weekStartDate.setHours(0);
 				weekStartDate.setMinutes(0);

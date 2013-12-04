@@ -117,6 +117,8 @@ describe('everest.heatChart.time', function() {
 
 	describe('getTimeChunks(mode, timeList', function() {
 
+		var baseDate = time.currentUTCTime();
+
 		var date1 = new Date(2011, 0),
 			date2 = new Date(2012, 0),
 			date3 = new Date(2013, 0);
@@ -130,7 +132,7 @@ describe('everest.heatChart.time', function() {
 		];
 
 		it('should return an array of objects', function() {
-			var chunks = time.getTimeChunks('year', dates);
+			var chunks = time.getTimeChunks(baseDate, 'year', dates);
 
 			expect(chunks instanceof Array).toBeTruthy();
 			expect(chunks[0] instanceof Object).toBeTruthy();
@@ -139,39 +141,39 @@ describe('everest.heatChart.time', function() {
 		describe('for each mode', function() {
 
 			it('should return the correct number of objects for "hour" mode', function() {
-				var chunks = time.getTimeChunks('hour', dates);
+				var chunks = time.getTimeChunks(baseDate, 'hour', dates);
 				expect(chunks.length).toBe(3600);
 			});
 
 			it('should return the correct number of objects for "day" mode', function() {
-				var chunks = time.getTimeChunks('day', dates);
+				var chunks = time.getTimeChunks(baseDate, 'day', dates);
 				expect(chunks.length).toBe(1440);
 			});
 
 			it('should return the correct number of objects for "week" mode', function() {
-				var chunks = time.getTimeChunks('week', dates);
+				var chunks = time.getTimeChunks(baseDate, 'week', dates);
 				expect(chunks.length).toBe(168);
 			});
 
 			it('should return the correct number of objects for "month" mode', function() {
-				var chunks = time.getTimeChunks('month', dates);
+				var chunks = time.getTimeChunks(baseDate, 'month', dates);
 				expect(chunks.length).toBe(744);
 			});
 
 			it('should return the correct number of objects for "year" mode', function() {
-				var chunks = time.getTimeChunks('year', dates);
+				var chunks = time.getTimeChunks(baseDate, 'year', dates);
 				expect(chunks.length).toBe(372);
 			});
 
 			it('should return the correct number of objects for "year" mode', function() {
-				var chunks = time.getTimeChunks('year5', dates);
+				var chunks = time.getTimeChunks(baseDate, 'year5', dates);
 				expect(chunks.length).toBe(60);
 			});
 
 		});
 
 		it('should return the correct first five times and values for "year5"', function() {
-			var chunks = time.getTimeChunks('year5', dates);
+			var chunks = time.getTimeChunks(baseDate, 'year5', dates);
 
 			expect(chunks.slice(0, 5)).toEqual([{
 				title: 'Sat Jan 01 2011 00:00:00 GMT-0500 (EST)',
