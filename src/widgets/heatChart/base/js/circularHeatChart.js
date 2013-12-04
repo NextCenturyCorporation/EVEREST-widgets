@@ -1,12 +1,21 @@
-function circularHeatChart() {
-    var margin = {top: 20, right: 20, bottom: 20, left: 20},
-    innerRadius = 50,
-    numSegments = 24,
-    segmentHeight = 20,
-    domain = null,
-    range = ["white", "red"],
-    accessor = function(d) {return d;},
-    radialLabels = segmentLabels = [];
+var everest = everest || {};
+
+everest.circularHeatChart = function() {
+    var margin = {
+        top: 20,
+        right: 20,
+        bottom: 20,
+        left: 20
+    },
+        innerRadius = 50,
+        numSegments = 24,
+        segmentHeight = 20,
+        domain = null,
+        range = ["white", "red"],
+        accessor = function(d) {
+            return d;
+        },
+        radialLabels = segmentLabels = [];
 
     function chart(selection) {
         selection.each(function(data) {
@@ -23,13 +32,20 @@ function circularHeatChart() {
                 autoDomain = true;
             }
             var color = d3.scale.linear().domain(domain).range(range);
-            if(autoDomain)
+            if (autoDomain)
                 domain = null;
 
             g.selectAll("path").data(data)
                 .enter().append("path")
-                .attr("d", d3.svg.arc().innerRadius(ir).outerRadius(or).startAngle(sa).endAngle(ea))
-                .attr("fill", function(d) {return color(accessor(d));});
+                .attr("d", d3.svg
+                    .arc()
+                    .innerRadius(_innerRadius)
+                    .outerRadius(_outerRadius)
+                    .startAngle(_startAngle)
+                    .endAngle(_endAngle))
+                .attr("fill", function(d) {
+                    return color(accessor(d));
+                });
 
 
             // Unique id so that the text path defs are unique - is there a better way to do this?
@@ -46,20 +62,26 @@ function circularHeatChart() {
                 .data(radialLabels).enter()
                 .append("def")
                 .append("path")
-                .attr("id", function(d, i) {return "radial-label-path-"+id+"-"+i;})
+                .attr("id", function(d, i) {
+                    return "radial-label-path-" + id + "-" + i;
+                })
                 .attr("d", function(d, i) {
                     var r = innerRadius + ((i + 0.2) * segmentHeight);
-                    return "m" + r * Math.sin(lsa) + " -" + r * Math.cos(lsa) + 
-                            " a" + r + " " + r + " 0 1 1 -1 0";
+                    return "m" + r * Math.sin(lsa) + " -" + r * Math.cos(lsa) +
+                        " a" + r + " " + r + " 0 1 1 -1 0";
                 });
 
             labels.selectAll("text")
                 .data(radialLabels).enter()
                 .append("text")
                 .append("textPath")
-                .attr("xlink:href", function(d, i) {return "#radial-label-path-"+id+"-"+i;})
+                .attr("xlink:href", function(d, i) {
+                    return "#radial-label-path-" + id + "-" + i;
+                })
                 .style("font-size", 12 + 'px')
-                .text(function(d) {return d;});
+                .text(function(d) {
+                    return d;
+                });
 
             //Segment labels
             var segmentLabelOffset = 2;
@@ -71,36 +93,40 @@ function circularHeatChart() {
 
             labels.append("def")
                 .append("path")
-                .attr("id", "segment-label-path-"+id)
+                .attr("id", "segment-label-path-" + id)
                 .attr("d", "m0 -" + r + " a" + r + " " + r + " 0 1 1 -1 0");
 
             labels.selectAll("text")
                 .data(segmentLabels).enter()
                 .append("text")
                 .append("textPath")
-                .attr("xlink:href", "#segment-label-path-"+id)
-                .attr("startOffset", function(d, i) {return i * 100 / numSegments + "%";})
-                .text(function(d) {return d;});
+                .attr("xlink:href", "#segment-label-path-" + id)
+                .attr("startOffset", function(d, i) {
+                    return i * 100 / numSegments + "%";
+                })
+                .text(function(d) {
+                    return d;
+                });
         });
 
     }
 
     /* Arc functions */
-    ir = function(d, i) {
-        return innerRadius + (Math.floor(i/numSegments) * segmentHeight);
-    };
-    
-    or = function(d, i) {
-        return innerRadius + segmentHeight + (Math.floor(i/numSegments) * segmentHeight);
-    };
-    
-    sa = function(d, i) {
+    function _innerRadius(d, i) {
+        return innerRadius + (Math.floor(i / numSegments) * segmentHeight);
+    }
+
+    function _outerRadius(d, i) {
+        return innerRadius + segmentHeight + (Math.floor(i / numSegments) * segmentHeight);
+    }
+
+    function _startAngle(d, i) {
         return (i * 2 * Math.PI) / numSegments;
-    };
-    
-    ea = function(d, i) {
+    }
+
+    function _endAngle(d, i) {
         return ((i + 1) * 2 * Math.PI) / numSegments;
-    };
+    }
 
     /* Configuration getters/setters */
     chart.margin = function(_) {
@@ -160,4 +186,4 @@ function circularHeatChart() {
     };
 
     return chart;
-}
+};

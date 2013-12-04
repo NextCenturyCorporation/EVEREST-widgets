@@ -1,7 +1,3 @@
-var currentUTCTime = function() {
-	var now = new Date(Date.now());
-	return new Date(now.getTime() + (now.getTimezoneOffset() * 60000));
-}
 /**
  * heatChart.js
  */
@@ -20,6 +16,8 @@ var timeData = [];
 var baseDate = chartTime.currentUTCTime();
 var heatChart_widget = {};
 var heatChartChannel = "com.nextcentury.everest.heatchart";
+
+
 
 heatChart_widget.execute = function(modeChoice, feedType) {
 	mode = modeChoice;
@@ -231,7 +229,7 @@ var createHeatchart = function(time_chunks) {
 	var innerRadius = segHeight;
 	if (innerRadius < 10) { innerRadius = 10;}
 	
-	this.chart = circularHeatChart()
+	this.chart = new everest.circularHeatChart()
 	.range(["white", color])
 	.radialLabels(rowLabels)
 	.segmentLabels(columnLabels)
