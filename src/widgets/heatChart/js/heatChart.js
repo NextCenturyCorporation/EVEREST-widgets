@@ -16,10 +16,16 @@ var timeData = [];
 var baseDate = chartTime.currentUTCTime();
 var heatChart = {};
 
+heatChart.init = function() {
+	d3.select("#chart").selectAll("svg").data([]).exit().remove();
+
+	var cells = chartTime.getEmptyTimeChunks(numRows, numCols);
+	this.createHeatChart(cells);
+};
 
 heatChart.execute = function(modeChoice, feedType) {
 	mode = modeChoice;
-	getAllFeeds('rawfeed');
+	this.getAllFeeds('rawfeed');
 	
 	switch (mode) {
 
@@ -67,17 +73,17 @@ heatChart.execute = function(modeChoice, feedType) {
 
 	}
 
-	init();
+	this.init();
 	this.update();
-	handleModeButtons(modeChoice);
+	this.handleModeButtons(modeChoice);
 };
 
 heatChart.update = function() {
 
-	timeData = getTimeData();
+	timeData = this.getTimeData();
 	
 	var updated_time_chunks = chartTime.getTimeChunks(baseDate, mode,timeData);
-	updateChart(updated_time_chunks);
+	this.updateChart(updated_time_chunks);
 	
 };
 
@@ -85,14 +91,20 @@ heatChart.updateNow = function() {
 
 	baseDate = chartTime.currentUTCTime();
 	this.update();
-	handleModeButtons(mode);
+	this.handleModeButtons(mode);
 	
 };
 
-/**
- * 
- */
-var getTimeData = function() {
+heatChart.updateChart = function(updated_day_chunks) {
+
+	d3.select("#chart").selectAll("svg").data([]).exit().remove();
+	
+	this.createHeatChart(updated_day_chunks);
+//  d3.select("#hourChart").selectAll("svg").data([updated_day_chunks]).enter().append('svg');
+  
+};
+
+heatChart.getTimeData = function() {
 	if (0 === timeData.length ) {
 		//Uncomment the portion below to get randomize sample data.
 		//timeData = chartTime.getSampleTimes(samplePoints);
@@ -101,7 +113,7 @@ var getTimeData = function() {
 	return timeData;
 };
 
-var getAllFeeds = function(feedType) {
+heatChart.getAllFeeds = function(feedType) {
 	var feedURL = '';
 	feedType = feedType.toLowerCase();
 	if(feedType == 'alpha-report') {
@@ -128,7 +140,7 @@ var getAllFeeds = function(feedType) {
 	});
 };
 
-var handleModeButtons = function(modeChoice){
+heatChart.handleModeButtons = function(modeChoice){
 	
 	var baseYear = baseDate.getFullYear();
 	var baseMonth = baseDate.getMonth();
@@ -197,20 +209,9 @@ var handleModeButtons = function(modeChoice){
 	
 };
 
-var updateChart = function(updated_day_chunks) {
+heatChart.createHeatChart = function(time_chunks) {
+	var me = this;
 
-	d3.select("#chart").selectAll("svg").data([]).exit().remove();
-	
-	createHeatchart(updated_day_chunks);
-//  d3.select("#hourChart").selectAll("svg").data([updated_day_chunks]).enter().append('svg');
-  
-};
-
-/***
- * createHeatchart
- */
-var createHeatchart = function(time_chunks) {
-	
 	var rowLabels = chartTime.getMode(mode).rowLabels,
 		columnLabels = chartTime.getMode(mode).columnLabels;	
 
@@ -235,14 +236,14 @@ var createHeatchart = function(time_chunks) {
 	.numSegments(numCols)
 	.innerRadius(innerRadius);
 
-	chart.accessor(function(d) {return d.value;});
+	this.chart.accessor(function(d) {return d.value;});
 	
 	d3.select("#chart")
 		.selectAll('svg')
 		.data([time_chunks])
 		.enter()
 		.append('svg')
-		.call(chart);
+		.call(this.chart);
 
 	var tooltip = d3.select("body")
 		.append("div")
@@ -267,58 +268,46 @@ var createHeatchart = function(time_chunks) {
 		});
 
 	d3.selectAll("#chart path").on('click', function(){
-
 		var d = d3.select(this).data()[0];
 		if (0 !== d.value) {
-			handleDrillDown(d.title);
+			me.handleDrillDown(d.title);
 		}
 	});
 	
 };
 
-var handleDrillDown = function(cellDate){
+heatChart.handleDrillDown = function(cellDate){
+	baseDate = new Date(cellDate);
+
 	switch (mode) {
 		//Announce Channel: com.nextcentury.everest.heatchart
 		//Each time the heat chart is drilled down, announce the new date range
 		//that appears in the chart.
 	case "hour":
-		baseDate = new Date(cellDate);
 		break;
 
 	case "day":
-		baseDate = new Date(cellDate);
 		heatChart.execute("hour");
 		break;
 
 	case "week":
-		 baseDate = new Date(cellDate);
 		 heatChart.execute("day");
 		break;
 		
 	case "month":
-		baseDate = new Date(cellDate);
 		heatChart.execute("day");
 		break;
 
 	case "year":
-		baseDate = new Date(cellDate);
 		heatChart.execute("month");
 		break;
 		
 	case "year5":
-		baseDate = new Date(cellDate);
 		heatChart.execute("year");
 		break;
 	};
+
 	OWFheatChartWidget.publishDateRange(mode, baseDate);
 
-};
-
-var init = function() {
-
-	d3.select("#chart").selectAll("svg").data([]).exit().remove();
-
-	var cells = chartTime.getEmptyTimeChunks(numRows, numCols);
-	createHeatchart(cells);
 };
 
