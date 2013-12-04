@@ -5,9 +5,9 @@ if(OWF.Util.isRunningInOWF()) {
             app.plotReminders(msg.reminders);
         });
 
-        OWF.Eventing.subscribe('com.nextcentury.everest.storyline.events', function (sender, msg, channel) {
+        OWF.Eventing.subscribe('com.nextcentury.everest.storyLine.events', function (sender, msg, channel) {
         	console.log(msg);
-            app.addReminder(msg.events);
+            app.addReminders(msg.events);
         });
 
         OWF.notifyWidgetReady();
