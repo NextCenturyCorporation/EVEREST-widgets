@@ -14,12 +14,12 @@
 		<script src="js/time.js"></script>
 		<script src="base/js/circularHeatChart.js"></script>
 		<script src="js/heatChart_widget.js"></script>
-		<script src="js/heatChart.js"></script>
+		<script src="js/heatChartApp.js"></script>
 
 		<script type="text/javascript">
 			$(document).ready(function() {
 
-					heatChart.execute("year");
+					var heatChart = new everest.heatChart.app("year");
 
 					$('#nowButton').click(function() {
 						heatChart.updateNow();
