@@ -7,6 +7,11 @@ var app = app || {};
     var d = Timeline.DateTime.parseGregorianDateTime("2013");
     var theme = Timeline.ClassicTheme.create();
 
+    // The timeline internally stores all the datapoints to plot, but we also
+    // keep a copy of all datapoints to make decisions about best way to
+    // layout the timeline.
+    var datapoints = [];
+
     var zones = [{   start:    "Mon Apr 1 2013 00:00:00 GMT-0600",
             end:      "Wed May 1 2013 00:00:00 GMT-0600",
             magnify:  40,
@@ -41,17 +46,44 @@ var app = app || {};
         Timeline.create(document.getElementById("tline"), bandInfo, Timeline.Horizontal);
     };
 
+    /**
+    * Add datapoints to the timeline.
+    * @param incomingEvents the datapoints to add.  Can either be an array of JSON strings each representing
+    * a datapoint, or a single JSON string with either a single datapoint or an array of data points.
+    * The JSON for the datapoint is of the form
+    *    {
+    *      start: date of the event, or start date if the event is a long event.  Of the form "Apr 14 2013 00:00:00 GMT"
+    *      end: end date of a long event.  Omit if this event is a single point in time.  Same format as above
+    *      title: short text (couple words) to describe this event
+    *    }
+    */
     app.addEvents = function(incomingEvents) {
         var eventData = {};
         if (incomingEvents instanceof Array) {
+          // An array of JSON strings - that's the desired format
           eventData.events = incomingEvents;
+        } else if (incomingEvents.charAt(0) == '[') {
+          // A JSON string representing an array of events.  We want
+          // to pull out the events and put them in a real array.
+
+          // TODO: Tokenize into JSON strings for each event
         } else {
+          // A JSON string representing a single JSON event.  Put it in
+          // and array
           eventData.events = [incomingEvents];
+        }
+
+        // We need to both give these points to the timeline and save them in our own
+        // internal list.
+        for(var i=0; i<eventData.events.length; ++i) {
+          var date = Timeline.DateTime.parseGregorianDateTime(eventData.events[i]);
+          datapoints.push(date.getTime())
         }
         eventSource.loadJSON(eventData, "");      
     }
 
     app.clearEvents = function(incomingEvents) {
+        datapoints = [];
         eventSource.clear();
     };
 
@@ -76,6 +108,32 @@ var app = app || {};
         // Rerender the timeline.
         $("#tline").removeData();
         $("#tline").syrinxTimeline({ bands: newBandInfos });        
+    }
+
+    /*
+    *  Looks at the data points currently being displayed and the visible width of the timeline and determines
+    *  the best layout.  Will determine the scale, the units, and any hot zones.
+    */
+    app.deduceLayout = function() {
+        // First thing we do is see if we will have a single uniform timeline or if we will have hot zones
+        // where datapoints are shown at a higher resolution.
+        var areas = clusterer.cluster(datapoints);
+
+        var zones = [];
+        for(var i=0; i<areas.length; ++i) {
+          if (areas[i].scale > 1) {
+            zones.push({
+              start:    new Date(areas[i].start).toUTCString(),
+              end:      new Date(areas[i].start).toUTCString(),
+              magnify:  areas[i].scale
+              // TODO: Figure out units
+            });
+          }
+        }
+
+        // TODO: Relayout the timeline with the calculated hotzones.
+
+        // TODO: Figure total scale and units.
     }
 
 }());
