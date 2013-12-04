@@ -85,7 +85,8 @@ var app = app || {};
                 OWF.ready(function() {
                     //actually not sure what channel to send it on
                     OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', state);
-                    //OWF.Eventing.publish('com.nextcentury.everest.reminders.sendPatient', state);
+                    //OWF.Eventing.publish('com.nextcentury.everest.reminders.sendPatient', state); 
+                    //wont be this because it ruins the reminder nav
                 });
             }
         }
