@@ -1,5 +1,5 @@
 var everest = everest || {};
-everest.heatChart = everest.heatChart = {};
+everest.heatChart = everest.heatChart || {};
 
 everest.heatChart.widget = function(heatChartChannel) {
 	

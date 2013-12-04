@@ -1,7 +1,3 @@
-/**
- * js
- */
-
 var everest = everest || {};
 everest.heatChart = everest.heatChart || {};
 
