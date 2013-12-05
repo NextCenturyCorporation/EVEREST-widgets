@@ -1,23 +1,22 @@
 require.config({
     paths: {
-        jquery: 'libs/jquery-2.0.3.min',
-        underscore: 'libs/underscore-1.5.2.min',
-        d3: 'libs/d3.v3.min.js'
+        jquery: '../../../../lib/jquery-2.0.2.min',
+        underscore: '../../../../lib/underscore-min',
+        d3: '../../../../lib/d3.v3.min'
     },
 
     shim: {
         underscore: {
             exports: '_'
+        },
+        d3: {
+            exports: 'd3'
         }
     }
 });
 
 require([
-        './heatChartApp'
-    ],
-
-    function(HeatChartApp) {
-
-        var heatChartApp = new HeatChartApp("year");
-
-    });
+    './heatChartApp'
+], function(HeatChartApp) {
+    var heatChartApp = new HeatChartApp("year");
+});

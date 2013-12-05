@@ -1,4 +1,8 @@
-define([], function() {
+define([
+
+	'underscore'
+
+], function(_) {
 
 	function currentUTCTime() {
 		var now = new Date(Date.now());

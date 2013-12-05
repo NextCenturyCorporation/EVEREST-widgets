@@ -86,20 +86,13 @@ module.exports = function(grunt) {
             ]
         },
         jasmine: {
-            all: {
+            heatChart: {
                 src: [
                     '<%= yeoman.widgets %>/heatChart/js/time.js'
                 ],
                 options: {
                     specs: [
                         'test/heatChart/time.spec.js'
-                    ],
-                    vendor: [
-                        'lib/owf-widget-debug.js',
-                        'lib/jquery-2.0.2.min.js',
-                        'lib/d3.v3.min.js',
-                        'lib/underscore-min.js',
-                        'lib/backbone.js'
                     ],
                     template: require('grunt-template-jasmine-requirejs'),
                     templateOptions: {
@@ -126,11 +119,13 @@ module.exports = function(grunt) {
         grunt.task.run(['serve']);
     });
 
-    grunt.registerTask('test', [
-        'connect:test',
-        'jasmine',
-        'watch:test'
-    ]);
+    grunt.registerTask('test', function(target) {
+        if (target) {
+            grunt.task.run(['connect:test','jasmine:', 'watch:test']);
+        } else {
+            grunt.log.error('Please specify a widget target for jasmine.');
+        }
+    });
 
     grunt.registerTask('default', [
         'serve'
