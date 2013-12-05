@@ -12,6 +12,29 @@ define([
 
 	var app = function(startingMode) {
 
+		$('#nowButton').click(function() {
+			updateNow();
+		});
+
+		$('#hourButton').click(function() {
+			execute("hour");
+		});
+		$('#dayButton').click(function() {
+			execute("day");
+		});
+		$('#weekButton').click(function() {
+			execute("week");
+		});
+		$('#monthButton').click(function() {
+			execute("month");
+		});
+		$('#yearButton').click(function() {
+			execute("year");
+		});
+		$('#year5Button').click(function() {
+			execute("year5");
+		});
+
 		var chartTime = new HeatChartTime();
 		var heatChartWidget = new HeatChartWidget();
 		var chartData = new HeatChartData();
@@ -22,7 +45,6 @@ define([
 		var numCols = 1;
 		var numRows = 1;
 		var samplePoints = 500000;
-		var fullTimeData = [];
 		var timeData = [];
 		var baseDate = chartTime.currentUTCTime();
 
@@ -30,40 +52,10 @@ define([
 
 		execute(startingMode);
 
-		function init() {
-			d3.select("#chart").selectAll("svg").data([]).exit().remove();
-
-			var cells = chartTime.getEmptyTimeChunks(numRows, numCols);
-			createHeatChart(cells);
-		}
-
 		function execute(modeChoice, feedType) {
 			mode = modeChoice;
 
 			fetch();
-
-			$('#nowButton').click(function() {
-				updateNow();
-			});
-
-			$('#hourButton').click(function() {
-				execute("hour");
-			});
-			$('#dayButton').click(function() {
-				execute("day");
-			});
-			$('#weekButton').click(function() {
-				execute("week");
-			});
-			$('#monthButton').click(function() {
-				execute("month");
-			});
-			$('#yearButton').click(function() {
-				execute("year");
-			});
-			$('#year5Button').click(function() {
-				execute("year5");
-			});
 
 			switch (mode) {
 
@@ -111,57 +103,42 @@ define([
 
 			}
 
-			init();
-			update();
-			handleModeButtons(modeChoice);
+			updateModeButtons(modeChoice);
 		}
 
 		function fetch() {
 			chartData.getAllFeeds(
 				'rawfeed',
 				function(data) {
-					timeData = data;
-					update();
-					fullTimeData = data;
+					update(data);
 				},
 				function(error) {
-					console.log("An Error Occurred Trying to retrieve all feeds: " + error);
+					console.log("An error occurred trying to retrieve the data: " + error);
 				});
 		}
 
-		function update() {
-
-			timeData = getTimeData();
-
-			var updated_time_chunks = chartTime.getTimeChunks(baseDate, mode, timeData);
-			updateChart(updated_time_chunks);
-
+		function update(data) {
+			updateChart(
+				chartTime.getTimeChunks(
+					baseDate, mode, data));
 		}
 
 		function updateNow() {
-
 			baseDate = chartTime.currentUTCTime();
 			update();
-			handleModeButtons(mode);
-
+			updateModeButtons(mode);
 		}
 
-		function updateChart(updated_day_chunks) {
-
+		function updateChart(chunks) {
 			d3.select("#chart").selectAll("svg").data([]).exit().remove();
-			createHeatChart(updated_day_chunks);
+			createHeatChart(chunks);
 		}
 
-		function getTimeData() {
-			if (0 === timeData.length) {
-				//Uncomment the portion below to get randomize sample data.
-				//timeData = chartTime.getSampleTimes(samplePoints);
-				timeData = [];
-			}
-			return timeData;
+		function updateMode(newMode) {
+			
 		}
 
-		function handleModeButtons(modeChoice) {
+		function updateModeButtons(modeChoice) {
 
 			var baseYear = baseDate.getFullYear();
 			var baseMonth = baseDate.getMonth();
