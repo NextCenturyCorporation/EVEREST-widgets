@@ -48,28 +48,23 @@ var app = app || {};
 
     /**
     * Add datapoints to the timeline.
-    * @param incomingEvents the datapoints to add.  Can either be an array of JSON strings each representing
-    * a datapoint, or a single JSON string with either a single datapoint or an array of data points.
-    * The JSON for the datapoint is of the form
+    * @param incomingEvents the datapoints to add.  Can either be an array of objects each representing
+    * a datapoint, or a single object representing a single datapoint
+    * The datapoint is of the form
     *    {
     *      start: date of the event, or start date if the event is a long event.  Of the form "Apr 14 2013 00:00:00 GMT"
     *      end: end date of a long event.  Omit if this event is a single point in time.  Same format as above
     *      title: short text (couple words) to describe this event
+    *      <<whole bunch of other options offered by syrinx>>
     *    }
     */
     app.addEvents = function(incomingEvents) {
         var eventData = {};
         if (incomingEvents instanceof Array) {
-          // An array of JSON strings - that's the desired format
+          // An array of data points - that's the desired format
           eventData.events = incomingEvents;
-        } else if (incomingEvents.charAt(0) == '[') {
-          // A JSON string representing an array of events.  We want
-          // to pull out the events and put them in a real array.
-
-          // TODO: Tokenize into JSON strings for each event
         } else {
-          // A JSON string representing a single JSON event.  Put it in
-          // and array
+          // A single data point.  Put it in an array
           eventData.events = [incomingEvents];
         }
 
