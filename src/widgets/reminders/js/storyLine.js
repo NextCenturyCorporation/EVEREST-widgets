@@ -39,7 +39,7 @@ var app = app || {};
     };
 
     app.addReminders = function(reminders) {
-        var eventData = { 'events': [] };
+        /*var eventData = { 'events': [] };
         _.each(reminders, function(reminder) {
             eventData.events.push({
                 'title': reminder.completed ? reminder.title : "Due: " + reminder.title ,
@@ -47,8 +47,8 @@ var app = app || {};
                 'description': reminder.description,
                 'icon': reminder.completed ? 'blue-circle.png' : 'red-circle.png'
             });
-        });
-        eventSource.loadJSON(eventData, "");
+        });*/
+        eventSource.loadJSON(reminders, "");
     };
 
 }());

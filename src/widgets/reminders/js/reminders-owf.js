@@ -16,10 +16,9 @@ if(OWF.Util.isRunningInOWF()) {
 				
 				message.events.push({
 					title: reminder.title,
-					dateCompleted: reminder.dateCompleted,
-					completed: reminder.completed,
-					dueDate: reminder.dueDate,
-					description: description
+					start: reminder.completed ? reminder.dateCompleted : reminder.dueDate,
+					description: description,
+                	icon: reminder.completed ? 'blue-circle.png' : 'red-circle.png'
 				});
 			});
 
