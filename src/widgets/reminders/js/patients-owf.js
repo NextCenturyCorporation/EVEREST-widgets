@@ -5,9 +5,18 @@ if(OWF.Util.isRunningInOWF()) {
         var reminderEvents = [];
         var message = {};
         _.each(patient.get('reminders'), function(reminder) {
+            console.log(reminder);
+            var rem = app.reminders.get(reminder.reminder_id);
+            console.log(rem);
+            var description = 'Performed by: ' + reminder.performedBy;
+            _.each(reminder.components, function(comp){
+                description += '<br />Who: ' + comp.who + '<br />What: ' + comp.what + '<br />When: ' + comp.when;
+            });
+
         	reminderEvents.push({
-        		'title': reminder.title,
-        		'start': reminder.completed ? reminder.dateCompleted : reminder.dueDate
+        		title: reminder.title,
+        		start: reminder.completed ? reminder.dateCompleted : reminder.dueDate,
+                description: description
         	});
         });
         message.events = reminderEvents;
