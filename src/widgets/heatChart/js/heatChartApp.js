@@ -36,10 +36,10 @@ define([
 		});
 
 		var chartTime = new HeatChartTime();
-		var heatChartWidget = new HeatChartWidget();
+		var chartWidget = new HeatChartWidget();
 		var chartData = new HeatChartData();
 
-		var _MODE_ = {};
+		var CHART_MODE = {};
 
 		var baseDate = chartTime.currentUTCTime();
 
@@ -69,13 +69,13 @@ define([
 		function update(data) {
 			updateChart(
 				chartTime.getTimeChunks(
-					baseDate, _MODE_.name, data));
+					baseDate, CHART_MODE.name, data));
 		}
 
 		function updateNow() {
 			baseDate = chartTime.currentUTCTime();
 			update();
-			updateModeButtons(_MODE_.name);
+			updateModeButtons(CHART_MODE.name);
 		}
 
 		function updateChart(chunks) {
@@ -84,7 +84,7 @@ define([
 		}
 
 		function updateMode(newMode) {
-			_MODE_ = chartTime.getMode(newMode);
+			CHART_MODE = chartTime.getMode(newMode);
 		}
 
 		function updateModeButtons() {
@@ -118,7 +118,7 @@ define([
 				hourLabel = hourLabel + '00';
 			}
 
-			switch (_MODE_.name) {
+			switch (CHART_MODE.name) {
 
 				case "hour":
 					d3.select("#yearButton").text(baseYear);
@@ -157,7 +157,7 @@ define([
 			};
 
 			d3.select("#baseDate").text("Context Date: " + baseDate.toString());
-			heatChartWidget.publishDateRange(_MODE_.name, baseDate);
+			chartWidget.publishDateRange(CHART_MODE.name, baseDate);
 
 		};
 
@@ -172,18 +172,18 @@ define([
 				console.log(err);
 			}
 
-			// _MODE_.rows + 1 due to the size of the innerRadius
-			var segHeight = chartWidth / (_MODE_.rows + 1);
+			// CHART_MODE.rows + 1 due to the size of the innerRadius
+			var segHeight = chartWidth / (CHART_MODE.rows + 1);
 
 			var innerRadius;
 			segHeight < 10 ? innerRadius = 10 : innerRadius = segHeight;
 
 			chart = new circularHeatChart()
-				.range(["white", _MODE_.color])
-				.radialLabels(_MODE_.rowLabels)
-				.segmentLabels(_MODE_.columnLabels)
+				.range(["white", CHART_MODE.color])
+				.radialLabels(CHART_MODE.rowLabels)
+				.segmentLabels(CHART_MODE.columnLabels)
 				.segmentHeight(segHeight)
-				.numSegments(_MODE_.columns)
+				.numSegments(CHART_MODE.columns)
 				.innerRadius(innerRadius);
 
 			chart.accessor(function(d) {
@@ -235,7 +235,7 @@ define([
 		function handleDrillDown(cellDate) {
 			baseDate = new Date(cellDate);
 
-			switch (_MODE_.name) {
+			switch (CHART_MODE.name) {
 				//Announce Channel: com.nextcentury.everest.heatchart
 				//Each time the heat chart is drilled down, announce the new date range
 				//that appears in the chart.
@@ -263,7 +263,7 @@ define([
 					break;
 			};
 
-			heatChartWidget.publishDateRange(_MODE_.name, baseDate);
+			chartWidget.publishDateRange(CHART_MODE.name, baseDate);
 		};
 
 	};
