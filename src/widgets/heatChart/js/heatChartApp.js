@@ -48,7 +48,7 @@ define([
 		execute(startingMode);
 
 		function execute(mode) {
-			
+
 			updateMode(mode)
 			updateModeButtons(mode);
 			fetch();
@@ -56,14 +56,15 @@ define([
 		}
 
 		function fetch() {
-			chartData.getAllFeeds(
-				'rawfeed',
-				function(data) {
+			chartData.fetch({
+				feedType: 'rawfeed',
+				successCallback: function(data) {
 					update(data);
 				},
-				function(error) {
+				errorCallback: function(error) {
 					console.log("An error occurred trying to retrieve the data: " + error);
-				});
+				}
+			});
 		}
 
 		function update(data) {

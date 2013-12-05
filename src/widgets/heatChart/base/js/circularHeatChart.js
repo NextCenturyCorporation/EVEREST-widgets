@@ -1,4 +1,6 @@
-define(['d3'], function(d3) {
+define([
+    'd3'
+], function(d3) {
 
     var circularHeatChart = function() {
         var margin = {

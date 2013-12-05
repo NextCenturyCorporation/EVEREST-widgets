@@ -27,21 +27,21 @@ define([
 
 		return {
 
-			getAllFeeds: function(feedType, successCallback, errorCallback) {
-				var url = _config.baseUrl;
-				feedType = feedType.toLowerCase();
+			fetch: function(options) {
 
-				if (feedType == 'alpha-report') {
+				var url = _config.baseUrl;
+
+				if (options.feedType.toLowerCase() === 'alpha-report') {
 					url += '/alpha-report/dates';
 
-				} else if (feedType == 'assertion') {
+				} else if (options.feedType.toLowerCase() === 'assertion') {
 					url += '/assertion/dates';
 
 				} else {
 					url += '/rawfeed/dates';
 				}
 
-				GET(url, successCallback, errorCallback);
+				GET(url, options.successCallback, options.errorCallback);
 
 			}
 
