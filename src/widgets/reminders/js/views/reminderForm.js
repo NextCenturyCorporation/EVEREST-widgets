@@ -46,7 +46,7 @@ var app = app || {};
                     template = '<div class="checkbox"><label><input type="checkbox" value="">Patient had Advance Directives Screening done</label></div>Level of Understanding:<input type="text" class="form-control">Comment:<input type="text" class="form-control">';
                     break;
                 case "Pneumococcal":
-                    template = '<div class="checkbox"><label><input type="checkbox" value="">Patient given Pneumococcal vaccine today</label></div>Pneumococcal Lot Number:<input type="text" class="form-control">Pneumococcal Injection Site:<input type="text" class="form-control">Pneumococcal Expiration Date:<input type="text" class="form-control">';
+                    template = '<div class="checkbox"><label><input type="checkbox" value="">Patient given Pneumococcal vaccine today</label></div>Pneumococcal Lot Number<input type="text" class="form-control">Pneumococcal Injection Site<input type="text" class="form-control">Pneumococcal Expiration Date<input type="text" class="form-control">';
                     break;
                 case "Influenza Vaccine 65":
                     template = '<h5>Order Influenza vaccine to be administered:</h5><div class="checkbox"><label><input type="checkbox" value="">Patient given Influenza vaccine today</label></div><div class="checkbox"><label><input type="checkbox" value="">Inpatient Influenza vaccine order/administer</label></div>';
@@ -70,7 +70,7 @@ var app = app || {};
             });
 
             $('input[type=text]').each(function(){
-                me.patientReminder.description += $(this)[0].previousSibling.textContent + ' ' + $(this)[0].value + '<br />';
+                me.patientReminder.description += $(this)[0].previousSibling.textContent + ': ' + $(this)[0].value + '<br />';
             })
 
             this.announceState({events: [me.patientReminder]});

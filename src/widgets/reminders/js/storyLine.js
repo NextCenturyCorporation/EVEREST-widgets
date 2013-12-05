@@ -43,7 +43,7 @@ var app = app || {};
         _.each(reminders, function(reminder) {
             eventData.events.push({
                 'title': reminder.completed ? reminder.title : "Due: " + reminder.title ,
-                'start': reminder.completed ? reminder.dateCompleted : reminder.dueDate,
+                'start': reminder.start ? reminder.start : reminder.completed ? reminder.dateCompleted : reminder.dueDate,
                 'description': reminder.description,
                 'icon': reminder.completed ? 'blue-circle.png' : 'red-circle.png'
             });

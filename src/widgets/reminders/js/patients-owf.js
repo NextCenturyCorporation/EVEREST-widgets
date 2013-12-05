@@ -5,9 +5,9 @@ if(OWF.Util.isRunningInOWF()) {
 		OWF.ready(function () {
 			OWF.Eventing.publish('com.nextcentury.everest.reminders.sendPatient', patient.toJSON());
 			//OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', message);
-		console.log(patient.get('name') === "Bob Smith");
+		    console.log(patient.get('name') === "Bob Smith");
             if (patient.get('name') === 'Bob Smith') {
-		console.log(data);
+		        console.log(data);
                 OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', data);
             }
 		});
