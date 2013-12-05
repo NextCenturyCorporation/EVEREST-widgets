@@ -2,6 +2,25 @@ var clusterer = clusterer || {};
 
 (function() {
 
+	clusterer.cluster1 = function(dataPoints) {
+		// A hard coded case for testing.  Assumes three points in April at start, and as more points are
+		// added they are added to January.  So recommends zooming out April if there are less than three
+		// points or zooming out January if there are more than 6 points.
+		return (dataPoints.length <7 ?
+			[{
+				start: Date.parse("Apr 10 2013 00:00:00 GMT"),
+				end: Date.parse("Apr 16 2013 00:00:00 GMT"),
+				entries: 3,
+				scale: 40
+			}] :
+			[{
+				start: Date.parse("Jan 1 2013 00:00:00 GMT"),
+				end: Date.parse("Feb 1 2013 00:00:00 GMT"),
+				entries: dataPoints.length-3,
+				scale: 40
+			}]);
+	}
+
 	/**
 	* Analyzes a set of data points and finds inherent clusters of data.  Then 
 	* calculates how to scale those clusters so that the whole distribution appears
@@ -135,7 +154,6 @@ var clusterer = clusterer || {};
 		variance2 = Math.sqrt(variance2/(sortedData.length-1));
 	
 		var improvement = (variance2/range2)/(variance1/range1);
-		alert("old = " + (variance1/range1) + ", new = " + (variance2/range2) + ", ratio=" + improvement*100 + "%");
 		if (improvement > 0.7) {
 			// Not good enough improvement.  Don't bother.
 			areas=[{

@@ -67,12 +67,12 @@ var app = app || {};
         // We need to both give these points to the timeline and save them in our own
         // internal list.
         for(var i=0; i<eventData.events.length; ++i) {
-          var date = Timeline.DateTime.parseGregorianDateTime(eventData.events[i]);
-          datapoints.push(date.getTime())
+          var date = Date.parse(eventData.events[i].start);
+          datapoints.push(date);
+          // TODO: Be more efficient.  Use a binary search to find the right place to  insert it.
+          datapoints = datapoints.sort();
         }
         eventSource.loadJSON(eventData, "");
-        app.calculateZones(eventData);
-        Timeline.create(document.getElementById("tline"), bandInfo, Timeline.Horizontal);
     }
 
     app.clearEvents = function(incomingEvents) {
@@ -100,7 +100,7 @@ var app = app || {};
 
         // Rerender the timeline.
         $("#tline").removeData();
-        $("#tline").syrinxTimeline({ bands: newBandInfos });        
+        Timeline.create(document.getElementById("tline"), bandInfo, Timeline.Horizontal);        
     }
 
     /*
@@ -112,21 +112,70 @@ var app = app || {};
         // where datapoints are shown at a higher resolution.
         var areas = clusterer.cluster(datapoints);
 
-        var zones = [];
+        var newZones = [];
         for(var i=0; i<areas.length; ++i) {
           if (areas[i].scale > 1) {
-            zones.push({
+            newZones.push({
               start:    new Date(areas[i].start).toUTCString(),
-              end:      new Date(areas[i].start).toUTCString(),
-              magnify:  areas[i].scale
+              end:      new Date(areas[i].end).toUTCString(),
+              magnify:  areas[i].scale,
               // TODO: Figure out units
+              unit:     Timeline.DateTime.DAY
             });
           }
         }
 
         // TODO: Relayout the timeline with the calculated hotzones.
+        zones.length = 0;
+        zones.push.apply(zones, newZones);
 
         // TODO: Figure total scale and units.
+        app.scaleTimeline();
+
+        $("#tline").removeData();
+        Timeline.create(document.getElementById("tline"), bandInfo, Timeline.Horizontal);        
+    }
+
+    app.scaleTimeline = function() {
+      // Ideally we want all the events displayed on the visible area, so we look at the total time range and the total
+      // available pixels.
+
+      var range = datapoints[datapoints.length-1]-datapoints[0];
+      // Adjust that range with any hot zones
+      for(var i=0; i<zones.length; ++i) {
+        var zoneRange = Date.parse(zones[i].end)-Date.parse(zones[i].start);
+        range += zoneRange * (zones[i].magnify - 1);
+      }
+      var visibleLength = Timeline.getTimelineFromID(0).getBand(0).getViewLength();
+      var idealScale = (visibleLength*0.8)/range;  // Ideal number of pixels per millisecond.
+
+      // TODO: Too many data points will make this unreadable.  We should have some limit after which we scale it off
+      // the screen and make people scroll just because we have too many points.
+
+      // Now figure out how to get that ideal scale.  Figure out what the best interval to use is (days, months, years) and
+      // how many pixels each interval should get.
+      // Let's say we don't want intervals less than 100 pixels.
+      var unit = 0; // Start at milliseconds
+      var pixelsPerUnit = idealScale;
+      while (pixelsPerUnit < 100) {
+        unit += 1;
+        pixelsPerUnit = idealScale * SimileAjax.DateTime.gregorianUnitLengths[unit];
+      }
+
+      // Finally, need to point the timeline at the right point.
+      // TODO: Adjust for hot zones throwing off centering.
+      var center = (datapoints[datapoints.length-1]+datapoints[0])/2;
+      var centerDate = new Date(center);
+
+      bandInfo[0] = Timeline.createHotZoneBandInfo({
+                      width: "80%",
+                      intervalUnit: unit,
+                      intervalPixels: pixelsPerUnit,
+                      eventSource: eventSource,
+                      date: centerDate,
+                      zones: zones,
+                      theme: theme
+                    });
     }
 
     app.calculateZones = function(eventData) {

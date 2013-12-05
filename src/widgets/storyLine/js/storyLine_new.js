@@ -81,7 +81,7 @@ var app = app || {};
   }
 
   app.initialize = function() {
-    app.addEvents('');
+    app.addEvents([]);
   };
 
     
