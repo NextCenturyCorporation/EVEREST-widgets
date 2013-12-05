@@ -125,9 +125,9 @@ module.exports = function(grunt) {
 
     grunt.registerTask('test', function(target) {
         if (target) {
-            grunt.task.run(['connect:test', 'jasmine:', 'watch:test']);
+            grunt.task.run(['connect:test', 'jasmine:' + target, 'watch:test']);
         } else {
-            grunt.log.error('Please specify a widget target for jasmine.');
+            grunt.log.error('Please specify a widget target for jasmine, such as \'heatChart\'.');
         }
     });
 

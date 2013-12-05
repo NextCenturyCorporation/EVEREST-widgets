@@ -17,7 +17,7 @@ require.config({
 });
 
 require([
-    './heatChartApp'
+    'js/heatChartApp'
 ], function(HeatChartApp) {
     var heatChartApp = new HeatChartApp("year");
 });
