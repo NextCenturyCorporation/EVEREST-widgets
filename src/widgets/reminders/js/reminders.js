@@ -10,6 +10,7 @@ var app = app || {};
     app.patientReminders = new Backbone.Collection();
 
     app.showReminderList = function() {
+        app.router.navigate('//reminderForm/');
         app.reminderFormView && app.reminderFormView.remove();
         app.reminderListView && app.reminderListView.remove();
 
