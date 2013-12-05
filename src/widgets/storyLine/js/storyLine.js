@@ -12,11 +12,7 @@ var app = app || {};
     // layout the timeline.
     var datapoints = [];
 
-    var zones = [{   start:    "Mon Apr 1 2013 00:00:00 GMT-0600",
-            end:      "Wed May 1 2013 00:00:00 GMT-0600",
-            magnify:  40,
-            unit:     Timeline.DateTime.DAY
-        }];
+    var zones = [];
 
     var bandInfo = [
       Timeline.createHotZoneBandInfo({
@@ -74,7 +70,9 @@ var app = app || {};
           var date = Timeline.DateTime.parseGregorianDateTime(eventData.events[i]);
           datapoints.push(date.getTime())
         }
-        eventSource.loadJSON(eventData, "");      
+        eventSource.loadJSON(eventData, "");
+        app.calculateZones(eventData);
+        Timeline.create(document.getElementById("tline"), bandInfo, Timeline.Horizontal);
     }
 
     app.clearEvents = function(incomingEvents) {
@@ -129,6 +127,41 @@ var app = app || {};
         // TODO: Relayout the timeline with the calculated hotzones.
 
         // TODO: Figure total scale and units.
+    }
+
+    app.calculateZones = function(eventData) {
+      zoneData = {};
+      months = [];
+      for (var i = eventData.events.length - 1; i >= 0; i--) {
+        var d = new Date(eventData.events[i].start);
+        if(months[d.getMonth()] == null) {
+          months[d.getMonth()] = 1;
+        } else {
+
+          months[d.getMonth()]++;
+        }
+      };
+      console.log(months);
+
+      for (var i = months.length - 1; i >= 0; i--) {
+        if(months[i] != null && months[i] > 1){
+          var start = new Date();
+          start.setYear("2013");
+          start.setMonth(i);
+          start.setDate("1");
+          var end = new Date();
+          end.setYear("2013");
+          end.setMonth(i+1);
+          end.setDate("1");
+
+          zones.push({
+            start:    Timeline.DateTime.parseGregorianDateTime(start),
+            end:      Timeline.DateTime.parseGregorianDateTime(end),
+            magnify:  10,
+            unit:     Timeline.DateTime.DAY
+          })
+        }
+      };
     }
 
 }());

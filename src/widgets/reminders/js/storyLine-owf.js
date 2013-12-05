@@ -5,6 +5,11 @@ if(OWF.Util.isRunningInOWF()) {
             app.plotReminders(msg.reminders);
         });
 
+        OWF.Eventing.subscribe('com.nextcentury.everest.storyLine.events', function (sender, msg, channel) {
+        	console.log(msg);
+            app.addReminders(msg.events);
+        });
+
         OWF.notifyWidgetReady();
     });
 }
