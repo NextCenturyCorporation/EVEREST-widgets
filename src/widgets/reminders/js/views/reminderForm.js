@@ -61,6 +61,7 @@ var app = app || {};
             var me = this;
             me.patientReminder.completed = true;
             me.patientReminder.dateCompleted = moment(new Date()).format('LLL');
+            me.patientReminder.start = me.patientReminder.dateCompleted;
             me.patientReminder.description = '';
             //this.patient.save();
 
