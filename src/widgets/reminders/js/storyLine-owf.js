@@ -7,7 +7,7 @@ if(OWF.Util.isRunningInOWF()) {
 
         OWF.Eventing.subscribe('com.nextcentury.everest.storyLine.events', function (sender, msg, channel) {
         	console.log(msg);
-            app.addReminders(msg.events);
+            app.addReminders(msg);
         });
 
         OWF.notifyWidgetReady();
