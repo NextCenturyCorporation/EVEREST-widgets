@@ -1,18 +1,20 @@
 define([
-	
-	'jquery', 
-	'underscore', 
+
+	'jquery',
+	'underscore',
 	'd3',
 	'base/js/circularHeatChart',
 	'js/heatChartTime',
-	'js/heatChartWidget'
+	'js/heatChartWidget',
+	'js/heatChartData'
 
-], function($, _, d3, circularHeatChart, HeatChartTime, HeatChartWidget) {
+], function($, _, d3, circularHeatChart, HeatChartTime, HeatChartWidget, HeatChartData) {
 
 	var app = function(startingMode) {
 
 		var chartTime = new HeatChartTime();
-		var OWFheatChartWidget = new HeatChartWidget();
+		var heatChartWidget = new HeatChartWidget();
+		var chartData = new HeatChartData();
 
 		var baseURL = "http://everest-build:8081";
 		var color = "";
@@ -37,7 +39,8 @@ define([
 
 		function execute(modeChoice, feedType) {
 			mode = modeChoice;
-			getAllFeeds('rawfeed');
+
+			fetch();
 
 			$('#nowButton').click(function() {
 				updateNow();
@@ -113,6 +116,19 @@ define([
 			handleModeButtons(modeChoice);
 		}
 
+		function fetch() {
+			chartData.getAllFeeds(
+				'rawfeed',
+				function(data) {
+					timeData = data;
+					update();
+					fullTimeData = data;
+				},
+				function(error) {
+					console.log("An Error Occurred Trying to retrieve all feeds: " + error);
+				});
+		}
+
 		function update() {
 
 			timeData = getTimeData();
@@ -133,10 +149,7 @@ define([
 		function updateChart(updated_day_chunks) {
 
 			d3.select("#chart").selectAll("svg").data([]).exit().remove();
-
 			createHeatChart(updated_day_chunks);
-			//  d3.select("#hourChart").selectAll("svg").data([updated_day_chunks]).enter().append('svg');
-
 		}
 
 		function getTimeData() {
@@ -146,33 +159,6 @@ define([
 				timeData = [];
 			}
 			return timeData;
-		}
-
-		function getAllFeeds(feedType) {
-			var feedURL = '';
-			feedType = feedType.toLowerCase();
-			if (feedType == 'alpha-report') {
-				feedURL = '/alpha-report/dates';
-			} else if (feedType == 'assertion') {
-				feedURL = '/assertion/dates';
-			} else {
-				feedURL = '/rawfeed/dates';
-			}
-
-			$.ajax({
-				type: "GET",
-				url: baseURL + feedURL,
-				dataType: 'jsonp',
-				jsonpCallback: 'callback',
-				success: function(data) {
-					timeData = data;
-					update();
-					fullTimeData = data;
-				},
-				error: function(error) {
-					console.log("An Error Occurred Trying to retrieve all feeds: " + error);
-				}
-			});
 		}
 
 		function handleModeButtons(modeChoice) {
@@ -245,7 +231,7 @@ define([
 			};
 
 			d3.select("#baseDate").text("Context Date: " + baseDate.toString());
-			OWFheatChartWidget.publishDateRange(mode, baseDate);
+			heatChartWidget.publishDateRange(mode, baseDate);
 
 		};
 
@@ -355,7 +341,7 @@ define([
 					break;
 			};
 
-			OWFheatChartWidget.publishDateRange(mode, baseDate);
+			heatChartWidget.publishDateRange(mode, baseDate);
 		};
 
 	};
