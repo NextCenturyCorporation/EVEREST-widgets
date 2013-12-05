@@ -42,6 +42,7 @@ define([
 
 		var _MODES = {
 			hour: {
+				name: 'hour',
 				color: 'cyan',
 				rows: 60,
 				columns: 60,
@@ -49,6 +50,7 @@ define([
 				columnLabels: []
 			},
 			day: {
+				name: 'day',
 				color: 'blue',
 				rows: 60,
 				columns: 24,
@@ -56,6 +58,7 @@ define([
 				columnLabels: (_HOUR_LABELS)
 			},
 			week: {
+				name: 'week',
 				color: 'lime',
 				rows: 24,
 				columns: 7,
@@ -63,6 +66,7 @@ define([
 				columnLabels: (_DAYS_LONG)
 			},
 			month: {
+				name: 'month',
 				color: 'red',
 				rows: 24,
 				columns: 31,
@@ -70,6 +74,7 @@ define([
 				columnLabels: (_DAY_LABELS)
 			},
 			year: {
+				name: 'year',
 				color: 'orange',
 				rows: 31,
 				columns: 12,
@@ -77,6 +82,7 @@ define([
 				columnLabels: (_MONTHS_LONG)
 			},
 			year5: {
+				name: 'year5',
 				color: 'magenta',
 				rows: 12,
 				columns: 5,

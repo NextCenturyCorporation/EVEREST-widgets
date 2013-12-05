@@ -39,71 +39,20 @@ define([
 		var heatChartWidget = new HeatChartWidget();
 		var chartData = new HeatChartData();
 
-		var baseURL = "http://everest-build:8081";
-		var color = "";
-		var mode = "";
-		var numCols = 1;
-		var numRows = 1;
-		var samplePoints = 500000;
-		var timeData = [];
+		var _MODE_ = {};
+
 		var baseDate = chartTime.currentUTCTime();
 
 		var chart = {};
 
 		execute(startingMode);
 
-		function execute(modeChoice, feedType) {
-			mode = modeChoice;
-
+		function execute(mode) {
+			
+			updateMode(mode)
+			updateModeButtons(mode);
 			fetch();
 
-			switch (mode) {
-
-				case "hour":
-					color = 'cyan';
-					numCols = 60; // 
-					numRows = 60; // 
-					break;
-
-				case "day":
-					color = 'blue';
-					numCols = 24; // 
-					numRows = 60; // 
-					break;
-
-				case "week":
-					color = 'lime';
-					numCols = 7; // 
-					numRows = 24; // 
-					break;
-
-				case "month":
-					color = 'red';
-					numCols = 31; // 
-					numRows = 24; // 
-					break;
-
-				case "year":
-					color = 'orange';
-					numCols = 12; // 
-					numRows = 31; // 
-					break;
-
-				case "year5":
-					color = 'magenta';
-					numCols = 5; // 
-					numRows = 12; // 
-					break;
-
-				default:
-					mode = "month";
-					color = "red";
-					numCols = 31; // 
-					numRows = 24; // 
-
-			}
-
-			updateModeButtons(modeChoice);
 		}
 
 		function fetch() {
@@ -120,13 +69,13 @@ define([
 		function update(data) {
 			updateChart(
 				chartTime.getTimeChunks(
-					baseDate, mode, data));
+					baseDate, _MODE_.name, data));
 		}
 
 		function updateNow() {
 			baseDate = chartTime.currentUTCTime();
 			update();
-			updateModeButtons(mode);
+			updateModeButtons(_MODE_.name);
 		}
 
 		function updateChart(chunks) {
@@ -135,10 +84,10 @@ define([
 		}
 
 		function updateMode(newMode) {
-			
+			_MODE_ = chartTime.getMode(newMode);
 		}
 
-		function updateModeButtons(modeChoice) {
+		function updateModeButtons() {
 
 			var baseYear = baseDate.getFullYear();
 			var baseMonth = baseDate.getMonth();
@@ -169,7 +118,7 @@ define([
 				hourLabel = hourLabel + '00';
 			}
 
-			switch (modeChoice) {
+			switch (_MODE_.name) {
 
 				case "hour":
 					d3.select("#yearButton").text(baseYear);
@@ -208,15 +157,12 @@ define([
 			};
 
 			d3.select("#baseDate").text("Context Date: " + baseDate.toString());
-			heatChartWidget.publishDateRange(mode, baseDate);
+			heatChartWidget.publishDateRange(_MODE_.name, baseDate);
 
 		};
 
 		function createHeatChart(time_chunks) {
 			var me = this;
-
-			var rowLabels = chartTime.getMode(mode).rowLabels,
-				columnLabels = chartTime.getMode(mode).columnLabels;
 
 			var chartWidth = 300;
 			try {
@@ -226,19 +172,18 @@ define([
 				console.log(err);
 			}
 
-			// numRows + 1 due to the size of the innerRadius
-			var segHeight = chartWidth / (numRows + 1);
-			var innerRadius = segHeight;
-			if (innerRadius < 10) {
-				innerRadius = 10;
-			}
+			// _MODE_.rows + 1 due to the size of the innerRadius
+			var segHeight = chartWidth / (_MODE_.rows + 1);
+
+			var innerRadius;
+			segHeight < 10 ? innerRadius = 10 : innerRadius = segHeight;
 
 			chart = new circularHeatChart()
-				.range(["white", color])
-				.radialLabels(rowLabels)
-				.segmentLabels(columnLabels)
+				.range(["white", _MODE_.color])
+				.radialLabels(_MODE_.rowLabels)
+				.segmentLabels(_MODE_.columnLabels)
 				.segmentHeight(segHeight)
-				.numSegments(numCols)
+				.numSegments(_MODE_.columns)
 				.innerRadius(innerRadius);
 
 			chart.accessor(function(d) {
@@ -290,7 +235,7 @@ define([
 		function handleDrillDown(cellDate) {
 			baseDate = new Date(cellDate);
 
-			switch (mode) {
+			switch (_MODE_.name) {
 				//Announce Channel: com.nextcentury.everest.heatchart
 				//Each time the heat chart is drilled down, announce the new date range
 				//that appears in the chart.
@@ -318,7 +263,7 @@ define([
 					break;
 			};
 
-			heatChartWidget.publishDateRange(mode, baseDate);
+			heatChartWidget.publishDateRange(_MODE_.name, baseDate);
 		};
 
 	};
