@@ -69,6 +69,10 @@ var app = app || {};
                 me.patientReminder.description += $(this)[0].nextSibling.textContent + '<br />';
             });
 
+            $('input[type=text]').each(function(){
+                me.patientReminder.description += $(this)[0].previousSibling.textContent + ' ' + $(this)[0].value + '<br />';
+            })
+
             this.announceState({events: [me.patientReminder]});
             
             app.showReminderList();
