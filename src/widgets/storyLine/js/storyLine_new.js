@@ -8,7 +8,7 @@ var app = app || {};
   var theme = Timeline.ClassicTheme.create();
   var eventData = {};
   var zones = [];
-  var bandInfo = [];
+  var events = [];
 
   app.addEvents = function(incomingEvents){
     if (incomingEvents instanceof Array) {
@@ -20,19 +20,20 @@ var app = app || {};
       eventData.events = [incomingEvents];
     }
     eventSource.loadJSON(eventData, "");
-
+    for(var i=0; i<eventData.events.length; ++i) {
+      events.push(new Date(eventData.events[i].start));
+    }
     app.calculateZones();
   }
 
   app.calculateZones = function() {
     zoneData = {};
     months = [];
-    for (var i = eventData.events.length - 1; i >= 0; i--) {
-      var d = new Date(eventData.events[i].start);
-      if(months[d.getMonth()] == null) {
-        months[d.getMonth()] = 1;
+    for (var i = events.length - 1; i >= 0; i--) {
+      if(months[events[i].getMonth()] == null) {
+        months[events[i].getMonth()] = 1;
       } else {
-        months[d.getMonth()]++;
+        months[events[i].getMonth()]++;
       }
     };
     console.log(months);
@@ -55,7 +56,10 @@ var app = app || {};
   }
 
   app.createTimeline = function(){
-    bandInfo.push(Timeline.createHotZoneBandInfo({
+// erase what's in bandInfo
+
+  bandInfo = [
+    Timeline.createHotZoneBandInfo({
       width: "80%",
       intervalUnit: Timeline.DateTime.MONTH,
       intervalPixels: 75,
@@ -63,8 +67,8 @@ var app = app || {};
       date: d,
       zones: zones,
       theme: theme
-    }));
-    bandInfo.push(Timeline.createBandInfo({
+    }),
+     Timeline.createBandInfo({
       width: "20%",
       intervalUnit: Timeline.DateTime.YEAR,
       intervalPixels: 200,
@@ -73,7 +77,9 @@ var app = app || {};
       theme: theme,
       highlight: true,
       overview: true
-    }));
+    })
+  ];
+
     bandInfo[1].highlight = true;
     bandInfo[1].syncWith =0;
 
