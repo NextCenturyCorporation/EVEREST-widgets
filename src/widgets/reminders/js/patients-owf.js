@@ -5,12 +5,10 @@ if(OWF.Util.isRunningInOWF()) {
 		OWF.ready(function () {
 			OWF.Eventing.publish('com.nextcentury.everest.reminders.sendPatient', patient.toJSON());
 			//OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', message);
-
+		console.log(patient.get('name') === "Bob Smith");
             if (patient.get('name') === 'Bob Smith') {
-                $.getJSON('cubism.js', function(json){
-                    console.log(json);
-                    OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', json);
-                });
+		console.log(data);
+                OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', data);
             }
 		});
     });
