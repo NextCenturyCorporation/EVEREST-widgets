@@ -34,15 +34,13 @@ var app = app || {};
     app.plotReminders = function(reminders) {
         eventSource.clear();
         //remove bubbles on load of new patient, one or the other
-        Timeline._Band.prototype.closeBubble();
-        //SimileAjax.WindowManager.cancelPopups();
+        Timeline._Band.prototype.closeBubble(); //SimileAjax.WindowManager.cancelPopups();
         app.addReminders(reminders);
     };
 
     app.addReminders = function(reminders) {
         var eventData = { 'events': [] };
         _.each(reminders, function(reminder) {
-            console.log(reminder);
             eventData.events.push({
                 'title': reminder.completed ? reminder.title : "Due: " + reminder.title ,
                 'start': reminder.completed ? reminder.dateCompleted : reminder.dueDate,
