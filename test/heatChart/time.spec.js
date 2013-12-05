@@ -1,4 +1,6 @@
-define(['../../src/widgets/heatChart/js/time'], function(HeatChartTime) {
+define([
+	'../../src/widgets/heatChart/js/time'
+], function(HeatChartTime) {
 
 	describe('everest.heatChart.time', function() {
 

@@ -42,7 +42,6 @@ module.exports = function(grunt) {
         },
         connect: {
             options: {
-                port: 9000,
                 livereload: 35729,
                 // change this to '0.0.0.0' to access the server from outside
                 hostname: 'localhost'
@@ -58,18 +57,12 @@ module.exports = function(grunt) {
             },
             test: {
                 options: {
+                    port: 9000,
                     base: [
                         '.tmp',
                         'test',
                         '<%= yeoman.widgets %>'
                     ]
-                }
-            },
-            dist: {
-                options: {
-                    open: true,
-                    base: '<%= yeoman.dist %>',
-                    livereload: false
                 }
             }
         },
@@ -96,7 +89,22 @@ module.exports = function(grunt) {
                     ],
                     template: require('grunt-template-jasmine-requirejs'),
                     templateOptions: {
-                        requireConfigFile: '<%= yeoman.widgets %>/heatChart/js/main.js'
+                        requireConfig: {
+                            paths: {
+                                jquery: 'lib/jquery-2.0.2.min',
+                                underscore: 'lib/underscore-min',
+                                d3: 'lib/d3.v3.min'
+                            },
+
+                            shim: {
+                                underscore: {
+                                    exports: '_'
+                                },
+                                d3: {
+                                    exports: 'd3'
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -104,10 +112,6 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('serve', function(target) {
-        if (target === 'dist') {
-            return grunt.task.run(['build', 'connect:dist:keepalive']);
-        }
-
         grunt.task.run([
             'connect:livereload',
             'watch'
@@ -121,7 +125,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('test', function(target) {
         if (target) {
-            grunt.task.run(['connect:test','jasmine:', 'watch:test']);
+            grunt.task.run(['connect:test', 'jasmine:', 'watch:test']);
         } else {
             grunt.log.error('Please specify a widget target for jasmine.');
         }
