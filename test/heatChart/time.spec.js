@@ -1,5 +1,5 @@
 define([
-	'../../src/widgets/heatChart/js/time'
+	'../../src/widgets/heatChart/js/heatChartTime'
 ], function(HeatChartTime) {
 
 	describe('everest.heatChart.time', function() {

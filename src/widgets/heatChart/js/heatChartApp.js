@@ -4,7 +4,7 @@ define([
 	'underscore', 
 	'd3',
 	'base/js/circularHeatChart',
-	'js/time',
+	'js/heatChartTime',
 	'js/heatChartWidget'
 
 ], function($, _, d3, circularHeatChart, HeatChartTime, HeatChartWidget) {
