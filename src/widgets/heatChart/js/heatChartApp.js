@@ -48,11 +48,9 @@ define([
 		execute(startingMode);
 
 		function execute(mode) {
-
 			updateMode(mode)
 			updateModeButtons(mode);
 			fetch();
-
 		}
 
 		function fetch() {
@@ -68,20 +66,16 @@ define([
 		}
 
 		function update(data) {
-			updateChart(
-				chartTime.getTimeChunks(
-					baseDate, CHART_MODE.name, data));
+			var chunks = chartTime.getTimeChunks(baseDate, CHART_MODE.name, data);
+			d3.select("#chart").selectAll("svg").data([]).exit().remove();
+
+			createHeatChart(chunks);
 		}
 
 		function updateNow() {
 			baseDate = chartTime.currentUTCTime();
 			update();
 			updateModeButtons(CHART_MODE.name);
-		}
-
-		function updateChart(chunks) {
-			d3.select("#chart").selectAll("svg").data([]).exit().remove();
-			createHeatChart(chunks);
 		}
 
 		function updateMode(newMode) {

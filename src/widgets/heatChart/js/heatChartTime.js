@@ -47,7 +47,15 @@ define([
 				rows: 60,
 				columns: 60,
 				rowLabels: [],
-				columnLabels: []
+				columnLabels: (function(_) {
+					return _.map(_.range(0, 60), function(num) {
+						if (num < 10) {
+							return '0' + num + 'm';
+						} else {
+							return '' + num + 'm';
+						}
+					});
+				})(_)
 			},
 			day: {
 				name: 'day',
@@ -170,7 +178,7 @@ define([
 
 				// This will map the number of raw feeds for a specific date to the correct heat chart "chunk"
 
-				if (timeList !== null) {
+				if (timeList) {
 
 					var time, year, month, day, dayofweek, hour, minutes, seconds;
 
