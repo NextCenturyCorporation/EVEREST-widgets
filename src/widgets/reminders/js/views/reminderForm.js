@@ -11,7 +11,8 @@ var app = app || {};
         },
 
         events: {
-            'click #submitReminderBtn': 'markResolved'
+            'click #submitReminderBtn': 'markResolved',
+            'click '
         },
 
         initialize: function(options) {
@@ -71,7 +72,9 @@ var app = app || {};
             });
 
             $('input[type=text]').each(function(){
-                me.patientReminder.description += $(this)[0].previousSibling.textContent + ': ' + $(this)[0].value + '<br />';
+                if ($(this)[0].value !== ''){
+                    me.patientReminder.description += $(this)[0].previousSibling.textContent + ': ' + $(this)[0].value + '<br />';
+                }
             })
 
             this.announceState({events: [me.patientReminder]});
