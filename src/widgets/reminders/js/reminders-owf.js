@@ -8,14 +8,14 @@ if(OWF.Util.isRunningInOWF()) {
 		    var message = { events: [] };
 			_.each(app.patient.get('reminders'), function(reminder){
 				var rem = app.reminders.get(reminder.reminder_id);
-				var description = 'Performed bye: ' + reminder.performedBy;
+				var description = 'Performed by: ' + reminder.performedBy;
 
 				_.each(rem.get('components'), function(comp) {
 					description += '<hr />Who: ' + comp.who + '<br />What: ' + comp.what + '<br />When: ' + comp.when;
 				});
 				
 				message.events.push({
-					title: reminder.title,
+					title: reminder.completed ? reminder.title : 'Due: ' + reminder.title,
 					start: reminder.completed ? reminder.dateCompleted : reminder.dueDate,
 					description: description,
                 	icon: reminder.completed ? 'blue-circle.png' : 'red-circle.png'
