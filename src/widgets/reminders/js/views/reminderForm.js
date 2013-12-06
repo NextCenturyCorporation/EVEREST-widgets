@@ -11,8 +11,7 @@ var app = app || {};
         },
 
         events: {
-            'click #submitReminderBtn': 'markResolved',
-            'click '
+            'click #submitReminderBtn': 'markResolved'
         },
 
         initialize: function(options) {
