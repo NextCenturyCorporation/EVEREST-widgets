@@ -73,6 +73,8 @@ var app = app || {};
           datapoints = datapoints.sort();
         }
         eventSource.loadJSON(eventData, "");
+
+        app.deduceLayout();
     }
 
     app.clearEvents = function(incomingEvents) {
@@ -137,45 +139,48 @@ var app = app || {};
     }
 
     app.scaleTimeline = function() {
-      // Ideally we want all the events displayed on the visible area, so we look at the total time range and the total
-      // available pixels.
 
-      var range = datapoints[datapoints.length-1]-datapoints[0];
-      // Adjust that range with any hot zones
-      for(var i=0; i<zones.length; ++i) {
-        var zoneRange = Date.parse(zones[i].end)-Date.parse(zones[i].start);
-        range += zoneRange * (zones[i].magnify - 1);
+      if(datapoints.length > 1){
+        // Ideally we want all the events displayed on the visible area, so we look at the total time range and the total
+        // available pixels.
+
+        var range = datapoints[datapoints.length-1]-datapoints[0];
+        // Adjust that range with any hot zones
+        for(var i=0; i<zones.length; ++i) {
+          var zoneRange = Date.parse(zones[i].end)-Date.parse(zones[i].start);
+          range += zoneRange * (zones[i].magnify - 1);
+        }
+        var visibleLength = Timeline.getTimelineFromID(0).getBand(0).getViewLength();
+        var idealScale = (visibleLength*0.8)/range;  // Ideal number of pixels per millisecond.
+
+        // TODO: Too many data points will make this unreadable.  We should have some limit after which we scale it off
+        // the screen and make people scroll just because we have too many points.
+
+        // Now figure out how to get that ideal scale.  Figure out what the best interval to use is (days, months, years) and
+        // how many pixels each interval should get.
+        // Let's say we don't want intervals less than 100 pixels.
+        var unit = 0; // Start at milliseconds
+        var pixelsPerUnit = idealScale;
+        while (pixelsPerUnit < 100) {
+          unit += 1;
+          pixelsPerUnit = idealScale * SimileAjax.DateTime.gregorianUnitLengths[unit];
+        }
+
+        // Finally, need to point the timeline at the right point.
+        // TODO: Adjust for hot zones throwing off centering.
+        var center = (datapoints[datapoints.length-1]+datapoints[0])/2;
+        var centerDate = new Date(center);
+
+        bandInfo[0] = Timeline.createHotZoneBandInfo({
+                        width: "80%",
+                        intervalUnit: unit,
+                        intervalPixels: pixelsPerUnit,
+                        eventSource: eventSource,
+                        date: centerDate,
+                        zones: zones,
+                        theme: theme
+                      });
       }
-      var visibleLength = Timeline.getTimelineFromID(0).getBand(0).getViewLength();
-      var idealScale = (visibleLength*0.8)/range;  // Ideal number of pixels per millisecond.
-
-      // TODO: Too many data points will make this unreadable.  We should have some limit after which we scale it off
-      // the screen and make people scroll just because we have too many points.
-
-      // Now figure out how to get that ideal scale.  Figure out what the best interval to use is (days, months, years) and
-      // how many pixels each interval should get.
-      // Let's say we don't want intervals less than 100 pixels.
-      var unit = 0; // Start at milliseconds
-      var pixelsPerUnit = idealScale;
-      while (pixelsPerUnit < 100) {
-        unit += 1;
-        pixelsPerUnit = idealScale * SimileAjax.DateTime.gregorianUnitLengths[unit];
-      }
-
-      // Finally, need to point the timeline at the right point.
-      // TODO: Adjust for hot zones throwing off centering.
-      var center = (datapoints[datapoints.length-1]+datapoints[0])/2;
-      var centerDate = new Date(center);
-
-      bandInfo[0] = Timeline.createHotZoneBandInfo({
-                      width: "80%",
-                      intervalUnit: unit,
-                      intervalPixels: pixelsPerUnit,
-                      eventSource: eventSource,
-                      date: centerDate,
-                      zones: zones,
-                      theme: theme
-                    });
     }
 
     app.calculateZones = function(eventData) {
