@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8'>
+
+  <title>Story Line</title>
+
+  <link rel='stylesheet' href='js/libs/jquery-timeline/jquery.timeline.css'>
+
+</head>
+<body>
+  <div id="buttonDiv">
+      <button id="addButton">Add Point</button>
+      <button id="changeButton">Change Layout</button>
+  </div>
+
+  <script src='js/libs/jquery-2.0.3.min.js'></script>
+  <script src='js/libs/underscore-1.5.2.min.js'></script>
+  <script src="js/libs/owf-widget-debug.js"></script>
+  <script src="js/libs/jquery-timeline/jquery.timeline.js"></script>
+  <script>
+      // // Load in sample data
+      // app.addEvents([
+      //   {
+      //     start: "Apr 14 2013 00:00:00 GMT",
+      //     title: "First Event"
+      //   },     
+      //   {
+      //     start: "Apr 12 2013 00:00:00 GMT",
+      //     title: "Second Event"
+      //   },
+      //   {
+      //     start: "Apr 13 2013 00:00:00 GMT",
+      //     title: "Third Event"
+      //   }
+      // ]);
+  </script>
+  <script>
+    $(function() {
+      $("#changeButton").click(function(event) {
+        // var bandInfo = [{
+        //           width: "50%",
+        //           intervalUnit: Timeline.DateTime.MONTH,
+        //           intervalPixels: 75,
+        //         },
+        //         {
+        //           width: "50%",
+        //           intervalUnit: Timeline.DateTime.YEAR,
+        //           intervalPixels: 200,
+        //           highlight: true,
+        //           overview: true
+        //         }];
+        // app.changeLayout(bandInfo);
+      });
+    });
+  </script>
+  <script>
+    $(function() {
+      $("#addButton").click(function(event) {
+        // Pick a random time in November (random hour actually)
+        var day = Math.floor(Math.random() * 30 + 1);
+        var hour = Math.floor(Math.random() * 24);
+        var startDate = "Jan " + day + " 2013 " + hour + ":00:00 GMT";
+        var eventStr = '{"start":"'+startDate+'", "title":"New Event"}';
+        OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', eventStr);
+      });
+    });
+  </script>
+</body>
+</html>

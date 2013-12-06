@@ -13,17 +13,19 @@
   <div id="buttonDiv">
       <button id="addButton">Add Point</button>
       <button id="changeButton">Change Layout</button>
+      <button id="autoButton">Auto-Adjust Timeline</button>
   </div>
 
   <script src='js/libs/jquery-2.0.3.min.js'></script>
   <script src='js/libs/underscore-1.5.2.min.js'></script>
   <script src="js/libs/owf-widget-debug.js"></script>
   <script src="js/libs/jquery-timeline/jquery.timeline.js"></script>
+  <script src="js/clusterer.js"></script>  
   <script src="js/storyLine.js"></script>
   <script src="js/storyLine-owf.js"></script>
   <script>
       // Load in sample data
-      app.plotEvents([
+      app.addEvents([
         {
           start: "Apr 14 2013 00:00:00 GMT",
           title: "First Event"
@@ -65,9 +67,17 @@
         var hour = Math.floor(Math.random() * 24);
         var startDate = "Jan " + day + " 2013 " + hour + ":00:00 GMT";
         app.addEvents(
-          {start: startDate,
+          {
+            start: startDate,
             title: "New Event"
           });
+      });
+    });
+  </script>
+  <script>
+    $(function() {
+      $("#autoButton").click(function(event) {
+        app.deduceLayout();
       });
     });
   </script>
