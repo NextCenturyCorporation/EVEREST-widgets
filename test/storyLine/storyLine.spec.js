@@ -17,9 +17,6 @@ describe("To test the StoryLine widget", function() {
 		expect($(".timeline-date-label:contains('Mar')").length).toBeGreaterThan(0);
 	});
 
-	/** All these tests have suddenly stopped working and are temporarily disabled
-
-
 	it('displays data points in the storyline', function() {
 		// Pass in an array of data points and verify they are displayed.  
 		// We verify they are displayed by looking for their label in the DOM.
@@ -78,6 +75,8 @@ describe("To test the StoryLine widget", function() {
 		expect($(".timeline-event-label:contains('New First Event')").length).toBe(1);		
 	});
 
+/** Temporarily commented out
+
 	it('can change layout', function() {
 		// Change the bottom of the timeline so it displays decades not years, and 
 		// verify the labels on the timeline have changed.
@@ -99,5 +98,6 @@ describe("To test the StoryLine widget", function() {
 	    expect($(".timeline-date-label:contains('2013')").length).toBe(1); // 1 because 2013 still appears in the top month scale
 		expect($(".timeline-date-label:contains('2050')").length).toBeGreaterThan(0);
 	});
-**/
+	
+*/
 });
