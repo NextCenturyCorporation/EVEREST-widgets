@@ -3,7 +3,7 @@
 	<meta charset="utf-8">
 	<title>Raw Data Table</title>
 	
-	<link rel="stylesheet" type="text/css" href="../../components/dataTable/css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="../../../lib/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="../../components/dataTable/css/style.css">
 </head>
 <body>
@@ -14,21 +14,45 @@
 		</div>
 		<ul class="nav navbar-nav navbar-right">
 			<li class='dropdown'>
-				<a href='#' class='dropdown-toggle' data-toggle='dropdown'> Set Default Date <b class='caret'></b></a>
-				<ul class='dropdown-menu' id='dates'></ul>
-			</li>
-			<li class='dropdown'>
-				<a href='#' class='dropdown-toggle' data-toggle='dropdown'> Set Max Rows <b class='caret'></b></a>
-				<ul class='dropdown-menu'>
-					<li><a href='#' class='show' id='10'>Show 10</a></li>
-					<li><a href='#' class='show' id='25'>Show 25</a></li>
-					<li><a href='#' class='show' id='50'>Show 50</a></li>
-					<li><a href='#' class='show' id='100'>Show 100</a></li>
+				<a href='#' class='dropdown-toggle' data-toggle='dropdown'>
+					Configure <b class='caret'></b>
+				</a>
+				<ul class='dropdown-menu' role='menu' aria-labelledby='dropdownMenu'>
+					<li><a href='#'>Action</a></li>
+					<li><a href='#'>Another Action</a></li>
+					<li class='divider'></li>
+					<li class='dropdown-submenu'>
+						<a tabindex='-1' href='#'>Visible Headers</a>
+						<ul class='dropdown-menu dropdown-menu-form' id='vis'>
+						</ul>
+					</li>
+					<li class='dropdown-submenu'>
+						<a tabindex='-1' href='#'>Set Default Date</a>
+						<ul class='dropdown-menu' id='dates'></ul>
+					</li>
+					<li class='dropdown-submenu'>
+						<a tabindex='-1' href='#'>Set Primary Sort Key</a>
+						<ul class='dropdown-menu dropdown-menu-form' id='prim-sort'></ul>
+					</li>
+					<li class='dropdown-submenu'>
+						<a href='#' class='dropdown-toggle' data-toggle='dropdown'>
+							Set Max Rows
+						</a>
+						<ul class='dropdown-menu'>
+							<li><a href='#' class='show' id='10'>Show 10</a></li>
+							<li><a href='#' class='show' id='25'>Show 25</a></li>
+							<li><a href='#' class='show' id='50'>Show 50</a></li>
+							<li><a href='#' class='show' id='100'>Show 100</a></li>
+						</ul>
+					</li>
 				</ul>
 			</li>
 			<li>
 				<a href='#' class='show_all'>Show All Data</a>
 			</li>	
+			<li>
+				<a href='#' class='configure' data-toggle='modal' data-target='#configModal'>Configure</a>
+			</li>
 	    </ul>
 	</nav>
 	<div class='well'>
@@ -58,7 +82,9 @@
 					</div>	
 				</div>
 				<div class="data_table_hold">
-					<table border="1" class='data_table_data'></table>		
+					<table border="1" class='data_table_data'>
+						<thead></thead>
+					</table>		
 				</div>
 			</div>
 		</div>
@@ -72,6 +98,8 @@
 	<script src="../../../lib/dropdown.js"></script>
 	<script src="../../../lib/jquery.blockUI.js"></script>
 	
+	<script src="../../components/dataTable/js/models.js"></script>
+	<script src="../../components/dataTable/js/views.js"></script>
 	<script src="../../components/dataTable/data_table.js"></script>
 	<script src="../../components/dataTable/table_widget.js"></script>
 
@@ -83,6 +111,12 @@
 			var workflow = 'com.nextcentury.everest.data.workflow';
 			var raw_data_widget = new table_widget(url, announce, timeline, workflow, 'RawFeed');
 			raw_data_widget.execute();
+			
+			$('.dropdown-menu').on('click', function(e){
+				if($(this).hasClass('dropdown-menu-form')){
+					e.stopPropagation();
+				}
+			});
 		});
 	</script>
 </body>

@@ -27,6 +27,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	me.temp_datas = me.datas.slice(0, me.max_rows);
 	
 	me.headers = [];
+	me.indexes = [];
 	me.idColumn = null;
 
 	me.announce = announce_function;
@@ -40,58 +41,6 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 
 	me.table = Backbone.Collection.extend({
 		model: me.sentence
-	});
-
-	me.sentenceView = Backbone.View.extend({
-		tagName: 'tr',
-		className: 'unlit',
-		initialize: function(){
-			this.render();
-		},
-		render: function(){
-			//get keys and values of the attributes of this model
-			var keys = me.headers;
-			var vals = [];
-			var obj = this.model.attributes ? this.model.attributes : this.model;
-			
-			for (var i = 0; i < keys.length; i++){
-				vals[i] = obj[keys[i]];
-			}
-			
-			//grab this element and add d3 functionality
-			d3.select(this.el).on('mouseover', function() { 
-				d3.select(this).classed('lit', true).classed('unlit', false);
-			}).on('mouseout', function() {
-				d3.select(this).classed('unlit', true).classed('lit', false);
-			}).selectAll('td')
-			.data(vals).enter()
-			.append('td').text(function(d){ 
-				if (d !== undefined){
-					var str = typeof(d) === 'object' ? JSON.stringify(d) : d.toString();
-					return str.length > MAX_CHARS ? str.substring(0, MAX_CHARS) + '...' : str;
-				} else {
-					return 'N/A';
-				}
-			}).on('click', function(d){
-				d3.selectAll('.data_table_descr').remove();
-				d3.select('.data_table_text')
-					.append('text')
-					.text(function(){
-						var str = typeof(d) === 'object' ? JSON.stringify(d) : d.toString();
-						return str;
-					})
-					.classed('data_table_descr', true);
-					
-				d3.selectAll('td').style('font-weight', 'normal');
-				d3.select(this).style('font-weight', 'bold');
-				
-				if (me.idColumn !== null) {
-					var id = $(this).parent('tr').children('td:nth-child(' + (me.idColumn + 1) + ')').text();
-				}
-
-				me.announce(JSON.stringify({_id: id, field_value: d}));
-			});
-		}
 	});
 
 	me.tableView = Backbone.View.extend({
@@ -108,7 +57,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				
 				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
 				$('#panel-title').text(s);
-	
+
 				me.count = me.page * me.max_rows;
 				var temp = (1 + me.page) * me.max_rows;
 								
@@ -123,9 +72,8 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				$.unblockUI();
 			},
 			renderSentence: function(item, location){
-				var sentView = new me.sentenceView({
-					model: item
-				});
+				var sent = new row(item);
+				var sentView = new rowView({model: item, keys: me.headers}).render();
 				//render this item and add it to the table
 				if (location === false){	
 					$('.data_table_data').append(sentView.el);
@@ -159,7 +107,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					
 					me.temp_datas = me.datas.slice(me.page * me.max_rows - me.offset, (me.page + 1) * me.max_rows - me.offset);						
 					this.collection = new me.table(me.temp_datas);
-	
+
 					me.addRow(item, this);
 					
 					//pages @ top, if data becomes large enough to add another page,
@@ -218,7 +166,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		me.total = data.total_count;
 		me.max_pages = Math.ceil(me.total / me.max_rows);
 				
-		me.currentTableView = new me.tableView(me.datas);
+		me.currentTableView = new tableView(me.datas);
 	};
 	
 	me.renderPage = function(){
@@ -304,7 +252,33 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			me.setMaxRows(parseInt(this.id, 10));
 			me.page = 0;
 			me.renderPage();
-		});	
+		});
+
+		$('input[type=checkbox]').change(function() {
+			var box = this;
+			var id = null;
+			var label = $(box)[0].nextSibling.textContent;
+
+			if (!$(box).prop('checked')){
+				$('th').each(function(i, t){
+					if (this.textContent === label) {
+						id = $(this).attr('id');
+						$(this).remove();
+						me.headers.splice(i, 1);
+					}
+				});
+			} else {
+				d3.select('.data_table_data thead').append('th')
+					.text(label).attr('id', me.headers.length)
+					.attr('class', function() {
+						return me.indexes.indexOf(label) === -1 ? 'no_sort' : 'unsorted';
+					});
+				me.headers.push(label);
+			}
+			
+			me.currentTableView.render();
+			me.bindHeaderEvent();
+		})
 	};
 
 	me.sorter = function(elem, colId) {
@@ -390,6 +364,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	};
 	
 	me.createHeaders = function(arr, indexes){
+		me.indexes = indexes;
 		me.dateType = $.inArray(me.dateType, arr) !== -1 ? me.dateType : arr[0];
 		me.headers = arr;
 
@@ -400,19 +375,33 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			}
 		}
 	
-		var header = d3.select('.data_table_data');
+		var header = d3.select('.data_table_data thead');
 		header.selectAll('th').remove();
-		
+
 		for (var i = arr.length - 1; i >= 0; i--) {
+			var vis = d3.select('#vis').append('li');
+			vis.append('label').attr('for', 'check'+i).text(arr[i]);
+			vis.insert('input', ':first-child')
+				.attr('type', 'checkbox')
+				.attr('id', 'check'+i);
+
+			$('#check'+i).prop('checked', true);
+
+			var sort = d3.select('#prim-sort').append('li');
+			sort.append('label').attr('for', 'radio'+i).text(arr[i]);
+			var radio = sort.insert('input', ':first-child')
+				.attr('type', 'radio')
+				.attr('id', 'radio'+i);
+
+
+			if (arr[i] === '_id'){
+				radio.attr('checked', 'checked');
+			}
+
 			header.insert('th',':first-child')
-				.text(arr[i])
-				.attr('id', i)
+				.text(arr[i]).attr('id', i)
 				.attr('class', function(){
-					if (indexes.indexOf(arr[i]) === -1) {
-						return 'no_sort';
-					} else {
-						return 'unsorted';
-					}
+					return indexes.indexOf(arr[i]) === -1 ? 'no_sort' : 'unsorted';
 				});
 		}
 	};
