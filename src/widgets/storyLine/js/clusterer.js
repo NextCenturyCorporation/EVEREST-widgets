@@ -189,7 +189,8 @@ var clusterer = clusterer || {};
     * To avoid warping the time scale unnecessarily, this function rounds all
     * scaling factors less than 1.5 down to 1.
     * @param dataPoints an array of numbers
-    * @param maxClasses the maxium number of classes to use
+    * @param maxClasses (optional) the maxium number of classes to use.
+    *                   Defaults to 10.
     * @return an array of clusters.
     *         Each cluster has a range, a number of entries, and
     *         a scaling factor.
@@ -317,6 +318,11 @@ var clusterer = clusterer || {};
             entries: numDataPoints,
             scale: 1
         }];
+        // The maxium number of classes is 0 or does not exist?
+        if (!maxClasses) {
+            // Use the default.
+            maxClasses = 10;
+        }
         // The maximum number of classes is greater than
         // the number of data points?
         //-----------------------------------------------------------
@@ -720,6 +726,11 @@ var clusterer = clusterer || {};
                     //------------------------------------------
                     scalingFactor = 1;
                 }
+                // The scaling factor is less than 1.5?
+                if (scalingFactor < 1.5) {
+                    // Round down to 1.
+                    scalingFactor = 1;
+                }
                 // Save the scaling factor.
                 cluster.scale = scalingFactor;
             }
@@ -741,12 +752,6 @@ var clusterer = clusterer || {};
         breaks = jenksBreaks(lowerClassLimits, bestNumberOfClasses);
         // Convert the jenks breaks into clusters.
         clusters = jenksBreaksToClusters(breaks);
-        // There are 0 clusters?
-        if (clusters.length === 0) {
-            // The data cannot be clustered.
-            // So, return the universal cluster.
-            return universalCluster;
-        }
 
         return clusters;
     };
