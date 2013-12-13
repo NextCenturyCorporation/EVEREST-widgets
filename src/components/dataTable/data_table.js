@@ -96,9 +96,9 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 					var colText = me.headers[col.id];
 				
 					//make sure new item is in its correct location in me.datas 
-					if(col.class === 'up'){
+					if(col.class === 'asc'){
 						me.datas.sort(function(a,b){ return a[colText] > b[colText] ? 1 : -1; });
-					} else if (col.class === 'down'){
+					} else if (col.class === 'desc'){
 						me.datas.sort(function(a,b){ return a[colText] < b[colText] ? 1 : -1; });
 					}
 					
@@ -213,14 +213,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				me.sortKey = '_id';
 				
 				me.updateTable(data);
-				
-				d3.selectAll('th').each(function() {
-					if (d3.select(this).attr('class') !== 'no_sort') {		
-						d3.select(this).classed('up', false);
-						d3.select(this).classed('down', false);
-						d3.select(this).classed('unsorted', true);
-					}
-				});
+				me.resetHeaderClasses();
 			});
 			
 			me.sendTimes();
@@ -235,15 +228,9 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				me.sortKey = '_id';
 				
 				me.updateTable(data);
-					
-				d3.selectAll('th').each(function(){
-					if (d3.select(this).attr('class') !== 'no_sort') {		
-						d3.select(this).classed('up', false);
-						d3.select(this).classed('down', false);
-						d3.select(this).classed('unsorted', true);
-					}
-				});
+				me.resetHeaderClasses();
 			});
+			
 			me.sendTimes();
 		});		
 			
@@ -255,26 +242,18 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 
 		$('input[type=checkbox]').change(function() {
 			var box = this;
-			var id = null;
 			var label = $(box)[0].nextSibling.textContent;
 
-			if (!$(box).prop('checked')){
+			if (!$(box).prop('checked')) {
 				$('th').each(function(i, t){
 					if (this.textContent === label) {
-						//id = $(this).attr('id');
-						//$(this).remove();
 						me.headers.splice(i, 1);
 					}
 				});
 			} else {
-				/*d3.select('.data_table_data thead').append('th')
-					.text(label).attr('id', me.headers.length)
-					.attr('class', function() {
-						return me.indexes.indexOf(label) === -1 ? 'no_sort' : 'unsorted';
-					});*/
 				me.headers.push(label);
 			}
-			console.log(me.headers);
+
 			me.createHeaders(me.headers, me.indexes);
 			me.currentTableView.render();
 			me.bindHeaderEvent();
@@ -284,39 +263,24 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	me.sorter = function(elem, colId) {
 		elem = d3.select(elem);
 		if (me.datas.length !== 0 && !elem.classed('no_sort')) {
-			var elements = d3.selectAll('th');
-			var newClass, newSort;
-			if (elem.classed('up')) {
-				newClass = 'down';
-				newSort = 'desc';
-			} else {
-				newClass = 'up';
-				newSort = 'asc';
-			}
+			var newClass = elem.classed('asc') ? 'desc' : 'asc';
 
 			me.update({
 				count: me.max_items, 
 				offset: Math.floor(me.page * me.max_rows / me.max_items) * me.max_items, 
-				sort: newSort,
+				sort: newClass,
 				sortKey: colId,
 				start: me.start,
 				end: me.end,
 				date: me.dateType
 			}, function(data) {
 				me.updateTable(data);
-					
-				elements.each(function(){
-					if (d3.select(this).attr('class') !== 'no_sort'){		
-						d3.select(this).classed('up', false);
-						d3.select(this).classed('down', false);
-						d3.select(this).classed('unsorted', true);
-					}
-				});
+				me.resetHeaderClasses();
 						
 				elem.classed('unsorted', false);
 				elem.classed(newClass, true);
 				
-				me.sort = newSort;
+				me.sort = newClass;
 				me.sortKey = colId;
 				
 				me.bindHeaderEvent();
@@ -332,7 +296,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		};
 		
 		for (var i = 0; i < cols.length; i++){
-			if (cols[i].className === 'up' || cols[i].className === 'down'){
+			if (cols[i].className === 'asc' || cols[i].className === 'desc'){
 				found.id = cols[i].id;
 				found.class = cols[i].className;
 				break;
@@ -366,23 +330,23 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	};
 
 	me.createConfigOptions = function(arr) {
-		for (var i = 0; i < arr.length; i++){
+		for (var i = 0; i < arr.length; i++) {
 			var vis = d3.select('#vis').append('li');
 			vis.append('label').attr('for', 'check'+i).text(arr[i]);
 			vis.insert('input', ':first-child')
 				.attr('type', 'checkbox')
-				.attr('id', 'check'+i);
+				.attr('id', 'check' + i);
 
-			$('#check'+i).prop('checked', true);
+			$('#check' + i).prop('checked', true);
 
 			var sort = d3.select('#prim-sort').append('li');
 			sort.append('label').attr('for', 'radio'+i).text(arr[i]);
 			var radio = sort.insert('input', ':first-child')
 				.attr('type', 'radio')
-				.attr('id', 'radio'+i);
+				.attr('id', 'radio' + i);
 
 
-			if (arr[i] === '_id'){
+			if (arr[i] === '_id') {
 				radio.attr('checked', 'checked');
 			}
 		}
@@ -547,6 +511,16 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			var col = parseInt(this.id, 10);
 			col = me.headers[col];
 			me.sorter(this, col);
+		});
+	};
+
+	me.resetHeaderClasses = function(){
+		d3.selectAll('th').each(function(){
+			if (d3.select(this).attr('class') !== 'no_sort') {		
+				d3.select(this).classed('asc', false);
+				d3.select(this).classed('desc', false);
+				d3.select(this).classed('unsorted', true);
+			}
 		});
 	};
 };

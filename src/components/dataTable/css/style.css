@@ -18,8 +18,8 @@ th {
 }
 
 .unsorted,
-.up,
-.down{
+.asc,
+.desc{
 	padding: 3px 20px 3px 3px;
 	cursor: pointer;
 }
@@ -40,11 +40,11 @@ th {
 	z-index: 0;
 }
 
-.up {
+.asc {
 	background-image:url('../img/asc.png');
 }
 
-.down {
+.desc {
 	background-image:url('../img/des.png');
 }
 
