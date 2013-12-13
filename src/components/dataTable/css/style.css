@@ -1,5 +1,5 @@
 body {
-	font-size: 12px;
+	font-size: 14px;
 }
 
 table {	
@@ -105,4 +105,14 @@ th {
 	-webkit-border-radius: 0 6px 6px 6px;
 	-moz-border-radius: 0 6px 6px 6px;
 	border-radius: 0 6px 6px 6px;
+}
+
+.expand {
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+#panel-title {
+	font-size: 14px;
+	display: inline-block;
 }

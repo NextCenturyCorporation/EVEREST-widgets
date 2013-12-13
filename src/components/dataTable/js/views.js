@@ -27,13 +27,10 @@ var cellView = Backbone.View.extend({
 		var elem = this;
 		var attributes = this.model ? this.model.attributes : {};
 		var text = attributes.text;
-		$('.data_table_descr').remove();
-		$('.data_table_text').append('div')
-			.addClass('data_table_descr')
-			.text(function(){
-				var str = typeof(text) === 'object' ? JSON.stringify(text) : text.toString();
-				return str;
-			});
+		$('.data_table_text').text(function(){
+			var str = typeof(text) === 'object' ? JSON.stringify(text) : text.toString();
+			return str;
+		});
 			
 		$('td').css('font-weight', 'normal');
 		elem.$el.css('font-weight', 'bold');
