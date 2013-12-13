@@ -18,25 +18,28 @@
 					Configure <b class='caret'></b>
 				</a>
 				<ul class='dropdown-menu' role='menu' aria-labelledby='dropdownMenu'>
-					<li><a href='#'>Action</a></li>
-					<li><a href='#'>Another Action</a></li>
-					<li class='divider'></li>
 					<li class='dropdown-submenu'>
-						<a tabindex='-1' href='#'>Visible Headers</a>
+						<a tabindex='-1' href='#'>
+							Visible Headers<span class='pull-right'>&#9658</span>
+						</a>
 						<ul class='dropdown-menu dropdown-menu-form' id='vis'>
 						</ul>
 					</li>
 					<li class='dropdown-submenu'>
-						<a tabindex='-1' href='#'>Set Default Date</a>
+						<a tabindex='-1' href='#'>
+							Set Default Date<span class='pull-right'>&#9658</span>
+						</a>
 						<ul class='dropdown-menu' id='dates'></ul>
 					</li>
 					<li class='dropdown-submenu'>
-						<a tabindex='-1' href='#'>Set Primary Sort Key</a>
+						<a tabindex='-1' href='#'>
+							Set Primary Sort Key<span class='pull-right'>&#9658</span>
+						</a>
 						<ul class='dropdown-menu dropdown-menu-form' id='prim-sort'></ul>
 					</li>
 					<li class='dropdown-submenu'>
 						<a href='#' class='dropdown-toggle' data-toggle='dropdown'>
-							Set Max Rows
+							Set Max Rows<span class='pull-right'>&#9658</span>
 						</a>
 						<ul class='dropdown-menu'>
 							<li><a href='#' class='show' id='10'>Show 10</a></li>
@@ -49,9 +52,6 @@
 			</li>
 			<li>
 				<a href='#' class='show_all'>Show All Data</a>
-			</li>	
-			<li>
-				<a href='#' class='configure' data-toggle='modal' data-target='#configModal'>Configure</a>
 			</li>
 	    </ul>
 	</nav>
@@ -64,8 +64,8 @@
 			<div class='panel-body'>
 				<div class='info'>
 					<div id="data_table_inputs">
-						<div class='col-xs-3' id='panel-title'> Displaying 0 of 0 objects </div>
-						<div class='col-xs-4'></div>
+						<div class='col-xs-4' id='panel-title'> Displaying 0 of 0 objects </div>
+						<div class='col-xs-3'></div>
 						<div class='input-group input-group-sm col-xs-2 expand'>
 							<input type="text" name="start" class='form-control' id="data_table_start" placeholder='Start Date'>
 						</div>
