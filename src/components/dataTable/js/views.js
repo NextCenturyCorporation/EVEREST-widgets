@@ -25,7 +25,8 @@ var cellView = Backbone.View.extend({
 
 	onClick: function() {
 		var elem = this;
-		var text = this.$el[0].textContent;
+		var attributes = this.model ? this.model.attributes : {};
+		var text = attributes.text;
 		$('.data_table_descr').remove();
 		$('.data_table_text').append('div')
 			.addClass('data_table_descr')

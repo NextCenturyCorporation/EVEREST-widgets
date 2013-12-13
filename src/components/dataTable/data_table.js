@@ -166,7 +166,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		me.total = data.total_count;
 		me.max_pages = Math.ceil(me.total / me.max_rows);
 				
-		me.currentTableView = new tableView(me.datas);
+		me.currentTableView = new me.tableView(me.datas);
 	};
 	
 	me.renderPage = function(){
