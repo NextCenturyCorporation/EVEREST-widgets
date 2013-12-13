@@ -2,6 +2,21 @@ var app = app || {};
 
 (function() {
 
+    /*         *\
+    | Constants |
+    \*         */
+    // the minimum number of pixels per unit
+    // (This prevents the timeline from displaying tick marks which are
+    //  way too close together.)
+    var MIN_PIXELS_PER_UNIT = 75;
+    // the percent of the timeline's width devoted to the margins
+    // (You can obtain the percent of the timeline's width that is usable for
+    //  rendering events by calculating (1 - TIMELINE_MARGINS).)
+    var TIMELINE_MARGINS = 0.2;
+    /*             *\
+    | End Constants |
+    \*             */
+
     Timeline.urlPrefix = "js/libs/jquery-timeline/";
     var eventSource = new Timeline.DefaultEventSource(0);
     var d = Timeline.DateTime.parseGregorianDateTime("2013");
@@ -120,26 +135,106 @@ var app = app || {};
     app.deduceLayout = function() {
         // First thing we do is see if we will have a single uniform timeline or if we will have hot zones
         // where datapoints are shown at a higher resolution.
-        var areas = clusterer.cluster(datapoints);
+        var areas = clusterer.jenks(datapoints);
 
         var newZones = [];
         for(var i=0; i<areas.length; ++i) {
-          if (areas[i].scale > 1) {
-            newZones.push({
-              start:    new Date(areas[i].start).toUTCString(),
-              end:      new Date(areas[i].end).toUTCString(),
-              magnify:  areas[i].scale,
-              // TODO: Figure out units
-              unit:     Timeline.DateTime.DAY
-            });
-          }
+            if (areas[i].scale > 1) {
+                newZones.push({
+                    start:    new Date(areas[i].start).toUTCString(),
+                    end:      new Date(areas[i].end).toUTCString(),
+                    magnify:  areas[i].scale,
+                    unit:     null // temporary value
+                });
+            }
         }
 
-        // TODO: Relayout the timeline with the calculated hotzones.
+        // Grab the number of new zones.
+        var numNewZones = newZones.length;
+        // There is at least one new zone?
+        if (numNewZones > 0) {
+            // Grab...
+            // (1) the number of datapoints
+            // (2) the start and end datapoint
+            var numDatapoints = datapoints.length;
+            var startDatapoint = datapoints[0];
+            var endDatapoint = datapoints[numDatapoints - 1];
+            // Calculate the range.
+            var magnifiedRange = endDatapoint - startDatapoint;
+            // Loop through the new zones to magnify the ranges.
+            for (i = 0; i < numNewZones; i++) {
+                // Grab...
+                // (1) the new zone
+                // (2) the start and end date
+                // (3) the magnification
+                var newZone = newZones[i];
+                var newZoneStartDate = Date.parse(newZone.start);
+                var newZoneEndDate = Date.parse(newZone.end);
+                var newZoneMagnification = newZone.magnify;
+                // Calculate the range and magnified range.
+                var newZoneRange = newZoneEndDate - newZoneStartDate;
+                var newZoneMagnifiedRange =
+                    newZoneRange * (newZoneMagnification - 1);
+                // Temporarily, save the range and magnified range
+                // into the unit property.
+                // (This may seem be odd, but it saves us from allocating an
+                //  unnecessary parallel array or adding an awkward property
+                //  to the new zone which must be removed later.)
+                newZone.unit = {
+                    range: newZoneRange,
+                    magnifiedRange: newZoneMagnifiedRange
+                }
+                // Magnify the range.
+                magnifiedRange += newZoneMagnifiedRange;
+            }
+            // Grab the width of the timeline in pixels.
+            var widthOfTimelineInPixels =
+                Timeline.getTimelineFromID(0).getBand(0).getViewLength();
+            // Calculate the usable width of the timeline in pixels.
+            var usableWidthOfTimelineInPixels =
+                widthOfTimelineInPixels * (1 - TIMELINE_MARGINS);
+            // Grab the Gregorian unit lengths
+            var gregorianUnitLengths = SimileAjax.DateTime.gregorianUnitLengths;
+            // Loop through the new zones to translate the magnified ranges
+            // into units.
+            for (i = 0; i < numNewZones; i++) {
+                // Grab...
+                // (1) the new zone
+                // (2) the range and magnified range
+                var newZone = newZones[i];
+                var newZoneRange = newZone.unit.range;
+                var newZoneMagnifiedRange = newZone.unit.magnifiedRange;
+                // Calculate how much of the usable width of the timeline the
+                // new zone takes up in pixels.
+                var newZoneWidthInPixels =
+                    (newZoneMagnifiedRange / magnifiedRange) * usableWidthOfTimelineInPixels;
+                // Start the unit at 0 (milliseconds).
+                var unit = 0;
+                // Calculate the number of pixels per unit for unit 0
+                // (milliseconds).
+                var pixelsPerUnit = newZoneWidthInPixels / newZoneRange;
+                // Iterate until we have unit intervals of at least
+                // MIN_PIXELS_PER_UNIT pixels.
+                while (pixelsPerUnit < MIN_PIXELS_PER_UNIT) {
+                    // Next unit!
+                    unit++;
+                    // Calculate the number of pixels per unit for
+                    // the current unit.
+                    pixelsPerUnit =
+                        newZoneWidthInPixels / (newZoneRange / gregorianUnitLengths[unit]);
+                }
+                // Save the unit.
+                // (This will overwrite the range and the magnified range
+                //  from before.)
+                newZone.unit = unit;
+            }
+        }
+
+        // Relayout the timeline with the calculated hotzones.
         zones.length = 0;
         zones.push.apply(zones, newZones);
 
-        // TODO: Figure total scale and units.
+        // Figure total scale and units.
         app.scaleTimeline();
 
         $("#tline").removeData();
@@ -159,17 +254,17 @@ var app = app || {};
           range += zoneRange * (zones[i].magnify - 1);
         }
         var visibleLength = Timeline.getTimelineFromID(0).getBand(0).getViewLength();
-        var idealScale = (visibleLength*0.8)/range;  // Ideal number of pixels per millisecond.
+        var idealScale = (visibleLength*(1-TIMELINE_MARGINS))/range;  // Ideal number of pixels per millisecond.
 
         // TODO: Too many data points will make this unreadable.  We should have some limit after which we scale it off
         // the screen and make people scroll just because we have too many points.
 
         // Now figure out how to get that ideal scale.  Figure out what the best interval to use is (days, months, years) and
         // how many pixels each interval should get.
-        // Let's say we don't want intervals less than 100 pixels.
+        // Let's say we don't want intervals less than MIN_PIXELS_PER_UNIT pixels.
         var unit = 0; // Start at milliseconds
         var pixelsPerUnit = idealScale;
-        while (pixelsPerUnit < 100) {
+        while (pixelsPerUnit < MIN_PIXELS_PER_UNIT) {
           unit += 1;
           pixelsPerUnit = idealScale * SimileAjax.DateTime.gregorianUnitLengths[unit];
         }
