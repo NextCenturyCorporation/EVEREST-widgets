@@ -6,6 +6,7 @@ var app = app || {};
     var eventSource = new Timeline.DefaultEventSource(0);
     var d = Timeline.DateTime.parseGregorianDateTime("2013");
     var theme = Timeline.ClassicTheme.create();
+    var resize = true;
 
     // The timeline internally stores all the datapoints to plot, but we also
     // keep a copy of all datapoints to make decisions about best way to
@@ -82,9 +83,14 @@ var app = app || {};
         eventSource.clear();
     };
 
+    app.changeResize = function(){
+      resize = resize ? false : true;
+    }
+
     app.changeLayout = function(newBandInfos) {
         // This widget is built for a single timeline.
         var timeline = Timeline.getTimelineFromID(0);
+        var newBands = [];
 
         // Assign existing event sources and date to new layouts.
         // Also assign a default theme if one is not provided.
@@ -95,6 +101,8 @@ var app = app || {};
           if (!theme in newBandInfos[ctr]) {
             newBandInfos[ctr].theme = Timeline.ClassicTheme.create();
           }
+
+          newBands.push(Timeline.createBandInfo(newBandInfos[ctr]));
         }
         // TODO: Really if things like theme, width, and interval info are not provided, we should 
         // pull those values from the band we are replacing, but it is not completely clear how
@@ -102,7 +110,7 @@ var app = app || {};
 
         // Rerender the timeline.
         $("#tline").removeData();
-        Timeline.create(document.getElementById("tline"), bandInfo, Timeline.Horizontal);        
+        Timeline.create(document.getElementById("tline"), newBands, Timeline.Horizontal);        
     }
 
     /*
