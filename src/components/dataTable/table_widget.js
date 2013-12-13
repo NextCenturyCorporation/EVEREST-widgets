@@ -67,6 +67,7 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 		me.table = new data_table(me.datas_to_use, me.announceCallback, me.getDataCallback, me.max_rows, me.max_items, length);
 		me.getIndexes(function(data) {
 			me.table.createHeaders(Object.keys(me.table.datas[0]), data);
+			me.table.createConfigOptions(Object.keys(me.table.datas[0]));
 			me.table.createTable();
 			me.table.createClickers();
 		});

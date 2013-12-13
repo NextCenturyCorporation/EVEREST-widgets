@@ -261,87 +261,66 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			if (!$(box).prop('checked')){
 				$('th').each(function(i, t){
 					if (this.textContent === label) {
-						id = $(this).attr('id');
-						$(this).remove();
+						//id = $(this).attr('id');
+						//$(this).remove();
 						me.headers.splice(i, 1);
 					}
 				});
 			} else {
-				d3.select('.data_table_data thead').append('th')
+				/*d3.select('.data_table_data thead').append('th')
 					.text(label).attr('id', me.headers.length)
 					.attr('class', function() {
 						return me.indexes.indexOf(label) === -1 ? 'no_sort' : 'unsorted';
-					});
+					});*/
 				me.headers.push(label);
 			}
-			
+			console.log(me.headers);
+			me.createHeaders(me.headers, me.indexes);
 			me.currentTableView.render();
 			me.bindHeaderEvent();
 		})
 	};
 
 	me.sorter = function(elem, colId) {
-		if (me.datas.length !== 0){
-			elem = d3.select(elem);
-
+		elem = d3.select(elem);
+		if (me.datas.length !== 0 && !elem.classed('no_sort')) {
 			var elements = d3.selectAll('th');
+			var newClass, newSort;
 			if (elem.classed('up')) {
-				me.update({
-					count: me.max_items, 
-					offset: Math.floor(me.page * me.max_rows / me.max_items) * me.max_items, 
-					sort: 'desc',
-					sortKey: colId,
-					start: me.start,
-					end: me.end,
-					date: me.dateType
-				}, function(data){
-					me.updateTable(data);
-						
-					elements.each(function(){
-						if (d3.select(this).attr('class') !== 'no_sort'){		
-							d3.select(this).classed('up', false);
-							d3.select(this).classed('down', false);
-							d3.select(this).classed('unsorted', true);
-						}
-					});
-							
-					elem.classed('unsorted', false);
-					elem.classed('down', true);
-					
-					me.sort = 'desc';
-					me.sortKey = colId;
-					
-					me.bindHeaderEvent();
-				});
-			} else if (!elem.classed('no_sort')) {
-				me.update({
-					count: me.max_items, 
-					offset: Math.floor(me.page * me.max_rows / me.max_items) * me.max_items, 
-					sort: 'asc',
-					sortKey: colId,
-					start: me.start,
-					end: me.end,
-					date: me.dateType
-				}, function(data) {
-					me.updateTable(data);
-					
-					elements.each(function() {
-						if (d3.select(this).attr('class') !== 'no_sort') {		
-							d3.select(this).classed('up', false);
-							d3.select(this).classed('down', false);
-							d3.select(this).classed('unsorted', true);
-						}
-					});
-					
-					elem.classed('unsorted', false);
-					elem.classed('up', true);
-					
-					me.sort = 'asc';
-					me.sortKey = colId;
-					
-					me.bindHeaderEvent();
-				});
+				newClass = 'down';
+				newSort = 'desc';
+			} else {
+				newClass = 'up';
+				newSort = 'asc';
 			}
+
+			me.update({
+				count: me.max_items, 
+				offset: Math.floor(me.page * me.max_rows / me.max_items) * me.max_items, 
+				sort: newSort,
+				sortKey: colId,
+				start: me.start,
+				end: me.end,
+				date: me.dateType
+			}, function(data) {
+				me.updateTable(data);
+					
+				elements.each(function(){
+					if (d3.select(this).attr('class') !== 'no_sort'){		
+						d3.select(this).classed('up', false);
+						d3.select(this).classed('down', false);
+						d3.select(this).classed('unsorted', true);
+					}
+				});
+						
+				elem.classed('unsorted', false);
+				elem.classed(newClass, true);
+				
+				me.sort = newSort;
+				me.sortKey = colId;
+				
+				me.bindHeaderEvent();
+			});
 		}
 	};
 	
@@ -378,6 +357,16 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		header.selectAll('th').remove();
 
 		for (var i = arr.length - 1; i >= 0; i--) {
+			header.insert('th',':first-child')
+				.text(arr[i]).attr('id', i)
+				.attr('class', function(){
+					return indexes.indexOf(arr[i]) === -1 ? 'no_sort' : 'unsorted';
+				});
+		}
+	};
+
+	me.createConfigOptions = function(arr) {
+		for (var i = 0; i < arr.length; i++){
 			var vis = d3.select('#vis').append('li');
 			vis.append('label').attr('for', 'check'+i).text(arr[i]);
 			vis.insert('input', ':first-child')
@@ -396,12 +385,6 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			if (arr[i] === '_id'){
 				radio.attr('checked', 'checked');
 			}
-
-			header.insert('th',':first-child')
-				.text(arr[i]).attr('id', i)
-				.attr('class', function(){
-					return indexes.indexOf(arr[i]) === -1 ? 'no_sort' : 'unsorted';
-				});
 		}
 	};
 	
@@ -562,7 +545,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		d3.selectAll('th').on('click', function() {
 			d3.selectAll('th').on('click', null);
 			var col = parseInt(this.id, 10);
-			col = Object.keys(me.temp_datas[0])[col];
+			col = me.headers[col];
 			me.sorter(this, col);
 		});
 	};
