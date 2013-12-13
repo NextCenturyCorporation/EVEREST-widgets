@@ -72,7 +72,6 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				$.unblockUI();
 			},
 			renderSentence: function(item, location){
-				var sent = new row(item);
 				var sentView = new rowView({model: item, keys: me.headers}).render();
 				//render this item and add it to the table
 				if (location === false){	
@@ -429,6 +428,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	me.addRow = function(item, that){
 		var ind = me.temp_datas.indexOf(item);
 		var isIn = -1 === ind ? false : true;
+		item = new row(item);
 		
 		if (isIn){
 			if (ind === me.temp_datas.length - 1){
