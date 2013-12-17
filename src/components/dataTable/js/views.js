@@ -28,8 +28,11 @@ var cellView = Backbone.View.extend({
 		var attributes = this.model ? this.model.attributes : {};
 		var text = attributes.text;
 		$('.data_table_text').text(function(){
-			var str = typeof(text) === 'object' ? JSON.stringify(text) : text.toString();
-			return str;
+			try {
+				return JSON.stringify(JSON.parse(text), undefined, 2)
+			} catch (e) {
+				return text;
+			}
 		});
 			
 		$('td').css('font-weight', 'normal');
