@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+
+    <title>Test Clusterer Perf</title>
+
+    <!-- a quick inline stylesheet -->
+    <style>
+        #inputDivs label {
+            margin-right: 5px;
+        }
+        #inputDivs input {
+            margin-right: 20px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- the dom -->
+    <div id="inputDivs">
+        <div id="inputButtonDiv">
+            <button id="plusButton">Add Test Case</button>
+            <button id="runButton">Run It!</button>
+        </div>
+    </div>
+    <div id="outputDivs">
+        <div id="outputButtonDiv">
+            <button id="clearButton">Clear Output</button>
+        </div>
+    </div>
+
+    <!-- the nanosecond timer for benchmark.js -->
+    <applet code="nano" archive="jars/nano.jar" width="0" height="0"></applet>
+
+    <!-- the javascript libraries -->
+    <script src='js/libs/benchmark.js'></script>
+    <script src='js/libs/jquery-2.0.3.min.js'></script>
+
+    <!-- the subject of the performance test -->
+    <script src="js/clusterer.js"></script>
+
+    <!-- the performance test code -->
+    <script>
+        var $inputDivs;
+        var $inputButtonDiv;
+        var $outputDivs;
+        var $outputButtonDiv;
+        var setup;
+        var addInputDiv;
+        var removeInputDiv;
+        var runTests;
+        var runTest;
+        var randomTime;
+        var clearOutputDivs;
+
+        setup = function() {
+            $inputDivs = $('#inputDivs');
+            $inputButtonDiv = $inputDivs.children('#inputButtonDiv');
+            $outputDivs = $('#outputDivs');
+            $outputButtonDiv = $outputDivs.children('#outputButtonDiv');
+            $inputDivs.on('click', '#plusButton', function() {
+                addInputDiv();
+            });
+            $inputDivs.on('click', '.minusButton', function() {
+                removeInputDiv($(this).parent());
+            });
+            $inputDivs.on('click', '#runButton', function() {
+                runTests();
+            });
+            $outputDivs.on('click', '#clearButton', function() {
+                clearOutputDivs();
+            });
+            addInputDiv();
+        };
+
+        addInputDiv = function() {
+            var $newInputDiv;
+            $newInputDiv = $(
+                '<div class="inputDiv">' +
+                    '<label>number of random events</label>' +
+                    '<input class="numEvents" type="number" value="10"></input>' +
+                    '<label>maximum number of classes</label>' +
+                    '<input class="maxClasses" type="number" value="10"></input>' +
+                    '<button class="minusButton">Remove Test Case</button>' +
+                '</div>'
+            );
+            $newInputDiv.insertBefore($inputButtonDiv);
+        };
+
+        removeInputDiv = function($inputDiv) {
+            if ($inputDiv.siblings('.inputDiv').length > 0) {
+                $inputDiv.remove();
+            }
+        };
+
+        runTests = function() {
+            var i;
+            var $inputDivsArray;
+            var numInputDivs;
+            var $inputDiv;
+            var $numEvents;
+            var numEvents;
+            var $maxClasses;
+            var maxClasses;
+            $inputDivsArray = $inputDivs.children('.inputDiv');
+            numInputDivs = $inputDivsArray.length;
+            for (i = 0; i < numInputDivs; i++) {
+                $inputDiv = $inputDivsArray.eq(i);
+                $numEvents = $inputDiv.children('.numEvents');
+                $maxClasses = $inputDiv.children('.maxClasses');
+                numEvents = parseInt($numEvents.val());
+                maxClasses = parseInt($maxClasses.val());
+                runTest(numEvents, maxClasses);
+            }
+        };
+
+        runTest = function(numEvents, maxClasses) {
+            var bench;
+            bench = new Benchmark({
+                setup: function() {
+                    var i;
+                    var events;
+                    var numEvents;
+                    var maxClasses;
+                    events = [];
+                    numEvents = this.numEvents;
+                    for (i = 0; i < numEvents; i++) {
+                        events.push(randomTime());
+                    }
+                    maxClasses = this.maxClasses;
+                },
+                fn: function() {
+                    clusterer.jenks(events, maxClasses);
+                },
+                onComplete: function() {
+                    var $newOutputDiv;
+                    $newOutputDiv = $(
+                        '<div class="outputDiv">' +
+                            '<p>' +
+                                '<b>[' + numEvents + ' events, ' +
+                                maxClasses + ' classes]:</b> ' +
+                                this +
+                            '</p>' +
+                        '</div>'
+                    );
+                    $newOutputDiv.insertBefore($outputButtonDiv);
+                },
+                numEvents: numEvents,
+                maxClasses: maxClasses
+            });
+            bench.run({
+                async: true
+            });
+        };
+
+        randomTime = function() {
+            var year, month, day, hour, minute, second, millisecond;
+            var date;
+            year = Math.floor(Math.random() * 43 + 1970); // 1970 to 2013
+            month = Math.floor(Math.random() * 12 + 1); // 1 to 12
+            day = Math.floor(Math.random() * 28 + 1); // 1 to 28
+            hour = Math.floor(Math.random() * 24); // 0 to 23
+            minute = Math.floor(Math.random() * 60); // 0 to 60
+            second = Math.floor(Math.random() * 60); // 0 to 60
+            millisecond = Math.floor(Math.random() * 1000); // 0 to 1000
+            date = new Date(
+                year, month, day, hour, minute, second, millisecond
+            );
+            return date.valueOf();
+        };
+
+        clearOutputDivs = function() {
+            $outputDivs.children('.outputDiv').remove();
+        };
+
+        $(function() {
+            setup();
+        });
+    </script>
+
+</body>
+
+</html>

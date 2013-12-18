@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+
+    <title>Test Storyline Perf</title>
+
+    <!-- a quick inline stylesheet -->
+    <style>
+        #inputDivs label {
+            margin-right: 5px;
+        }
+        #inputDivs input {
+            margin-right: 20px;
+        }
+    </style>
+
+    <link rel='stylesheet' href='js/libs/jquery-timeline/jquery.timeline.css'>
+
+</head>
+
+<body>
+
+    <!-- the test dom -->
+    <div id="tline" style="height: 150px; border: 1px solid #aaa"></div>
+
+    <!-- the dom -->
+    <div id="inputDivs">
+        <div id="inputButtonDiv">
+            <button id="plusButton">Add Test Case</button>
+            <button id="runButton">Run It!</button>
+        </div>
+    </div>
+    <div id="outputDivs">
+        <div id="outputButtonDiv">
+            <button id="clearButton">Clear Output</button>
+        </div>
+    </div>
+
+    <!-- the nanosecond timer for benchmark.js -->
+    <applet code="nano" archive="jars/nano.jar" width="0" height="0"></applet>
+
+    <!-- the javascript libraries -->
+    <script src='js/libs/benchmark.js'></script>
+    <script src='js/libs/jquery-2.0.3.min.js'></script>
+    <script src="js/libs/jquery-timeline/jquery.timeline.js"></script>
+
+    <!-- the subject of the performance test -->
+    <script src="js/clusterer.js"></script>
+    <script src="js/storyLine.js"></script>
+
+    <!-- the performance test code -->
+    <script>
+        var $inputDivs;
+        var $inputButtonDiv;
+        var $outputDivs;
+        var $outputButtonDiv;
+        var setup;
+        var addInputDiv;
+        var removeInputDiv;
+        var runTests;
+        var runTest;
+        var randomTime;
+        var clearOutputDivs;
+
+        setup = function() {
+            $inputDivs = $('#inputDivs');
+            $inputButtonDiv = $inputDivs.children('#inputButtonDiv');
+            $outputDivs = $('#outputDivs');
+            $outputButtonDiv = $outputDivs.children('#outputButtonDiv');
+            $inputDivs.on('click', '#plusButton', function() {
+                addInputDiv();
+            });
+            $inputDivs.on('click', '.minusButton', function() {
+                removeInputDiv($(this).parent());
+            });
+            $inputDivs.on('click', '#runButton', function() {
+                runTests();
+            });
+            $outputDivs.on('click', '#clearButton', function() {
+                clearOutputDivs();
+            });
+            addInputDiv();
+        };
+
+        addInputDiv = function() {
+            var $newInputDiv;
+            $newInputDiv = $(
+                '<div class="inputDiv">' +
+                    '<label>number of random events</label>' +
+                    '<input class="numEvents" type="number" value="10"></input>' +
+                    '<button class="minusButton">Remove Test Case</button>' +
+                '</div>'
+            );
+            $newInputDiv.insertBefore($inputButtonDiv);
+        };
+
+        removeInputDiv = function($inputDiv) {
+            if ($inputDiv.siblings('.inputDiv').length > 0) {
+                $inputDiv.remove();
+            }
+        };
+
+        runTests = function() {
+            var i;
+            var $inputDivsArray;
+            var numInputDivs;
+            var $inputDiv;
+            var $numEvents;
+            var numEvents;
+            $inputDivsArray = $inputDivs.children('.inputDiv');
+            numInputDivs = $inputDivsArray.length;
+            for (i = 0; i < numInputDivs; i++) {
+                $inputDiv = $inputDivsArray.eq(i);
+                $numEvents = $inputDiv.children('.numEvents');
+                numEvents = parseInt($numEvents.val());
+                runTest(numEvents);
+            }
+        };
+
+        runTest = function(numEvents) {
+            var bench;
+            bench = new Benchmark({
+                setup: function() {
+                    var i;
+                    var events;
+                    var numEvents;
+                    var timestamp;
+                    events = [];
+                    numEvents = this.numEvents;
+                    for (i = 0; i < numEvents; i++) {
+                        timestamp = customFormatDate(new Date(randomTime()), '#MMM# #D# #YYYY# #hh#:#mm#:#ss# GMT');
+                        events.push({
+                            start: timestamp,
+                            title: timestamp
+                        });
+                    }
+                },
+                fn: function() {
+                    app.clearEvents();
+                    app.addEvents(events);
+                },
+                onComplete: function() {
+                    var $newOutputDiv;
+                    $newOutputDiv = $(
+                        '<div class="outputDiv">' +
+                            '<p>' +
+                                '<b>[' + numEvents + ' events]:</b> ' +
+                                this +
+                            '</p>' +
+                        '</div>'
+                    );
+                    $newOutputDiv.insertBefore($outputButtonDiv);
+                },
+                numEvents: numEvents
+            });
+            bench.run({
+                async: false
+            });
+        };
+
+        randomTime = function() {
+            var year, month, day, hour, minute, second, millisecond;
+            var date;
+            year = Math.floor(Math.random() * 43 + 1970); // 1970 to 2013
+            month = Math.floor(Math.random() * 12 + 1); // 1 to 12
+            day = Math.floor(Math.random() * 28 + 1); // 1 to 28
+            hour = Math.floor(Math.random() * 24); // 0 to 23
+            minute = Math.floor(Math.random() * 60); // 0 to 60
+            second = Math.floor(Math.random() * 60); // 0 to 60
+            millisecond = Math.floor(Math.random() * 1000); // 0 to 1000
+            date = new Date(
+                year, month, day, hour, minute, second, millisecond
+            );
+            return date.valueOf();
+        };
+
+        // http://stackoverflow.com/questions/4673527/converting-milliseconds-to-a-date-jquery-js
+        customFormatDate = function(date, formatString){
+            var YYYY,YY,MMMM,MMM,MM,M,DDDD,DDD,DD,D,hhh,hh,h,mm,m,ss,s,ampm,AMPM,dMod,th;
+            var dateObject = date;
+            YY = ((YYYY=dateObject.getFullYear())+"").slice(-2);
+            MM = (M=dateObject.getMonth()+1)<10?('0'+M):M;
+            MMM = (MMMM=["January","February","March","April","May","June","July","August","September","October","November","December"][M-1]).substring(0,3);
+            DD = (D=dateObject.getDate())<10?('0'+D):D;
+            DDD = (DDDD=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][dateObject.getDay()]).substring(0,3);
+            th=(D>=10&&D<=20)?'th':((dMod=D%10)==1)?'st':(dMod==2)?'nd':(dMod==3)?'rd':'th';
+            formatString = formatString.replace("#YYYY#",YYYY).replace("#YY#",YY).replace("#MMMM#",MMMM).replace("#MMM#",MMM).replace("#MM#",MM).replace("#M#",M).replace("#DDDD#",DDDD).replace("#DDD#",DDD).replace("#DD#",DD).replace("#D#",D).replace("#th#",th);
+
+            h=(hhh=dateObject.getHours());
+            if (h==0) h=24;
+            if (h>12) h-=12;
+            hh = h<10?('0'+h):h;
+            AMPM=(ampm=hhh<12?'am':'pm').toUpperCase();
+            mm=(m=dateObject.getMinutes())<10?('0'+m):m;
+            ss=(s=dateObject.getSeconds())<10?('0'+s):s;
+            return formatString.replace("#hhh#",hhh).replace("#hh#",hh).replace("#h#",h).replace("#mm#",mm).replace("#m#",m).replace("#ss#",ss).replace("#s#",s).replace("#ampm#",ampm).replace("#AMPM#",AMPM);
+        };
+
+        clearOutputDivs = function() {
+            $outputDivs.children('.outputDiv').remove();
+        };
+
+        $(function() {
+            setup();
+        });
+    </script>
+
+</body>
+
+</html>
