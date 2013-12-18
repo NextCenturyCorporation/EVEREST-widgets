@@ -2,171 +2,6 @@ var clusterer = clusterer || {};
 
 (function() {
 
-    clusterer.cluster1 = function(dataPoints) {
-        // A hard coded case for testing.  Assumes three points in April at start, and as more points are
-        // added they are added to January.  So recommends zooming out April if there are less than three
-        // points or zooming out January if there are more than 6 points.
-        return (dataPoints.length <7 ?
-            [{
-                start: Date.parse("Apr 10 2013 00:00:00 GMT"),
-                end: Date.parse("Apr 16 2013 00:00:00 GMT"),
-                entries: 3,
-                scale: 40
-            }] :
-            [{
-                start: Date.parse("Jan 1 2013 00:00:00 GMT"),
-                end: Date.parse("Feb 1 2013 00:00:00 GMT"),
-                entries: dataPoints.length-3,
-                scale: 40
-            }]);
-    };
-
-    /**
-    * Analyzes a set of data points and finds inherent clusters of data.  Then 
-    * calculates how to scale those clusters so that the whole distribution appears
-    * more even
-    * @param dataPoints an array of numbers
-    * @return an array of areas describing how to scale the range each range.  The areas cover
-    *   the entire range of data points, so if the data is completely uniform this will return an array
-    *   with a single area going from the first data point to the last with scale=1.  If the data is mostly
-    *   uniform with a bunch in the middle that is very tightly packed, this will return three areas: one for the 
-    *   tightly packed group in the middle - it will have a high scale, and two for the areas on either side and they
-    *   will have scale=1.
-    *   Is of the form:
-    *   [{
-    *       start: starting point of the range
-    *       end: ending point of the range
-    *       entries: number of data points that fall in that range
-    *       scale: how much to scale this section to make the whole thing look uniform
-    *   }, ...]
-    */
-    clusterer.cluster = function(dataPoints) {
-        // This is a VERY crude clusterer.  It can only find one section of points packed more
-        // closely than the rest and is very inflexible in choosing the borders of that set and 
-        // very susceptible to noise.  Really this should use a real segmentation algorithm (clustering in 1D is
-        // called segmentation or natural break analysis) that iteratively adjusts the boundaries of the segments
-        // until a best case is found.
-
-        // Basically, this algorithm computes the average distance between points, finds the largest group of consecutive
-        // points that are all closer than average, and marks that as a segment.  It can only find one segment.
-        var sortedData = dataPoints.sort(function(a,b){return a-b;});
-
-        // Doesn't make sense to cluster 3 or fewer points.
-        if (sortedData.length <= 3) {
-            return [{
-                start: sortedData[0],
-                end: sortedData[sortedData.length-1],
-                entries: sortedData.length,
-                scale: 1
-            }];
-        }
-        // Determine the average distance between the numbers.
-        var meanDist = (sortedData[sortedData.length-1]-sortedData[0])/(sortedData.length-1);
-
-        // Run through the numbers again finding the biggest stretch of numbers packed more closely than the average distance.
-        var bigStretchStart = -1;
-        var bigStretchEnd = -1;
-        var bigStretchLength = 0;
-        var currentStretchStart = -1;
-        for(var i=1; i<sortedData.length; ++i) {
-            if ((sortedData[i]-sortedData[i-1]) < meanDist) {
-                if (currentStretchStart == -1) {
-                    // Start a new stretch.
-                    currentStretchStart = i-1;
-                }
-            }
-            else {
-                if (currentStretchStart != -1) {
-                    // End of a stretch.  See if it is bigger than the biggest stretch
-                    if ((i-1-currentStretchStart) > bigStretchLength) {
-                        bigStretchStart = currentStretchStart;
-                        bigStretchEnd = i-1;
-                        bigStretchLength = bigStretchEnd-bigStretchStart+1;
-                        currentStretchStart = -1;
-                    }
-                }
-            }
-        }
-        // See if the list ended in the biggest stretch.
-        if ((currentStretchStart != -1) && ((sortedData.length-1-currentStretchStart) > bigStretchLength)) {
-            bigStretchStart = currentStretchStart;
-            bigStretchEnd = sortedData.length-1;
-            bigStretchLength = bigStretchEnd-bigStretchStart+1;
-        }
-
-        // We can't do anything if the data is perfectly distributed.  If no stretch was found abort.
-        if (bigStretchStart == -1) {
-                return [{
-                start: sortedData[0],
-                end: sortedData[sortedData.length-1],
-                entries: sortedData.length,
-                scale: 1
-            }];
-        }
-
-        // Now we have a candidate stretch.  Compute how much we would scale the stretch by.  To do that, we need the average distance between numbers within
-        // the stretch.
-        var meanDistInStretch = (sortedData[bigStretchEnd]-sortedData[bigStretchStart])/(bigStretchLength-1);
-        var meanDistOutOfStretch = (meanDist*(sortedData.length-1) - meanDistInStretch*(bigStretchLength-1))/(sortedData.length-bigStretchLength);
-        var scale = meanDistOutOfStretch/meanDistInStretch;
-
-        var areas = [];
-        if (bigStretchStart > 0) {
-            areas.push({
-                start: sortedData[0],
-                end: sortedData[bigStretchStart-1],
-                entries: bigStretchStart,
-                scale: 1
-            });
-        }
-        areas.push({
-            start: sortedData[bigStretchStart],
-            end: sortedData[bigStretchEnd],
-            entries: bigStretchLength,
-            scale: scale
-        });
-        if (bigStretchEnd < sortedData.length-1) {
-            areas.push({
-                start: sortedData[bigStretchEnd+1],
-                end: sortedData[sortedData.length-1],
-                entries: sortedData.length-1-bigStretchEnd,
-                scale: 1
-            });
-        }
-
-        // See if expanding this section would improve the distribution by 30% or more - otherwise it's not worth it.
-        // To do this we compare the ratio of variance to range of the two distributions.
-        var range1 = sortedData[sortedData.length-1]-sortedData[0];
-        var range2 = range1 + scale*(sortedData[bigStretchEnd]-sortedData[bigStretchStart]);
-        var variance1 = 0;
-        var variance2 = 0;
-        for (i=1; i<sortedData.length; ++i) {
-            var dist = sortedData[i]-sortedData[i-1];
-            variance1 += Math.pow(dist-meanDist, 2);
-            if ((i > bigStretchStart) && (i <= bigStretchEnd)) {
-                variance2 += Math.pow(scale*dist - meanDist,2);
-            }
-            else {
-                variance2 += Math.pow(dist-meanDist, 2);
-            }
-        }
-        variance1 = Math.sqrt(variance1/(sortedData.length-1));
-        variance2 = Math.sqrt(variance2/(sortedData.length-1));
-
-        var improvement = (variance2/range2)/(variance1/range1);
-        if (improvement > 0.7) {
-            // Not good enough improvement.  Don't bother.
-            areas=[{
-                start: sortedData[0],
-                end: sortedData[sortedData.length-1],
-                entries: sortedData.length,
-                scale: 1
-            }];
-        }
-
-        return areas;
-    };
-
     /**
     * This function analyzes a set of data points and finds
     * inherent clusters of data and calculates how to scale those clusters
@@ -183,11 +18,16 @@ var clusterer = clusterer || {};
     * Since a large number of classes will take a long time to compute,
     * this function requires you to specify a maximum number of classes.
     * To avoid over-fitting the data points, this function finds the best
-    * number of classes to use based upon a simple heuristic.
+    * number of classes to use based upon the following simple heuristic.
     * It increases the number of classes until the the improvement of
     * the variance between classes is less than 10%.
-    * To avoid warping the time scale unnecessarily, this function rounds all
-    * scaling factors less than 1.5 down to 1.
+    * To avoid warping the time scale unnecessarily, this function
+    * does two things.
+    * First, it merges all neighboring clusters with
+    * an average distance between points within 66.6666% of each other
+    * into a single cluster.
+    * Second, it rounds all scaling factors less than 2 down to 1 and
+    * merges together all neighboring clusters with a scaling factor of 1.
     * @param dataPoints an array of numbers
     * @param maxClasses (optional) the maxium number of classes to use.
     *                   Defaults to 10.
@@ -236,19 +76,45 @@ var clusterer = clusterer || {};
         //     - Buggy JavaScript (https://github.com/vvoovv/djeo-jenks/blob/master/main.js)
         //     - Working JavaScript (https://github.com/simogeo/geostats/blob/master/lib/geostats.js#L407)
 
+        /*         *\
+        | Constants |
+        \*         */
+
+        // the default maximum number of classes to use
+        var DEFAULT_MAX_CLASSES = 10;
+        // the minimum percent decrease in variance
+        // between each number of classes
+        // (This is used to find the best number of classes.)
+        var MIN_PERCENT_DECREASE_IN_VARIANCE = 0.1;
+        // the scaling factor threshold
+        // (When scaling the clusters, all scaling factors below this threshold
+        //  are rounded down to 1.)
+        var SCALING_FACTOR_THRESHOLD = 2;
+        // the minimum percent difference in the average distance between points
+        // between neighboring clusters
+        // (This is used to merge clusters.)
+        var MIN_PERCENT_DIFFERENCE_IN_AVERAGE_DISTANCE_BETWEEN_POINTS = 
+            2 / (SCALING_FACTOR_THRESHOLD + 1);
+
+        /*             *\
+        | End Constants |
+        \*             */
+
         /*      *\
         | Locals |
         \*      */
 
-        // the same as dataPoints but... sorted!
-        var sortedDataPoints;
-        // the number of data points
-        var numDataPoints;
         // the universal cluster
         // (This is the default return value if the data cannot be clustered.
         //  The universal cluster simply puts all of the data points
         //  into a single cluster of scale 1.)
         var universalCluster;
+        // the same as dataPoints but... sorted!
+        var sortedDataPoints;
+        // the number of data points
+        var numDataPoints;
+        // the number of unique data points
+        var numUniqueDataPoints;
         // the matrices (2D arrays) returned from the jenk matrices function
         var matrices;
         // a matrix (2D array) representing the optimal lower class limits
@@ -262,15 +128,22 @@ var clusterer = clusterer || {};
         // (For example, if the class intervals were [0, 50] and [50, 100],
         //  the array would be [0, 50, 100].)
         var breaks;
+        // the result of merging clusters
+        var mergeClustersResult;
+        // the maximum average distance between points
+        var maxAverageDistanceBetweenPoints;
         // the clusters
         // (This is the return value if the data can be clustered.)
         var clusters;
+        // a function which returns...
+        // - the number of unique data points
+        var countUniqueDataPoints;
         // a function which returns...
         // (1) a matrix (2D array) representing
         //     the optimal lower class limits
         // (2) a matrix (2D array) representing
         //     the optimal variance combinations for all classes
-        var jenksMatrices;
+        var calculateJenksMatrices;
         // a function which takes...
         // - a matrix (2D array) representing
         //   the optimal variance combinations for all classes
@@ -279,7 +152,7 @@ var clusterer = clusterer || {};
         //   (Looks at the rate of change of the variance with respect to
         //    the number of classes.
         //    Stops when the improvement (i.e. decrease) in variance is
-        //    less than 10%.)
+        //    less than MIN_PERCENT_DECREASE_IN_VARIANCE.)
         var findBestNumberOfClasses;
         // a function which takes...
         // (1) a matrix (2D array) representing
@@ -290,62 +163,105 @@ var clusterer = clusterer || {};
         // - an array containing the start and end values for all the classes
         //   (For example, if the class intervals were [0, 50] and [50, 100],
         //    the array would be [0, 50, 100].)
-        var jenksBreaks;
+        var findJenksBreaks;
         // a function which takes...
         // - an array containing the start and end values for all the classes
         //   (For example, if the class intervals were [0, 50] and [50, 100],
         //    the array would be [0, 50, 100].)
         // and returns...
         // - an array of clusters
-        var jenksBreaksToClusters;
+        var convertJenksBreaksIntoClusters;
+        // a function which takes...
+        // - an array of clusters (kept constant)
+        // and returns...
+        // (1) an array of merged clusters
+        //     (All neighboring clusters with an average distance between points
+        //      within MIN_PERCENT_DIFFERENCE_IN_AVERAGE_DISTANCE_BETWEEN_POINTS
+        //      of each other are merged into a single cluster.)
+        // (2) the maximum average difference between points among
+        //     the merged clusters
+        var mergeClusters;
+        // a function which takes...
+        // (1) a first value
+        // (2) a second value
+        // and returns...
+        // - the percent difference between the first and second values
+        var calculatePercentDifference;
+        // a function which takes...
+        // (1) a first cluster (i.e. first in sorted order)
+        // (2) a second cluster (i.e. second in sorted order)
+        // (2) (optional) whether the caller wants to simply
+        //                average the scales together rather than re-calculating
+        //                the average distance between points
+        // and returns...
+        // - a merged cluster representing the merging of
+        //   the first cluster with the second cluster
+        var mergeTwoClusters;
+        // a function which takes...
+        // (1) an array of clusters (kept constant)
+        // (2) the maximum average difference between points among
+        //     the merged clusters
+        // and returns...
+        // - an array of scaled clusters
+        //   (All clusters with a scaling factor less than
+        //    the SCALING_FACTOR_THRESHOLD are rounded down to 1 and
+        //    merged with neighboring clusters with a scaling factor of 1.)
+        var scaleClusters;
 
         /*          *\
         | End Locals |
         \*          */
 
-        // Before we do anything else...
-        // (1) create a safe copy of the data points
-        // (2) sort the data points
-        sortedDataPoints = dataPoints.slice().sort(function(a, b) {
-            return a - b;
-        });
-        // Grab the number of data points.
-        numDataPoints = sortedDataPoints.length;
-        // Create the universal cluster in case we need it.
-        universalCluster = [{
-            start: sortedDataPoints[0],
-            end: sortedDataPoints[numDataPoints - 1],
-            entries: numDataPoints,
-            scale: 1
-        }];
-        // The maxium number of classes is 0 or does not exist?
-        if (!maxClasses) {
-            // Use the default.
-            maxClasses = 10;
-        }
-        // The maximum number of classes is greater than
-        // the number of data points?
-        //-----------------------------------------------------------
-        // TODO: Determine whether it's the number of data points
-        // that matters or if it's the number of unique data points.
-        //-----------------------------------------------------------
-        if (maxClasses > numDataPoints) {
-            // Adjust the maximum number classes.
-            maxClasses = numDataPoints;
-        }
-        // The maximum number of classes is less than 2?
-        if (maxClasses < 2) {
-            // It makes no sense to cluster the data points.
-            // Instead, return the universal cluster.
-            return universalCluster;
-        }
-
         /*        *\
         | Closures |
         \*        */
 
-        // Define the jenks matrices function.
-        jenksMatrices = function() {
+        // Define the count unique data points function.
+        //----------------------
+        // CLOSURE VARIABLES:
+        // (1) numDataPoints
+        // (2) sortedDataPoints
+        //----------------------
+        countUniqueDataPoints = function() {
+            /*      *\
+            | Locals |
+            \*      */
+            // loop counter
+            var i;
+            // the number of unique data points
+            var numUniqueDataPoints;
+            // the current data point
+            var currentDataPoint;
+            // the previous data point
+            var previousDataPoint;
+            /*          *\
+            | End Locals |
+            \*          */
+            // Assume that all the data points are unique.
+            numUniqueDataPoints = numDataPoints;
+            // Loop through the sorted data points.
+            // Skip the first data point so that we can always compare
+            // the current data point with the previous data point.
+            for (i = 1; i < numDataPoints; i++) {
+                // Grab the current and previous data point.
+                currentDataPoint = sortedDataPoints[i];
+                previousDataPoint = sortedDataPoints[i - 1];
+                // Found a duplicate?
+                if (currentDataPoint === previousDataPoint) {
+                    // Update the number of unique data points.
+                    numUniqueDataPoints--;
+                }
+            }
+
+            return numUniqueDataPoints;
+        };
+        // Define the calculate jenks matrices function.
+        //----------------------
+        // CLOSURE VARIABLES:
+        // (1) numDataPoints
+        // (2) sortedDataPoints
+        //----------------------
+        calculateJenksMatrices = function() {
             /*      *\
             | Locals |
             \*      */
@@ -360,12 +276,6 @@ var clusterer = clusterer || {};
             // the lower class limits and variances matrices
             var temp1;
             var temp2;
-            // the variance as computed at each step in the calculation
-            var variance;
-            // the current index into the sorted data points
-            var index;
-            // the current value from the sorted data points
-            var value;
             // the number of data points considered so far.
             // (Technically, this is a "weighting factor",
             //  but, in this implementation,
@@ -378,6 +288,12 @@ var clusterer = clusterer || {};
             // the variance we would have if we created a new group
             // at this point
             var potentialVariance;
+            // the current index into the sorted data points
+            var index;
+            // the current value from the sorted data points
+            var value;
+            // the variance as computed at each step in the calculation
+            var variance;
             /*          *\
             | End Locals |
             \*          */
@@ -486,6 +402,10 @@ var clusterer = clusterer || {};
             };
         };
         // Define the find best number of classes function.
+        //--------------------
+        // CLOSURE VARIABLES:
+        // - none
+        //--------------------
         findBestNumberOfClasses = function(variances) {
             /*      *\
             | Locals |
@@ -496,10 +416,10 @@ var clusterer = clusterer || {};
             var numRows;
             // the last row of the variances matrix
             var lastRow;
-            // the previous variance
-            var previousVariance;
             // the current variance
             var currentVariance;
+            // the previous variance
+            var previousVariance;
             // the percent decrease in variance
             var percentDecreaseInVariance;
             // the best number of classes
@@ -507,24 +427,36 @@ var clusterer = clusterer || {};
             /*          *\
             | End Locals |
             \*          */
-            // Grab the number of rows in the variances matrix
+            // Grab...
+            // (1) the number of rows in the variances matrix
+            // (2) the last row of said matrix
             numRows = variances.length;
-            // Grab the last row of the variances matrix
             lastRow = variances[numRows - 1];
             // Loop through the last row of the variances matrix.
+            // The last row contains the final computed effective variance
+            // for each number of classes up to the maximum number of classes.
+            // The lower the variance, the better
+            // the goodness of variance fit (GVF).
+            // As the number of classes increases,
+            // the variance will always go down.
+            // However, at some point, the decrease in variance will
+            // slow down to a crawl.
+            // Therefore, we will stop when the decrease in variance is
+            // less than MIN_PERCENT_DECREASE_IN_VARIANCE.
             for (i = 0; i < maxClasses; i++) {
                 // Grab the current variance.
                 currentVariance = lastRow[i];
-                // The previous variance exists?
+                // There's a previous variance?
                 if (previousVariance) {
                     // Calculate the percent decrease in variance.
                     // (We will keep this value positive for convenience.)
                     percentDecreaseInVariance =
                         (previousVariance - currentVariance) / previousVariance;
-                    // The percent decrease in variance fit does not represent
-                    // at least a 10% improvement?
-                    if (percentDecreaseInVariance < 0.1) {
+                    // The percent decrease in variance does not represent
+                    // at least a MIN_PERCENT_DECREASE_IN_VARIANCE improvement?
+                    if (percentDecreaseInVariance < MIN_PERCENT_DECREASE_IN_VARIANCE) {
                         // Grab the best number of classes.
+                        // (i.e. the previous number of classes)
                         bestNumberOfClasses = i;
                         // Stop!
                         break;
@@ -533,17 +465,21 @@ var clusterer = clusterer || {};
                 // Update the previous variance.
                 previousVariance = currentVariance;
             }
-            // The best number of classes does not exist?
-            // (i.e. We have looped through all of the variances.)
+            // We did not find a best number of classes?
             if (!bestNumberOfClasses) {
-                // Grab the best number of classes
+                // The best number of classes is the maximum number of classes.
                 bestNumberOfClasses = i;
             }
 
             return bestNumberOfClasses;
         };
-        // Define the jenks breaks function.
-        jenksBreaks = function(lowerClassLimits, numClasses) {
+        // Define the find jenks breaks function.
+        //----------------------
+        // CLOSURE VARIABLES:
+        // (1) numDataPoints
+        // (2) sortedDataPoints
+        //----------------------
+        findJenksBreaks = function(lowerClassLimits, numClasses) {
             /*      *\
             | Locals |
             \*      */
@@ -588,17 +524,26 @@ var clusterer = clusterer || {};
 
             return breaks;
         };
-        // Define the jenks breaks to clusters function.
-        jenksBreaksToClusters = function(breaks) {
+        // Define the convert jenks breaks into clusters function.
+        //----------------------
+        // CLOSURE VARIABLES:
+        // (1) numDataPoints
+        // (2) sortedDataPoints
+        //----------------------
+        convertJenksBreaksIntoClusters = function(breaks) {
             /*      *\
             | Locals |
             \*      */
             // loop counter
             var i;
+            // the clusters
+            var clusters;
             // the number of breaks
             var numBreaks;
             // the number of classes
             var numClasses;
+            // the current index into the sorted data points array
+            var index;
             // the start value of the current class
             var startValue;
             // the end value of the current class
@@ -607,42 +552,29 @@ var clusterer = clusterer || {};
             var range;
             // the number of entries in the current class
             var numEntries;
-            // the current index into the sorted data points array
-            var index;
-            // the current value from the sorted data points array
-            var value;
             // the number of duplicate end values visited
             var numDuplicateEndValuesVisited;
+            // the current value from the sorted data points array
+            var value;
             // the average distance between points for the current class
             var averageDistanceBetweenPoints;
-            // the maximum average distance between points
-            var maxAverageDistanceBetweenPoints;
-            // the scaling factor
-            var scalingFactor;
             // the current cluster
             var cluster;
-            // the clusters
-            var clusters;
-            // the number of clusters
-            var numClusters;
             /*          *\
             | End Locals |
             \*          */
             // Create the clusters array.
             clusters = [];
-            // Grab...
-            // (1) the number of breaks
-            // (2) the number of classes
+            // Grab the number of breaks and the number of classes.
             numBreaks = breaks.length;
             numClasses = numBreaks - 1;
-            // Start the index at 0.
+            // Start the index.
             index = 0;
             // Loop through the classes to create the clusters.
             for (i = 0; i < numClasses; i++) {
-                // Grab the start and end values.
+                // Grab the start and end values and calculate the range.
                 startValue = breaks[i];
                 endValue = breaks[i + 1];
-                // Calculate the range.
                 range = endValue - startValue;
                 // Reset...
                 // (1) the number of entries
@@ -653,7 +585,7 @@ var clusterer = clusterer || {};
                 while (index < numDataPoints) {
                     // Grab the current value.
                     value = sortedDataPoints[index];
-                    // We are visiting an end value?
+                    // Visiting an end value?
                     if (value === endValue) {
                         // Update the number of duplicate end values visited.
                         numDuplicateEndValuesVisited++;
@@ -666,9 +598,7 @@ var clusterer = clusterer || {};
                         // Stop!
                         break;
                     }
-                    // Update...
-                    // (1) the number of entries
-                    // (2) the index.
+                    // Update the number of entries and the index.
                     numEntries++;
                     index++;
                 }
@@ -680,78 +610,448 @@ var clusterer = clusterer || {};
                     start: startValue,
                     end: endValue,
                     entries: numEntries,
-                    scale: averageDistanceBetweenPoints // temporary value
+                    scale: averageDistanceBetweenPoints
                 };
                 clusters.push(cluster);
             }
+
+            return clusters;
+        };
+        // Define the merge clusters function.
+        //----------------------
+        // CLOSURE VARIABLES:
+        // (1) numDataPoints
+        // (2) sortedDataPoints
+        //----------------------
+        mergeClusters = function(clusters) {
+            /*      *\
+            | Locals |
+            \*      */
+            // loop variable
+            var i;
+            // the number of clusters
+            var numClusters;
+            // the merged clusters
+            var mergedClusters;
+            // the number of merged clusters
+            var numMergedClusters;
+            // the maximum average distance between points
+            // among the merged clusters
+            var maxAverageDistanceBetweenPoints;
+            // the current cluster
+            var currentCluster;
+            // the average distance between points for the current cluster
+            var currentAverageDistanceBetweenPoints;
+            // the previous cluster
+            // (i.e. the cluster which was just merged)
+            var previousCluster;
+            // the average distance between points for the previous cluster
+            var previousAverageDistanceBetweenPoints;
+            // the percent difference in the average distance between points
+            // between the current and previous clusters
+            var percentDifferenceInAverageDistanceBetweenPoints;
+            // the current merged cluster
+            var mergedCluster;
+            // the final cluster
+            var finalCluster;
+            // the average distance between points for the final cluster
+            var finalAverageDistanceBetweenPoints;
+            /*          *\
+            | End Locals |
+            \*          */
             // Grab the number of clusters.
             numClusters = clusters.length;
-            // Start the maximum average distance between points at 0.
+            // Create the merged clusters array.
+            mergedClusters = [];
+            // Start...
+            // (1) the number of merged clusters
+            // (2) the maximum average distance between points
+            numMergedClusters = 0;
             maxAverageDistanceBetweenPoints = 0;
-            // Loop through the clusters to find
-            // the maximum average distance between points.
+            // Loop through the clusters in order to merge them.
+            // Merge all neighboring clusters with an
+            // average distance between points within
+            // MIN_PERCENT_DIFFERENCE_IN_AVERAGE_DISTANCE_BETWEEN_POINTS
+            // of each other into a single cluster.
+            // For efficiency reasons, calculate
+            // the maximum average distance between points on the fly
+            // as soon as each group of clusters has been completely merged.
             for (i = 0; i < numClusters; i++) {
                 // Grab...
-                // (1) the cluster
+                // (1) the current cluster
                 // (2) the average distance between points
-                cluster = clusters[i];
-                averageDistanceBetweenPoints = cluster.scale;
-                // New maximum?
-                if (averageDistanceBetweenPoints > maxAverageDistanceBetweenPoints) {
-                    // Update the maximum.
-                    maxAverageDistanceBetweenPoints =
-                        averageDistanceBetweenPoints;
-                }
-            }
-            // Loop through the clusters to calculate the scaling factor.
-            for (i = 0; i < numClusters; i++) {
-                // Grab...
-                // (1) the cluster
-                // (2) the average distance between points
-                cluster = clusters[i];
-                averageDistanceBetweenPoints = cluster.scale;
-                // The average distance between points is greater than 0?
-                if (averageDistanceBetweenPoints > 0) {
-                    // Calculate the scaling factor.
-                    scalingFactor =
-                        maxAverageDistanceBetweenPoints / averageDistanceBetweenPoints;
+                //     for the current cluster
+                currentCluster = clusters[i];
+                currentAverageDistanceBetweenPoints = currentCluster.scale;
+                // There's a previously merged cluster to compare
+                // the current cluster against?
+                if (numMergedClusters > 0) {
+                    // Grab...
+                    // (1) the previous cluster
+                    // (2) the average distance between points
+                    //     for the previous cluster
+                    previousCluster = mergedClusters[numMergedClusters - 1];
+                    previousAverageDistanceBetweenPoints =
+                        previousCluster.scale;
+                    // Calculate the percent difference in the average distance
+                    // between points.
+                    percentDifferenceInAverageDistanceBetweenPoints =
+                        calculatePercentDifference(
+                            currentAverageDistanceBetweenPoints,
+                            previousAverageDistanceBetweenPoints
+                        );
+                    // The percent difference in the average distance
+                    // between points is within
+                    // MIN_PERCENT_DIFFERENCE_IN_AVERAGE_DIFFERENCE_BETWEEN_POINTS?
+                    if (percentDifferenceInAverageDistanceBetweenPoints <= MIN_PERCENT_DIFFERENCE_IN_AVERAGE_DISTANCE_BETWEEN_POINTS) {
+                        // Merge the previous and current clusters.
+                        // Then, save the merged cluster to
+                        // the merged clusters array.
+                        mergedCluster = mergeTwoClusters(
+                            previousCluster,
+                            currentCluster
+                        );
+                        mergedClusters[numMergedClusters - 1] = mergedCluster;
+                    }
+                    // Else?
+                    else {
+                        // The previous cluster has been completely merged.
+                        // Now is the perfect time to update
+                        // the maximum average distance between points.
+                        if (previousAverageDistanceBetweenPoints > maxAverageDistanceBetweenPoints) {
+                            maxAverageDistanceBetweenPoints =
+                                previousAverageDistanceBetweenPoints;
+                        }
+                        // The current cluster does not need to be merged
+                        // with the previous cluster, so simply add it to
+                        // the merged clusters array.
+                        mergedClusters.push(currentCluster);
+                        numMergedClusters++;
+                    }
                 }
                 // Else?
                 else {
-                    // To avoid setting the scaling factor to NaN,
-                    // just set the scaling factor to 1.
-                    //------------------------------------------
-                    // TODO: Is there a better solution to this
-                    // division by zero problem?
-                    //------------------------------------------
-                    scalingFactor = 1;
+                    // You cannot merge one cluster with itself, so
+                    // simply add it to the merged clusters array.
+                    mergedClusters.push(currentCluster);
+                    numMergedClusters++;
                 }
-                // The scaling factor is less than 1.5?
-                if (scalingFactor < 1.5) {
-                    // Round down to 1.
-                    scalingFactor = 1;
-                }
-                // Save the scaling factor.
-                cluster.scale = scalingFactor;
+            }
+            // The clever way we calculated
+            // the maximum average distance between points on the fly
+            // will always miss checking the final cluster for a new maximum.
+            // Grab the final cluster and its average distance between points.
+            finalCluster = mergedClusters[numMergedClusters - 1];
+            finalAverageDistanceBetweenPoints = finalCluster.scale;
+            // Update the maximum average distance between points.
+            if (previousAverageDistanceBetweenPoints > maxAverageDistanceBetweenPoints) {
+                maxAverageDistanceBetweenPoints =
+                    previousAverageDistanceBetweenPoints;
             }
 
-            return clusters;
+            // Return both the clusters and
+            // the maximum average distance between points.
+            // Only the clusters are needed, but
+            // the maximum average distance between points can be useful
+            // to scale the clusters relative to each other.
+            return {
+                clusters: mergedClusters,
+                maxAverageDistanceBetweenPoints: maxAverageDistanceBetweenPoints
+            };
+        };
+        // Define the calculate percent difference function.
+        //--------------------
+        // CLOSURE VARIABLES:
+        // - none
+        //--------------------
+        calculatePercentDifference = function(firstValue, secondValue) {
+            /*      *\
+            | Locals |
+            \*      */
+            // the difference
+            var difference;
+            // the average
+            var average;
+            // the percent difference
+            var percentDifference;
+            /*          *\
+            | End Locals |
+            \*          */
+            // Calculate...
+            // (1) the difference
+            // (2) the average
+            // (3) the percent difference
+            difference = firstValue - secondValue;
+            average = (firstValue + secondValue) / 2;
+            percentDifference = Math.abs(difference / average);
+
+            return percentDifference;
+        };
+        // Define the merge two clusters function.
+        //----------------------
+        // CLOSURE VARIABLES:
+        // (1) numDataPoints
+        // (2) sortedDataPoints
+        //----------------------
+        mergeTwoClusters = function(firstCluster, secondCluster, averageScalesTogether) {
+            /*      *\
+            | Locals |
+            \*      */
+            // start value for the merged cluster
+            var startValue;
+            // the end value for the merged cluster
+            var endValue;
+            // the range for the merged cluster
+            var range;
+            // the current index into the sorted data points array
+            var index;
+            // the number of duplicate end value visited
+            var numDuplicateEndValuesVisited;
+            // the number entries in the merged cluster
+            var numEntries;
+            // the current value from the sorted data points array
+            var value;
+            // the scale for the first cluster
+            var firstScale;
+            // the scale for the second cluster
+            var secondScale;
+            // the scale for the merged cluster
+            var scale;
+            // the merged cluster
+            var mergedCluster;
+            /*          *\
+            | End Locals |
+            \*          */
+            // Grab the start and end value and calculate the range.
+            startValue = firstCluster.start;
+            endValue = secondCluster.end;
+            range = endValue - startValue;
+            // Start the index at the start value.
+            index = sortedDataPoints.indexOf(startValue);
+            // Reset...
+            // (1) the number of duplicate end value visitied
+            // (2) the number of entries for the merged cluster
+            numDuplicateEndValuesVisited = 0;
+            numEntries = 0;
+            // Loop through the sorted data points array.
+            while (index < numDataPoints) {
+                // Grab the current value.
+                value = sortedDataPoints[index];
+                // Visiting an end value?
+                if (value === endValue) {
+                    // Update the number of duplicate end values
+                    // visited.
+                    numDuplicateEndValuesVisited++;
+                }
+                // Else, the number of duplicate end values visited
+                // is greater than 0?
+                else if (numDuplicateEndValuesVisited > 0) {
+                    // Stop!
+                    break;
+                }
+                // Update the new number of entries for
+                // the merged cluster and the index.
+                numEntries++;
+                index++;
+            }
+            // The caller simply wants to average the scales together?
+            if (averageScalesTogether) {
+                // Grab the first and second scale and calculate the average.
+                firstScale = firstCluster.scale;
+                secondScale = secondCluster.scale;
+                scale = (firstScale + secondScale) / 2;
+            }
+            // Else, the caller wants to re-calculate
+            // the average distance between points?
+            else {
+                // Calculate the average distance between points.
+                scale = range / (numEntries - 1);
+            }
+            // Create the merged cluster.
+            mergedCluster = {
+                start: startValue,
+                end: endValue,
+                entries: numEntries,
+                scale: scale
+            };
+
+            return mergedCluster;
+        };
+        // Define the scale clusters function.
+        //--------------------
+        // CLOSURE VARIABLES:
+        // - none
+        //--------------------
+        scaleClusters = function(clusters, maxAverageDistanceBetweenPoints) {
+            /*      *\
+            | Locals |
+            \*      */
+            // loop variable
+            var i;
+            // the number of clusters
+            var numClusters;
+            // the scaled clusters
+            var scaledClusters;
+            // the number of scaled clusters
+            var numScaledClusters;
+            // the current cluster
+            var currentCluster;
+            // the average distance between points for the current cluster
+            var currentAverageDistanceBetweenPoints;
+            // the scaling factor for the current cluster
+            var currentScalingFactor;
+            // the previous cluster
+            // (i.e. the cluster which was just scaled)
+            var previousCluster;
+            // the scaling factor for the previous cluster
+            var previousScalingFactor;
+            // the merged cluster
+            var mergedCluster;
+            /*          *\
+            | End Locals |
+            \*          */
+            // Grab the number of clusters.
+            numClusters = clusters.length;
+            // Create the scaled clusters array.
+            scaledClusters = [];
+            // Start the number of scaled clusters.
+            numScaledClusters = 0;
+            // Loop through the merged clusters in order to scale them.
+            for (i = 0; i < numClusters; i++) {
+                // Grab...
+                // (1) the current cluster
+                // (2) the average distance between points for said cluster
+                currentCluster = clusters[i];
+                currentAverageDistanceBetweenPoints = currentCluster.scale;
+                // Calculate the scaling factor for the current cluster.
+                currentScalingFactor =
+                    maxAverageDistanceBetweenPoints / currentAverageDistanceBetweenPoints;
+                // The scaling factor does not clear
+                // the SCALING_FACTOR_THRESHOLD?
+                if (currentScalingFactor < SCALING_FACTOR_THRESHOLD) {
+                    // Round the scaling factor down to 1.
+                    currentScalingFactor = 1;
+                }
+                // Save the scaling factor.
+                currentCluster.scale = currentScalingFactor;
+                // There's a previously scaled cluster to compare
+                // the current cluster against?
+                if (numScaledClusters > 0) {
+                    // Grab...
+                    // (1) the previous cluster
+                    // (2) the scaling factor for said cluster
+                    previousCluster = scaledClusters[numScaledClusters - 1];
+                    previousScalingFactor = previousCluster.scale;
+                    // The scaling factors for the current and previous clusters
+                    // both equal 1?
+                    if (
+                        currentScalingFactor === 1 &&
+                        currentScalingFactor === previousScalingFactor
+                    ) {
+                        // Merge the previous and current clusters.
+                        // Then, save the merged cluster to
+                        // the scaled clusters array.
+                        mergedCluster = mergeTwoClusters(
+                            previousCluster,
+                            currentCluster,
+                            true // averageScalesTogether
+                        );
+                        scaledClusters[numScaledClusters - 1] = mergedCluster;
+                    }
+                    // Else?
+                    else {
+                        // The current cluster does not need to be merged
+                        // with the previous cluster, so simply add it to
+                        // the scaled clusters array.
+                        scaledClusters.push(currentCluster);
+                        numScaledClusters++;
+                    }
+                }
+                // Else?
+                else {
+                    // You cannot merge one cluster with itself, so
+                    // simply add it to the scaled clusters array.
+                    scaledClusters.push(currentCluster);
+                    numScaledClusters++;
+                }
+            }
+
+            return scaledClusters;
         };
 
         /*            *\
         | End Closures |
         \*            */
 
-        // Calculate the matrices.
-        matrices = jenksMatrices();
+        /*          *\
+        | Safeguards |
+        \*          */
+
+        // There are 0 data points?
+        // (i.e. The array dataPoints does not exist or has a length of 0.)
+        if (!dataPoints || dataPoints.length === 0) {
+            // Return 0 clusters.
+            return [];
+        }
+        // Grab the number of data points.
+        numDataPoints = dataPoints.length;
+        // Before we mess around with the data points...
+        // (1) create a safe copy of the data points
+        // (2) sort the data points
+        sortedDataPoints = dataPoints.slice().sort(function(a, b) {
+            return a - b;
+        });
+        // Create the universal cluster in case we need it later on.
+        universalCluster = [{
+            start: sortedDataPoints[0],
+            end: sortedDataPoints[numDataPoints - 1],
+            entries: numDataPoints,
+            scale: 1
+        }];
+        // Grab the number of unique data points.
+        numUniqueDataPoints = countUniqueDataPoints();
+        // The maxium number of classes is 0 or does not exist?
+        if (!maxClasses) {
+            // Use the default maximum number of classes.
+            maxClasses = DEFAULT_MAX_CLASSES;
+        }
+        // The maximum number of classes is greater than or equal to
+        // the number of unique data points?
+        if (maxClasses >= numUniqueDataPoints) {
+            // Adjust the maximum number classes.
+            maxClasses = numUniqueDataPoints - 1;
+        }
+        // The maximum number of classes is less than 2?
+        if (maxClasses < 2) {
+            // It makes no sense to cluster the data points.
+            // Instead, return the universal cluster.
+            return universalCluster;
+        }
+
+        /*              *\
+        | End Safeguards |
+        \*              */
+
+        // Calculate the Jenks matrices.
+        matrices = calculateJenksMatrices();
         lowerClassLimits = matrices.lowerClassLimits;
         variances = matrices.variances;
-        // Grab the best number of classes.
+        // Find the best number of classes.
         bestNumberOfClasses = findBestNumberOfClasses(variances);
-        // Calculate the jenks breaks for the best number of classes.
-        breaks = jenksBreaks(lowerClassLimits, bestNumberOfClasses);
+        // Find the jenks breaks for the best number of classes.
+        breaks = findJenksBreaks(lowerClassLimits, bestNumberOfClasses);
         // Convert the jenks breaks into clusters.
-        clusters = jenksBreaksToClusters(breaks);
+        clusters = convertJenksBreaksIntoClusters(breaks);
+        // Merge the clusters.
+        mergeClustersResult = mergeClusters(clusters);
+        clusters = mergeClustersResult.clusters;
+        maxAverageDistanceBetweenPoints =
+            mergeClustersResult.maxAverageDistanceBetweenPoints;
+        // Scale the clusters.
+        clusters = scaleClusters(
+            clusters,
+            maxAverageDistanceBetweenPoints
+        );
 
         return clusters;
     };
