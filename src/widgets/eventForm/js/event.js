@@ -18,15 +18,15 @@
 
 	var map = new google_map();
 
-	var eventRawTemplate = "<div class='panel-heading'><h4>Event<button class='pull-right' data-toggle='modal' data-target='#eventHelp' id='help'>?</button></h4></div><div class='panel-body'><pre>{{event_}}</pre><button class='btn btn-primary pull-right' type='button' id='saveEvent'>Submit Event</button></div>";
-	var mapRawTemplate = "<div class='panel-heading'><h4>Choose a Place<button class='pull-right' data-toggle='modal' data-target='#mapHelp' id='help'>?</button></h4></div><div class='panel-body'><div id='map-canvas'></div></div>";
+	var eventRawTemplate = "<div class='panel panel-default' id='display'><div class='panel-heading'><h4>Event<button class='pull-right' data-toggle='modal' data-target='#eventHelp' id='help'>?</button></h4></div><div class='panel-body'><pre>{{event_}}</pre><button class='btn btn-primary pull-right' type='button' id='saveEvent'>Submit Event</button></div></div>";
+	var mapRawTemplate = "<div class='panel panel-default' id='display'><div class='panel-heading'><h4>Choose a Place<button class='pull-right' data-toggle='modal' data-target='#mapHelp' id='help'>?</button></h4></div><div class='panel-body'><div id='map-canvas'></div></div></div>";
 	var modalRawTemplate = "<div class='modal' id='{{modal_id}}'' tabIndex='-1' role='dialog' aria-labelledby='modalLabel' aria-hidden='true'><div class='modal-dialog'><div class='modal-content'><div class='modal-header'><button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button><h4 class='modal-title' id='modalLabel'>{{title}}</h4></div><div class='modal-body'>{{body}}</div></div></div></div>";
 
 	var eventTemplate = Handlebars.compile(eventRawTemplate);
 	var mapTemplate = Handlebars.compile(mapRawTemplate);
 	var modalTemplate = Handlebars.compile(modalRawTemplate);
 	var loadEventTemplate = function(event_){
-		$('#object').html(eventTemplate({
+		$('#eventView').html(eventTemplate({
 			event_: JSON.stringify(event_, undefined, 2)
 		}));
 
@@ -105,6 +105,54 @@
 
 	var assertIds = [];
 
+	var rawEventFormTemplate = "<div class='panel panel-default fixed'><div class='panel-heading'><h4>{{title}}<button class='pull-right' data-toggle='modal' data-target='{{helpTarget}}' id='help'>?</button></h4></div><div class='panel-body'><form role='form'>{{#each input}}<div class='form-group'><label> {{this.label}} </label><input type='text' class='form-control' placeholder='{{this.label}}' id='{{this.id}}'></div>{{/each}}<div id='buttons'>{{#each buttons}}<div class='col-xs-3 expand'><button class='btn btn-info btn-block' type='button' data-target='{{this.target}}' id='{{this.id}}'>{{this.label}}</button></div>{{/each}}</div><br /><hr /></form></div></div>";
+	var eventFormTemplate = Handlebars.compile(rawEventFormTemplate);
+	$('#eventForm').append(eventFormTemplate({
+		title: "Create an Event",
+		helpTarget: "formHelp",
+		input: [
+			{ id: "nameInput", label: "Name" },
+			{ id: "descInput", label: "Description"}
+		],
+		buttons: [
+			{ id: "placeButton", label: "Add a Place", target: "#placeDiv" },
+			{ id: "tagButton", label: "Add a Tag", target: "#tagDiv" },
+			{ id: "dateButton", label: "Add a Date", target: "#dateDiv" },
+			{ id: "assertButton", label: "Add an Assertion", target: "#assertDiv" }
+		]
+	}));
+
+	var rawHiddenFormTemplate = "<div class='form-group hid' id='{{id}}'><div class='col-xs-1'></div><div class='col-xs-11'>{{#each input}}<div class='form-group'><label class='control-label'>{{this.label}}</label><input type='text' class='form-control' placeholder='{{this.label}}' id='{{this.id}}'></div>{{/each}}<button class='btn btn-primary pull-right btn-sm' type='button' id='{{button}}'>Submit</button><button class='btn btn-default pull-right btn-sm' type='button' id='cancel'>Cancel</button></div></div>";
+	var hiddenFormTemplate = Handlebars.compile(rawHiddenFormTemplate);
+	$('form').append(hiddenFormTemplate({
+		id: 'placeDiv',
+		button: "submitPlace",
+		input: [
+			{ id: "placeNameInput", label: "Name" }, 
+			{ id: "latInput", label: "Latitude" },
+			{ id: "longInput", label: "Longitude" },
+			{ id: "radInput", label: "Radius" }
+		]
+	}));
+
+	$('form').append(hiddenFormTemplate({
+		id: 'tagDiv',
+		button: "submitTag",
+		input: [
+			{ id: "tagInput", label: "Tag" }
+		]
+	}));
+
+	$('form').append(hiddenFormTemplate({
+		id: 'assertDiv',
+		button: "submitAssert",
+		input: [
+			{ id: "ent1Input", label: "Entity 1" }, 
+			{ id: "relInput", label: "Relationship" },
+			{ id: "ent2Input", label: "Entity 2" }
+		]
+	}));
+
 	loadEventTemplate(event_);
 	$('body').append(modalTemplate({
 		modal_id: 'eventHelp',
@@ -133,7 +181,7 @@
 
 
 				if ($(this).attr('id') === 'placeButton'){
-					$('#object').html(mapTemplate);
+					$('#eventView').html(mapTemplate);
 					map.initialize('map-canvas', '#latInput', '#longInput', '#radInput');
 					getPlaces();
 					event_.place.forEach(function(p){

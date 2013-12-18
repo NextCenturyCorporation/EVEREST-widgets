@@ -9,117 +9,15 @@
 	<script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYmEUJPU4DRk96ElaCUQDcxmJxzbjxP8&sensor=true'></script>
 </head>
 <body>
-	<div class='col-xs-4'>
-		<div class='panel panel-default fixed'>
-			<div class='panel-heading'>
-				<h4>Create an Event
-					<button class='pull-right' data-toggle='modal' data-target='#formHelp' id='help'>?</button>
-				</h4>
-			</div>
-			<div class='panel-body'>
-				<form role='form'>
-
-					<div class='form-group'>
-						<label for='nameInput'>Name </label>
-						<input type='text' class='form-control' placeholder='Name' id='nameInput'>
-					</div>
-					<div class='form-group'>
-						<label for='descInput'>Description </label>
-						<input type='text' class='form-control' placeholder='Description' id='descInput'>
-					</div>
-
-					<div>
-						<div class='col-xs-3 expand'>
-							<button class='btn btn-info btn-block' type='button' data-target='#placeDiv' id='placeButton'>Add a Place</button>
-						</div>
-						<div class='col-xs-3 expand'>
-							<button class='btn btn-info btn-block' type='button' data-target='#tagDiv' id='tagButton'>Add a Tag</button>
-						</div>
-						<div class='col-xs-3 expand'>
-							<button class='btn btn-info btn-block' type='button' data-target='#dateDiv' id='dateButton'>Add a Date</button>
-						</div>
-						<div class='col-xs-3 expand'>
-							<button class='btn btn-info btn-block' type='button' data-target='#assertDiv' id='assertButton'>Add an Assertion</button>
-						</div>
-					</div>
-					
-					<br /><hr />
-
-					<div class='form-group hid' id='placeDiv'>
-						<div class='col-xs-1'></div>
-						<div class='col-xs-11'>
-							<div class='form-group'>
-								<label class='control-label' for='latInput'>Name </label>
-								<input type='text' class='form-control' placeholder='Name' id='placeNameInput'>
-							</div>
-							<div class='form-group'>
-								<label class='control-label' for='latInput'>Latitude </label>
-								<input type='text' class='form-control' placeholder='Latitude' id='latInput'>
-							</div>
-							<div class='form-group'>
-								<label class='control-label' for='longInput'>Longitude </label>
-								<input type='text' class='form-control' placeholder='Longitude' id='longInput'>
-							</div>
-							<div class='form-group'>
-								<label class='control-label' for='radInput'>Radius </label>
-								<input type='text' class='form-control' placeholder='Radius' id='radInput'>
-							</div>
-
-							<button class='btn btn-primary pull-right btn-sm' type='button' id='submitPlace'>Submit</button>
-							<button class='btn btn-default pull-right btn-sm' type='button' id='cancel'>Cancel</button>
-						</div>
-					</div>
-					<div class='form-group hid' id='tagDiv'>
-						<div class='col-xs-1'></div>
-						<div class='col-xs-offset-1 col-xs-11'>
-							<label class='control-label' for='tagInput'>Tag </label>
-							<input type='text' class='form-control' placeholder='Tag Name' id='tagInput'>
-
-							<button class='btn btn-primary pull-right btn-sm' type='button' id='submitTag'>Submit</button>
-							<button class='btn btn-default pull-right btn-sm' type='button' id='cancel'>Cancel</button>
-						</div>
-					</div>
-					<div class='form-group hid' id='dateDiv'>
-						<div class='col-xs-1'></div>
-						<div class='col-xs-11'>
-
-							<button class='btn btn-primary pull-right btn-sm' type='button' id='submitDate'>Submit</button>
-							<button class='btn btn-default pull-right btn-sm' type='button' id='cancel'>Cancel</button>
-						</div>
-					</div>
-					<div class='form-group hid' id='assertDiv'>
-						<div class='col-xs-1'></div>
-						<div class='col-xs-11'>
-							<div class='form-group'>
-								<label class='control-label' for='ent1Input'>Entity 1 </label>
-								<input type='text' class='form-control' placeholder='Entity 1' id='ent1Input'>
-							</div>
-							<div class='form-group'>
-								<label class='control-label' for='relInput'>Relationship </label>
-								<input type='text' class='form-control' placeholder='Relationship' id='relInput'>
-							</div>
-							<div class='form-group'>
-								<label class='control-label' for='ent2Input'>Entity 2 </label>
-								<input type='text' class='form-control' placeholder='Entity 2' id='ent2Input'>
-							</div>
-
-							<button class='btn btn-primary pull-right btn-sm' type='button' id='submitAssert'>Submit</button>
-							<button class='btn btn-default pull-right btn-sm' type='button' id='cancel'>Cancel</button>
-						</div>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-
-	<div class='col-xs-8'>
+	<div class='col-xs-4' id='eventForm'></div>
+	<div class='col-xs-8' id='eventView'></div>
 		<div class='panel panel-default' id='object'></div>
 	</div>
 
-	<script src='js/async.js'></script>
+	<script src='libs/async.js'></script>
 	<script src="../../../lib/jquery-2.0.2.js"></script>
 	<script src="../../../lib/bootstrap.min.js"></script>
-  	<script src='js/handlebars-1.0.0.js'></script>
+  	<script src='libs/handlebars-1.0.0.js'></script>
 	<script src="../../../lib/d3.v3.js"></script>
 	<script src="../../../lib/owf-widget-debug.js"></script>
 
