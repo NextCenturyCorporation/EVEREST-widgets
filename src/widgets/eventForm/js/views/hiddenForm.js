@@ -40,7 +40,7 @@ var app = app || {};
             this.$el.removeClass('hid');
 
             $('div').removeClass('has-error');
-            if ($(this).attr('id') === 'placeButton'){
+            if ($(this).attr('id') === 'placeButton') {
                 $('#eventView').html(mapTemplate);
                 map.initialize('map-canvas', '#latInput', '#longInput', '#radInput');
                 app.event_.place.forEach(function(p){

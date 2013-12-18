@@ -31,8 +31,11 @@ var app = app || {};
         submit: function(){
             var me = this;
             var event_ = JSON.parse(me.model.attributes.event_);
-            async.each(event_.assertions, function(assert, callback){
+            event_.place.forEach(function(p){
+                var newPlace = app.places.create(p);
+            });
 
+            async.each(event_.assertions, function(assert, callback){
                 var tempAssert = {
                     name: assert.entity1 + ' ' + assert.relationship + ' ' + assert.entity2,
                     entity1: [{value: assert.entity1}],
@@ -40,21 +43,12 @@ var app = app || {};
                     entity2: [{value: assert.entity2}]
                 };
 
-                $.ajax({
-                    url: 'http://everest-build:8081/target-assertion',
-                    type: 'POST',
-                    dataType: 'json',
-                    data: tempAssert,
-                    success: function(data) {
-                        assert._id = data._id;
-                        me.model.attributes.event_ = JSON.stringify(event_, undefined, 2);
-                        me.render();
-                        callback();
-                    },
-                    error: function(err) {
-                        console.log(err);
-                        callback(err);
-                    }
+                var newAssert = app.assertions.create(tempAssert, { wait: true });
+                newAssert.on('sync', function(model){
+                    assert._id = newAssert.id;
+                    me.model.set('event_', JSON.stringify(event_, undefined, 2));
+                    me.render();
+                    callback();
                 });
             }, function(err) {
                 if (!err) {
@@ -71,19 +65,11 @@ var app = app || {};
                         tempEvent.assertions.push(assert._id);
                     });
 
-                    $.ajax({
-                        url: 'http://everest-build:8081/event',
-                        type: 'POST',
-                        dataType: 'json',
-                        data: tempEvent,
-                        success: function(data){
-                            event_.id = data._id;
-                            me.model.attributes.event_ = JSON.stringify(event_, undefined, 2);
-                            me.render();
-                        },
-                        error: function(err) {
-                            console.log(err);
-                        }
+                    var newEvent = app.events.create(tempEvent, { wait: true });
+                    newEvent.on('sync', function(model){
+                        event_.id = newEvent.id;
+                        me.model.set('event_', JSON.stringify(event_, undefined, 2));
+                        me.render();
                     });
                 }
             });

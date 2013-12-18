@@ -7,13 +7,14 @@ var app = app || {};
 
         initialize: function(options) {
             this.rawTemplate = options.rawTemplate ? options.rawTemplate : '';
+            this.places = options.places ? options.places : [];
         },
 
         render: function() {
             var context = this.model ? this.model.attributes : {};
             this.model.map = new google.maps.Map(this.el, context.mapOptions);
-            this.model.markers = this.collection.models;
-            //this.model.places = this.places.models;
+            this.model.eventPlaces = this.collection.models;
+            this.model.places = this.places.models;
             this.model.setup();
             return this;
         },
@@ -26,6 +27,5 @@ var app = app || {};
             var compiled = Handlebars.compile(this.rawTemplate);
             return compiled(context);
         }
-
     });
 }());

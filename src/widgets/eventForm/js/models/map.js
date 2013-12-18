@@ -1,5 +1,22 @@
 var app = app || {};
 
+var getRadians = function(val){
+	return val * Math.PI / 180;
+};
+
+var getDistance = function(lat1, lng1, lat2, lng2){
+	var R = 6371000;  //meters
+
+	var dLat = getRadians(lat2 - lat1);
+	var dLng = getRadians(lng2 - lng1);
+	var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + 
+		Math.cos(getRadians(lat1)) * Math.cos(getRadians(lat2)) *
+		Math.sin(dLng / 2) * Math.sin(dLng / 2);
+
+	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+	return R * c;
+};
+
 (function() {
     app.MapModel = Backbone.Model.extend({
         defaults: {
@@ -25,7 +42,13 @@ var app = app || {};
         setup: function(){
         	var me = this;
 
-            _.each(me.markers, function(m){
+        	_.each(me.places, function(p) {
+        		var marker = me.addMarker(p.get('latitude'), p.get('longitude'), p.get('name'), me.get('GREEN'));
+        		marker.setMap(null);
+        		p.set('marker', marker);
+			});
+
+            _.each(me.eventPlaces, function(m){
             	me.addMarker(m.get('latitude'), m.get('longitude'), m.get('name'), me.get('BLUE'));
 
             	if (m.get('radius') > 0){
@@ -34,7 +57,6 @@ var app = app || {};
             });
 
 			me.centerMarker = me.addMarker(me.get('lat'), me.get('lng'), 'center', me.get('RED'));
-            me.markers.push(me.centerMarker);
 
             var lat = me.get('latID'),
             	lng = me.get('lngID'),
@@ -58,7 +80,7 @@ var app = app || {};
         	this.center = latlng;
 			this.map.setCenter(this.center);
 			this.centerMarker.setPosition(this.center);
-			//this.addNearbyPlaces(me.center.lat(), me.center.lng());
+			this.addNearbyPlaces(this.center.lat(), this.center.lng());
         },
 
         addMarker: function(lat, lng, title, color) {
@@ -75,9 +97,8 @@ var app = app || {};
 
 			google.maps.event.addListener(marker, 'dragend', function() {
 				me.setCenter(marker.getPosition());
-				me.center = me.map.getCenter();
-            	$('#latInput').val(me.map.getCenter().lat());
-            	$('#longInput').val(me.map.getCenter().lng());
+            	$(me.get('latID')).val(me.map.getCenter().lat());
+            	$(me.get('lngID')).val(me.map.getCenter().lng());
 			});
 
 			return marker;
@@ -94,24 +115,19 @@ var app = app || {};
 				fillOpacity: 0.1,
 				map: me.map,
 				center: latlng,
-				radius: parseFloat(rad)
+				radius: rad
 			});
 
 			return circle;
 		},
 
 		addNearbyPlaces: function(lat, lng) {
-			//remove any previously added green markers
-			this.markers.forEach(function(m) {
-				if (m.icon === me.attributes.GREEN) {
-					m.setMap(null);
-				}
-			});
-
-			//add in nearby markers
-			me.places.forEach(function(p){
-				if ( getDistance( p.latitude, p.longitude, lat, lng) < 100 ) {
-					me.addMarker(p.latitude, p.longitude, p.name, me.GREEN);
+			var me = this;
+			_.each(me.places, function(p) {
+				if ( getDistance( p.get('latitude'), p.get('longitude'), lat, lng) < 100 ) {
+					p.get('marker').setMap(me.map);
+				} else {
+					p.get('marker').setMap(null);
 				}
 			});
 		},

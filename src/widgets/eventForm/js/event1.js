@@ -41,7 +41,7 @@ var app = app || {};
         app.mapView = new app.MapView({
             model: app.map,
             collection: new app.MarkerCollection(app.eventPlaces),
-            places: new app.PlaceCollection(app.places),
+            places: app.places,
             rawTemplate: mapTemplate
         }).render();
 
@@ -66,9 +66,11 @@ var app = app || {};
         $('form').append(f.view.el);
     });
 
-    app.loadEventView();
 }());
 
 $(document).ready(function(){
     app.places.fetch();
+    app.assertions.fetch();
+    app.events.fetch();
+    app.loadEventView();
 })
