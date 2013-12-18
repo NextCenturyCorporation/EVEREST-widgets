@@ -13,6 +13,23 @@ var app = app || {};
     // (You can obtain the percent of the timeline's width that is usable for
     //  rendering events by calculating (1 - TIMELINE_MARGINS).)
     var TIMELINE_MARGINS = 0.2;
+
+    var DEDUCE_LAYOUT = true;
+
+    var MAX_CLASSES;
+
+    var UNIT_DICTIONARY = {
+        "millisecond": Timeline.DateTime.MILLISECOND,
+        "second": Timeline.DateTime.SECOND,
+        "minute": Timeline.DateTime.MINUTE,
+        "hour": Timeline.DateTime.HOUR,
+        "day" : Timeline.DateTime.DAY,
+        "week" : Timeline.DateTime.WEEK,
+        "month" : Timeline.DateTime.MONTH,
+        "year" : Timeline.DateTime.YEAR,
+        "decade" : Timeline.DateTime.DECADE,
+        "century" : Timeline.DateTime.CENTURY,
+        "millennium" : Timeline.DateTime.millennium};
     /*             *\
     | End Constants |
     \*             */
@@ -109,23 +126,32 @@ var app = app || {};
 
         // Assign existing event sources and date to new layouts.
         // Also assign a default theme if one is not provided.
-        for (var ctr=0;(ctr<newBandInfos.length) && (ctr<timeline.getBandCount());++ctr)
-        {
-          newBandInfos[ctr].eventSource = timeline.getBand(ctr).getEventSource();
-          newBandInfos[ctr].date = timeline.getBand(ctr).getCenterVisibleDate();
-          if (!theme in newBandInfos[ctr]) {
-            newBandInfos[ctr].theme = Timeline.ClassicTheme.create();
-          }
-
-          newBands.push(Timeline.createBandInfo(newBandInfos[ctr]));
+        for (var ctr=0;(ctr<newBandInfos.length) && (ctr<timeline.getBandCount());++ctr) {
+            newBandInfos[ctr].intervalUnit = UNIT_DICTIONARY[newBandInfos[ctr].intervalUnit];
+            newBandInfos[ctr].eventSource = timeline.getBand(ctr).getEventSource();
+            if (!newBandInfos[ctr].theme) {
+                newBandInfos[ctr].theme = Timeline.ClassicTheme.create();
+            }
+            if (newBandInfos[ctr].zones){
+                var zones = newBandInfos[ctr].zones;
+                for (var i = zones.length - 1; i >= 0; i--) {
+                    zones[i].unit = UNIT_DICTIONARY[zones[i].unit];
+                }
+                newBands.push(Timeline.createHotZoneBandInfo(newBandInfos[ctr]));
+            } else {
+                newBands.push(Timeline.createBandInfo(newBandInfos[ctr]));
+            }
         }
+
+        newBands[1].highlight = true;
+        newBands[1].syncWith =0;
         // TODO: Really if things like theme, width, and interval info are not provided, we should 
         // pull those values from the band we are replacing, but it is not completely clear how
         // to get that info out of the existing bands.
 
         // Rerender the timeline.
         $("#tline").removeData();
-        Timeline.create(document.getElementById("tline"), newBands, Timeline.Horizontal);        
+        Timeline.create(document.getElementById("tline"), newBands, Timeline.Horizontal);     
     }
 
     /*
@@ -133,112 +159,115 @@ var app = app || {};
     *  the best layout.  Will determine the scale, the units, and any hot zones.
     */
     app.deduceLayout = function() {
-        // First thing we do is see if we will have a single uniform timeline or if we will have hot zones
-        // where datapoints are shown at a higher resolution.
-        var areas = clusterer.jenks(datapoints);
 
-        var newZones = [];
-        for(var i=0; i<areas.length; ++i) {
-            if (areas[i].scale > 1) {
-                newZones.push({
-                    start:    new Date(areas[i].start).toUTCString(),
-                    end:      new Date(areas[i].end).toUTCString(),
-                    magnify:  areas[i].scale,
-                    unit:     null // temporary value
-                });
-            }
-        }
+        if(DEDUCE_LAYOUT){
+            // First thing we do is see if we will have a single uniform timeline or if we will have hot zones
+            // where datapoints are shown at a higher resolution.
+            var areas = clusterer.jenks(datapoints, MAX_CLASSES);
 
-        // Grab the number of new zones.
-        var numNewZones = newZones.length;
-        // There is at least one new zone?
-        if (numNewZones > 0) {
-            // Grab...
-            // (1) the number of datapoints
-            // (2) the start and end datapoint
-            var numDatapoints = datapoints.length;
-            var startDatapoint = datapoints[0];
-            var endDatapoint = datapoints[numDatapoints - 1];
-            // Calculate the range.
-            var magnifiedRange = endDatapoint - startDatapoint;
-            // Loop through the new zones to magnify the ranges.
-            for (i = 0; i < numNewZones; i++) {
-                // Grab...
-                // (1) the new zone
-                // (2) the start and end date
-                // (3) the magnification
-                var newZone = newZones[i];
-                var newZoneStartDate = Date.parse(newZone.start);
-                var newZoneEndDate = Date.parse(newZone.end);
-                var newZoneMagnification = newZone.magnify;
-                // Calculate the range and magnified range.
-                var newZoneRange = newZoneEndDate - newZoneStartDate;
-                var newZoneMagnifiedRange =
-                    newZoneRange * (newZoneMagnification - 1);
-                // Temporarily, save the range and magnified range
-                // into the unit property.
-                // (This may seem be odd, but it saves us from allocating an
-                //  unnecessary parallel array or adding an awkward property
-                //  to the new zone which must be removed later.)
-                newZone.unit = {
-                    range: newZoneRange,
-                    magnifiedRange: newZoneMagnifiedRange
+            var newZones = [];
+            for(var i=0; i<areas.length; ++i) {
+                if (areas[i].scale > 1) {
+                    newZones.push({
+                        start:    new Date(areas[i].start).toUTCString(),
+                        end:      new Date(areas[i].end).toUTCString(),
+                        magnify:  areas[i].scale,
+                        unit:     null // temporary value
+                    });
                 }
-                // Magnify the range.
-                magnifiedRange += newZoneMagnifiedRange;
             }
-            // Grab the width of the timeline in pixels.
-            var widthOfTimelineInPixels =
-                Timeline.getTimelineFromID(0).getBand(0).getViewLength();
-            // Calculate the usable width of the timeline in pixels.
-            var usableWidthOfTimelineInPixels =
-                widthOfTimelineInPixels * (1 - TIMELINE_MARGINS);
-            // Grab the Gregorian unit lengths
-            var gregorianUnitLengths = SimileAjax.DateTime.gregorianUnitLengths;
-            // Loop through the new zones to translate the magnified ranges
-            // into units.
-            for (i = 0; i < numNewZones; i++) {
+
+            // Grab the number of new zones.
+            var numNewZones = newZones.length;
+            // There is at least one new zone?
+            if (numNewZones > 0) {
                 // Grab...
-                // (1) the new zone
-                // (2) the range and magnified range
-                var newZone = newZones[i];
-                var newZoneRange = newZone.unit.range;
-                var newZoneMagnifiedRange = newZone.unit.magnifiedRange;
-                // Calculate how much of the usable width of the timeline the
-                // new zone takes up in pixels.
-                var newZoneWidthInPixels =
-                    (newZoneMagnifiedRange / magnifiedRange) * usableWidthOfTimelineInPixels;
-                // Start the unit at 0 (milliseconds).
-                var unit = 0;
-                // Calculate the number of pixels per unit for unit 0
-                // (milliseconds).
-                var pixelsPerUnit = newZoneWidthInPixels / newZoneRange;
-                // Iterate until we have unit intervals of at least
-                // MIN_PIXELS_PER_UNIT pixels.
-                while (pixelsPerUnit < MIN_PIXELS_PER_UNIT) {
-                    // Next unit!
-                    unit++;
-                    // Calculate the number of pixels per unit for
-                    // the current unit.
-                    pixelsPerUnit =
-                        newZoneWidthInPixels / (newZoneRange / gregorianUnitLengths[unit]);
+                // (1) the number of datapoints
+                // (2) the start and end datapoint
+                var numDatapoints = datapoints.length;
+                var startDatapoint = datapoints[0];
+                var endDatapoint = datapoints[numDatapoints - 1];
+                // Calculate the range.
+                var magnifiedRange = endDatapoint - startDatapoint;
+                // Loop through the new zones to magnify the ranges.
+                for (i = 0; i < numNewZones; i++) {
+                    // Grab...
+                    // (1) the new zone
+                    // (2) the start and end date
+                    // (3) the magnification
+                    var newZone = newZones[i];
+                    var newZoneStartDate = Date.parse(newZone.start);
+                    var newZoneEndDate = Date.parse(newZone.end);
+                    var newZoneMagnification = newZone.magnify;
+                    // Calculate the range and magnified range.
+                    var newZoneRange = newZoneEndDate - newZoneStartDate;
+                    var newZoneMagnifiedRange =
+                        newZoneRange * (newZoneMagnification - 1);
+                    // Temporarily, save the range and magnified range
+                    // into the unit property.
+                    // (This may seem be odd, but it saves us from allocating an
+                    //  unnecessary parallel array or adding an awkward property
+                    //  to the new zone which must be removed later.)
+                    newZone.unit = {
+                        range: newZoneRange,
+                        magnifiedRange: newZoneMagnifiedRange
+                    }
+                    // Magnify the range.
+                    magnifiedRange += newZoneMagnifiedRange;
                 }
-                // Save the unit.
-                // (This will overwrite the range and the magnified range
-                //  from before.)
-                newZone.unit = unit;
+                // Grab the width of the timeline in pixels.
+                var widthOfTimelineInPixels =
+                    Timeline.getTimelineFromID(0).getBand(0).getViewLength();
+                // Calculate the usable width of the timeline in pixels.
+                var usableWidthOfTimelineInPixels =
+                    widthOfTimelineInPixels * (1 - TIMELINE_MARGINS);
+                // Grab the Gregorian unit lengths
+                var gregorianUnitLengths = SimileAjax.DateTime.gregorianUnitLengths;
+                // Loop through the new zones to translate the magnified ranges
+                // into units.
+                for (i = 0; i < numNewZones; i++) {
+                    // Grab...
+                    // (1) the new zone
+                    // (2) the range and magnified range
+                    var newZone = newZones[i];
+                    var newZoneRange = newZone.unit.range;
+                    var newZoneMagnifiedRange = newZone.unit.magnifiedRange;
+                    // Calculate how much of the usable width of the timeline the
+                    // new zone takes up in pixels.
+                    var newZoneWidthInPixels =
+                        (newZoneMagnifiedRange / magnifiedRange) * usableWidthOfTimelineInPixels;
+                    // Start the unit at 0 (milliseconds).
+                    var unit = 0;
+                    // Calculate the number of pixels per unit for unit 0
+                    // (milliseconds).
+                    var pixelsPerUnit = newZoneWidthInPixels / newZoneRange;
+                    // Iterate until we have unit intervals of at least
+                    // MIN_PIXELS_PER_UNIT pixels.
+                    while (pixelsPerUnit < MIN_PIXELS_PER_UNIT) {
+                        // Next unit!
+                        unit++;
+                        // Calculate the number of pixels per unit for
+                        // the current unit.
+                        pixelsPerUnit =
+                            newZoneWidthInPixels / (newZoneRange / gregorianUnitLengths[unit]);
+                    }
+                    // Save the unit.
+                    // (This will overwrite the range and the magnified range
+                    //  from before.)
+                    newZone.unit = unit;
+                }
             }
-        }
 
-        // Relayout the timeline with the calculated hotzones.
-        zones.length = 0;
-        zones.push.apply(zones, newZones);
+            // Relayout the timeline with the calculated hotzones.
+            zones.length = 0;
+            zones.push.apply(zones, newZones);
 
-        // Figure total scale and units.
-        app.scaleTimeline();
+            // Figure total scale and units.
+            app.scaleTimeline();
 
-        $("#tline").removeData();
-        Timeline.create(document.getElementById("tline"), bandInfo, Timeline.Horizontal);        
+            $("#tline").removeData();
+            Timeline.create(document.getElementById("tline"), bandInfo, Timeline.Horizontal); 
+        }       
     }
 
     app.scaleTimeline = function() {
@@ -319,6 +348,14 @@ var app = app || {};
           })
         }
       };
+    }
+
+    app.setDeduceLayout = function(bool){
+        DEDUCE_LAYOUT = bool;
+    }
+
+    app.setMaxClasses = function(maxclasses){
+        MAX_CLASSES = maxclasses;
     }
 
 }());

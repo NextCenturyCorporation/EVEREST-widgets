@@ -11,7 +11,10 @@
 <body>
   <div id="buttonDiv">
       <button id="addButton">Add Point</button>
+      <button id="addDuration"> Add Duration Event</button>
       <button id="changeButton">Change Layout</button>
+      <button id="toggleDeduceOff">Turn Off Deduce Layout</button>
+      <button id="toggleDeduceOn">Turn On Deduce Layout</button>
   </div>
 
   <script src='js/libs/jquery-2.0.3.min.js'></script>
@@ -38,19 +41,31 @@
   <script>
     $(function() {
       $("#changeButton").click(function(event) {
-        // var bandInfo = [{
-        //           width: "50%",
-        //           intervalUnit: Timeline.DateTime.MONTH,
-        //           intervalPixels: 75,
-        //         },
-        //         {
-        //           width: "50%",
-        //           intervalUnit: Timeline.DateTime.YEAR,
-        //           intervalPixels: 200,
-        //           highlight: true,
-        //           overview: true
-        //         }];
-        // app.changeLayout(bandInfo);
+
+        var configs = [];
+        var bandInfos = [];
+        var top = {
+          width:          "80%", 
+          intervalUnit:   "day", 
+          intervalPixels: 75,
+          date:           'Friday Nov 22 2013 13:00:00 GMT-0600',
+          timeZone:       -6      
+        };
+
+        var bottom = {
+          width:          "20%", 
+          intervalUnit:   "month", 
+          intervalPixels: 200,
+          date:           'Friday Nov 22 2013 13:00:00 GMT-0600', 
+          timeZone:       -6,
+          overview:       true
+        };
+        bandInfos.push(top);
+        bandInfos.push(bottom);
+
+        var s = '{"configs":{"bandInfos": ' + JSON.stringify(bandInfos) + '}}';
+
+        OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', s);
       });
     });
   </script>
@@ -63,8 +78,45 @@
         var month = Math.floor(Math.random() * 12);
         var choices = ['Jan ', 'Feb ', 'Mar ', 'Apr ', 'May ', 'Jun ', 'Jul ', 'Aug ', 'Sep ', 'Oct ', 'Nov ', 'Dec '];
         var startDate = choices[month] + day + " 2013 " + hour + ":00:00 GMT";
-        var eventStr = '{"start":"'+startDate+'", "title":"New Event"}';
+        var eventStr = '{"events": [{"start":"'+startDate+'", "title":"New Event"}]}';
         OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', eventStr);
+      });
+    });
+  </script>
+  <script>
+    $(function() {
+      $("#addDuration").click(function(event) {
+        // Pick a random time in November (random hour actually)
+        var day1 = Math.floor(Math.random() * 30 + 1);
+        var hour1 = Math.floor(Math.random() * 24);
+        var month1 = Math.floor(Math.random() * 12);
+        var day2 = Math.floor(Math.random() * 30 + 1);
+        var hour2 = Math.floor(Math.random() * 24);
+        var month2 = Math.floor(Math.random() * 12);
+        var choices = ['Jan ', 'Feb ', 'Mar ', 'Apr ', 'May ', 'Jun ', 'Jul ', 'Aug ', 'Sep ', 'Oct ', 'Nov ', 'Dec '];
+
+        if(month1 > month2){
+          var tmp = month1;
+          month1 = month2;
+          month2 = tmp;
+        }
+
+        var startDate = choices[month1] + day1 + " 2013 " + hour1 + ":00:00 GMT";
+        var endDate = choices[month2] + day2 + " 2013 " + hour2 + ":00:00 GMT";
+        var eventStr = '{"events": [{"start":"'+startDate+'", "title":"New Event", "end":"'+endDate+'"}]}';
+        OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', eventStr);
+      });
+    });
+  </script>
+  <script>
+    $(function(){
+      $("#toggleDeduceOff").click(function(event){
+        OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', '{"configs":{"setDeduceLayout": false}}');
+      });
+    });
+    $(function(){
+      $("#toggleDeduceOn").click(function(event){
+        OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', '{"configs":{"setDeduceLayout": true}}');
       });
     });
   </script>
