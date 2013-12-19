@@ -858,7 +858,7 @@ function () {
     if (this._supportsOrthogonalScrolling = "supportsOrthogonalScrolling" in this._eventPainter && this._eventPainter.supportsOrthogonalScrolling(), this._supportsOrthogonalScrolling) {
         this._scrollBar = this._timeline.getDocument().createElement("div"), this._scrollBar.id = "timeline-band-scrollbar-" + i, this._scrollBar.className = "timeline-band-scrollbar", this._timeline.addDiv(this._scrollBar), this._scrollBar.innerHTML = '<div class="timeline-band-scrollbar-thumb"> <\/div>', o = this._scrollBar.firstChild, o.style.cursor = SimileAjax.Platform.browser.isIE ? "move" : "-moz-grab";
         $(o).on("mousedown", function (n) {
-            r._onScrollBarMouseDown(n)
+            u._onScrollBarMouseDown(n)
         })
     }
 }, Timeline._Band.SCROLL_MULTIPLES = 5, $.extend(Timeline._Band.prototype, {
@@ -1002,8 +1002,8 @@ function () {
         this._viewOrthogonalOffset = Math.max(0, n)
     },
     createLayerDiv: function (n, t) {
-        var i = $("<div classname='" + t + " timeline-band-layer' style='z-index:" + n + "'/>").appendTo(this._innerDiv),
-            r = $("<div className='timeline-band-layer-inner' style='cursor:" + (SimileAjax.Platform.browser.isIE ? "move" : "-moz-grab") + "'/>").appendTo(i);
+        var i = $("<div class='" + t + " timeline-band-layer' style='z-index:" + n + "'/>").appendTo(this._innerDiv),
+            r = $("<div class='timeline-band-layer-inner' style='cursor:" + (SimileAjax.Platform.browser.isIE ? "move" : "-moz-grab") + "'/>").appendTo(i);
         return r.hide()
     },
     removeLayerDiv: function (n) {
@@ -2027,7 +2027,7 @@ function () {
         var c = e.trackOffset + t * e.trackIncrement,
             l = r - i,
             a = e.trackHeight,
-            h = $("div class='timeline-small-event-tape" + (s ? " small-" + s : "") + "'/>").css({
+            h = $("<div class='timeline-small-event-tape" + (s ? " small-" + s : "") + "'/>").css({
                 left: i + "px",
                 width: l + "px",
                 top: c + "px",
