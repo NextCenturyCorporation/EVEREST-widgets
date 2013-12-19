@@ -828,7 +828,8 @@ function () {
         u._onTouchMove(n)
     });
     $(this._div).on("click", function (n) {
-        n.srcElement.tagName == "IMG" || $(n.srcElement).hasClass("timeline-event-label") || u._keyboardInput.get(1).focus()
+        var t = n.srcElement || n.target;
+        t.tagName == "IMG" || $(t).hasClass("timeline-event-label") || u._keyboardInput.get(1).focus()
     });
     $("body").on("mousemove", function (n) {
         u._onMouseMove(n)
