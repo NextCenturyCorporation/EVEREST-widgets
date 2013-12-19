@@ -4,12 +4,13 @@ if(OWF.Util.isRunningInOWF()) {
 		var patient = app.patients.get(patientId);
 		OWF.ready(function () {
 			OWF.Eventing.publish('com.nextcentury.everest.reminders.sendPatient', patient.toJSON());
-			//OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', message);
-		    console.log(patient.get('name') === "Bob Smith");
             if (patient.get('name') === 'Bob Smith') {
-		        console.log(data);
-                OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', data);
+		        data.eraseData = true;
+                OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', JSON.stringify(data);
+            } else {
+            	OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', JSON.stringify({eraseData: true}));
             }
+
 		});
     });
 }
