@@ -30,12 +30,18 @@ var app = app || {};
 
         submit: function(){
             var me = this;
-            var event_ = JSON.parse(me.model.attributes.event_);
+            var event_ = JSON.parse(me.model.get('event_'));
+
+            if (event_.name === '') {
+                $('#nameInput').parent().addClass('has-error');
+                return; 
+            } 
+
             event_.place.forEach(function(p){
                 var newPlace = app.places.create(p);
             });
 
-            async.each(event_.assertions, function(assert, callback){
+            async.each(event_.assertions, function(assert, callback) {
                 var tempAssert = {
                     name: assert.entity1 + ' ' + assert.relationship + ' ' + assert.entity2,
                     entity1: [{value: assert.entity1}],

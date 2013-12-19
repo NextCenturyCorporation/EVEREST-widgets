@@ -6,7 +6,6 @@ var app = app || {};
         className: 'panel panel-default fixed',
 
         events: {
-            'click .btn-info'             : 'showHiddenForm',
             'change #nameInput,#descInput': 'updateEvent'
         },
 
@@ -29,16 +28,8 @@ var app = app || {};
             return compiled(context);
         },
 
-        showHiddenForm: function(event) {
-            var targetDiv = $(event.currentTarget).attr('data-target');
-            app.hiddenForms.forEach(function(form){
-                form.id === targetDiv ? form.view.show() : form.view.hide();
-            });
-
-            targetDiv === 'placeDiv' ? app.loadMapView() : app.loadEventView();
-        },
-
         updateEvent: function(event) {
+            $('div').removeClass('has-error');
             var input = $(event.currentTarget);
             if (input.attr('id') === 'nameInput') {
                 app.event_.name = input.val();

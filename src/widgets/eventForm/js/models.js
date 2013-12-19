@@ -10,7 +10,6 @@ var app = app || {};
         event_horizon: []
     };
 
-    app.FormModel = Backbone.Model.extend();
     app.eventModelData = new app.FormModel({
         title: "Create an Event",
         helpTarget: "formHelp",
@@ -56,6 +55,5 @@ var app = app || {};
                 ]
             })
         }
-
     ];
 }());

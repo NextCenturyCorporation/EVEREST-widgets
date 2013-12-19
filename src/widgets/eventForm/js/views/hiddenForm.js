@@ -3,7 +3,7 @@ var app = app || {};
 (function() {
     app.HiddenFormView = Backbone.View.extend({
         tagName: 'div',
-        className: 'form-group hid',
+        className: 'form-group',
 
         events: {
             'click .btn-default' : 'hide',
@@ -36,19 +36,11 @@ var app = app || {};
             return value;
         },
 
-        show: function() {
-            this.$el.removeClass('hid');
-        },
-
-        hide: function() {
-            this.$el.addClass('hid');
-        },
-
         submit: function(event) {
+            $('div').removeClass('has-error');
             var id = $(event.currentTarget).attr('id');
             switch (id) {
                 case "submitPlace":
-                    $('div').removeClass('has-error');
                     var p = {
                         name: this.getValue('#placeNameInput'),
                         latitude: parseFloat(this.getValue('#latInput')),
@@ -58,42 +50,44 @@ var app = app || {};
 
                     app.eventPlaces.push(new app.PlaceModel(p));
                     app.event_.place.push(p);
-                    this.hide();
+                    app.router.navigate('/');
+
+                    break;
+                    
+                case "submitTag":
+                    if ($('#tagInput').val() === '') {
+                        $('#tagInput').parent().addClass('has-error');
+                        return;
+                    }
+
+                    app.event_.tags.push(this.getValue('#tagInput'));
                     app.loadEventView();
 
                     break;
-                case "submitTag":
-                    $('div').removeClass('has-error');
 
-                    if ($('#tagInput').val() !== '') {
-                        app.event_.tags.push(this.getValue('#tagInput'));
-                        this.hide();
-                        app.loadEventView();
-                    } else {
-                        $('#tagInput').parent().addClass('has-error');
-                    }
-
-                    break;
                 case "submitDate":
                     break;
-                case "submitAssert":
-                    $('div').removeClass('has-error');
-                    if ($('#ent1Input').val() !== '') {
-                        var assertion = {
-                            entity1: this.getValue('#ent1Input'),
-                            relationship: this.getValue('#relInput'),
-                            entity2: this.getValue('#ent2Input'),
-                        };
 
-                        app.event_.assertions.push(assertion);
-                        this.hide();
-                        app.loadEventView();
-                    } else {
+                case "submitAssert":
+                    if ($('#ent1Input').val() === '') {
                         $('#ent1Input').parent().addClass('has-error');
+                        return;
                     }
+
+                    var assertion = {
+                        entity1: this.getValue('#ent1Input'),
+                        relationship: this.getValue('#relInput'),
+                        entity2: this.getValue('#ent2Input'),
+                    };
+
+                    app.event_.assertions.push(assertion);
+                    app.loadEventView();
                     
                     break;
             }
+
+            this.remove();
+            app.router.navigate('/');
         }
     });
 }());
