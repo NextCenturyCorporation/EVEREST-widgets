@@ -26,20 +26,22 @@
   <script src="js/storyLine-owf.js"></script>
   <script>
       // Load in sample data
-      app.addEvents([
-        {
-          start: "Apr 14 2013 00:00:00 GMT",
-          title: "First Event"
-        },     
-        {
-          start: "Apr 12 2013 00:00:00 GMT",
-          title: "Second Event"
-        },
-        {
-          start: "Apr 13 2013 00:00:00 GMT",
-          title: "Third Event"
-        }
-      ]);
+      $(function() {
+        app.addEvents([
+          {
+            start: "Apr 14 2013 00:00:00 GMT",
+            title: "First Event"
+          },
+          {
+            start: "Apr 12 2013 00:00:00 GMT",
+            title: "Second Event"
+          },
+          {
+            start: "Apr 13 2013 00:00:00 GMT",
+            title: "Third Event"
+          }
+        ]);
+      });
   </script>
   <script>
     $(function() {
