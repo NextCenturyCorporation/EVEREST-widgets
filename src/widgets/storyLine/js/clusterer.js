@@ -1,3 +1,11 @@
+/*            *\
+| clusterer.js |
+\*            */
+//--------------------
+// DEPENDS ON:
+// - "./constants.js"
+//--------------------
+
 var clusterer = clusterer || {};
 
 (function() {
@@ -81,15 +89,15 @@ var clusterer = clusterer || {};
         \*         */
 
         // the default maximum number of classes to use
-        var DEFAULT_MAX_CLASSES = 10;
+        var DEFAULT_MAX_CLASSES = constants.clusterer.DEFAULT_MAX_CLASSES;
         // the minimum percent decrease in variance
         // between each number of classes
         // (This is used to find the best number of classes.)
-        var MIN_PERCENT_DECREASE_IN_VARIANCE = 0.1;
+        var MIN_PERCENT_DECREASE_IN_VARIANCE = constants.clusterer.MIN_PERCENT_DECREASE_IN_VARIANCE;
         // the scaling factor threshold
         // (When scaling the clusters, all scaling factors below this threshold
         //  are rounded down to 1.)
-        var SCALING_FACTOR_THRESHOLD = 2;
+        var SCALING_FACTOR_THRESHOLD = constants.clusterer.SCALING_FACTOR_THRESHOLD;
         // the minimum percent difference in the average distance between points
         // between neighboring clusters
         // (This is used to merge clusters.)
