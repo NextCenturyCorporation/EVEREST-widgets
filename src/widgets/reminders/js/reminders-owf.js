@@ -22,7 +22,7 @@ if(OWF.Util.isRunningInOWF()) {
 				});
 			});
 
-		    OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', JSON.stringify(message);
+		    OWF.Eventing.publish('com.nextcentury.everest.storyLine.events', JSON.stringify(message));
         });
 
         OWF.notifyWidgetReady();
