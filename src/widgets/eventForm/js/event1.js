@@ -26,6 +26,12 @@ var app = app || {};
         app.eventView && app.eventView.remove();
         app.mapView && app.mapView.remove();
 
+        app.eventView = new app.DisplayView({
+            rawTemplate: mapTemplate
+        }).render();
+
+        $('div#eventView').html(app.eventView.el);
+
         app.map = new app.MapModel({
             titleID: '#placeNameInput',
             latID: '#latInput',
@@ -33,15 +39,9 @@ var app = app || {};
             radID: '#radInput'
         });
 
-        app.eventView = new app.DisplayView({
-            rawTemplate: mapTemplate
-        }).render();
-
-        $('div#eventView').html(app.eventView.el);
-        var a = new app.MarkerCollection(app.eventPlaces);
         app.mapView = new app.MapView({
             model: app.map,
-            collection: a,
+            collection: new app.MarkerCollection(app.eventPlaces),
             places: app.places,
             rawTemplate: mapTemplate
         }).render();
@@ -54,7 +54,7 @@ var app = app || {};
         app.hiddenView && app.hiddenView.remove();
 
         app.hiddenView = new app.HiddenFormView({
-            model: app.hiddenForms1.get(formId),
+            model: app.hiddenForms.get(formId),
             rawTemplate: rawHiddenFormTemplate
         }).render();
 

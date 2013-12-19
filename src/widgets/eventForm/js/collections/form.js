@@ -5,7 +5,7 @@ var app = app || {};
         model: app.FormModel
     });
 
-    app.hiddenForms1 = new app.FormCollection([
+    app.hiddenForms = new app.FormCollection([
         new app.FormModel({
         	id: 'placeDiv',
             button: "submitPlace",

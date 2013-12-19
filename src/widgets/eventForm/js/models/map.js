@@ -74,7 +74,7 @@ var getDistance = function(lat1, lng1, lat2, lng2){
 			});
 
 			$(me.get('radID')).change(function(){
-				me.updateCenterCircle(lat, lng, rad, me.get('RED'));
+				me.updateCenterCircle(lat, lng, rad, '#ff0000');
 			});
         },
 

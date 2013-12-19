@@ -6,7 +6,7 @@ var app = app || {};
         className: 'form-group',
 
         events: {
-            'click .btn-default' : 'hide',
+            'click .btn-default' : 'clear',
             'click .btn-primary' : 'submit'
         },
 
@@ -30,10 +30,9 @@ var app = app || {};
             return compiled(context);
         },
 
-        getValue: function(identifier) {
-            var value = $(identifier).val();
-            $(identifier).val('');
-            return value;
+        clear: function(){ 
+            this.remove();
+            app.router.navigate('/');
         },
 
         submit: function(event) {
@@ -42,25 +41,24 @@ var app = app || {};
             switch (id) {
                 case "submitPlace":
                     var p = {
-                        name: this.getValue('#placeNameInput'),
-                        latitude: parseFloat(this.getValue('#latInput')),
-                        longitude: parseFloat(this.getValue('#longInput')),
-                        radius: parseFloat(this.getValue('#radInput')) || 0
+                        name: $('#placeNameInput').val(),
+                        latitude: parseFloat($('#latInput').val()),
+                        longitude: parseFloat($('#longInput').val()),
+                        radius: parseFloat($('#radInput').val()) || 0
                     };
 
                     app.eventPlaces.push(new app.PlaceModel(p));
                     app.event_.place.push(p);
-                    app.router.navigate('/');
 
                     break;
-                    
+
                 case "submitTag":
                     if ($('#tagInput').val() === '') {
                         $('#tagInput').parent().addClass('has-error');
                         return;
                     }
 
-                    app.event_.tags.push(this.getValue('#tagInput'));
+                    app.event_.tags.push($('#tagInput').val());
                     app.loadEventView();
 
                     break;
@@ -75,9 +73,9 @@ var app = app || {};
                     }
 
                     var assertion = {
-                        entity1: this.getValue('#ent1Input'),
-                        relationship: this.getValue('#relInput'),
-                        entity2: this.getValue('#ent2Input'),
+                        entity1: $('#ent1Input').val(),
+                        relationship: $('#relInput').val(),
+                        entity2: $('#ent2Input').val(),
                     };
 
                     app.event_.assertions.push(assertion);
@@ -86,8 +84,7 @@ var app = app || {};
                     break;
             }
 
-            this.remove();
-            app.router.navigate('/');
+            this.clear();
         }
     });
 }());
