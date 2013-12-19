@@ -38,20 +38,6 @@ var app = app || {};
 
         show: function() {
             this.$el.removeClass('hid');
-
-            $('div').removeClass('has-error');
-            if ($(this).attr('id') === 'placeButton') {
-                $('#eventView').html(mapTemplate);
-                map.initialize('map-canvas', '#latInput', '#longInput', '#radInput');
-                app.event_.place.forEach(function(p){
-                    map.addMarker(p.latitude, p.longitude, p.name, map.BLUE);
-                    if (p.radius > 0){
-                        map.addCircle(p.latitude, p.longitude, p.radius, '#0000ff');
-                    }
-                });
-            } else {
-                app.loadEventView();
-            }
         },
 
         hide: function() {

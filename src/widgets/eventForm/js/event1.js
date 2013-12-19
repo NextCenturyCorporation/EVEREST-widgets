@@ -46,7 +46,6 @@ var app = app || {};
         }).render();
 
         $('div#map-holder').html(app.mapView.el);
-        app.map.resize();
     };
 
     app.place = new app.PlaceModel();
@@ -59,13 +58,12 @@ var app = app || {};
 
     $('div#eventForm').append(app.eventFormView.el);
 
-    app.hiddenForms.forEach(function(f){
+    app.hiddenForms.forEach(function(f) {
         f.rawTemplate = rawHiddenFormTemplate;
         f.view = new app.HiddenFormView(f).render();
 
         $('form').append(f.view.el);
     });
-
 }());
 
 $(document).ready(function(){

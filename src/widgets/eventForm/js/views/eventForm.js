@@ -29,21 +29,13 @@ var app = app || {};
             return compiled(context);
         },
 
-        showHiddenForm: function(event){
+        showHiddenForm: function(event) {
             var targetDiv = $(event.currentTarget).attr('data-target');
             app.hiddenForms.forEach(function(form){
-                if (form.id === targetDiv){
-                    form.view.show();
-                } else {
-                    form.view.hide();
-                }
+                form.id === targetDiv ? form.view.show() : form.view.hide();
             });
 
-            if (targetDiv === 'placeDiv'){
-                app.loadMapView();
-            } else {
-                app.loadEventView();
-            }
+            targetDiv === 'placeDiv' ? app.loadMapView() : app.loadEventView();
         },
 
         updateEvent: function(event) {
