@@ -70,7 +70,7 @@ var getAllIndicies = function(array, value, attribute){
 
 var draw = function(){
 	var me =  this;
-	var assert_url = 'http://everest-build:8081/target-assertion/';
+	var assert_url = 'http://everest-build:8081/event-assertion/';
 	var event_url = 'http://everest-build:8081/target-event/';
 	
 	me.target_event = { name: 'target event' };

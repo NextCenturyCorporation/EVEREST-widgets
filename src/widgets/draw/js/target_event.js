@@ -79,7 +79,7 @@ var get = function(url, success) {
 
 var target_event_widget = function(draw, map){
 	var me = this;
-	var assertion_url = 'http://everest-build:8081/target-assertion/';
+	var assertion_url = 'http://everest-build:8081/event-assertion/';
 	var event_url = 'http://everest-build:8081/target-event/';
 	var titan_url = 'http://everest-build:8081/titan-graph/';
 	var subscribe = 'com.nextcentury.everest.data_table_announce.target-event';
@@ -206,13 +206,13 @@ var target_event_widget = function(draw, map){
 			me.target_event._titan_id = r._titan_id;
 			me.state.name = r._titan_id;
 			
-			me.saveTargetAssertions(obj.circles, obj.lines);
+			me.saveEventAssertions(obj.circles, obj.lines);
 		});
 		
 		setTimeout(me.saveTargetEvent, 2500);
 	};
 
-	me.saveTargetAssertions = function(circles, lines) {		
+	me.saveEventAssertions = function(circles, lines) {		
 		lines.forEach(function(line){
 			var tempUrl = assertion_url;
 			var cObj1 = null;
