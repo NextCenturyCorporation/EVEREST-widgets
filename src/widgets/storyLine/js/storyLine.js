@@ -271,12 +271,24 @@ var app = app || {};
     }
 
     app.scaleTimeline = function() {
+        // Grab the number of data points.
+        var numDatapoints = datapoints.length;
+        // There are less than 2 data points?
+        if (numDatapoints < 2) {
+            // Stop!
+            return;
+        }
+        // Grab the range.
+        var range = datapoints[numDatapoints - 1] - datapoints[0];
+        // The range is 0?
+        if (range === 0) {
+            // Stop!
+            return;
+        }
 
-      if(datapoints.length > 1){
         // Ideally we want all the events displayed on the visible area, so we look at the total time range and the total
         // available pixels.
 
-        var range = datapoints[datapoints.length-1]-datapoints[0];
         // Adjust that range with any hot zones
         for(var i=0; i<zones.length; ++i) {
           var zoneRange = Date.parse(zones[i].end)-Date.parse(zones[i].start);
@@ -300,7 +312,7 @@ var app = app || {};
 
         // Finally, need to point the timeline at the right point.
         // TODO: Adjust for hot zones throwing off centering.
-        var center = (datapoints[datapoints.length-1]+datapoints[0])/2;
+        var center = (datapoints[numDatapoints-1]+datapoints[0])/2;
         var centerDate = new Date(center);
 
         bandInfo[0] = Timeline.createHotZoneBandInfo({
@@ -312,7 +324,6 @@ var app = app || {};
                         zones: zones,
                         theme: theme
                       });
-      }
     }
 
     app.calculateZones = function(eventData) {
