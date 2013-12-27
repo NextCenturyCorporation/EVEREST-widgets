@@ -1,9 +1,6 @@
-define([
+var HeatChartConfig = HeatChartConfig || {};
 
-	'jquery',
-	'underscore'
-
-], function($, _) {
+(function() {
 
 	var config = {
 		dataType: 'jsonp',
@@ -11,12 +8,8 @@ define([
 		jsonpCallback: 'callback'
 	};
 
-	return {
-		
-		get: function() {
-			return config;
-		}
+	HeatChartConfig.get = function() {
+		return config;
+	}
 
-	};
-
-});
+}());

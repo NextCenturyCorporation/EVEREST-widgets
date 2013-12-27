@@ -1,4 +1,5 @@
-define([], function() {
+var HeatChartWidget = (function () {
+
 
 	var widget = function(heatChartChannel) {
 
@@ -105,4 +106,4 @@ define([], function() {
 
 	return widget;
 
-});
+}());

@@ -1,7 +1,3 @@
-define([
-	'../../src/widgets/heatChart/js/heatChartTime'
-], function(HeatChartTime) {
-
 	describe('everest.heatChart.time', function() {
 
 		var time = new HeatChartTime();
@@ -180,16 +176,16 @@ define([
 				var chunks = time.getTimeChunks(baseDate, 'year5', dates);
 
 				expect(chunks.slice(0, 5)).toEqual([{
-					title: 'Sat Jan 01 2011 00:00:00 GMT-0500 (EST)',
+					title: 'Sat Jan 01 2011 00:00:00 GMT-0500 (Eastern Standard Time)',
 					value: 1
 				}, {
-					title: 'Sun Jan 01 2012 00:00:00 GMT-0500 (EST)',
+					title: 'Sun Jan 01 2012 00:00:00 GMT-0500 (Eastern Standard Time)',
 					value: 1
 				}, {
-					title: 'Tue Jan 01 2013 00:00:00 GMT-0500 (EST)',
+					title: 'Tue Jan 01 2013 00:00:00 GMT-0500 (Eastern Standard Time)',
 					value: 1
 				}, {
-					title: 'Wed Jan 01 2014 00:00:00 GMT-0500 (EST)',
+					title: 'Wed Jan 01 2014 00:00:00 GMT-0500 (Eastern Standard Time)',
 					value: 1
 				}, {
 					title: '',
@@ -225,4 +221,3 @@ define([
 		});
 
 	});
-});

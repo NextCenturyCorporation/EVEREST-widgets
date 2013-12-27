@@ -1,8 +1,4 @@
-define([
-
-	'underscore'
-
-], function(_) {
+var HeatChartTime = (function () {
 
 	function currentUTCTime() {
 		var now = new Date(Date.now());
@@ -310,4 +306,4 @@ define([
 	};
 
 	return time;
-});
+}());

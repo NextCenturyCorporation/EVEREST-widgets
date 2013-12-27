@@ -1,14 +1,4 @@
-define([
-
-	'jquery',
-	'underscore',
-	'd3',
-	'base/js/circularHeatChart',
-	'js/heatChartTime',
-	'js/heatChartWidget',
-	'js/heatChartData'
-
-], function($, _, d3, circularHeatChart, HeatChartTime, HeatChartWidget, HeatChartData) {
+var HeatChartApp = (function () {
 
 	var app = function(startingMode) {
 
@@ -265,4 +255,4 @@ define([
 
 	return app;
 
-});
+}());

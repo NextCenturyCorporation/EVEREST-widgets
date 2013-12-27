@@ -1,10 +1,5 @@
-define([
 
-	'jquery',
-	'underscore',
-	'js/heatChartConfig'
-
-], function($, _, HeatChartConfig) {
+var HeatChartData = (function () {
 
 	var _config = {};
 
@@ -51,4 +46,4 @@ define([
 
 	return data;
 
-});
+}());

@@ -1,10 +1,6 @@
-define([
+var circularHeatChart = (function () {
 
-    'd3'
-
-], function(d3) {
-
-    var circularHeatChart = function() {
+    var chart = function() {
         var margin = {
             top: 20,
             right: 20,
@@ -192,5 +188,5 @@ define([
         return chart;
     };
 
-    return circularHeatChart;
-});
+    return chart;
+}());

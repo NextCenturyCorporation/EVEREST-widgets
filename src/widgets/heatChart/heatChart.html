@@ -10,10 +10,21 @@
     <link href="./css/bootstrap.min.css" rel="stylesheet">
     <link href="./css/bootstrap-theme.min.css" rel="stylesheet">
     
+    <script src="../../../lib/d3.v3.min.js"></script>
+    <script src="../../../lib/jquery-2.0.2.min.js"></script>
+    <script src="../../../lib/underscore-min.js"></script>
     <script src="../../../lib/owf-widget-debug.js"></script>
-    
-    <script src="../../../lib/require-2.1.9.min.js" data-main="js/main"></script>
-
+     <script src="base/js/circularHeatChart.js"></script>
+    <script src="js/heatChartTime.js"></script>
+    <script src="js/heatChartWidget.js"></script>
+    <script src="js/heatChartApp.js"></script>
+ 
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var heatChart = new HeatChartApp("year");
+        });
+    </script>
+  
 </head>
 
 <body>
