@@ -22,6 +22,8 @@ var HeatChartData = (function () {
 
 		return {
 
+			_GET: GET,
+
 			fetch: function(options) {
 
 				var url = _config.baseUrl;
@@ -36,7 +38,7 @@ var HeatChartData = (function () {
 					url += '/rawfeed/dates';
 				}
 
-				GET(url, options.successCallback, options.errorCallback);
+				this._GET(url, options.successCallback, options.errorCallback);
 
 			}
 

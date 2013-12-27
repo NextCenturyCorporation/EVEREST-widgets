@@ -196,7 +196,7 @@ var HeatChartApp = (function () {
 						return tooltip.style("visibility", "visible").text(d.value + ' added at  ' + d.title);
 					}
 				})
-				.on("mousemove", function() {
+				.on("mousemove", function(event) {
 					return tooltip.style("top", (event.pageY - 10) + "px").style("left", (event.pageX + 10) + "px");
 				})
 				.on("mouseout", function() {
