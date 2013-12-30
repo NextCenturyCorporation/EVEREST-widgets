@@ -4,11 +4,6 @@
 	display: inline-block;
 }
 
-.hid {
-	height: 0;
-	display: none;
-}
-
 .expand {
 	padding-left: 0px;
 	padding-right: 0px;
@@ -28,4 +23,8 @@
 	cursor: pointer;
 	border: 1px solid transparent;
 	border-radius: 4px;
+}
+
+.percent {
+	display: inline-block;
 }

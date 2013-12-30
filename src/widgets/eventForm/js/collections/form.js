@@ -6,31 +6,41 @@ var app = app || {};
     });
 
     app.hiddenForms = new app.FormCollection([
-        new app.FormModel({
+        {
         	id: 'placeDiv',
             button: "submitPlace",
             input: [
-                { id: "placeNameInput", label: "Name" }, 
-                { id: "latInput", label: "Latitude" },
-                { id: "longInput", label: "Longitude" },
-                { id: "radInput", label: "Radius" }
+                { id: "placeName", label: "Name" }, 
+                { id: "latitude", label: "Latitude" },
+                { id: "longitude", label: "Longitude" },
+                { id: "radius", label: "Radius" }
             ]
-        }),
-        new app.FormModel({
+        },
+        {
         	id: 'tagDiv',
             button: "submitTag",
             input: [
-                { id: "tagInput", label: "Tag" }
+                { id: "tag", label: "Tag" }
             ]
-        }),
-        new app.FormModel({
+        },
+        {
         	id: 'assertDiv',
             button: "submitAssert",
             input: [
-                { id: "ent1Input", label: "Entity 1" }, 
-                { id: "relInput", label: "Relationship" },
-                { id: "ent2Input", label: "Entity 2" }
+                { id: "entity1", label: "Entity 1" }, 
+                { id: "relationship", label: "Relationship" },
+                { id: "entity2", label: "Entity 2" }
             ]
-        })
+        },
+        {
+            id: 'dateDiv',
+            button: 'submitDate',
+            input: [
+                { id: "start", label: "Start" },
+                { id: "end", label: "End" },
+                { id: "latestStart", label: "Latest Start" },
+                { id: "earliestEnd", label: "Earliest End" }
+            ]
+        }
     ]);
 }());

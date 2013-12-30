@@ -1,5 +1,9 @@
 var app = app || {};
 
 (function() {
-    app.FormModel = Backbone.Model.extend();
+    app.FormModel = Backbone.Model.extend({
+    	initialize: function(){
+    		this.bind("change", app.loadEventView);
+    	}
+    });
 }());

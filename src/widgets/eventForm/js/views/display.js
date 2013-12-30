@@ -15,12 +15,13 @@ var app = app || {};
 
         render: function() {
             var context = this.model ? this.model.attributes : {};
-            this.$el.html(this.template(context));
+            this.$el.html(this.template({ event_: JSON.stringify(context, undefined, 2)}));
             return this;
         },
 
         remove: function() {
             Backbone.View.prototype.remove.call(this);
+            Backbone.View.prototype.unbind.call(this);
         },
 
         template: function(context) {
@@ -30,10 +31,10 @@ var app = app || {};
 
         submit: function(){
             var me = this;
-            var event_ = JSON.parse(me.model.get('event_'));
+            var event_ = me.model.attributes;
 
             if (event_.name === '') {
-                $('#nameInput').parent().addClass('has-error');
+                $('#name').parent().addClass('has-error');
                 return; 
             } 
 
@@ -52,7 +53,6 @@ var app = app || {};
                 var newAssert = app.assertions.create(tempAssert, { wait: true });
                 newAssert.on('sync', function(model){
                     assert._id = newAssert.id;
-                    me.model.set('event_', JSON.stringify(event_, undefined, 2));
                     me.render();
                     callback();
                 });
@@ -73,8 +73,7 @@ var app = app || {};
 
                     var newEvent = app.events.create(tempEvent, { wait: true });
                     newEvent.on('sync', function(model){
-                        event_.id = newEvent.id;
-                        me.model.set('event_', JSON.stringify(event_, undefined, 2));
+                        app.eventData.set('id', newEvent.id);
                         me.render();
                     });
                 }

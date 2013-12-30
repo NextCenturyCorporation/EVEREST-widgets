@@ -3,8 +3,8 @@
   <meta charset="utf-8">
   <title>Event Form</title>
   
+  <link rel="stylesheet" type="text/css" href="css/jquery-ui.min.css">
   <link rel="stylesheet" type="text/css" href="../../../lib/bootstrap.min.css">
-
   <link rel="stylesheet" type="text/css" href="css/style.css">
   <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYmEUJPU4DRk96ElaCUQDcxmJxzbjxP8&sensor=true'></script>
 </head>
@@ -12,20 +12,22 @@
   <div class='col-xs-4' id='eventForm'></div>
   <div class='col-xs-8' id='eventView'></div>
 
-  <script src='libs/async.js'></script>
+  <script src="libs/async.js"></script>
   <script src="../../../lib/jquery-2.0.2.js"></script>
+  <script src="libs/jquery-ui.min.js"></script>
+  <script src="libs/timepicker.js"></script>
   <script src="../../../lib/underscore-min.js"></script>
   <script src="../../../lib/backbone-min.js"></script>
   <script src="../../../lib/bootstrap.min.js"></script>
-  <script src='libs/handlebars-1.0.0.js'></script>
+  <script src="libs/handlebars-1.0.0.js"></script>
   <script src="../../../lib/d3.v3.js"></script>
   <script src="../../../lib/owf-widget-debug.js"></script>
 
-  <script src="js/models/assertion.js"></script>
+  <script src="js/utils.js"></script>
   <script src="js/models/event.js"></script>
   <script src="js/models/form.js"></script>
   <script src="js/models/map.js"></script>
-  <script src="js/models/place.js"></script>
+  <script src="js/models/hiddenForms.js"></script>
   <script src="js/collections/assertions.js"></script>
   <script src="js/collections/events.js"></script>
   <script src="js/collections/form.js"></script>

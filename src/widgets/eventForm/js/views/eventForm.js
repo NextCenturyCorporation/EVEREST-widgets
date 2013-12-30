@@ -6,7 +6,7 @@ var app = app || {};
         className: 'panel panel-default fixed',
 
         events: {
-            'change #nameInput,#descInput': 'updateEvent'
+            'change :input': 'updateEvent'
         },
 
         initialize: function(options) {
@@ -14,8 +14,7 @@ var app = app || {};
         },
 
         render: function() {
-            var context = this.model ? this.model.attributes : {};
-            this.$el.html(this.template(context));
+            this.$el.html(this.template(this.model.toJSON()));
             return this;
         },
 
@@ -31,13 +30,9 @@ var app = app || {};
         updateEvent: function(event) {
             $('div').removeClass('has-error');
             var input = $(event.currentTarget);
-            if (input.attr('id') === 'nameInput') {
-                app.event_.name = input.val();
-            } else if (input.attr('id') === 'descInput') {
-                app.event_.description = input.val();
+            if (input.attr('id') === 'name' || input.attr('id') === 'description') {
+                app.eventData.set(input.attr('id'), input.val(), {validate: true});
             }
-
-            app.loadEventView();
         }
     });
 }());

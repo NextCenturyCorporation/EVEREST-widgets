@@ -12,12 +12,10 @@ var app = app || {};
 
         initialize: function(options) {
             this.rawTemplate = options.rawTemplate ? options.rawTemplate : '';
-            $(this.el).attr('id', this.id);
         },
 
         render: function() {
-            var context = this.model ? this.model.attributes : {};
-            this.$el.html(this.template(context));
+            this.$el.html(this.template(this.model.toJSON()));
             return this;
         },
 
@@ -38,52 +36,51 @@ var app = app || {};
         submit: function(event) {
             $('div').removeClass('has-error');
             var id = $(event.currentTarget).attr('id');
+            var inputs = this.$el.find('input');
+            var data = {};
+            for (var i = 0; i < inputs.length; i++) {
+                var formId = $(inputs[i]).attr('id');
+                if ($('#'+formId).val() !== ''){
+                    formId === 'placeName' ? data.name = $('#'+formId).val() : data[formId] = $('#'+formId).val()
+                }
+            }
+
+            var str = '';
+            var newModel = null;
             switch (id) {
                 case "submitPlace":
-                    var p = {
-                        name: $('#placeNameInput').val(),
-                        latitude: parseFloat($('#latInput').val()),
-                        longitude: parseFloat($('#longInput').val()),
-                        radius: parseFloat($('#radInput').val()) || 0
-                    };
-
-                    app.eventPlaces.push(new app.PlaceModel(p));
-                    app.event_.place.push(p);
-
+                    str = 'place';
+                    newModel = new app.PlaceModel(data);
+                    app.eventPlaces.push(newModel.attributes);
                     break;
 
                 case "submitTag":
-                    if ($('#tagInput').val() === '') {
-                        $('#tagInput').parent().addClass('has-error');
-                        return;
-                    }
-
-                    app.event_.tags.push($('#tagInput').val());
-                    app.loadEventView();
-
+                    str = 'tags';
+                    newModel = new app.TagModel(data);
                     break;
 
                 case "submitDate":
+                    str = 'event_horizon';
+                    newModel = new app.DateModel(data);
                     break;
 
                 case "submitAssert":
-                    if ($('#ent1Input').val() === '') {
-                        $('#ent1Input').parent().addClass('has-error');
-                        return;
-                    }
-
-                    var assertion = {
-                        entity1: $('#ent1Input').val(),
-                        relationship: $('#relInput').val(),
-                        entity2: $('#ent2Input').val(),
-                    };
-
-                    app.event_.assertions.push(assertion);
-                    app.loadEventView();
-                    
+                    str = 'assertions';
+                    newModel = new app.AssertionModel(data);
                     break;
             }
 
+            if (newModel){
+                var error = newModel.validate();
+                if (error) {
+                    $('#' + error).parent().addClass('has-error');
+                    return;
+                } 
+
+                var tempArray = _.clone(app.eventData.get(str));
+                tempArray.push(newModel.attributes)
+                app.eventData.set(str, tempArray, {validate: true});
+            }
             this.clear();
         }
     });
