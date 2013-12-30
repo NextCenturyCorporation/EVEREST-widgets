@@ -81,6 +81,7 @@ var app = app || {};
                 tempArray.push(newModel.attributes)
                 app.eventData.set(str, tempArray, {validate: true});
             }
+            
             this.clear();
         }
     });

@@ -36,8 +36,8 @@ var app = app || {};
             id: 'dateDiv',
             button: 'submitDate',
             input: [
-                { id: "start", label: "Start" },
-                { id: "end", label: "End" },
+                { id: "start_date", label: "Start" },
+                { id: "end_date", label: "End" },
                 { id: "latestStart", label: "Latest Start" },
                 { id: "earliestEnd", label: "Earliest End" }
             ]

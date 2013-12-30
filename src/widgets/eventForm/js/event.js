@@ -55,16 +55,14 @@ var app = app || {};
         formId === 'placeDiv' ? app.loadMapView() : app.loadEventView();
 
         if (formId === 'dateDiv') {
-            $('#start').datetimepicker();
-            $('#end').datetimepicker();
-            $('#latest').datetimepicker();
-            $('#earliest').datetimepicker();
+            $('#start_date').datetimepicker();
+            $('#end_date').datetimepicker();
+            $('#latestStart').datetimepicker();
+            $('#earliestEnd').datetimepicker();
         } 
     };
 
-    app.place = new app.PlaceModel();
     app.eventPlaces = [];
-
     app.eventData = new app.FormModel({
         name: "",
         description: "",

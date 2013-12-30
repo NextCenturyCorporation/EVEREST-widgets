@@ -32,6 +32,7 @@ var app = app || {};
         submit: function(){
             var me = this;
             var event_ = me.model.attributes;
+            console.log(event_);
 
             if (event_.name === '') {
                 $('#name').parent().addClass('has-error');

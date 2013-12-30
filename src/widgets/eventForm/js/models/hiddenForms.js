@@ -7,14 +7,17 @@ var app = app || {};
     	},
         idAttribute: "_id",
         validate: function(attrs) {
+            this.set('latitude', parseFloat(this.get('latitude')));
+            this.set('longitude', parseFloat(this.get('longitude')));
+            this.set('radius', parseFloat(this.get('radius')));
 
         	if (!this.get('name') || this.get('name') === '') {
         		return "placeName"
-        	} else if ( isNaN(parseFloat(this.get('latitude'))) ) {
+        	} else if ( isNaN(this.get('latitude')) ) {
 		    	return "latitude"
-		    } else if ( isNaN(parseFloat(this.get('longitude'))) ) {
+		    } else if ( isNaN(this.get('longitude')) ) {
 		    	return "longitude"
-		    } else if ( isNaN(parseFloat(this.get('radius'))) || parseFloat(this.get('radius')) < 0 ) {
+		    } else if ( isNaN(this.get('radius')) || this.get('radius') < 0 ) {
 		    	return "radius";
 		    }
         }
@@ -30,11 +33,11 @@ var app = app || {};
 
     app.DateModel = Backbone.Model.extend({
         validate: function(){
-            var start = Date.parse(this.get('start'));
-            var end = Date.parse(this.get('end'));
+            var start = Date.parse(this.get('start_date'));
+            var end = Date.parse(this.get('end_date'));
             var latestStart = Date.parse(this.get('latestStart'));
             var earliestEnd = Date.parse(this.get('earliestEnd'));
-            if ( !this.get('start') || isNaN(start) ) {
+            if ( !this.get('start_date') || isNaN(start) ) {
                 return 'start';
             } else if ( start > end ) {
                 return 'end';
