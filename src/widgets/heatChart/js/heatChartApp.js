@@ -1,7 +1,14 @@
 var HeatChartApp = (function () {
 
-	var app = function(startingMode) {
-
+	/**
+	 * Creates a circular heat chart widget
+	 * @constructor
+	 * @param {string} startingMode the units of time to display on the chart (e.g. day, month, year).  For a comprehensive list
+	 * refer to the name field of the objects in the _MODES list in heatChartTime.js.
+	 * @param {HeatChartData} dataInject the object to retrieve data.  this allows for plugging in of different data sources.
+	 * Default is to create a HeatChartData.
+	 */
+	var app = function(startingMode, dataInject) {
 		$('#nowButton').click(function() {
 			updateNow();
 		});
@@ -27,7 +34,7 @@ var HeatChartApp = (function () {
 
 		var chartTime = new HeatChartTime();
 		var chartWidget = new HeatChartWidget();
-		var chartData = new HeatChartData();
+		var chartData = (dataInject == undefined) ? new HeatChartData() : dataInject;
 
 		var CHART_MODE = {};
 
@@ -37,17 +44,23 @@ var HeatChartApp = (function () {
 
 		execute(startingMode);
 
-		function execute(mode) {
+		/**
+		 * Changes the mode of a given chart.
+		 * @param mode {string} new mode (e.g. year, day, ...)
+		 * @param updateCallback optional callback on what to do once new data is collected.  Default is to call update(), but
+		 * if further processing of data must be done before the chart should be updated, this is the extension point to do that.
+		 */
+		function execute(mode, updateCallback) {
 			updateMode(mode)
 			updateModeButtons(mode);
-			fetch();
+			fetch(updateCallback ? updateCallback : update);
 		}
 
-		function fetch() {
+		function fetch(callback) {
 			chartData.fetch({
 				feedType: 'rawfeed',
 				successCallback: function(data) {
-					update(data);
+					callback(data);
 				},
 				errorCallback: function(error) {
 					console.log("An error occurred trying to retrieve the data: " + error);
@@ -60,6 +73,7 @@ var HeatChartApp = (function () {
 			d3.select("#chart").selectAll("svg").data([]).exit().remove();
 
 			createHeatChart(chunks);
+			return chunks;
 		}
 
 		function updateNow() {
@@ -209,6 +223,7 @@ var HeatChartApp = (function () {
 			});
 
 			d3.selectAll("#chart path").on('click', function() {
+				tooltip.style("visibility", "hidden");
 				var d = d3.select(this).data()[0];
 				if (0 !== d.value) {
 					handleDrillDown(d.title);
@@ -229,8 +244,8 @@ var HeatChartApp = (function () {
 
 				case "day":
 					execute("hour");
-					break;
-
+					break
+;
 				case "week":
 					execute("day");
 					break;
@@ -250,6 +265,36 @@ var HeatChartApp = (function () {
 
 			chartWidget.publishDateRange(CHART_MODE.name, baseDate);
 		};
+
+		return {
+
+			/**
+			 * Resets the chart to display a certain range of the data.  Will query the server for data if necessary.
+			 * @param date {integer} start of the chart in milliseconds
+			 * @param mode {string} time range to cover
+			 * @param callback {function} an optional function to see the data that populates the chart.  Callbacks first argument
+			 * is an array of objects of the form
+			 * {
+			 *		title: human readable representation the date of this segment of the chart
+			 *		value: value to be represented in this segment of the chart
+			 * }
+			 */
+			setChartRange: function(date, mode, callback) {
+				if (date) {
+					baseDate = new Date(date);
+				}
+
+				// We collect the data asynchrnously and then create a callback that both updates
+				// the chart and passes the data back through the passed in callback.
+				execute(mode, function(data){
+					time_chunks = update(data);
+					if (callback) {
+						callback(time_chunks);
+					}
+				});
+				
+			}
+		}
 
 	};
 
