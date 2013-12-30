@@ -1,3 +1,5 @@
+// from Backbone.js Wine Cellar Tutorial -- Christope Coenraets
+// coenraets.org/blog/2011/12/backbone-js-winde-cellar-tutorial-part1-getting-started/
 var app = app || {};
 
 (function() {
