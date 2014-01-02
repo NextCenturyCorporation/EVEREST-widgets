@@ -5,7 +5,7 @@ describe("Testing the HeatChartApp object", function() {
 		// Create a mock for the ajax data retrieval
         dataInject = new HeatChartData();
         dataInject._GET = function(url, successCallback, failureCallback) {
-            data = [1374261832200, 1374261832200, 1374261832200, 1374261832400, 1374261833000, 1374261842000, 
+            data = [{startTime: 1374261832200, count: 3}, 1374261832400, 1374261833000, 1374261842000, 
                     1374261932000, 1374261932000, 1374261934000, 1374262832000, 1374262833000, 1376940232200];
             setTimeout(function(){
                 successCallback(data);

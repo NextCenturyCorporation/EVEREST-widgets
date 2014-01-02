@@ -201,7 +201,14 @@ var HeatChartTime = (function () {
 
 
 					for (var j = 0; j < timeList.length; j++) {
-						time = new Date(parseInt(timeList[j]));
+						if (isNaN(parseInt(timeList[j])) && (!isNaN(parseInt(timeList[j].startTime)))) {
+							time = new Date(parseInt(timeList[j].startTime));
+							count = parseInt(timeList[j].count);
+						}
+						else {
+							time = new Date(parseInt(timeList[j]));
+							count = 1;
+						}
 						year = time.getFullYear();
 						month = time.getMonth();
 						day = time.getDate();
@@ -215,7 +222,7 @@ var HeatChartTime = (function () {
 							case "hour":
 								if ((baseYear === year) & (baseMonth === month) & (baseDay === day) & (baseHour === hour)) {
 									var ndx = minutes + (_mode.columns * seconds);
-									rawData[ndx] += 1;
+									rawData[ndx] += count;
 									title[ndx] = time.toString();
 								}
 								break;
@@ -223,7 +230,7 @@ var HeatChartTime = (function () {
 							case "day":
 								if ((baseYear === year) & (baseMonth === month) & (baseDay === day)) {
 									var ndx = hour + (_mode.columns * minutes);
-									rawData[ndx] += 1;
+									rawData[ndx] += count;
 									title[ndx] = (new Date(year, month, day, hour, minutes, 0, 0)).toString();
 								}
 								break;
@@ -231,7 +238,7 @@ var HeatChartTime = (function () {
 							case "week":
 								if ((time > weekStartDate) & (time <= weekEndDate)) {
 									var ndx = dayofweek + (_mode.columns * hour);
-									rawData[ndx] += 1;
+									rawData[ndx] += count;
 									title[ndx] = (new Date(year, month, day, hour, 0, 0, 0)).toString();
 								}
 								break;
@@ -239,7 +246,7 @@ var HeatChartTime = (function () {
 							case "month":
 								if ((baseYear === year) & (baseMonth === month)) {
 									var ndx = (day - 1) + (_mode.columns * hour);
-									rawData[ndx] += 1;
+									rawData[ndx] += count;
 									title[ndx] = (new Date(year, month, day, hour, 0, 0, 0)).toString();
 								}
 								break;
@@ -247,7 +254,7 @@ var HeatChartTime = (function () {
 							case "year":
 								if ((baseYear === year)) {
 									var ndx = month + (_mode.columns * (day - 1));
-									rawData[ndx] += 1;
+									rawData[ndx] += count;
 									title[ndx] = (new Date(year, month, day, 0, 0, 0, 0)).toString();
 								}
 								break;
@@ -255,7 +262,7 @@ var HeatChartTime = (function () {
 							case "year5":
 								if ((time >= year5StartDate) & (time <= year5EndDate)) {
 									var ndx = (year - year5StartYear) + (_mode.columns * month);
-									rawData[ndx] += 1;
+									rawData[ndx] += count;
 									title[ndx] = (new Date(year, month, 1, 0, 0, 0, 0)).toString();
 								}
 								break;
