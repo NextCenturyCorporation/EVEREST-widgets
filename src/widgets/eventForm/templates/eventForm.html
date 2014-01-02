@@ -1,0 +1,27 @@
+<div class='panel-heading'>
+	<h4>
+		{{title}}
+		<button class='pull-right' data-toggle='modal' data-target='{{helpTarget}}' id='help'>?</button>
+	</h4>
+</div>
+<div class='panel-body'>
+	<form role='form'>
+		{{#each input}}
+			<div class='form-group'>
+				<label> {{this.label}} </label>
+				<input type='text' class='form-control input-sm' placeholder='{{this.label}}' id='{{this.id}}'>
+			</div>
+		{{/each}}
+		<div id='buttons'>
+			{{#each buttons}}
+				<div class='percent'>
+					<button class='btn btn-info btn-sm' type='button' id='{{this.id}}'>
+						<a href='#/hiddenForm/{{this.target}}'>{{this.label}}</a>
+					</button>
+				</div>
+			{{/each}}
+		</div>
+		<br /><hr />
+	</form>
+</div>
+    

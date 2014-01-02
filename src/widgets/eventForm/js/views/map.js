@@ -11,8 +11,7 @@ var app = app || {};
         },
 
         render: function() {
-            var context = this.model ? this.model.attributes : {};
-            this.model.map = new google.maps.Map(this.el, context.mapOptions);
+            this.model.map = new google.maps.Map(this.el, this.model.get('mapOptions'));
             this.model.eventPlaces = this.collection.models;
             this.model.places = this.places.models;
             this.model.setup();
