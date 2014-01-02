@@ -117,7 +117,7 @@
 
 		describe('getTimeChunks(mode, timeList', function() {
 
-			var baseDate = new Date(1385874000000); // End of 2013
+			var baseDate = new Date(2013, 0); 
 
 			var date1 = new Date(2011, 0),
 				date2 = new Date(2012, 0),

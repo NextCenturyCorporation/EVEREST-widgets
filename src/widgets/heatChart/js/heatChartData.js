@@ -124,13 +124,13 @@ var HeatChartData = (function () {
 				}
 
 				// Once we get the data back, we want to restrict it to the desired range
-				// var processData = function(data) {
-				// 		data = restrictRange(data, options.startTime, options.endTime);
-				// 		if (typeof options.successCallback == 'function') {
-				// 			options.successCallback(data);					
-				// 		}
-				// }
-				this._GET(url, options.successCallback, options.errorCallback);
+				var processData = function(data) {
+						data = restrictRange(data, options.startTime, options.endTime);
+						if (typeof options.successCallback == 'function') {
+							options.successCallback(data);					
+						}
+				}
+				this._GET(url, processData, options.errorCallback);
 
 			},
 
@@ -149,7 +149,6 @@ var HeatChartData = (function () {
 			 * @param errorCallback {function} the callback to use to report an error.  The first argument is the error message.  
 			 */
 			_GET: function(url, successCallback, errorCallback) {
-
 				$.ajax({
 					type: 'GET',
 					url: url,
