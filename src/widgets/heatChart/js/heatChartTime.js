@@ -159,6 +159,58 @@ var HeatChartTime = (function () {
 				return time_chunks;
 			},
 
+			/**
+			 * Given a chart mode and a date that will appear on the chart, this computes what the first and last dates
+			 * will be on the chart.  E.g. If the base date is sometime in Jan 17, 2014 in a chart displaying the month, the
+			 * ends of the chart will be Jan 1 and Jan 31, 2014.
+			 * @param baseDate {Date} a date that must appear in the chart
+			 * @param mode {string} the scope of the chart (e.g. year, month, hour)
+			 * @return an array of two Date objects, the start and the end of the chart
+			 */
+			getChartEnds: function(baseDate, mode) {
+				baseDate = new Date(baseDate); // Just in case baseDate was in number format
+				var startOfChart = new Date(baseDate);
+				var endOfChart = new Date(baseDate);
+
+				switch (mode) {
+
+					case "hour":
+						startOfChart.setMinutes(0,0,0);
+						endOfChart.setMinutes(59, 59, 999);
+						break;
+					case "day":
+						startOfChart.setHours(0,0,0,0);
+						endOfChart.setHours(23, 59, 59, 999);
+						break;
+					case "week":
+						startOfChart.setDate(baseDate.getDate()-baseDate.getDay());
+						startOfChart.setHours(0,0,0,0);
+						endOfChart.setDate(startOfChart.getDate()+6);
+						endOfChart.setHours(23, 59, 59, 999);
+						break;
+					case "month":
+						startOfChart.setDate(1);
+						startOfChart.setHours(0,0,0,0);
+						endOfChart.setMonth(startOfChart.getMonth()+1,0);
+						endOfChart.setMinutes(23, 59, 59, 999);
+						break;
+					case "year":
+						startOfChart.setMonth(0, 1);
+						startOfChart.setHours(0,0,0,0);
+						endOfChart.setMonth(11,31);
+						endOfChart.setMinutes(23, 59, 59, 999);
+						break;
+					case "year5":
+						startOfChart.setYear(baseDate.getYear()-2, 0, 1);
+						startOfChart.setHours(0,0,0,0);
+						endOfChart.setYear(startOfChart.getYear()+4, 11,31);
+						endOfChart.setMinutes(23, 59, 59, 999);
+						break;
+				}
+
+				return [startOfChart, endOfChart];
+			},
+
 			getTimeChunks: function(baseDate, mode, timeList) {
 				var _mode = this.getMode(mode);
 
@@ -172,35 +224,18 @@ var HeatChartTime = (function () {
 					title[i] = "";
 				}
 
+				var chartEnds = this.getChartEnds(baseDate, mode);
+
 				// This will map the number of raw feeds for a specific date to the correct heat chart "chunk"
 
 				if (timeList) {
 
-					var time, year, month, day, dayofweek, hour, minutes, seconds;
 
-					// baseDate is a global date used as a benchmark for focusing the display
-					var baseYear = baseDate.getFullYear();
-					var baseMonth = baseDate.getMonth();
-					var baseDay = baseDate.getDate();
-					var baseDayofweek = baseDate.getDay();
-					var baseHour = baseDate.getHours();
-					var wsd = baseDay - baseDayofweek;
-					var weekStartDate = new Date(baseDate);
-					weekStartDate.setDate(wsd);
-					weekStartDate.setHours(0);
-					weekStartDate.setMinutes(0);
-					weekStartDate.setSeconds(0);
-					weekStartDate.setMilliseconds(0);
-
-					var wend = baseDay + (6 - baseDayofweek);
-					var weekEndDate = new Date(baseYear, baseMonth, wend, 23, 59, 59, 999);
-
-					var year5StartDate = new Date((baseYear - 2), 0, 1, 0, 0, 0, 0);
-					var year5EndDate = new Date((baseYear + 2), 11, 31, 23, 59, 59, 999);
-					var year5StartYear = year5StartDate.getFullYear();
-
+					var time, timeTitle, year, month, day, hour, minutes;
 
 					for (var j = 0; j < timeList.length; j++) {
+						// Time may either be a raw number or an object with the time stored in the 'startTime' attribute.
+						// Figure out which case, pull out the number, and turn it into a date
 						if (isNaN(parseInt(timeList[j])) && (!isNaN(parseInt(timeList[j].startTime)))) {
 							time = new Date(parseInt(timeList[j].startTime));
 							count = parseInt(timeList[j].count);
@@ -209,63 +244,50 @@ var HeatChartTime = (function () {
 							time = new Date(parseInt(timeList[j]));
 							count = 1;
 						}
+
 						year = time.getFullYear();
 						month = time.getMonth();
 						day = time.getDate();
-						dayofweek = time.getDay();
 						hour = time.getUTCHours();
 						minutes = time.getMinutes();
-						seconds = time.getSeconds();
 
-						switch (mode) {
+						if ((time >= chartEnds[0]) && (time <= chartEnds[1])) {
 
-							case "hour":
-								if ((baseYear === year) & (baseMonth === month) & (baseDay === day) & (baseHour === hour)) {
-									var ndx = minutes + (_mode.columns * seconds);
-									rawData[ndx] += count;
-									title[ndx] = time.toString();
-								}
-								break;
+							switch (mode) {
 
-							case "day":
-								if ((baseYear === year) & (baseMonth === month) & (baseDay === day)) {
+								case "hour":
+									var ndx = minutes + (_mode.columns * time.getSeconds());
+									timeTitle = time.toString();
+									break;
+								case "day":
 									var ndx = hour + (_mode.columns * minutes);
-									rawData[ndx] += count;
-									title[ndx] = (new Date(year, month, day, hour, minutes, 0, 0)).toString();
-								}
-								break;
+									timeTitle = (new Date(year, month, day, hour, minutes, 0, 0)).toString();
+									break;
 
-							case "week":
-								if ((time > weekStartDate) & (time <= weekEndDate)) {
-									var ndx = dayofweek + (_mode.columns * hour);
-									rawData[ndx] += count;
-									title[ndx] = (new Date(year, month, day, hour, 0, 0, 0)).toString();
-								}
-								break;
+								case "week":
+									var ndx = time.getDay() + (_mode.columns * hour);
+									timeTitle = (new Date(year, month, day, hour, 0, 0, 0)).toString();
+									break;
 
-							case "month":
-								if ((baseYear === year) & (baseMonth === month)) {
+								case "month":
 									var ndx = (day - 1) + (_mode.columns * hour);
-									rawData[ndx] += count;
-									title[ndx] = (new Date(year, month, day, hour, 0, 0, 0)).toString();
-								}
-								break;
+									timeTitle = (new Date(year, month, day, hour, 0, 0, 0)).toString();
+									break;
 
-							case "year":
-								if ((baseYear === year)) {
+								case "year":
 									var ndx = month + (_mode.columns * (day - 1));
-									rawData[ndx] += count;
-									title[ndx] = (new Date(year, month, day, 0, 0, 0, 0)).toString();
-								}
-								break;
+									timeTitle = (new Date(year, month, day, 0, 0, 0, 0)).toString();
+									break;
 
-							case "year5":
-								if ((time >= year5StartDate) & (time <= year5EndDate)) {
-									var ndx = (year - year5StartYear) + (_mode.columns * month);
-									rawData[ndx] += count;
-									title[ndx] = (new Date(year, month, 1, 0, 0, 0, 0)).toString();
-								}
-								break;
+								case "year5":
+									var ndx = (year - chartEnds[0].getFullYear()) + (_mode.columns * month);
+									timeTitle = (new Date(year, month, 1, 0, 0, 0, 0)).toString();
+									break;
+
+							}
+
+							rawData[ndx] += count;
+							title[ndx] = timeTitle;
 
 						}
 					}

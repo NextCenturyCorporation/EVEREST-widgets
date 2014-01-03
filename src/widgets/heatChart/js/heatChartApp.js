@@ -57,8 +57,11 @@ var HeatChartApp = (function () {
 		}
 
 		function fetch(callback) {
+			chartEnds = chartTime.getChartEnds(baseDate, CHART_MODE.name);
 			chartData.fetch({
 				feedType: 'rawfeed',
+				startTime: chartEnds[0],
+				endTime: chartEnds[1],
 				successCallback: function(data) {
 					callback(data);
 				},
