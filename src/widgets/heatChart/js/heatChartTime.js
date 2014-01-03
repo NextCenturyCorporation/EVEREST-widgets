@@ -201,9 +201,9 @@ var HeatChartTime = (function () {
 						endOfChart.setMinutes(23, 59, 59, 999);
 						break;
 					case "year5":
-						startOfChart.setYear(baseDate.getYear()-2, 0, 1);
+						startOfChart.setYear(baseDate.getFullYear()-2, 0, 1);
 						startOfChart.setHours(0,0,0,0);
-						endOfChart.setYear(startOfChart.getYear()+4, 11,31);
+						endOfChart.setYear(startOfChart.getFullYear()+4, 11,31);
 						endOfChart.setMinutes(23, 59, 59, 999);
 						break;
 				}
