@@ -1,10 +1,5 @@
 var HeatChartTime = (function () {
 
-	function currentUTCTime() {
-		var now = new Date(Date.now());
-		return new Date(now.getTime() + (now.getTimezoneOffset() * 60000));
-	}
-
 	var time = function() {
 
 		var _MONTHS_SHORT = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
@@ -92,7 +87,7 @@ var HeatChartTime = (function () {
 				columns: 5,
 				rowLabels: _MONTHS_SHORT,
 				columnLabels: (function() {
-					var baseYear = currentUTCTime().getFullYear(),
+					var baseYear = new Date().getFullYear(),
 						labels = [];
 
 					labels.push(baseYear - 2);
@@ -108,8 +103,6 @@ var HeatChartTime = (function () {
 		};
 
 		return {
-
-			currentUTCTime: currentUTCTime,
 
 			getMonthLabel: function(month) {
 				return _MONTHS_SHORT[month];
@@ -138,171 +131,6 @@ var HeatChartTime = (function () {
 				};
 			},
 
-			getEmptyTimeChunks: function(numRows, numCols) {
-				var numPoints = numCols * numRows,
-					time_chunks = [];
-
-				for (var k = 0; k < numPoints; k++) {
-					var col = k % numCols;
-					var row = (Math.floor(k / numCols)) % numRows;
-					if (col < 10) {
-						col = "0" + col;
-					}
-					if (row < 10) {
-						row = "0" + row;
-					}
-					time_chunks[k] = {
-						title: col + ":" + row,
-						value: 0
-					};
-				}
-				return time_chunks;
-			},
-
-			/**
-			 * Given a chart mode and a date that will appear on the chart, this computes what the first and last dates
-			 * will be on the chart.  E.g. If the base date is sometime in Jan 17, 2014 in a chart displaying the month, the
-			 * ends of the chart will be Jan 1 and Jan 31, 2014.
-			 * @param baseDate {Date} a date that must appear in the chart
-			 * @param mode {string} the scope of the chart (e.g. year, month, hour)
-			 * @return an array of two Date objects, the start and the end of the chart
-			 */
-			getChartEnds: function(baseDate, mode) {
-				baseDate = new Date(baseDate); // Just in case baseDate was in number format
-				var startOfChart = new Date(baseDate);
-				var endOfChart = new Date(baseDate);
-
-				switch (mode) {
-
-					case "hour":
-						startOfChart.setMinutes(0,0,0);
-						endOfChart.setMinutes(59, 59, 999);
-						break;
-					case "day":
-						startOfChart.setHours(0,0,0,0);
-						endOfChart.setHours(23, 59, 59, 999);
-						break;
-					case "week":
-						startOfChart.setDate(baseDate.getDate()-baseDate.getDay());
-						startOfChart.setHours(0,0,0,0);
-						endOfChart.setDate(startOfChart.getDate()+6);
-						endOfChart.setHours(23, 59, 59, 999);
-						break;
-					case "month":
-						startOfChart.setDate(1);
-						startOfChart.setHours(0,0,0,0);
-						endOfChart.setMonth(startOfChart.getMonth()+1,0);
-						endOfChart.setMinutes(23, 59, 59, 999);
-						break;
-					case "year":
-						startOfChart.setMonth(0, 1);
-						startOfChart.setHours(0,0,0,0);
-						endOfChart.setMonth(11,31);
-						endOfChart.setMinutes(23, 59, 59, 999);
-						break;
-					case "year5":
-						startOfChart.setYear(baseDate.getFullYear()-2, 0, 1);
-						startOfChart.setHours(0,0,0,0);
-						endOfChart.setYear(startOfChart.getFullYear()+4, 11,31);
-						endOfChart.setMinutes(23, 59, 59, 999);
-						break;
-				}
-
-				return [startOfChart, endOfChart];
-			},
-
-			getTimeChunks: function(baseDate, mode, timeList) {
-				var _mode = this.getMode(mode);
-
-				var numPoints = _mode.columns * _mode.rows;
-				var timeChunks = [];
-				var rawData = [numPoints];
-				var title = [numPoints];
-
-				for (var i = 0; i < numPoints; i++) {
-					rawData[i] = 0;
-					title[i] = "";
-				}
-
-				var chartEnds = this.getChartEnds(baseDate, mode);
-
-				// This will map the number of raw feeds for a specific date to the correct heat chart "chunk"
-
-				if (timeList) {
-
-
-					var time, timeTitle, year, month, day, hour, minutes;
-
-					for (var j = 0; j < timeList.length; j++) {
-						// Time may either be a raw number or an object with the time stored in the 'startTime' attribute.
-						// Figure out which case, pull out the number, and turn it into a date
-						if (isNaN(parseInt(timeList[j])) && (!isNaN(parseInt(timeList[j].startTime)))) {
-							time = new Date(parseInt(timeList[j].startTime));
-							count = parseInt(timeList[j].count);
-						}
-						else {
-							time = new Date(parseInt(timeList[j]));
-							count = 1;
-						}
-
-						year = time.getFullYear();
-						month = time.getMonth();
-						day = time.getDate();
-						hour = time.getUTCHours();
-						minutes = time.getMinutes();
-
-						if ((time >= chartEnds[0]) && (time <= chartEnds[1])) {
-
-							switch (mode) {
-
-								case "hour":
-									var ndx = minutes + (_mode.columns * time.getSeconds());
-									timeTitle = time.toString();
-									break;
-								case "day":
-									var ndx = hour + (_mode.columns * minutes);
-									timeTitle = (new Date(year, month, day, hour, minutes, 0, 0)).toString();
-									break;
-
-								case "week":
-									var ndx = time.getDay() + (_mode.columns * hour);
-									timeTitle = (new Date(year, month, day, hour, 0, 0, 0)).toString();
-									break;
-
-								case "month":
-									var ndx = (day - 1) + (_mode.columns * hour);
-									timeTitle = (new Date(year, month, day, hour, 0, 0, 0)).toString();
-									break;
-
-								case "year":
-									var ndx = month + (_mode.columns * (day - 1));
-									timeTitle = (new Date(year, month, day, 0, 0, 0, 0)).toString();
-									break;
-
-								case "year5":
-									var ndx = (year - chartEnds[0].getFullYear()) + (_mode.columns * month);
-									timeTitle = (new Date(year, month, 1, 0, 0, 0, 0)).toString();
-									break;
-
-							}
-
-							rawData[ndx] += count;
-							title[ndx] = timeTitle;
-
-						}
-					}
-				}
-
-				for (var k = 0; k < numPoints; k++) {
-					timeChunks[k] = {
-						title: title[k],
-						value: rawData[k]
-					};
-				}
-
-				return timeChunks;
-			},
-
 			getRandomSamples: function(numSamplePoints) {
 				var sample_list = [];
 				var thirties = [3, 5, 8, 10]; // Jan = 0, Dec = 11
@@ -329,7 +157,62 @@ var HeatChartTime = (function () {
 				}
 
 				return sample_list;
+			},
+
+			/**
+			 * Given a chart mode and a date that will appear on the chart, this computes what the first and last dates
+			 * will be on the chart.  E.g. If the base date is sometime in Jan 17, 2014 in a chart displaying the month, the
+			 * ends of the chart will be Jan 1 and Jan 31, 2014.
+			 * @param date {Date} a date that must appear in the chart
+			 * @param mode {string} the scope of the chart (e.g. year, month, hour)
+			 * @return an array of two Date objects, the start and the end of the chart
+			 */
+			computeChartEnds: function(date, mode) {
+				date = new Date(date); // Just in case date was in number format
+				var startOfChart = new Date(date);
+				var endOfChart = new Date(date);
+
+				switch (mode) {
+
+					case "hour":
+						startOfChart.setMinutes(0,0,0);
+						endOfChart.setMinutes(59, 59, 999);
+						break;
+					case "day":
+						startOfChart.setHours(0,0,0,0);
+						endOfChart.setHours(23, 59, 59, 999);
+						break;
+					case "week":
+						startOfChart.setDate(date.getDate()-date.getDay());
+						startOfChart.setHours(0,0,0,0);
+						endOfChart.setDate(startOfChart.getDate()+6);
+						endOfChart.setHours(23, 59, 59, 999);
+						break;
+					case "month":
+						startOfChart.setDate(1);
+						startOfChart.setHours(0,0,0,0);
+						endOfChart.setMonth(startOfChart.getMonth()+1,0);
+						endOfChart.setMinutes(23, 59, 59, 999);
+						break;
+					case "year":
+						startOfChart.setMonth(0, 1);
+						startOfChart.setHours(0,0,0,0);
+						endOfChart.setMonth(11,31);
+						endOfChart.setMinutes(23, 59, 59, 999);
+						break;
+					case "year5":
+						startOfChart.setYear(date.getFullYear()-2, 0, 1);
+						startOfChart.setHours(0,0,0,0);
+						endOfChart.setYear(startOfChart.getFullYear()+4, 11,31);
+						endOfChart.setMinutes(23, 59, 59, 999);
+						break;
+				}
+
+				return [startOfChart, endOfChart];
 			}
+
+
+
 
 		};
 	};

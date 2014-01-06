@@ -5,10 +5,11 @@ var HeatChartApp = (function () {
 	 * @constructor
 	 * @param {string} startingMode the units of time to display on the chart (e.g. day, month, year).  For a comprehensive list
 	 * refer to the name field of the objects in the _MODES list in heatChartTime.js.
-	 * @param {HeatChartData} dataInject the object to retrieve data.  this allows for plugging in of different data sources.
+	 * @param {Date} date optional, where to point the chart at.  Default is current time.
+	 * @param {HeatChartData} dataInject optional object to retrieve data.  this allows for plugging in of different data sources.
 	 * Default is to create a HeatChartData.
 	 */
-	var app = function(startingMode, dataInject) {
+	var app = function(startingMode, date, dataInject) {
 		$('#nowButton').click(function() {
 			updateNow();
 		});
@@ -38,7 +39,7 @@ var HeatChartApp = (function () {
 
 		var CHART_MODE = {};
 
-		var baseDate = chartTime.currentUTCTime();
+		var baseDate = date || new Date();
 
 		var chart = {};
 
@@ -57,30 +58,27 @@ var HeatChartApp = (function () {
 		}
 
 		function fetch(callback) {
-			chartEnds = chartTime.getChartEnds(baseDate, CHART_MODE.name);
 			chartData.fetch({
 				feedType: 'rawfeed',
-				startTime: chartEnds[0],
-				endTime: chartEnds[1],
+				date: baseDate,
+				mode: CHART_MODE.name,
 				successCallback: function(data) {
 					callback(data);
 				},
 				errorCallback: function(error) {
-					console.log("An error occurred trying to retrieve the data: " + error);
+					console.error("An error occurred trying to retrieve the data: " + error);
 				}
 			});
 		}
 
-		function update(data) {
-			var chunks = chartTime.getTimeChunks(baseDate, CHART_MODE.name, data);
+		function update(chunks) {
 			d3.select("#chart").selectAll("svg").data([]).exit().remove();
-
 			createHeatChart(chunks);
 			return chunks;
 		}
 
 		function updateNow() {
-			baseDate = chartTime.currentUTCTime();
+			baseDate = new Date();
 			update();
 			updateModeButtons(CHART_MODE.name);
 		}
@@ -171,7 +169,7 @@ var HeatChartApp = (function () {
 				var cw = d3.select("#chart").style('width');
 				chartWidth = cw.split('px')[0];
 			} catch (err) {
-				console.log(err);
+				console.error(err);
 			}
 
 			// CHART_MODE.rows + 1 due to the size of the innerRadius
