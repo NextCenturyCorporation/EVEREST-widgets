@@ -113,6 +113,7 @@ var app = app || {};
     app.clearEvents = function(incomingEvents) {
         datapoints = [];
         eventSource.clear();
+        Timeline._Band.prototype.closeBubble();
     };
 
     app.changeResize = function(){
