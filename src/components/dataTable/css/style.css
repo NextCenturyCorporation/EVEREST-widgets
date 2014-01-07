@@ -3,18 +3,19 @@ body {
 }
 
 table {	
-	border-color: #004785;
 	border-collapse: collapse;
-	width: 100%;
+	border: 1px solid #004785;
 }
 
 td {
 	padding: 3px;
+	border: 1px solid #004785;
 }
 
 th {
 	background-repeat: no-repeat;
 	background-position: right;
+	border: 1px solid #004785;
 }
 
 .unsorted,

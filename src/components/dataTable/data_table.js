@@ -14,7 +14,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	
 	me.page = 0;
 	me.offset = 0;
-	me.sort = 'uns';
+	me.sort = 'unsorted';
 	me.sortKey = '_id';
 	me.total = length;
 	me.dateType = 'createdDate';
@@ -44,84 +44,83 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 	});
 
 	me.tableView = Backbone.View.extend({
-			el:$('.data_table_data')[0],
-			initialize: function(data_array){
-				this.collection = new me.table(data_array);
-				this.render();
-			},
-			render: function(){	
-				var that = this;
-				me.temp_datas = me.datas.slice(me.page * me.max_rows - me.offset, (me.page + 1) * me.max_rows - me.offset);
-				that.collection = new me.table(me.temp_datas);
-				me.showPageNumbers();
+		el:$('.data_table_data')[0],
+		initialize: function(data_array){
+			this.collection = new me.table(data_array);
+			this.render();
+		},
+		render: function(){	
+			var that = this;
+			me.temp_datas = me.datas.slice(me.page * me.max_rows - me.offset, (me.page + 1) * me.max_rows - me.offset);
+			that.collection = new me.table(me.temp_datas);
+			me.showPageNumbers();
+			
+			var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
+			$('#panel-title').text(s);
+
+			me.count = me.page * me.max_rows;
+			var temp = (1 + me.page) * me.max_rows;
+							
+			d3.selectAll('tr').remove();
+			_.each(this.collection.models, function (item) {
+				if ( me.count < temp) {
+					that.renderSentence(item, false);
+					me.count++;
+				}
+			}, this);
+			
+			$.unblockUI();
+		},
+		renderSentence: function(item, location){
+			var sentView = new rowView({model: item, keys: me.headers}).render();
+			//render this item and add it to the table
+			if (location === false){	
+				$('.data_table_data').append(sentView.el);
+			} else {//including when loc === 0
+				$($('tbody').children()[location]).before(sentView.el);
+			}
+		},
+		getTimes: function(){
+			return this.collection.pluck(me.dateType);
+		},
+		addSentence: function(item){
+			var item_time = new Date(item[me.dateType]);
+			var start_time = new Date(me.start);
+			var end_time = new Date(me.end);
+			if (item_time > start_time && item_time < end_time){
+				me.datas.push(item);
+				me.total++;
+			
+				//grab the column we want to sort by
+				var col = me.getSortedColumn();
+				var colText = me.headers[col.id];
+			
+				//make sure new item is in its correct location in me.datas 
+				if(col.class === 'asc'){
+					me.datas.sort(function(a,b){ return a[colText] > b[colText] ? 1 : -1; });
+				} else if (col.class === 'desc'){
+					me.datas.sort(function(a,b){ return a[colText] < b[colText] ? 1 : -1; });
+				}
 				
+				me.datas = me.datas.slice(0, me.max_items);
+				
+				me.temp_datas = me.datas.slice(me.page * me.max_rows - me.offset, (me.page + 1) * me.max_rows - me.offset);						
+				this.collection = new me.table(me.temp_datas);
+
+				me.addRow(item, this);
+				
+				//pages @ top, if data becomes large enough to add another page,
+				var expectedPages = Math.ceil(me.total / me.max_rows);
+				if (expectedPages > me.max_pages){
+					me.max_pages = expectedPages;
+					me.showPageNumbers();
+				}
+			
 				var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
 				$('#panel-title').text(s);
-
-				me.count = me.page * me.max_rows;
-				var temp = (1 + me.page) * me.max_rows;
-								
-				d3.selectAll('tr').remove();
-				_.each(this.collection.models, function (item){
-					if ( me.count < temp) {
-						that.renderSentence(item, false);
-						me.count++;
-					}
-				}, this);
-				
-				$.unblockUI();
-			},
-			renderSentence: function(item, location){
-				var sentView = new rowView({model: item, keys: me.headers}).render();
-				//render this item and add it to the table
-				if (location === false){	
-					$('.data_table_data').append(sentView.el);
-				} else {//including when loc === 0
-					$($('tbody').children()[location]).before(sentView.el);
-				}
-			},
-			getTimes: function(){
-				return this.collection.pluck(me.dateType);
-			},
-			addSentence: function(item){
-				var item_time = new Date(item[me.dateType]);
-				var start_time = new Date(me.start);
-				var end_time = new Date(me.end);
-				if (item_time > start_time && item_time < end_time){
-					me.datas.push(item);
-					me.total++;
-				
-					//grab the column we want to sort by
-					var col = me.getSortedColumn();
-					var colText = me.headers[col.id];
-				
-					//make sure new item is in its correct location in me.datas 
-					if(col.class === 'asc'){
-						me.datas.sort(function(a,b){ return a[colText] > b[colText] ? 1 : -1; });
-					} else if (col.class === 'desc'){
-						me.datas.sort(function(a,b){ return a[colText] < b[colText] ? 1 : -1; });
-					}
-					
-					me.datas = me.datas.slice(0, me.max_items);
-					
-					me.temp_datas = me.datas.slice(me.page * me.max_rows - me.offset, (me.page + 1) * me.max_rows - me.offset);						
-					this.collection = new me.table(me.temp_datas);
-
-					me.addRow(item, this);
-					
-					//pages @ top, if data becomes large enough to add another page,
-					var expectedPages = Math.ceil(me.total / me.max_rows);
-					if (expectedPages > me.max_pages){
-						me.max_pages = expectedPages;
-						me.showPageNumbers();
-					}
-				
-					var s = 'Displaying ' + me.temp_datas.length + ' of ' + me.total + ' objects';
-					$('#panel-title').text(s);
-				}
 			}
 		}
-	);
+	});
 
 	me.createTable = function(s, e){
 		if (s && e){
@@ -352,10 +351,10 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		}
 	};
 	
-	me.sendTimes = function(){
+	me.sendTimes = function() {
 		var time_data = me.currentTableView.getTimes();
 		
-		if (Date.parse(time_data[0])){
+		if (Date.parse(time_data[0])) {
 			for (var i = 0; i < time_data.length; i++){ 
 				time_data[i] = Date.parse(time_data[i]); 
 			}
@@ -364,15 +363,15 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 		}
 	};
 	
-	me.setMaxRows = function(r){
-		if( r > 0 && r < me.max_items){
+	me.setMaxRows = function(r) {
+		if( r > 0 && r < me.max_items) {
 			me.max_rows = r;
 			me.temp_datas = me.datas.slice(0, me.max_rows);
 			me.max_pages = Math.ceil( me.total / me.max_rows );
 		}
 	};
 	
-	me.addRow = function(item, that){
+	me.addRow = function(item, that) {
 		var ind = me.temp_datas.indexOf(item);
 		var isIn = -1 === ind ? false : true;
 		item = new row(item);
@@ -522,5 +521,18 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 				d3.select(this).classed('unsorted', true);
 			}
 		});
+	};
+
+	me.showFromList = function(objs){
+		var ids = me.datas.map(function(e){ return e._id; });
+		var temp = [];
+		objs.forEach(function(obj){
+			var ind = ids.indexOf(obj._id);
+			if (ind !== -1){
+				temp.push(me.datas[ind]);
+			}
+		});
+
+		me.updateTable({docs: temp, total_count: objs.length}, true);
 	};
 };

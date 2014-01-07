@@ -127,6 +127,11 @@ var table_widget = function(url, announce, timeline, workflow, datatype){
 								console.log("Could not recognize event message.");
 							}
 						});
+
+						OWF.Eventing.subscribe('com.nextcentury.everest.tagCloud', function(sender, msg){
+							var data = JSON.parse(msg);
+							console.log(data);
+						});
 					});
 				});
 			}
