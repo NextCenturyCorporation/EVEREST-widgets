@@ -23,19 +23,24 @@
         </ul>
       </div>
     </div>
-    <div></br></br></div> 
+    <div></br></br></div>
     <div class="row">
       <div class="col-xs-11 col-xs-offset-1">
         <div id="chart"></div>
       </div>
     </div>
+<script src="../../../lib/owf-widget-debug.js"></script>
 <script src="../../../lib/jquery-2.0.2.min.js"></script>
 <script src="../../../lib/d3.v3.min.js"></script>
 <script src="../../../lib/underscore-min.js"></script>
+<script src="../../../lib/moment.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js"></script>
 <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.min.js"></script>
 <script src="js/drillDownTimeline.js"></script>
+<script src="js/drillDownTimelineWidget.js"></script>
 <script>
-  var timeline = new DrillDownTimeline();
-  timeline.init();
+  //OWF.ready(function () {
+    var timeline = new DrillDownTimeline();
+    timeline.init();
+//});
 </script>
