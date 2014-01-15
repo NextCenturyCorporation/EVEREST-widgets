@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="css/breadcrumbs.css">
     <link href="./css/bootstrap.min.css" rel="stylesheet">
     <link href="./css/bootstrap-theme.min.css" rel="stylesheet">
-    
+
     <script src="../../../lib/d3.v3.min.js"></script>
     <script src="../../../lib/jquery-2.0.2.min.js"></script>
     <script src="../../../lib/underscore-min.js"></script>
@@ -18,25 +18,25 @@
     <script src="js/heatChartTime.js"></script>
     <script src="js/heatChartConfig.js"></script>
     <script src="js/heatChartData.js"></script>
-    <script src="js/heatChartWidget.js"></script>
+    <script src="../../components/timeRange/timeRangeWidgetComponent.js"></script>
     <script src="js/heatChartApp.js"></script>
- 
+
     <script type="text/javascript">
         $(document).ready(function() {
 
             dataInject = new HeatChartData();
             dataInject._GET = function(url, successCallback, failureCallback) {
-                 data = [1374261832200, 1374261832200, 1374261832200, 1374261832400, 1374261833000, 1374261842000, 
+                 data = [1374261832200, 1374261832200, 1374261832200, 1374261832400, 1374261833000, 1374261842000,
                         1374261932000, 1374261932000, 1374261934000, 1374264832000, 1374264833000, 1376940232200];
                 setTimeout(function(){
                     successCallback(data);
                 }, 0);
             };
             // For canned data, uncomment the dataInject argument
-            var heatChart = new HeatChartApp("year", new Date(2013, 0) /* ,dataInject */);  
+            var heatChart = new HeatChartApp("year", new Date(2013, 0) /* ,dataInject */);
         });
     </script>
-  
+
 </head>
 
 <body>

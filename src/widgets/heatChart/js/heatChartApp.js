@@ -34,7 +34,7 @@ var HeatChartApp = (function () {
 		});
 
 		var chartTime = new HeatChartTime();
-		var chartWidget = new HeatChartWidget();
+		var chartWidget = new TimeRangeWidgetComponent();
 		var chartData = (dataInject == undefined) ? new HeatChartData() : dataInject;
 
 		var CHART_MODE = {};
@@ -293,7 +293,7 @@ var HeatChartApp = (function () {
 						callback(time_chunks);
 					}
 				});
-				
+
 			}
 		}
 
