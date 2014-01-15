@@ -1,39 +1,45 @@
+String.prototype.capitalize = function(){
+       return this.replace( /(^|\s)([a-z])/g , function(m,p1,p2){ return p1+p2.toUpperCase(); } );
+};
+
 var DrillDownTimeline = function() {
 	var self = this;
 	var contextDate = Date.now();
-	var baseURL = "http://localhost:8081";
+	var baseURL = "http://everest-build:8081";
 	var monthNames = [ "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December" ];
 	var contextMode = {0: '5year', 1: 'year', 2: 'month', 3: 'day', 4: 'hour', 5: 'minute', 6:'second'};
 	var currentContextMode = 0;
-
+	var feedSource = 'rawfeed';
 	$("#baseDate").text("Context Date:" + new Date(contextDate).toISOString());
-	//var chartWidget = new HeatChartWidget();
-
+	$('.dropdown-toggle').dropdown();
+	$('#rawfeed, #alpha-report, #assertion').on('click', function(e){
+		feedSource = e.toElement.id;
+		var feedSourceText = $('#dropdown-menu').text();
+		$('#dropdown-menu').text(feedSourceText.slice(0, feedSourceText.indexOf(':') + 2) + feedSource.replace('-', ' ').capitalize());
+		self.getDatesAndFrequency('year', buildYearRequest());
+	});
+	var chartWidget = new TimeRangeWidgetComponent();
 
 	self.getDatesAndFrequency = function(mode, dateArr, filter) {
-		console.log(dateArr);
 		var buildData = [];
 		for(var i= 0; i < dateArr.length; i++) {
 			buildData.push({mode: mode, bucketDate: dateArr[i]});
 		}
 		$.ajax({
-		    url: baseURL + "/rawfeed/dates",
+		    url: baseURL + "/"+ feedSource + "/dates",
 		    data: JSON.stringify({dates: buildData}),
 		    type: 'POST',
 		    contentType: "application/json; charset=utf-8",
 		}).done(function(data) {
-			console.log(data);
 			if(filter) {
 				data = data.filter(function(date) {
 					return date.frequency > 0;
 				});
-				console.log(data)
 			}
 			self.repaint(data);
 		});
-
-	}
+	};
 
 
 	var updateAndSetBaseDate = function(date) {
@@ -44,30 +50,25 @@ var DrillDownTimeline = function() {
 
 self.init = function() {
 	self.getDatesAndFrequency('year', buildYearRequest());
-	setUpBreadCrumbHandlers();
+
+	$("#year5Button").on("click", year5ButtonClicked);
+	$("#yearButton").on("click", yearButtonClicked);
+	$("#monthButton").on("click", monthButtonClicked);
+	$("#dayButton").on("click", dayButtonClicked);
+
 	var margin = {top: 20, right: 20, bottom: 80, left: 40},
 		width = 960 - margin.left - margin.right,
 		height = 500 - margin.top - margin.bottom;
 
 	var formatPercent = d3.format(".0");
 
-	var x = d3.scale.ordinal()
-		.rangeRoundBands([0, width], .1);
+	var x = d3.scale.ordinal().rangeRoundBands([0, width], 0.1);
 
-	var y = d3.scale.linear()
-		.range([height, 0]);
+	var y = d3.scale.linear().range([height, 0]);
 
-	var getXAxis = function() {
-		return d3.svg.axis().scale(x).orient("bottom");
-	}
+	var xAxis = d3.svg.axis().scale(x).orient("bottom");
 
-	var getYAxis = function() {
-		return d3.svg.axis().scale(y).orient("left").tickFormat(formatPercent);
-	}
-
-	var xAxis = getXAxis();
-
-	var yAxis = getYAxis();
+	var yAxis =  d3.svg.axis().scale(y).orient("left").tickFormat(formatPercent);
 
 	var svg = d3.select("body").append("svg")
 		.attr("width", width + margin.left + margin.right)
@@ -77,24 +78,24 @@ self.init = function() {
 
 	d3.select("svg").call(d3.behavior.zoom()
 		.on("zoom", function() {
-			if(isPos(d3.event.sourceEvent.wheelDelta)) {//in
+			if(isPos(d3.event.sourceEvent.wheelDelta) && d3.event.sourceEvent.wheelDelta > 110) {//in
 				var selected = filterFreqGreaterThan1(d3.selectAll("rect.selected"));
 				var data = d3.select(selected[0][0]).data()[0];
-				if(typeof data != 'undefined') {
+				if(typeof data !== 'undefined') {
 					setBreadCrumbValues(data.date);
 					handleClickEvents(data.date.toString());
 				}
-			} else {//out
+			} else if(d3.event.sourceEvent.wheelDelta < 110) {//out
 				var backup = currentContextMode -1;
 				if(backup >= 0) {
-					self.getDatesAndFrequency(contextMode[currentContextMode]);
-					buttonClicked(contextMode[backup])
+					self.getDatesAndFrequency(contextMode[currentContextMode], new Date(contextDate));
+					buttonClicked(contextMode[backup]);
 					currentContextMode--;
 				}
 			}
 		}));
 
-	var isPos = function(num){ return num > 0 ? true: false; }
+	var isPos = function(num){ return num > 0; };
 
 	var filterFreqGreaterThan1 = function(array) {
 		return array.filter(function(element) {
@@ -136,12 +137,9 @@ self.init = function() {
 
 	};
 
-	self.repaint = function(data, noOutTransition) {
+	self.repaint = function(data) {
 		x.domain(data.map(function(d) { return d.date; }));
 		y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
-
-		var xAxis = getXAxis();
-		var yAxis = getYAxis();
 
 		svg.selectAll("g").remove();//remove all old labels.
 		createLabels();
@@ -156,9 +154,7 @@ self.init = function() {
 
 
 		var outDelay = 800;
-
-		if(!noOutTransition) {
-			var rect = svg.selectAll("rect")
+		var rect = svg.selectAll("rect")
 			.transition()
 			.style("fill", "steelblue")
 			.attr({
@@ -166,9 +162,6 @@ self.init = function() {
 				height: 0
 			}).duration(outDelay)
 			.remove();
-		} else {
-			outDelay = 0;
-		}
 
 		rectsNew
 			.transition()
@@ -209,7 +202,7 @@ self.init = function() {
 			.on("brushend", brushend))
 			.selectAll("rect")
 			.attr("y", height)
-			.attr("height", (height/2))
+			.attr("height", (height/2));
 
 
 
@@ -220,8 +213,7 @@ self.init = function() {
 		function brushmoveY() {
 			var s = d3.event.target.extent();
 			rectsNew.classed("selected", function(d) {
-				var upperFreq = s[0] <= d.frequency
-				return upperFreq;
+				return s[0] <= d.frequency;
 			});
 		}
 
@@ -248,30 +240,24 @@ var handleClickEvents = function() {
 	var filter = false;
 
 	if(d3.selectAll(".selected").data().length > 0) {
-		var date =d3.selectAll(".selected").data()[0].date
+		var date =d3.selectAll(".selected").data()[0].date;
 		var data = d3.selectAll(".selected").data();
-		console.log(data)
 		for(var i =0; i < data.length; i++) {
 			dateArr.push(data[i].date);
 		}
 		filter = true;
-		console.log(dateArr)
 	} else {
 		var date = d3.select(this).data()[0].date.toString();
 		setBreadCrumbValues(d3.select(this).data()[0].date);
 		dateArr.push(d3.select(this).data()[0].date.toString());
 	}
-		//console.log(dateArr);
 		var selected = d3.selectAll(".selected").data();
-
-		//console.log(selected);
 		var year = /^\d{4}/gi;
 		var month = /^\d{4}-\d{1,2}/i;
 		var day = /^\d{4}-\d{1,2}-\d{1,2}/i;
 		var hour = /^\d{4}-\d{1,2}-\d{1,2}\s*\d{2}:\d{2}/i;
 
 		contextDate = new Date(contextDate);
-		//console.log(contextDate);
 		 if(hour.test(date)){
 		 	date = date.substring(date.lastIndexOf(' ') + 1, date.length);
 		 	contextDate.setUTCHours(milToHours(date));
@@ -279,7 +265,7 @@ var handleClickEvents = function() {
 		 	currentContextMode = 4;
 		 	self.getDatesAndFrequency('minute', buildMinuteRequest(dateArr), filter);
 		 	setBreadCrumbValues(contextDate, 'hour');
-		 	//chartWidget.publishDateRange('hour', new Date(contextDate));
+		 	chartWidget.publishDateRange('hour', new Date(contextDate));
 		 } else if(day.test(date)) {
 		 	date = date.substring(date.lastIndexOf('-') + 1, date.length);
 		 	contextDate.setDate(parseInt(date));
@@ -287,8 +273,7 @@ var handleClickEvents = function() {
 		 	currentContextMode = 3;
 		 	self.getDatesAndFrequency('hour', buildHourRequest(dateArr), filter);
 		 	setBreadCrumbValues(contextDate, 'day');
-
-		 	//chartWidget.publishDateRange('day', new Date(contextDate));
+		 	chartWidget.publishDateRange('day', new Date(contextDate));
 		 } else if(month.test(date)) {
 		 	date = date.substring(date.indexOf('-') + 1, date.length);
 		 	date = parseInt(date) - 1;
@@ -297,14 +282,14 @@ var handleClickEvents = function() {
 		 	currentContextMode = 2;
 		 	self.getDatesAndFrequency('day', buildDayRequest(dateArr), filter);
 		 	setBreadCrumbValues(contextDate, 'month');
-		 	//chartWidget.publishDateRange('month', new Date(contextDate));
+		 	chartWidget.publishDateRange('month', new Date(contextDate));
 		 }  else if(year.test(date)) {
 		 	contextDate.setFullYear(date);
 		 	contextDate = contextDate.getTime();
 		 	currentContextMode = 1;
 		 	self.getDatesAndFrequency('month', buildMonthRequest(dateArr), filter);
 		 	setBreadCrumbValues(contextDate, 'year');
-		 	//chartWidget.publishDateRange('year', new Date(contextDate));
+		 	chartWidget.publishDateRange('year', new Date(contextDate));
 		 }  else {
 		 	contextDate = contextDate.getTime();
 		 }
@@ -317,62 +302,44 @@ var milToHours = function(time) {
 
 var setBreadCrumbValues = function(baseDate, mode) {
 	var tempDate = new Date(baseDate);
-	//console.log(tempDate);
-	if(mode == 'year') {
+	if(mode === 'year') {
 		$("#yearButton").text(tempDate.getFullYear());
 		$("#yearButton").css("visibility", "visible");
-	} else if(mode == 'month') {
+	} else if(mode === 'month') {
 		$("#monthButton").text(monthNames[tempDate.getMonth()]);
 		$("#monthButton").css("visibility", "visible");
-	} else if(mode == 'day') {
+	} else if(mode === 'day') {
 		$("#dayButton").text(tempDate.getUTCDate());
 		$("#dayButton").css("visibility", "visible");
-	} else if(mode == 'hour') {
+	} else if(mode === 'hour') {
 		$("#hourButton").text(tempDate.getUTCHours() + ":00");
 		$("#hourButton").css("visibility", "visible");
 	}
-
-
-
-};
-
-var setUpBreadCrumbHandlers = function() {
-	$("#year5Button").on("click", year5ButtonClicked);
-	$("#yearButton").on("click", yearButtonClicked);
-	$("#monthButton").on("click", monthButtonClicked);
-	$("#dayButton").on("click", dayButtonClicked);
 };
 
 var year5ButtonClicked = function() {
-	$("#yearButton").css("visibility", "hidden");
-	$("#monthButton").css("visibility", "hidden");
-	$("#dayButton").css("visibility", "hidden");
-	$("#hourButton").css("visibility", "hidden");
-	currentContextMode =1;
+	$("#yearButton, #monthButton, #dayButton, #hourButton").css("visibility", "hidden");
+	currentContextMode = 1;
 	self.getDatesAndFrequency('year', buildYearRequest([new Date(contextDate)]));
 };
 
 var yearButtonClicked = function() {
-	$("#monthButton").css("visibility", "hidden");
-	$("#dayButton").css("visibility", "hidden");
-	$("#hourButton").css("visibility", "hidden");
-	currentContextMode =2;
+	$("#monthButton, #dayButton, #hourButton").css("visibility", "hidden");
+	currentContextMode = 2;
 	self.getDatesAndFrequency('month',  buildMonthRequest([new Date(contextDate)]));
-}
+};
 
 var monthButtonClicked = function() {
-	$("#dayButton").css("visibility", "hidden");
-	$("#hourButton").css("visibility", "hidden");
-	currentContextMode =3;
+	$("#dayButton, #hourButton").css("visibility", "hidden");
+	currentContextMode = 3;
 	self.getDatesAndFrequency('day',  buildDayRequest([new Date(contextDate)]));
-}
-
+};
 
 var dayButtonClicked = function() {
 	$("#hourButton").css("visibility", "hidden");
-	currentContextMode =4;
+	currentContextMode = 4;
 	self.getDatesAndFrequency('hour', buildHourRequest([new Date(contextDate)]));
-}
+};
 
 var buttonClicked = function(mode) {
 	switch(mode) {
@@ -381,25 +348,22 @@ var buttonClicked = function(mode) {
 		case 'month':monthButtonClicked();break;
 		case 'day':dayButtonClicked();break;
 	}
-}
+};
 
 var buildYearRequest = function() {
 	return ['2011', '2012', '2013', '2014', '2015'];
-}
+};
 
 var buildMonthRequest = function(dateArr) {
 	var resultArr = [];
 	for(var i =0; i < dateArr.length; i++) {
-		var date = new Date(dateArr[i]);
-		resultArr.push(
-			date.getUTCFullYear() + '-01', date.getUTCFullYear() + '-02', date.getUTCFullYear() + '-03',
-			date.getUTCFullYear() + '-04', date.getUTCFullYear() + '-05', date.getUTCFullYear() + '-06',
-			date.getUTCFullYear() + '-07', date.getUTCFullYear() + '-08', date.getUTCFullYear() + '-09',
-			date.getUTCFullYear() + '-10', date.getUTCFullYear() + '-11', date.getUTCFullYear() + '-12'
-		);
+		var date = moment(dateArr[i]).utc();
+		for(var j = 1; j <= 12; j++) {
+			resultArr.push(date.format('YYYY-' + precedeWithZero(j)));
+		}
 	}
 	return resultArr;
-}
+};
 
 var buildDayRequest = function(dateArr) {
 	var resultArr = [];
@@ -410,7 +374,7 @@ var buildDayRequest = function(dateArr) {
 		}
 	}
 	return resultArr;
-}
+};
 
 var buildHourRequest = function(dateArr) {
 	var resultArr = [];
@@ -421,7 +385,7 @@ var buildHourRequest = function(dateArr) {
 		}
 	}
 	return resultArr;
-}
+};
 
 var buildMinuteRequest = function(dateArr) {
 	var resultArr = [];
@@ -432,7 +396,7 @@ var buildMinuteRequest = function(dateArr) {
 		}
 	}
 	return resultArr;
-}
+};
 
 var precedeWithZero = function(num) {
 	return num < 10 ? ('0' + num) : num;

@@ -1,9 +1,9 @@
-var HeatChartWidget = (function () {
+var TimeRangeWidgetComponent = (function () {
 
 
-	var widget = function(heatChartChannel) {
+	var widget = function(timeRangeChannel) {
 
-		var heatChartChannel = heatChartChannel || "com.nextcentury.everest.heatchart";
+		var timeRangeChannel = timeRangeChannel || "com.nextcentury.everest.timeRange";
 
 		//The Following functions are helper functions designed to get date ranges to send for
 		//OWF eventing.
@@ -60,60 +60,51 @@ var HeatChartWidget = (function () {
 			return tempDate;
 		};
 
-		return {
-
-			publishDateRange: function(mode, baseDate) {
-				var checkOWF;
-				if (OWF.Eventing.publish) {
-					checkOWF = OWF.Eventing.publish;
-				} else {
-					checkOWF = function(message) {
-						console.log("OWF Eventing API is not accessible.  The following was not published: ");
+			return {
+				publishDateRange: function(mode, baseDate) {
+					var checkOWF;
+					if (OWF.Eventing.publish) {
+						checkOWF = OWF.Eventing.publish;
+					} else {
+						checkOWF = function(message) {
+							console.log("OWF Eventing API is not accessible.  The following was not published: ");
+						}
 					}
+					OWF.ready(function () {
+						console.log("**************************************");
+						console.log(baseDate);
+						console.log("**************************************");
+
+						switch (mode) {
+							case "hour":
+								checkOWF(timeRangeChannel, JSON.stringify({
+									startTime: baseDate,
+									endTime: addHours(baseDate, 1)
+								}));
+								break;
+							case "day":
+								checkOWF(timeRangeChannel, JSON.stringify({
+									startTime: setDateHourZero(baseDate),
+									endTime: setDateHour24(baseDate)
+								}));
+								break;
+							case "month":
+								checkOWF(timeRangeChannel, JSON.stringify({
+									startTime: getFirstDateOfMonth(baseDate),
+									endTime: getLastDateOfMonth(baseDate)
+								}));
+								break;
+							case "year":
+								checkOWF(timeRangeChannel, JSON.stringify({
+									startTime: getFirstDateOfYear(baseDate),
+									endTime: getLastDateOfYear(baseDate)
+								}));
+								break;
+						};
+					});
 				}
-				switch (mode) {
-					case "hour":
-						console.log("**************************************");
-						console.log(JSON.stringify({
-							startTime: baseDate,
-							endTime: addHours(baseDate, 1)
-						}));
-						console.log("**************************************");
-
-						checkOWF(heatChartChannel, JSON.stringify({
-							startTime: baseDate,
-							endTime: addHours(baseDate, 1)
-						}));
-						break;
-					case "day":
-						checkOWF(heatChartChannel, JSON.stringify({
-							startTime: setDateHourZero(baseDate),
-							endTime: setDateHour24(baseDate)
-						}));
-						break;
-					case "month":
-						console.log(JSON.stringify({
-							startTime: getFirstDateOfMonth(baseDate),
-							endTime: getLastDateOfMonth(baseDate)
-						}));
-						checkOWF(heatChartChannel, JSON.stringify({
-							startTime: getFirstDateOfMonth(baseDate),
-							endTime: getLastDateOfMonth(baseDate)
-						}));
-						break;
-					case "year":
-						checkOWF(heatChartChannel, JSON.stringify({
-							startTime: getFirstDateOfYear(baseDate),
-							endTime: getLastDateOfYear(baseDate)
-						}));
-						break;
-				};
-			}
-
-		};
-
+			};
 	};
-
 	return widget;
 
 }());
