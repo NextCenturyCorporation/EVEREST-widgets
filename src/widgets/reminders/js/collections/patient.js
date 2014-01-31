@@ -2,7 +2,9 @@ var app = app || {};
 
 (function() {
     app.PatientCollection = Backbone.Collection.extend({
-        url: 'http://everest-build:8081/patient',
+        url: function() {
+        	return EverestConfig.endpoint.base + '/patient';
+        },
         model: app.PatientModel,
 
         parse: function(response) {
