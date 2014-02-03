@@ -7,7 +7,7 @@ var app = app || {};
       , rawReminderHelpTemplate            = "<div class='modal fade' id='{{modal_id}}'' tabIndex='-1' role='dialog' aria-labelledby='remModalLabel' aria-hidden='true'><div class='modal-dialog'><div class='modal-content'><div class='modal-header'><button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button><h4 class='modal-title' id='remModalLabel'>{{title}}</h4></div><div class='modal-body'>{{body}}</div></div></div></div>";
 
     app.patient = new app.PatientModel();
-    app.patient.urlRoot = app.patients.url
+    app.patient.urlRoot = app.patients.url;
     app.patientReminders = new Backbone.Collection();
 
     app.showReminderList = function() {
