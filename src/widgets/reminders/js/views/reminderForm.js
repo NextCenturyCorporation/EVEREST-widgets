@@ -74,7 +74,7 @@ var app = app || {};
                 if ($(this)[0].value !== ''){
                     me.patientReminder.description += $(this)[0].previousSibling.textContent + ': ' + $(this)[0].value + '<br />';
                 }
-            })
+            });
 
             this.announceState({events: [me.patientReminder]});
             

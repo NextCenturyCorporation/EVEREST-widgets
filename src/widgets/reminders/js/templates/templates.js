@@ -77,5 +77,5 @@ define(function(require) {
         reminderSelector: function() {
             return getCompiledTemplate(_reminderSelector, arguments[0]);
         }
-    }
+    };
 });
