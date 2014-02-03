@@ -1,4 +1,4 @@
-var url = 'http://everest-build:8081/tag?sortKey=value.count&sort=desc&count=300'
+var url = 'http://everest-build:8081/tag?sortKey=value.count&sort=desc&count=300';
 var a,b;
 
 var getFontSize = function(x1, x2, value){
@@ -12,7 +12,7 @@ var getFontSize = function(x1, x2, value){
 	var c1 = Math.log(y1/y2)/(x1 - x2);
 	var c2 = y1 / Math.exp(c1 * x1);
 
-	return c2 * Math.exp(value * c1)
+	return c2 * Math.exp(value * c1);
 };
 
 var announce = function(str) {
@@ -22,7 +22,7 @@ var announce = function(str) {
 	        OWF.Eventing.publish('com.nextcentury.everest.tagCloud', str);
 	    });
 	}
-}
+};
 
 $(function(){
 	$.ajax({
@@ -54,7 +54,7 @@ $(function(){
 			.start();
 
 		function draw(words) {
-			var count = 0;
+			//var count = 0;
 			d3.select('body').append('svg')
 				.attr('width', w).attr('height', h)
 				.append('g')
@@ -73,11 +73,11 @@ $(function(){
 						})
 						.text(function(d) { return d.text; })
 						.on('click', function(){
-							var ind = b.map(function(e){return e._id}).indexOf(d3.select(this).text());
+							var ind = b.map(function(e){return e._id;}).indexOf(d3.select(this).text());
 							console.log(b[ind].value.reports);
-							announce(b[ind].value.reports)
-						})
+							announce(b[ind].value.reports);
+						});
 		}
-	}
+	};
 }());
 
