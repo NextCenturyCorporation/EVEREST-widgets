@@ -29,7 +29,7 @@ var cellView = Backbone.View.extend({
 		var text = attributes.text;
 		$('.data_table_text').text(function(){
 			try {
-				return JSON.stringify(JSON.parse(text), undefined, 2)
+				return JSON.stringify(JSON.parse(text), undefined, 2);
 			} catch (e) {
 				return text;
 			}
@@ -53,7 +53,7 @@ var rowView = Backbone.View.extend({
 	tagName: 'tr',
 	className: 'unlit',
 	initialize: function() {
-		this.keys = this.options.keys ? this.options.keys : []
+		this.keys = this.options.keys ? this.options.keys : [];
 	},
 
 	render: function() {
@@ -61,7 +61,7 @@ var rowView = Backbone.View.extend({
 		var attributes = elem.model ? elem.model.attributes : {};
 		elem.keys.forEach(function(k){
 			if (!attributes.hasOwnProperty(k)) {
-				attributes[k] = 'N/A'
+				attributes[k] = 'N/A';
 			}
 
 			var isID = k === '_id';

@@ -68,7 +68,7 @@ var TimeRangeWidgetComponent = (function () {
 					} else {
 						checkOWF = function(message) {
 							console.log("OWF Eventing API is not accessible.  The following was not published: ");
-						}
+						};
 					}
 					OWF.ready(function () {
 						console.log("**************************************");

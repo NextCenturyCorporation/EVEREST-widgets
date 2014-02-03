@@ -1,7 +1,7 @@
 var data_table = function(datas_to_set, announce_function, update_function, rows, items, length) {
 	var me = this;
 	
-	var MAX_CHARS = 75;
+	//var MAX_CHARS = 75;
 	var FADE_OUT_TIME = 10000;
 	var HILIGHT = 'red';
 	var STANDARD = 'black';
@@ -148,7 +148,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			end: me.end,
 			date: me.dateType
 		}, me.announceAllFeeds);
-	}
+	};
 
 	me.announceAllFeeds = function(data) {
 		console.log(data);
@@ -256,7 +256,7 @@ var data_table = function(datas_to_set, announce_function, update_function, rows
 			me.createHeaders(me.headers, me.indexes);
 			me.currentTableView.render();
 			me.bindHeaderEvent();
-		})
+		});
 	};
 
 	me.sorter = function(elem, colId) {
