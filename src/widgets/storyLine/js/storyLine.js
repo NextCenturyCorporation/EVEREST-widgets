@@ -108,7 +108,7 @@ var app = app || {};
         eventSource.loadJSON(eventData, "");
 
         app.deduceLayout();
-    }
+    };
 
     app.clearEvents = function(incomingEvents) {
         datapoints = [];
@@ -118,7 +118,7 @@ var app = app || {};
 
     app.changeResize = function(){
       resize = resize ? false : true;
-    }
+    };
 
     app.changeLayout = function(newBandInfos) {
         // This widget is built for a single timeline.
@@ -153,7 +153,7 @@ var app = app || {};
         // Rerender the timeline.
         $("#tline").removeData();
         Timeline.create(document.getElementById("tline"), newBands, Timeline.Horizontal);     
-    }
+    };
 
     /*
     *  Looks at the data points currently being displayed and the visible width of the timeline and determines
@@ -212,7 +212,7 @@ var app = app || {};
                     newZone.unit = {
                         range: newZoneRange,
                         magnifiedRange: newZoneMagnifiedRange
-                    }
+                    };
                     // Magnify the range.
                     magnifiedRange += newZoneMagnifiedRange;
                 }
@@ -269,7 +269,7 @@ var app = app || {};
             $("#tline").removeData();
             Timeline.create(document.getElementById("tline"), bandInfo, Timeline.Horizontal); 
         }       
-    }
+    };
 
     app.scaleTimeline = function() {
         // Grab the number of data points.
@@ -325,7 +325,7 @@ var app = app || {};
                         zones: zones,
                         theme: theme
                       });
-    }
+    };
 
     app.calculateZones = function(eventData) {
       zoneData = {};
@@ -357,18 +357,18 @@ var app = app || {};
             end:      Timeline.DateTime.parseGregorianDateTime(end),
             magnify:  10,
             unit:     Timeline.DateTime.DAY
-          })
+          });
         }
       };
-    }
+    };
 
     app.setDeduceLayout = function(bool){
         DEDUCE_LAYOUT = bool;
-    }
+    };
 
     app.setMaxClasses = function(maxclasses){
         MAX_CLASSES = maxclasses;
-    }
+    };
 
 }());
 
