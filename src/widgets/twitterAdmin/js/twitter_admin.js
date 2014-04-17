@@ -75,7 +75,7 @@ var twitter_admin = function() {
 						});
 						$(".twitter_admin_filter_" + i).attr('disabled', 'disabled');
 					}
-				}	
+				}
 			}
 		});
 	};
@@ -86,15 +86,15 @@ var twitter_admin = function() {
 				var id = data[i]._id;
 				var keyContainer = $(".twitter_filter_form");
 				keyContainer.append(me.createApiIdDiv($(".api_key_div").length, id));
-				
+
 				me.createToggle(id, data[i].active);
 				me.bindDeleteHandler(id);
-				
+
 				var filter = me.createFilter(0, id);
 				me.createFilter(0, id);
 				filter += '<hr class="filter_hr" />';
 				$(".api_key_container_" + id).append(filter);
-				
+
 				me.bindMoreFiltersButton(id);
 			}
 				me.getTwitStreamsFilters();
@@ -132,8 +132,10 @@ var twitter_admin = function() {
 			});
 			$.ajax({
 				type: "POST",
-				url: "./post_relay.php",
-				data: JSON.stringify({url: url, data: {filters: fields.join()}, method: "POST"}),
+				url: url,
+				crossDomain: true,
+				contentType: 'application/json',
+				data: JSON.stringify({filters: fields.join()}, method: "POST"}),
 				success: function() {console.log("success");},
 				error: function() {console.log("error");}
 			});
@@ -145,8 +147,10 @@ var twitter_admin = function() {
 
 			$.ajax({
 				type: "POST",
-				url: "./post_relay.php",
-				data: JSON.stringify({url: url, data: null, method: "POST"}),
+				url: url,
+				crossDomain: true,
+				contentType: 'application/json',
+				data: '',
 				success: function() {console.log("success");},
 				error: function() {console.log("error");}
 			});
@@ -175,7 +179,7 @@ var twitter_admin = function() {
                                 }
                         });
                 });
-		
+
 	};
 
 	me.bindMoreFiltersButton = function(id) {
@@ -277,8 +281,10 @@ var twitter_admin = function() {
 		var url =  baseURL +'/twitter-ingest/';
 		$.ajax({
 			type: "POST",
-			url: "./post_relay.php",
-			data: JSON.stringify({url: url, data: apiFields, method: "POST"}),
+			url: url,
+			crossDomain: true,
+			contentType: 'application/json',
+			data: JSON.stringify(apiFields),
 			success: $.proxy(me.onKeySaveSuccess, me),
 			error: $.proxy(me.onKeySaveError, me)
 		});
@@ -297,7 +303,7 @@ var twitter_admin = function() {
 
 		$(".api_key_container_" + id).append(me.createFilter(0, id));
 		me.bindMoreFiltersButton(id);
-		
+
 		me.changeToNewButton();
 	};
 
@@ -307,8 +313,10 @@ var twitter_admin = function() {
 
 		$.ajax({
 			type: "POST",
-			url: "./post_relay.php",
-			data: JSON.stringify({url: url, data: null, method: "DELETE"}),
+			url: url,
+			crossDomain: true,
+			contentType: 'application/json',
+			data: '',
 			success: function() {
 				me.handleDeleteSuccess(id);
 			},

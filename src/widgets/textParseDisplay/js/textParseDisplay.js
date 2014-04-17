@@ -59,7 +59,7 @@ var textParseDisplay = function() {
 			initialize: function() {
 				this.render();
 			},
-			
+
 			render: function() {
 				var template = _.template($("#template_text_parse_display").html(), {});
 
@@ -87,14 +87,16 @@ var textParseDisplay = function() {
 			'<div class="col-xs-5"></div>');
 		//get text field contents
 		var text = $(".free-form-text-area").val();
-		
+
 		var url = "http://everest-build:8081/nlp-parser/full-parse-result";
 		var data = {text: text};
 		//post
 		$.ajax({
 			type: "POST",
-			url: "./post_relay.php",
-			data: {url: url, data: data, method: "POST"},
+			url: url,
+			crossDomain: true,
+			contentType: 'application/json',
+			data: JSON.stringify(data),
 			success: me.handleFreeResponseSuccess,
 			error: function() {console.log("error");}
 		});
@@ -107,7 +109,7 @@ var textParseDisplay = function() {
 	};
 
 	me.handleReceiveAlphaReportData = function(id) {
-		
+
 		//remove response block
 		var mainDiv = $(".existing-parse-results-display");
 		mainDiv.empty();
@@ -117,15 +119,17 @@ var textParseDisplay = function() {
 				'<img src="./lib/ajax-loader.gif">' +
 			'</div>' +
 			'<div class="col-xs-5"></div>');
-		
+
 
 		var url = "http://everest-build:8081/nlp-parser/full-parse-result/" + id;
-		
+
 		//post
 		$.ajax({
 			type: "POST",
-			url: "./post_relay.php",
-			data: {url: url, data: null, method: "POST"},
+			url: url,
+			crossDomain: true,
+			contentType: 'application/json',
+			data: '',
 			success: me.handleExistingResponseSuccess,
 			error: function() {console.log("error");}
 		});
@@ -148,13 +152,13 @@ var textParseDisplay = function() {
 		]);
 
 		div.empty();
-		
+
 		div.append('' +
 			'<div class="row">' +
 				'<div class="col-xs-1"></div>' +
 				'<div class="col-xs-2">' +
 					'<label>Extracted tuple' + (data.tuples.length > i+1 ? 's' : '') + ':</label>' +
-				'</div>' +	
+				'</div>' +
 				'<div class="col-xs-8 parse-results-display-tuple-div">' +
 				'</div>' +
 				'<div class="col-xs-1"></div>' +
@@ -173,14 +177,14 @@ var textParseDisplay = function() {
 		} else {
 			div.children("div").children(".parse-results-display-tuple-div").append('No tuples found');
 		}
-		
+
 		for(var i = 0; i < sentenceCount; i++) {
 			div.append('' +
 				'<div class="row">' +
 					'<div class="col-xs-1"></div>' +
 					'<div class="col-xs-2">' +
 						'<label>POS Tagged:</label>' +
-					'</div>' +	
+					'</div>' +
 					'<div class="col-xs-8">' +
 						data.pos[i] +
 					'</div>' +
@@ -192,7 +196,7 @@ var textParseDisplay = function() {
 					'<div class="col-xs-1"></div>' +
 					'<div class="col-xs-2">' +
 						'<label>Annotation:</label>' +
-					'</div>' +	
+					'</div>' +
 					'<div class="col-xs-8">' +
 						data.annotation[i].replace(/\n/g, "<br/>").replace(/ /g, "&nbsp;&nbsp;") +
 					'</div>' +
@@ -204,7 +208,7 @@ var textParseDisplay = function() {
 					'<div class="col-xs-1"></div>' +
 					'<div class="col-xs-2">' +
 						'<label>Dependency tree:</label>' +
-					'</div>' +	
+					'</div>' +
 					'<div class="col-xs-8">' +
 						data.dependency[i].replace(/\n/g, "<br/>").replace(/ /g, "&nbsp;&nbsp;") +
 					'</div>' +
@@ -216,7 +220,7 @@ var textParseDisplay = function() {
 					'<div class="col-xs-1"></div>' +
 					'<div class="col-xs-2">' +
 						'<label>Root and Children:</label>' +
-					'</div>' +	
+					'</div>' +
 					'<div class="col-xs-8">' +
 						data.root_child_data[i].replace(/\n/g, "<br/>").replace(/ /g, "&nbsp;&nbsp;") +
 					'</div>' +
@@ -228,7 +232,7 @@ var textParseDisplay = function() {
 					'<div class="col-xs-1"></div>' +
 					'<div class="col-xs-2">' +
 						'<label>Dot Product:</label>' +
-					'</div>' +	
+					'</div>' +
 					'<div class="col-xs-8">' +
 						data.dot_product[i].replace(/\n/g, "<br/>").replace(/ /g, "&nbsp;&nbsp;") +
 					'</div>' +
@@ -240,7 +244,7 @@ var textParseDisplay = function() {
 					'<div class="col-xs-1"></div>' +
 					'<div class="col-xs-2">' +
 						'<label>Edges and Vertices:</label>' +
-					'</div>' +	
+					'</div>' +
 					'<div class="col-xs-8">' +
 						data.edge_vertex[i].replace(/\n/g, "<br/>").replace(/ /g, "&nbsp;&nbsp;") +
 					'</div>' +
