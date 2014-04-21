@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>D3.js: How to handle dynamic JSON Data</title>
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link data-turbolinks-track="true" href="/assets/application-1834c3e6e000c754aaed2ef076a3c941.css" media="all" rel="stylesheet" />
+  <script data-turbolinks-track="true" src="/assets/application-c43e5fe562692fbdab0451a5f0487de5.js"></script>
+  <meta content="authenticity_token" name="csrf-param" />
+<meta content="cmVoTxh2fu+XnwvifrIA4Ytcw1Z3ktVw1PVm51CNbJI=" name="csrf-token" />
+  <meta content="Ruby, Javascript, CSS blog. I use my experience to help you understand different programming concepts." name="description"></meta>
+  <link rel="author" href="https://google.com/+PierOlivierThibault"/>
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/feed">
+  <meta content="D3.js: How to handle dynamic JSON Data" property="og:title"></meta><meta content="article" property="og:type"></meta><meta content="2013-09-30T00:00:00Z" property="og:article:published_time"></meta>
+</head>
+<body id="posts-show">
+
+
+  <nav class="site"><img alt="Profile" src="/assets/profile-ba5f387a3542550955451909b80c3a79.jpg" /><a href="/">Articles</a><div class="spacer"></div><form accept-charset="UTF-8" action="http://pothibo.us4.list-manage.com/subscribe/post?u=c1a7606ebf0d844b14ef03fdf&amp;amp;id=a0ae11323b" method="post" target="_blank"><div style="display:none"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="cmVoTxh2fu+XnwvifrIA4Ytcw1Z3ktVw1PVm51CNbJI=" /></div><label for="EMAIL">Never miss an update</label><input id="EMAIL" name="EMAIL" placeholder="Your e-mail" type="email" /><button name="button" type="submit">Subscribe</button></form></nav>
+
+  <main class="post" id="post-15">
+
+
+  <header class="post title">
+    <h1 class="entry-title">D3.js: How to handle dynamic JSON Data</h1>
+  </header>
+
+  <article class="content">
+    <style scoped></style>
+    <style>
+svg {
+  vertical-align: middle;
+  background: rgba(255,255,255, 0.2);
+  box-shadow: inset 0 0 3px 0px #CECECE;
+}
+
+svg circle {
+  stroke-width: 2px;
+  stroke: #79A32B;
+  fill: transparent;
+  cursor: pointer;
+}
+
+svg circle:active {
+  stroke: #45D3C7;
+}
+.action-button {
+  border-radius: 2px;
+  border: 1px solid #19380D;
+  padding: 3px 12px;
+  background-color: rgba(175, 209, 183, 0.6);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.action-button:active {
+  box-shadow: inset 0 0 3px 0px #868686;
+}
+
+.action-button.destroy {
+  border: 1px solid #863636;
+  background-color: rgba(197, 86, 86, 0.6);
+}
+</style>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.3.3/d3.min.js" type="text/javascript"></script>
+<script>
+var format = d3.time.format("%a %b %d %Y")
+var amountFn = function(d) { return d.amount }
+var dateFn = function(d) { return format.parse(d.created_at) }
+JSONData = [
+  { "id": 3, "created_at": "Sun May 05 2013", "amount": 12000},
+  { "id": 1, "created_at": "Mon May 13 2013", "amount": 2000},
+  { "id": 2, "created_at": "Thu Jun 06 2013", "amount": 17000},
+  { "id": 4, "created_at": "Thu May 09 2013", "amount": 15000},
+  { "id": 5, "created_at": "Mon Jul 01 2013", "amount": 16000}
+]
+</script>
+
+<p>When I started with d3.js, I really struggled understanding how I could link data from a JSON feed to a SVG graph. I read a lot of tutorials but still, I couldn't find what I was looking for. Now that I know how d3.js behaves, I thought it would a good idea to share the things that I learned.</p>
+
+<p>When you start using the library, there's stuff that might be foreign to you:</p>
+<ul>
+	<li>It uses SVG which many of us have no experience with.</li>
+	<li>SVG has an opposite y-coordinate system (0 is on top, height() is at the bottom).</li>
+        <li>stroke, fill, clipping, etc.</li>
+</ul>
+
+<p>My goal was to create a dynamic graph that I could add, edit and remove data and have d3 update the graph in real time but I couldn't understand how to handle enter() and exit() with JSON. Many examples out there were done using static data so it wasn't covering my issues with JSON.</p>
+
+<p>Throughout this post, I will be using this response as an example of a JSON response to show you how to represent your JSON into a graph.</p>
+
+<pre><code class="language-javascript">JSONData = [
+  { "id": 3, "created_at": "Sun May 05 2013", "amount": 12000},
+  { "id": 1, "created_at": "Mon May 13 2013", "amount": 2000},
+  { "id": 2, "created_at": "Thu Jun 06 2013", "amount": 17000},
+  { "id": 4, "created_at": "Thu May 09 2013", "amount": 15000},
+  { "id": 5, "created_at": "Mon Jul 01 2013", "amount": 16000}
+]</code></pre>
+
+<h2>Let's build a graph</h2>
+
+<p>Before anything else, a working graph would be the best way to get started. To help with comprehension, I will not draw axis and, lines and other stuff that you would normally see in a graph. The point here is to <strong>visualize and understand how enter() and exit() works with arbitrary data</strong>.</p>
+
+<pre><code class="language-javascript">(function() {
+  var data = JSONData.slice()
+  var format = d3.time.format("%a %b %d %Y")
+  var amountFn = function(d) { return d.amount }
+  var dateFn = function(d) { return format.parse(d.created_at) }
+
+  var x = d3.time.scale()
+    .range([10, 280])
+    .domain(d3.extent(data, dateFn))
+
+  var y = d3.scale.linear()
+    .range([180, 10])
+    .domain(d3.extent(data, amountFn))
+  
+  var svg = d3.select("#demo").append("svg:svg")
+  .attr("width", 300)
+  .attr("height", 200)
+
+  svg.selectAll("circle").data(data).enter()
+   .append("svg:circle")
+   .attr("r", 4)
+   .attr("cx", function(d) { return x(dateFn(d)) })
+   .attr("cy", function(d) { return y(amountFn(d)) }) 
+})();</code></pre>
+
+<div id="demo" style="text-align: center;">
+  <p class="value">Hint: You can click on the dots.</p>
+</div>
+<script>
+(function() {
+  var data = JSONData.slice()
+  var x = d3.time.scale()
+    .range([10, 280])
+    .domain(d3.extent(data, dateFn))
+
+  var y = d3.scale.linear()
+    .range([180, 10])
+    .domain(d3.extent(data, amountFn))
+
+  var svg = d3.select("#demo").append("svg:svg")
+  .attr("width", 300)
+  .attr("height", 200)
+  svg.selectAll("circle").data(JSONData).enter()
+   .append("svg:circle")
+   .attr("r", 4)
+   .attr("cx", function(d) { return x(dateFn(d)) })
+   .attr("cy", function(d) { return y(amountFn(d)) })
+   .attr("style", "cursor: pointer;")
+   .on("click", function(d) {
+      d3.select("#demo .value").text("Date: " + d.created_at + " amount: " + d.amount)
+   })
+})();
+</script>
+<h3>Scales</h3>
+<p>I would like to take a moment here to talk about the two scales I use here. You may wish to skip to the explanation regarding enter() if you already know about scales.</p>
+
+<p>Scales are objects. <em>d3.time.scale()</em> and <em>d3.scale.linear()</em> are two class constructors. The subsequent methods are getter/setter merged in the same method. If you specify an argument, it sets the value. If you don't, it returns the current value.</p>
+
+<h4>Range</h4>
+<p>Range is the amount of pixels you wish to cover with the scale. When you start, you might want to cover the whole width and height of your SVG canvas. If you do so, you will eventually see that elements will be drawn on the edge and become clipped. Giving padding to your range makes sense since every piece of calculation and rendering will be done using your scales so you set your padding in one place and everything you do in you graph will be inside it.</p>
+
+<p>In the case of our graph here, I used a 10px padding on each side of the graph.</p>
+
+<p>You may also notice that the scale in the y-axis is inverted. <strong>This is because SVG's y-coordinate is inverted.</strong> 0 is at the top of the graph while the height is at the bottom.</p>
+
+<h4>Domain</h4>
+<p>Domain is the start and end of your dataset. It can be any kind of value that can be compared in javascript. Here, one domain is a range of numbers while the other is a range of dates. While the range is usually fixed and doesn't change during the lifetime of the graph, <strong>the domain may have to change if your dataset changes</strong>.</p>
+
+<p>Notice that I use <em>d3.extent()</em> as an argument to the domain. This is basically an alias of the following</p>
+<pre><code class="language-javascript">x.domain( [ d3.min(data, dateFn), d3.max(data, dateFn) ] )</code></pre>
+
+<h3>Enter()</h3>
+<p>If you read the documentation about <a href="https://github.com/mbostock/d3/wiki/Selections#wiki-enter">enter</a> or <a href="https://github.com/mbostock/d3/wiki/Selections#wiki-exit">exit</a>, you know that data is bound to nodes.</p>
+
+<p>How are they bound? It depends on <em>data()</em>.</p>
+<pre><code class="language-javascript">svg.selectAll("circle")
+ .data(JSONData, function(d) {
+   return d.created_at
+ })
+</code></pre>
+
+<p>If you only set the values for data (like <em>data([1,2,3,4])</em>), d3.js will bind the first value in the array to the first node element (in this case, a circle)</p>
+
+<p>If you set a key function, it will bind the value to the node matching having the same key. It's worth mentioning that <strong>if you already have data with the same key, d3.js will store the data in the node but will still use the original data.</strong> Don't worry too much about the data for now, I'll cover it further down the post.</p>
+
+<p>Once your data is bound to your selection (<em>svg.selectAll("circle").data(JSONData)</em>), enter() will return all the values for which no node <em>circle</em> could be found.</p>
+
+<p>After that, it's your job to append a new element (<em>"svg:circle"</em>) and set the proper attribute to that object. If you have ever read a d3.js tutorial, those lines should mean something to you.</p>
+
+<h2>Add new entries</h2>
+<p>The goal of this post is to add and remove arbitrary data from the graph, and while editing/removing data will need a bit of work, adding new entry is pretty straight forward. <strong>The current code already support dynamic data addition.</strong></p>
+
+<p>The <em>enter()</em> method will need to be refactored to avoid code duplication where it's possible.</p>
+<p>For the sake of this experiment, I'll build a button that will randomly add javascript object to JSONData.</p>
+
+<pre><code class="language-javascript">(function() {
+  var data = JSONData.slice()
+  var format = d3.time.format("%a %b %d %Y")
+  var amountFn = function(d) { return d.amount }
+  var dateFn = function(d) { return format.parse(d.created_at) }
+
+  var x = d3.time.scale()
+    .range([10, 280])
+    .domain(d3.extent(data, dateFn))
+
+  var y = d3.scale.linear()
+    .range([180, 10])
+    .domain(d3.extent(data, amountFn))
+  
+  var svg = d3.select("#demo").append("svg:svg")
+  .attr("width", 300)
+  .attr("height", 200)
+
+  var refreshGraph = function() {
+    svg.selectAll("circle").data(data).enter()
+     .append("svg:circle")
+     .attr("r", 4)
+     .attr("cx", function(d) { return x(dateFn(d)) })
+     .attr("cy", function(d) { return y(amountFn(d)) }) 
+  }
+
+  d3.selectAll(".add-data")
+   .on("click", function() {
+     var start = d3.min(data, dateFn)
+     var end = d3.max(data, dateFn)
+     var time = start.getTime() + Math.random() * (end.getTime() - start.getTime())
+     var date = new Date(time)
+
+     obj = {
+       'id': Math.floor(Math.random() * 70),
+       'amount': Math.floor(1000 + Math.random() * 20001),
+       'created_at': date.toDateString()
+     }
+     data.push(obj)
+     refreshGraph()
+  })
+
+  refreshGraph()
+
+})();
+</code></pre>
+<div id="demoAddRandom" style="text-align: center;">
+  <p class="value">Hint: Add more than 1 random entry</p>
+  <a href="javascript:void(0)" class="add-data action-button">Add data</a>
+</div>
+
+<script>
+(function() {
+  var data = JSONData.slice()
+  var x = d3.time.scale()
+    .range([10, 280])
+    .domain(d3.extent(data, dateFn))
+
+  var y = d3.scale.linear()
+    .range([180, 10])
+    .domain(d3.extent(data, amountFn))
+   var svg = d3.select("#demoAddRandom").append("svg:svg")
+  .attr("width", 300)
+  .attr("height", 200)
+
+  var refreshGraph = function() {
+    svg.selectAll("circle").data(data).enter()
+     .append("svg:circle")
+     .attr("r", 4)
+     .attr("cx", function(d) { return x(dateFn(d)) })
+     .attr("cy", function(d) { return y(amountFn(d)) })
+     .on("click", function(d) {
+       d3.select("#demoAddRandom .value").text("Date: " + d.created_at + " amount: " + d.amount)
+     })
+  }
+
+
+  d3.selectAll(".add-data")
+    .on("click", function() {
+      var start = d3.min(data, dateFn)
+      var end = d3.max(data, dateFn)
+      var date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
+
+      obj = {
+        'id': Math.floor(Math.random()*70),
+        'amount': Math.floor(1000 + Math.random()*20001),
+        'created_at': date.toDateString()
+      }
+      data.push(obj)
+      refreshGraph()
+    })
+
+  refreshGraph()
+})();
+</script>
+
+<h2>Outside the current (domain)</h2>
+
+<p>When adding data, it might falls outside the current graph. What you need to do is to reset the scale to include the new minimum and maximum from your dataset.</p>
+
+<p>This is exactly what I was talking about earlier when I was explaining how scales works. Because some values are smaller or greater than the limit we set at the beginning, the x and y value that are generated with the original scale are too small/big to be rendered on the canvas. The scale need to be set to reflect the current data.</p>
+
+<p>To achieve this, <em>refreshGraph()</em> needs to be refactored to include two changes. It needs to</p>
+<ol>
+  <li>update the domains with the new dataset;</li>
+  <li>update existing circles (a.k.a nodes) with the new scales;</li>
+</ol>
+
+<pre><code class="language-javascript">var refreshGraph = function() {
+  x.domain(d3.extent(data, dateFn))
+  y.domain(d3.extent(data, amountFn))
+
+  var circles = svg.selectAll("circle").data(data)
+  
+  circles.transition()
+   .attr("cx", function(d) { return x(dateFn(d)) })
+   .attr("cy", function(d) { return y(amountFn(d)) })
+
+   circles.enter()
+    .append("svg:circle")
+    .attr("r", 4)
+    .attr("cx", function(d) { return x(dateFn(d)) })
+    .attr("cy", function(d) { return y(amountFn(d)) })
+}
+</code></pre>
+
+<div id="demoAddRandomAndResize" style="text-align: center;">
+  <p class="value">Hint: Add many entries</p>
+  <a href="javascript:void(0)" class="add-data action-button">Add data</a>
+</div>
+
+<script>
+(function() {
+  var data = JSONData.slice()
+  var x = d3.time.scale()
+    .range([10, 280])
+    .domain(d3.extent(data, dateFn))
+
+  var y = d3.scale.linear()
+   .range([180, 10])
+   .domain(d3.extent(data, amountFn))
+
+  var svg = d3.select("#demoAddRandomAndResize").append("svg:svg")
+   .attr("width", 300)
+   .attr("height", 200)
+
+  var start = d3.min(data, dateFn)
+  var end = d3.max(data, dateFn)
+
+  var refreshGraph = function() {
+
+  x.domain(d3.extent(data, dateFn))
+  y.domain(d3.extent(data, amountFn))
+
+  var circles = svg.selectAll("circle").data(data)
+
+  circles.transition()
+   .attr("cx", function(d) { return x(dateFn(d)) })
+   .attr("cy", function(d) { return y(amountFn(d)) })
+
+  circles.enter()
+   .append("svg:circle")
+   .attr("r", 4)
+   .attr("cx", function(d) { return x(dateFn(d)) })
+   .attr("cy", function(d) { return y(amountFn(d)) })
+   .on("click", function(d) {
+      d3.select("#demoAddRandomAndResize .value").text("Date: " + d.created_at + " amount: " + d.amount)
+   })
+   
+  }
+
+  d3.selectAll("#demoAddRandomAndResize .add-data")
+    .on("click", function() {
+      var date = new Date(end.getTime() + Math.random() * (end.getTime() - start.getTime()))
+      obj = {
+        'id': Math.floor(Math.random()*70),
+        'amount': Math.floor(1000 + Math.random()*20001),
+        'created_at': date.toDateString()
+      }
+      data.push(obj)
+      refreshGraph()
+    })
+
+  refreshGraph()
+
+  
+})();
+</script>
+<h3>Modify the scales</h3>
+<p>First, I don't recreate the scales from scratch. The range value are still good and I don't want to reconfigure every settings I set just because the domain changes.</p>
+
+<p><strong>The domain is the only thing that needs to change.</strong></p>
+
+<h3>Transition?</h3>
+<p>Two other things are different than the previous version: I now assign a <em>circles</em> variable and I use <em>transition()</em> for the first time.</p>
+
+<p>I assign the result of <em>data()</em> to a variable because <strong><em>enter()</em> only affects new data that are not bound to nodes</strong>.</p>
+
+<p>When I started playing with d3.js, I thought that rendered data would be <em>evented</em> and react to my changing of scales, domains and whatnot. <strong>It's not</strong>. You have to tell d3.js to update the current stuff or it will stay there, unsynced.</p>
+
+<p>So, the first <em>cy, cx</em> assignations are for nodes that are already rendered. <em>transition()</em> is added there to add a nice animation between the two position for each node. If you don't want animation, remove <em>transition()</em> and the graph will update itself without animation.</p>
+
+<h2>Remove Data</h2>
+
+<p>Removing data is more tricky. Because the current <em>data()</em> does not have a key function, removing data from anywhere in the array will cause nodes & data to fall out of sync. The solution is to add the key function that was explained at the beginning of this post. Here's how we can fix this out of sync issue:</p>
+
+<pre><code class="language-javascript">svg.selectAll("circle").data(JSONData, dateFn) // I want the key to be a date object
+</code></pre>
+
+<p>And here's all the code that generates the following graph (I don't show the add/remove button's logic because it's not relevant to the graph. You are more than welcome to look at the source code of this page to know how I did it)</p>
+<pre class="line-numbers"><code class="language-javascript">(function() {
+  var data = JSONData.slice()
+  var x = d3.time.scale()
+    .range([10, 280])
+
+  var y = d3.scale.linear()
+   .range([180, 10])
+
+  var svg = d3.select("#demoAddRandomAndResize").append("svg:svg")
+   .attr("width", 300)
+   .attr("height", 200)
+
+  var start = d3.min(data, dateFn)
+  var end = d3.max(data, dateFn)
+
+  var refreshGraph = function() {
+
+    x.domain(d3.extent(data, dateFn))
+    y.domain(d3.extent(data, amountFn))
+
+    var circles = svg.selectAll("circle").data(data, dateFn)
+
+    circles.transition()
+     .attr("cx", function(d) { return x(dateFn(d)) })
+     .attr("cy", function(d) { return y(amountFn(d)) })
+
+    circles.enter()
+     .append("svg:circle")
+     .attr("r", 4)
+     .attr("cx", function(d) { return x(dateFn(d)) })
+     .attr("cy", function(d) { return y(amountFn(d)) })
+
+    circles.exit()
+     .remove()
+  }
+
+  refreshGraph()
+  
+})()
+</code></pre> 
+
+<div id="demoAddRandomAndDelete" style="text-align: center;">
+  <p class="value">Hint: Add many entries</p>
+  <a href="javascript:void(0)" class="add-data action-button">Add data</a>
+  <a href="javascript:void(0)" class="remove-data action-button destroy">Delete data</a>
+</div>
+
+<script>
+(function() {
+   // Just to make sure that JSONData is not altered between examples
+   var data = JSONData.slice()
+   var x = d3.time.scale()
+    .range([10, 280])
+
+  var y = d3.scale.linear()
+    .range([180, 10])
+  var svg = d3.select("#demoAddRandomAndDelete").append("svg:svg")
+   .attr("width", 300)
+   .attr("height", 200)
+  var start = d3.min(data, dateFn)
+  var end = d3.max(data, dateFn)
+
+  var refreshGraph = function() {
+
+    x.domain(d3.extent(data, dateFn))
+    y.domain(d3.extent(data, amountFn))
+
+    var circles = svg.selectAll("circle").data(data, dateFn)
+  
+    circles.transition()
+     .attr("cx", function(d) { return x(dateFn(d)) })
+     .attr("cy", function(d) { return y(amountFn(d)) })
+
+    circles.enter()
+     .append("svg:circle")
+     .attr("r", 4)
+     .attr("cx", function(d) { return x(dateFn(d)) })
+     .attr("cy", function(d) { return y(amountFn(d)) })
+     .on("click", function(d) {
+        d3.select("#demoAddRandomAndDelete .value").text("Date: " + d.created_at + " amount: " + d.amount)
+     })
+   
+    circles.exit()
+     .remove()
+  }
+
+  d3.selectAll("#demoAddRandomAndDelete .add-data")
+    .on("click", function() {
+      var date = new Date(end.getTime() + Math.random() * (end.getTime() - start.getTime()))
+      obj = {
+        'id': Math.floor(Math.random()*70),
+        'amount': Math.floor(1000 + Math.random()*20001),
+        'created_at': date.toDateString()
+      }
+      data.push(obj)
+      refreshGraph()
+    })
+
+  d3.selectAll("#demoAddRandomAndDelete .remove-data")
+    .on("click", function() {
+      var idx = Math.floor(Math.random() * data.length)
+      data.splice( Math.floor(Math.random() * data.length), 1 )
+      refreshGraph()
+    })
+
+  refreshGraph()
+  
+})();
+</script>
+
+<p>As the previous example, transition, enter and exit are separated since those three methods are not <strong>chainable</strong>. It also think it gives a boost on readability.</p>
+
+<p>The real differences here is where I assign the data at line #21 and the <em>exit</em> method at line #38.</p>
+
+<p>Now that we have set a key, there's another behavior that has happened: No duplicates!</p>
+
+<p>You can test this behavior by going to the previous graph and add a lot of data, you will soon see more than 1 data for a given date. Add a lot of data here, after a while, the graph won't add any nodes. That's the key function in action!</p>
+ 
+<h2>Done!</h2>
+<p>Now, you can add, edit and remove nodes as well as scale the graph to include every nodes in the graph. You can also uses extent() to create range and use a key function as a primary key for your data.</p>
+
+<p>You can also <em>transition()</em> nodes so they move around when the scale change and we refactored the code so it's DRY enough to be called from different places.</p>
+
+<p>Not bad, right?</p>
+    <div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=1453169264903208";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+<div class="social">
+  <div class="fb-share-button" data-href="http://pothibo.com/2013/9/d3-js-how-to-handle-dynamic-json-data" data-type="button_count"></div>
+  <a href="https://twitter.com/share" class="twitter-share-button" data-via="pothibo">Tweet</a>
+</div>
+
+    <div id="disqus_thread"></div>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  </article>
+
+</main>
+
+</body>
+</html>

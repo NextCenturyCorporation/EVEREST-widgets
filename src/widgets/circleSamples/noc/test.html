@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<body>
+<style>
+svg {
+  vertical-align: middle;
+  background: rgba(255,255,255, 0.2);
+  box-shadow: inset 0 0 3px 0px #CECECE;
+}
+
+svg circle {
+  stroke-width: 2px;
+  stroke: #79A32B;
+  fill: transparent;
+  cursor: pointer;
+}
+
+svg circle:active {
+  stroke: #45D3C7;
+}
+.action-button {
+  border-radius: 2px;
+  border: 1px solid #19380D;
+  padding: 3px 12px;
+  background-color: rgba(175, 209, 183, 0.6);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.action-button:active {
+  box-shadow: inset 0 0 3px 0px #868686;
+}
+
+.action-button.destroy {
+  border: 1px solid #863636;
+  background-color: rgba(197, 86, 86, 0.6);
+}
+</style>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+JSONData = [
+            {
+                "port":7001,
+                "region":4,
+                "tags":"region4, end",
+                "host":"127.0.0.1",
+                "extraConfig":null,
+                "state":"RUNNING",
+                "scheduledForStopAt":null,
+                "lastHeard":"2014-04-21T13:08:58.000Z",
+                "type":"CONTROLLER",
+                "externalId":"a53b0c47-4ca3-4287-962a-c8bd086c9b9e",
+                "id":65,
+                "startTime":"2014-04-21T13:08:58.000Z",
+                "lastUsed":"2014-04-21T13:08:58.000Z"
+            },
+            {
+                "port":38682,
+                "region":0,
+                "tags":"python, region0, default_REALM",
+                "host":"127.0.0.1",
+                "extraConfig":null,
+                "state":"STOPPED",
+                "scheduledForStopAt":null,
+                "lastHeard":"2014-04-14T19:22:34.000Z",
+                "type":"LOCAL_MANAGED",
+                "externalId":null,
+                "id":93,
+                "startTime":"2014-04-14T19:22:34.000Z",
+                "lastUsed":"2014-04-14T19:22:34.000Z"
+            },
+            {
+                "port":18299,
+                "region":1,
+                "tags":"python, region1, web_text, vnc, testRegion1, default_REALM",
+                "host":"127.0.0.1",
+                "extraConfig":"geoRegion=testRegion1",
+                "state":"STOPPED",
+                "scheduledForStopAt":null,
+                "lastHeard":"2014-04-14T14:10:42.000Z",
+                "type":"LOCAL_MANAGED",
+                "externalId":null,
+                "id":152,
+                "startTime":"2014-04-14T14:10:42.000Z",
+                "lastUsed":"2014-04-14T14:10:42.000Z"
+            },
+            {
+                "port":32690,
+                "region":2,
+                "tags":"python, region2, testRegion2, web_text, vnc, default_REALM",
+                "host":"127.0.0.1",
+                "extraConfig":"geoRegion=testRegion2",
+                "state":"STOPPED",
+                "scheduledForStopAt":null,
+                "lastHeard":"2014-04-14T14:10:42.000Z",
+                "type":"LOCAL_MANAGED",
+                "externalId":null,
+                "id":153,
+                "startTime":"2014-04-14T14:10:42.000Z",
+                "lastUsed":"2014-04-14T14:10:42.000Z"
+            },
+            {
+                "port":14068,
+                "region":0,
+                "tags":"python, region0, default_REALM",
+                "host":"127.0.0.1",
+                "extraConfig":null,
+                "state":"STOPPED",
+                "scheduledForStopAt":null,
+                "lastHeard":"2014-04-14T16:40:06.000Z",
+                "type":"CONTROLLER_RELAY",
+                "externalId":null,
+                "id":155,
+                "startTime":"2014-04-14T16:40:06.000Z",
+                "lastUsed":"2014-04-14T16:40:06.000Z"
+            },
+            {
+                "port":16967,
+                "region":2,
+                "tags":"python, region2, testRegion2, web_text, vnc, default_REALM",
+                "host":"127.0.0.1",
+                "extraConfig":"geoRegion=testRegion2",
+                "state":"STOPPED",
+                "scheduledForStopAt":null,
+                "lastHeard":"2014-04-14T16:40:06.000Z",
+                "type":"LOCAL_MANAGED",
+                "externalId":null,
+                "id":156,
+                "startTime":"2014-04-14T16:40:06.000Z",
+                "lastUsed":"2014-04-14T16:40:06.000Z"
+            },
+            {
+                "port":48257,
+                "region":3,
+                "tags":"region3, python, web_model, web_text, vnc, default_REALM",
+                "host":"127.0.0.1",
+                "extraConfig":null,
+                "state":"STOPPED",
+                "scheduledForStopAt":"2014-04-15T01:01:39.000Z",
+                "lastHeard":"2014-04-14T16:40:06.000Z",
+                "type":"LOCAL_MANAGED",
+                "externalId":null,
+                "id":157,
+                "startTime":"2014-04-14T16:40:06.000Z",
+                "lastUsed":"2014-04-14T16:40:06.000Z"
+            },
+            {
+                "port":15130,
+                "region":2,
+                "tags":"python, region2, testRegion2, web_text, vnc, default_REALM",
+                "host":"127.0.0.1",
+                "extraConfig":"geoRegion=testRegion2",
+                "state":"STOPPED",
+                "scheduledForStopAt":null,
+                "lastHeard":"2014-04-14T16:40:32.000Z",
+                "type":"LOCAL_MANAGED",
+                "externalId":null,
+                "id":158,
+                "startTime":"2014-04-14T16:40:32.000Z",
+                "lastUsed":"2014-04-14T16:40:32.000Z"
+            },
+            {
+                "port":37490,
+                "region":0,
+                "tags":"python, region0, default_REALM",
+                "host":"127.0.0.1",
+                "extraConfig":null,
+                "state":"STOPPED",
+                "scheduledForStopAt":null,
+                "lastHeard":"2014-04-14T16:40:32.000Z",
+                "type":"CONTROLLER_RELAY",
+                "externalId":null,
+                "id":159,
+                "startTime":"2014-04-14T16:40:32.000Z",
+                "lastUsed":"2014-04-14T16:40:32.000Z"
+            },
+            {
+                "port":21025,
+                "region":3,
+                "tags":"region3, python, web_model, web_text, vnc, default_REALM",
+                "host":"127.0.0.1",
+                "extraConfig":null,
+                "state":"STOPPED",
+                "scheduledForStopAt":"2014-04-14T21:41:01.000Z",
+                "lastHeard":"2014-04-14T14:10:42.000Z",
+                "type":"LOCAL_MANAGED",
+                "externalId":null,
+                "id":150,
+                "startTime":"2014-04-14T14:10:42.000Z",
+                "lastUsed":"2014-04-14T14:10:42.000Z"
+            }
+]
+</script>
+<div id="demoAdd" style="text-align: center;">
+  <p class="value">Hint: Add random entries.</p>
+  <a href="javascript:void(0)" class="add-data action-button">Add data</a>
+  <a href="javascript:void(0)" class="remove-data action-button destroy">Delete data</a>  
+</div>
+<script>
+(function() {
+	  var data = JSONData.slice()
+	  var format = d3.time.format("%Y-%m-%dT%H:%M:%S.%LZ")
+	  var idFn = function(d) { return d.id }
+	  var portFn = function(d) { return d.port }
+	  var dateFn = function(d) { return format.parse(d.lastHeard) }
+
+	  var x = d3.time.scale()
+	   	.range([10, 280])
+
+	  var y = d3.scale.linear()
+	    .range([180, 10])
+	  
+	  var svg = d3.select("#demoAdd").append("svg:svg")
+	  .attr("width", 300)
+	  .attr("height", 200)
+
+	  var start = d3.min(data, dateFn);
+	  var end = d3.max(data, dateFn);
+	  
+	  var refreshGraph = function() {
+		  
+		  x.domain(d3.extent(data, dateFn));
+		  y.domain(d3.extent(data, portFn));
+		  
+		  var circles = svg.selectAll("circle").data(data, idFn);  // key it on the node's id
+		  
+		  circles.transition()
+		   .attr("cx", function(d) { return x(dateFn(d)) })
+		   .attr("cy", function(d) { return y(portFn(d)) })
+		   
+		  circles.enter()
+		   .append("svg:circle")
+		   .attr("r", 4)
+		   .attr("cx", function(d) { return x(dateFn(d)) })
+		   .attr("cy", function(d) { return y(portFn(d)) })
+		   .attr("style", "cursor: pointer;")
+		   .on("click", function(d) {
+	      		d3.select("#demoAdd .value").text("Host " + d.id + " on " + d.host + ":" + d.port + " last heard on " + d.lastHeard)
+			   })
+
+		  circles.exit()
+		  	.remove()
+	  }
+
+	  d3.selectAll("#demoAdd .add-data")
+	    .on("click", function() {
+	      var start = d3.min(data, dateFn)
+	      var end = d3.max(data, dateFn)
+	      var date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
+
+	      obj = {
+	        'id': Math.floor(400 + Math.random()*200),
+	        'host': '127.0.0.1',
+	        'port': Math.floor(1000 + Math.random()*40001),
+	        'lastHeard': date.toISOString()
+	      }
+	      data.push(obj);
+	   		d3.select("#demoAdd .value").text("Host " + obj.id + " on " + obj.host + ":" + obj.port + " last heard on " + obj.lastHeard)
+	      refreshGraph();
+	    });
+
+	  d3.selectAll("#demoAdd .remove-data")
+	    .on("click", function() {
+	      var idx = Math.floor(Math.random() * data.length)
+	      data.splice( Math.floor(Math.random() * data.length), 1 )
+	      refreshGraph()
+	    })
+	  
+	  
+	  refreshGraph();
+	  
+	})();
+</script>
