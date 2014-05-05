@@ -1,10 +1,12 @@
 
 <!DOCTYPE html>
   <head>
-    <title>Protovis Elastic Lists Buoy</title>
-    <script src="js/lib/protovis-d3.2.js" type="text/javascript" charset="utf-8"></script>    
+    <title>D3 Elastic Lists Buoy</title>
+<!--     <script src="js/lib/protovis-d3.2.js" type="text/javascript" charset="utf-8"></script>     -->
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+    
     <script src="js/data/PotomacBuoy-2013-10-28.js" type="text/javascript" charset="utf-8"></script>
-    <script src="js/elastic_lists.js" type="text/javascript" charset="utf-8"></script>    
+<!--     <script src="js/elastic_lists.js" type="text/javascript" charset="utf-8"></script>     -->
   </head>
   <body> 
     <div id="elastic_lists">
@@ -51,27 +53,65 @@
   /* Sizing and scales. */
   var w = 840;
   var h = 220;
-  var color = pv.Colors.category10();
+  var color = d3.scale.category10();
   
-  var x = pv.Scale.ordinal(dims).splitFlush(0, w);
-              
+  var x = d3.scale.ordinal().domain(dims); //.splitFlush(0, w);
+  
+  console.log(x(0));
+  
   /* The root panel. */
-  var vis = new pv.Panel()
-      .width(w)
-      .height(h)
-      .margin(20)
-      .bottom(40)
-      .canvas("visualization"); 
+  var vis = d3.select("body").append("svg")
+      .attr("width",w)
+      .attr("height",h)
+      .attr("margin",20)
+      .attr("bottom",40);
 
+  var border=1;
+  var bordercolor='black';
+  var borderPath = vis.append("rect")
+  .attr("x", 0)
+  .attr("y", 0)
+  .attr("height", h)
+  .attr("width", w)
+  .style("stroke", bordercolor)
+  .style("fill", "none")
+  .style("stroke-width", border);
+  
+  console.log("after vis");
+/*
   var list = new Lists(facets, data, 350, 150, 20, 1, "elastic_lists", function() { vis.render(); }); 
   list.canvas("elastic_lists").reset().render();
 
   console.log("after new Lists");
-  
+*/  
   
 //  list.facets(facets);   
                                
-  /* Rule and labels per dimension. */
+  // Rule and labels per dimension.
+  var segWidth = w/dims.length;
+  
+  vis.selectAll("line.vertical")
+  	.data(dims)
+  	.enter().append("svg:line")
+  	.attr("x1", function(d,i){return i * segWidth;})
+  	.attr("y1", 0)
+  	.attr("x2", function(d,i){return i * segWidth;})
+  	.attr("y2", h)
+  	.style("stroke", function(d,i){return d3.rgb(color(i));})
+  	.style("stroke-width", 2);
+
+  console.log("after line.vertical");
+  
+  vis.selectAll("text")
+  	.data(dims)
+  	.enter().append("svg:text")
+  	.attr("x", function(d,i){return i * segWidth;})
+  	.attr("y", 0)
+  	.text(function(d, i) { return data[i].domain()[1] });
+
+  console.log("after top labels");
+  
+/*  
   var rule = vis.add(pv.Rule)
       .data(dims)
       .left(x)
@@ -87,12 +127,13 @@
   rule.anchor("bottom").add(pv.Label)
       .textStyle(function() { return color(this.index).darker() })
       .textMargin(14); 
-                                 
+*/
+/*
   var y = pv.dict(dims, function(t) { return pv.Scale.linear()
     .domain(list.data().filter(function(d) { return !isNaN(d[t]) }), function(d) { return d[t] })
     .range(0, h) });
   
-  /* Parallel coordinates. */
+  // Parallel coordinates.
   vis.add(pv.Panel)
       .data(list.data)
      .add(pv.Line)
@@ -103,7 +144,7 @@
       .lineWidth(1);
       
   vis.render();
-
+*/
     </script> 
   </body>
 </html>
