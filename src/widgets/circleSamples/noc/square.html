@@ -1,43 +1,14 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
+	<head>
+		<meta charset="utf-8">
+
+		<script src="http://d3js.org/d3.v3.min.js"></script>
+		<script src="../../../../lib/jquery-2.0.2.js"></script>
+		<script src="../../../../lib/jquery.cookie.js"></script>
+		<link rel="stylesheet" href="css/square.css">
+	</head>
 <body>
-<style>
-svg {
-  vertical-align: middle;
-  background: rgba(255,255,255, 0.2);
-  box-shadow: inset 0 0 3px 0px #CECECE;
-}
 
-svg circle {
-  stroke-width: 2px;
-  stroke: #79A32B;
-  fill: transparent;
-  cursor: pointer;
-}
-
-svg circle:active {
-  stroke: #45D3C7;
-}
-.action-button {
-  border-radius: 2px;
-  border: 1px solid #19380D;
-  padding: 3px 12px;
-  background-color: rgba(175, 209, 183, 0.6);
-  text-decoration: none;
-  display: inline-block;
-}
-
-.action-button:active {
-  box-shadow: inset 0 0 3px 0px #868686;
-}
-
-.action-button.destroy {
-  border: 1px solid #863636;
-  background-color: rgba(197, 86, 86, 0.6);
-}
-</style>
-
-<script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
 JSONData = [
             {
@@ -192,13 +163,126 @@ JSONData = [
             }
 ]
 </script>
+
+<div class="post-response"></div><br>
+<div class="get-response"></div><br>
+
+<script type="text/javascript">
+(function() {
+
+	var urlBase = "https://10.0.2.15:9233/";
+
+	var sessionID = "";
+	
+	var getAllHosts = function() {
+		$.ajax({
+			type: "GET",
+ 			crossDomain: true,
+			url: urlBase + "zoomzoomController/rest/getAllHosts.do",
+			//beforeSend: function(xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa("zoomzoom" + ":" + "z00m1t")); },
+ 			//headers: {
+ 			//	"Authorization": "Basic" + btoa('zoomzoom' + ':' + 'z00m1t')
+ 			//},
+ 			//username: "zoomzoom",
+ 			//password: "z00m1t",
+			//contentType: 'application/json',
+			dataType: 'json',
+			//jsonpCallback: 'getCallback',
+ 			//xhrFields: {
+ 			//	withCredentials: true
+ 			//},
+			success: function(data, textStatus, xhr) {
+				console.log(data);
+				//$('.get-response').append('<p>'+JSON.stringify(data)+'</p>');
+				//var jd1 = eval('(' + data + ')');
+				JSONData = data.data;
+				plot();
+			},
+			error: function(xhr, textStatus, err) {
+				console.log(xhr.responseText);
+				console.log(err.toString());
+			}
+		});
+		
+		//setTimeout(getAllHosts, 1000);
+	};
+	
+	var getRunningHosts = function() {
+		$.ajax({
+			type: "GET",
+ 			crossDomain: true,
+			url: urlBase + "zoomzoomController/rest/getRunningHosts.do",
+			dataType: 'json',
+			success: function(data, textStatus, xhr) {
+				console.log(data);
+				$('.get-response').append('<p>'+JSON.stringify(data)+'</p>');
+			},
+			error: function(xhr, textStatus, err) {
+				console.log(xhr.responseText);
+				console.log(err.toString());
+			}
+		});
+	};
+
+	var getCallback = function(){};
+	
+	var postCall = function() {
+		
+		$.ajax({
+			type: "POST",
+			crossDomain: true,
+			url: urlBase + "zoomzoomController/j_spring_security_check",
+			data: {
+				j_username: 'zoomzoom',
+				j_password: 'z00m1t'
+			},
+			success: function(data, textStatus, xhr) {
+				console.log(data);
+				try {
+					var jsonData = eval('(' + data + ')');
+					sessionID = jsonData.JSESSIONID;
+					console.log(jsonData.JSESSIONID);
+//					$.cookie('JSESSIONID', jsonData.JSESSIONID, { path: '/zoomzoomController', secure: true });
+
+					console.log(xhr.getAllResponseHeaders());
+
+				} catch (e) {
+					console.log(e.toString());					
+				}
+				console.log(xhr.status);
+				$('.post-response').append('<p>'+JSON.stringify(data)+'</p>');
+				getCall();
+			},
+			error: function(xhr, textStatus, err) {
+				console.log(err);
+				console.log("POST response headers " + xhr.getAllResponseHeaders());
+				console.log(textStatus);
+			}
+		});
+		
+		//getCall();
+		
+
+// 		var loginUrl = urlBase + "zoomzoomController/j_spring_security_check";
+		
+// 		 $.post(loginUrl, { j_username: "zoomzoom", j_password: "z00m1t" }, function(data, text, xhr) {
+// 				console.log("POST response headers " + xhr.getAllResponseHeaders());
+// 		 });
+	};
+
+	//postCall();
+	getAllHosts();
+})();
+
+</script>
 <div id="demoAdd" style="text-align: center;">
-  <p class="value">Hint: Add random entries.</p>
-  <a href="javascript:void(0)" class="add-data action-button">Add data</a>
-  <a href="javascript:void(0)" class="remove-data action-button destroy">Delete data</a>  
+	<p class="value" />
+<!--   <a href="javascript:void(0)" class="add-data action-button">Add data</a> -->
+<!--   <a href="javascript:void(0)" class="remove-data action-button destroy">Delete data</a>   -->
 </div>
 <script>
-(function() {
+var plot = function() {
+	
 	  var data = JSONData.slice()
 	  var format = d3.time.format("%Y-%m-%dT%H:%M:%S.%LZ")
 	  var idFn = function(d) { return d.id }
@@ -206,14 +290,14 @@ JSONData = [
 	  var dateFn = function(d) { return format.parse(d.lastHeard) }
 
 	  var x = d3.time.scale()
-	   	.range([10, 280])
+	   	.range([10, 780])
 
 	  var y = d3.scale.linear()
-	    .range([180, 10])
+	    .range([580, 10])
 	  
 	  var svg = d3.select("#demoAdd").append("svg:svg")
-	  .attr("width", 300)
-	  .attr("height", 200)
+	  .attr("width", 800)
+	  .attr("height", 600)
 
 	  var start = d3.min(data, dateFn);
 	  var end = d3.max(data, dateFn);
@@ -231,44 +315,74 @@ JSONData = [
 		   
 		  circles.enter()
 		   .append("svg:circle")
-		   .attr("r", 4)
+		   .attr("r", 6)
 		   .attr("cx", function(d) { return x(dateFn(d)) })
 		   .attr("cy", function(d) { return y(portFn(d)) })
 		   .attr("style", "cursor: pointer;")
-		   .on("click", function(d) {
-	      		d3.select("#demoAdd .value").text("Host " + d.id + " on " + d.host + ":" + d.port + " last heard on " + d.lastHeard)
-			   })
+		   .style("fill", function(d){ return getColor(d);})
+		   .style('stroke', function(d){ return "grey"; })
+// 		   .on("click", function(d) {
+// 	      		d3.select("#demoAdd .value").text("Host " + d.id + " on " + d.host + ":" + d.port + " last heard on " + d.lastHeard)
+// 			   })
+// 		   .on("mouseover", function(d){
+// 	      		d3.select("#demoAdd .value").text("Host " + d.id + " on " + d.host + ":" + d.port + " last heard on " + d.lastHeard)			   
+// 		   	   })
+		   .append("svg:title")
+		   .text(function(d) { return JSON.stringify(d, null, " "); });
+//		   .text(function(d) { return "Host " + d.id + " on " + d.host + ":" + d.port + " last heard on " + d.lastHeard; });
 
 		  circles.exit()
 		  	.remove()
 	  }
 
-	  d3.selectAll("#demoAdd .add-data")
-	    .on("click", function() {
-	      var start = d3.min(data, dateFn)
-	      var end = d3.max(data, dateFn)
-	      var date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
+	  var getColor = function (d) {
+		   var returnColor;
+		   if (d.state === "RUNNING") {
+			   var now = Date.now();
+			   var last = (new Date(d.lastUsed)).getTime();
+			   var delta = now - last;
+			   var minute = 60000;
+			   if (delta < (1*minute)) { // 1 min
+			   		returnColor = "#39FF14"; //"green";
+				} else if (delta < (2*minute)) {
+			   		returnColor = "#FFFF33"; //"yellow";					
+				} else if (delta < (4*minute)) {
+			   		returnColor = "#FF6700"; //"orange";					
+			   	} else {
+			   		returnColor = "#FF2800"; //"red";
+			   }
+		   } else if (d.state === "STOPPED") { returnColor = " grey";//"#FF2800"; //"red";
+		   } else { returnColor = "black";
+		   }
+		   return returnColor;
+	  }
+	  
+// 	  d3.selectAll("#demoAdd .add-data")
+// 	    .on("click", function() {
+// 	      var start = d3.min(data, dateFn)
+// 	      var end = d3.max(data, dateFn)
+// 	      var date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
 
-	      obj = {
-	        'id': Math.floor(400 + Math.random()*200),
-	        'host': '127.0.0.1',
-	        'port': Math.floor(1000 + Math.random()*40001),
-	        'lastHeard': date.toISOString()
-	      }
-	      data.push(obj);
-	   		d3.select("#demoAdd .value").text("Host " + obj.id + " on " + obj.host + ":" + obj.port + " last heard on " + obj.lastHeard)
-	      refreshGraph();
-	    });
+// 	      obj = {
+// 	        'id': Math.floor(400 + Math.random()*200),
+// 	        'host': '127.0.0.1',
+// 	        'port': Math.floor(1000 + Math.random()*40001),
+// 	        'lastHeard': date.toISOString()
+// 	      }
+// 	      data.push(obj);
+// 	   		d3.select("#demoAdd .value").text("Host " + obj.id + " on " + obj.host + ":" + obj.port + " last heard on " + obj.lastHeard)
+// 	      refreshGraph();
+// 	    });
 
-	  d3.selectAll("#demoAdd .remove-data")
-	    .on("click", function() {
-	      var idx = Math.floor(Math.random() * data.length)
-	      data.splice( Math.floor(Math.random() * data.length), 1 )
-	      refreshGraph()
-	    })
+// 	  d3.selectAll("#demoAdd .remove-data")
+// 	    .on("click", function() {
+// 	      var idx = Math.floor(Math.random() * data.length)
+// 	      data.splice( Math.floor(Math.random() * data.length), 1 )
+// 	      refreshGraph()
+// 	    })
 	  
 	  
 	  refreshGraph();
 	  
-	})();
+	};
 </script>
